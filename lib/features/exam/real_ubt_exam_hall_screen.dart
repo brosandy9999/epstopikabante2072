@@ -1,3 +1,4 @@
+import '../../core/services/orientation_service.dart';
 import '../../core/services/platform_detector.dart';
 import '../security/android_web_gatekeeper_screen.dart';
 import 'package:flutter/services.dart';
@@ -58,11 +59,8 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     _questions = widget.mockSet?.questions ?? QuestionBankService.instance.getFull40ExamQuestions();
     _startCountdownTimer();
 
-    // 🔒 Force Landscape Orientation for Authentic UBT Exam Hall Terminal
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    // 🔒 Force Hardware Landscape Orientation for Authentic UBT Exam Hall Terminal
+    OrientationService.forceLandscape();
   }
 
   @override
@@ -72,12 +70,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     _remainingSecondsNotifier.dispose();
 
     // 🔓 Restore all screen orientations upon exiting the exam hall
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    OrientationService.unlockOrientation();
     super.dispose();
   }
 
@@ -724,10 +717,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: () {
-                        SystemChrome.setPreferredOrientations([
-                          DeviceOrientation.landscapeLeft,
-                          DeviceOrientation.landscapeRight,
-                        ]);
+                        OrientationService.forceLandscape();
                       },
                       icon: const Icon(Icons.screen_lock_landscape, size: 18),
                       label: Text(

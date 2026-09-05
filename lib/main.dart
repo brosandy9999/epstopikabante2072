@@ -1,3 +1,4 @@
+import 'core/services/orientation_service.dart';
 import 'core/services/platform_detector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -2724,8 +2725,15 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
   final Map<String, int> _userAnswers = {}; // questionId -> selectedOptionIndex
 
   @override
+  void dispose() {
+    OrientationService.unlockOrientation();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
+    OrientationService.forceLandscape();
     _allQuestions = widget.mockSet?.questions ?? QuestionBankService.instance.getFull40ExamQuestions();
     _answerKeys = widget.mockSet?.answerKeys ?? QuestionBankService.instance.getAnswerKeys();
   }
