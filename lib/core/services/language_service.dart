@@ -46,7 +46,7 @@ class LanguageService extends ChangeNotifier {
   static final LanguageService instance = LanguageService._internal();
   LanguageService._internal();
 
-  AppLanguage _currentLanguage = AppLanguage.nepali;
+  AppLanguage _currentLanguage = AppLanguage.english;
   AppLanguage get currentLanguage => _currentLanguage;
 
   bool get isNepali => _currentLanguage == AppLanguage.nepali;
@@ -71,12 +71,12 @@ class LanguageService extends ChangeNotifier {
 
   void init() {
     final savedCode = StorageService.instance.loadLanguage();
-    if (savedCode == 'en') {
-      _currentLanguage = AppLanguage.english;
+    if (savedCode == 'ne') {
+      _currentLanguage = AppLanguage.nepali;
     } else if (savedCode == 'ko') {
       _currentLanguage = AppLanguage.korean;
     } else {
-      _currentLanguage = AppLanguage.nepali;
+      _currentLanguage = AppLanguage.english;
     }
   }
 
@@ -90,13 +90,13 @@ class LanguageService extends ChangeNotifier {
 
   String tr(String key) {
     final langKey = _currentLanguage.code;
-    return _translations[key]?[langKey] ?? _translations[key]?['ne'] ?? key;
+    return _translations[key]?[langKey] ?? _translations[key]?['en'] ?? _translations[key]?['ne'] ?? key;
   }
 
   String trText({required String ne, required String en, required String ko}) {
-    if (isEnglish) return en;
+    if (isNepali) return ne;
     if (isKorean) return ko;
-    return ne;
+    return en;
   }
 
   String batchText(String batch) {
