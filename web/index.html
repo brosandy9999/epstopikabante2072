@@ -5,7 +5,13 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="description" content="Official EPS-TOPIK UBT CBT Online Examination Platform">
+
+  <!-- Cache Buster & Anti-Stale Headers -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -15,23 +21,24 @@
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
-
   <link rel="manifest" href="manifest.json">
 
   <style>
-    /* Security & Anti-Screenshot CSS Rules */
     * {
       -webkit-touch-callout: none !important;
       -webkit-user-select: none !important;
-      -khtml-user-select: none !important;
-      -moz-user-select: none !important;
-      -ms-user-select: none !important;
       user-select: none !important;
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0F172A;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     img {
       -webkit-user-drag: none !important;
       user-drag: none !important;
-      pointer-events: auto;
     }
     @media print {
       html, body {
@@ -39,17 +46,180 @@
         visibility: hidden !important;
       }
     }
+    /* Instant Android Gatekeeper Styles */
+    #android-gatekeeper {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 999999;
+      background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 60%, #042F2E 100%);
+      color: #ffffff;
+      overflow-y: auto;
+      padding: 24px 20px;
+    }
+    .gk-container {
+      max-width: 520px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .gk-shield {
+      width: 80px;
+      height: 80px;
+      margin: 20px auto 16px;
+      background: rgba(30, 41, 59, 0.85);
+      border: 3px solid #38BDF8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 25px rgba(2, 132, 199, 0.5);
+    }
+    .gk-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .gk-subtitle {
+      font-size: 13px;
+      color: #94A3B8;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+    .gk-card {
+      background: rgba(30, 41, 59, 0.95);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 16px;
+      text-align: left;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #E2E8F0;
+      margin-bottom: 20px;
+    }
+    .gk-btn-download {
+      display: block;
+      width: 100%;
+      background: #16A34A;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: bold;
+      padding: 16px 20px;
+      border-radius: 14px;
+      box-shadow: 0 4px 14px rgba(22, 163, 74, 0.4);
+      margin-bottom: 12px;
+      border: none;
+      cursor: pointer;
+    }
+    .gk-btn-launch {
+      display: block;
+      width: 100%;
+      background: transparent;
+      color: #38BDF8;
+      border: 1.5px solid #38BDF8;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 12px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    .gk-steps {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: left;
+      font-size: 12.5px;
+      color: #CBD5E1;
+      margin-bottom: 20px;
+    }
+    .gk-step-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .gk-step-num {
+      width: 24px;
+      height: 24px;
+      background: #0F766E;
+      border-radius: 50%;
+      color: white;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
   </style>
 </head>
 <body>
+  <!-- Instant HTML/JS Gatekeeper for Android Mobile -->
+  <div id="android-gatekeeper">
+    <div class="gk-container">
+      <div style="font-size: 12px; color: #38BDF8; font-weight: 700; letter-spacing: 1px;">HRD Korea • EPS-TOPIK UBT</div>
+      <div class="gk-shield">
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="#38BDF8">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+        </svg>
+      </div>
+      <div class="gk-title">एन्ड्रोइड मोबाइलमा आधिकारिक एप अनिवार्य</div>
+      <div class="gk-subtitle">स्क्रिनसट रोक्न (FLAG_SECURE Anti-Screenshot) र परीक्षाको पूर्ण गोपनीयता कायम राख्न वेब ब्राउजरमा रोक लगाइएको छ।</div>
+
+      <div class="gk-card">
+        🛡️ <b>सुरक्षा सूचना:</b> मोबाइलको वेब ब्राउजरमा हार्डवेयर स्क्रिनसट रोक्न नमिल्ने भएकाले, परीक्षा प्रश्नहरूको गोपनीयता कायम राख्न एन्ड्रोइडमा आधिकारिक एप डाउनलोड गरी सञ्चालन गर्नुपर्ने हुन्छ।
+      </div>
+
+      <a href="https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/apk/eps_topik_ubt_2026.apk" download="eps_topik_ubt_2026.apk" class="gk-btn-download">
+        📥 आधिकारिक Android APK डाउनलोड गर्नुहोस् (५८.७ MB)
+      </a>
+
+      <button onclick="window.location.href='intent://open#Intent;scheme=epstopik;package=com.example.eps_topik_app;end'" class="gk-btn-launch">
+        एप पहिले नै इन्स्टल छ भने: यहाँ थिचेर खोल्नुहोस्
+      </button>
+
+      <div class="gk-steps">
+        <div style="font-weight: bold; color: #fff; margin-bottom: 12px;">📌 सजिलो ३-चरण इन्स्टलेसन प्रक्रिया:</div>
+        <div class="gk-step-item">
+          <div class="gk-step-num">1</div>
+          <div>माथिको हरियो बटन थिची APK फाइल डाउनलोड गर्नुहोस्।</div>
+        </div>
+        <div class="gk-step-item">
+          <div class="gk-step-num">2</div>
+          <div>डाउनलोड सकिएपछि फाइल खोली "Install" गर्नुहोस्। (Unknown Sources अनुमति दिनुहोस्)</div>
+        </div>
+        <div class="gk-step-item">
+          <div class="gk-step-num">3</div>
+          <div>एप खोली १००% सुरक्षित परीक्षा हल, अडियो र सम्पूर्ण सुविधा प्रयोग गर्नुहोस्।</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Immediate Android Mobile Detection (Runs in < 1ms)
+    try {
+      var ua = navigator.userAgent.toLowerCase();
+      var isAndroid = ua.indexOf('android') > -1 || (ua.indexOf('mobile') > -1 && ua.indexOf('iphone') === -1 && ua.indexOf('ipad') === -1);
+      if (isAndroid) {
+        document.getElementById('android-gatekeeper').style.display = 'block';
+      }
+    } catch(e) {}
+
     // 1. Disable Right Click Context Menu
     document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
       return false;
     });
 
-    // 2. Intercept DevTools and Download Shortcuts (F12, Ctrl+U, Ctrl+S, Ctrl+Shift+I, Ctrl+P)
+    // 2. Intercept DevTools and Shortcuts
     document.addEventListener('keydown', function(e) {
       if (e.key === 'F12' || 
           (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c' || e.key === 'J' || e.key === 'j')) ||
