@@ -1,11 +1,11 @@
 import 'dart:html' as html;
 
 /// APK is hosted on GitHub Releases (Firebase Spark plan doesn't allow .apk files)
-const _apkUrl = 'https://github.com/brosandy9999/ubttest2026/releases/download/v1.0.0/EPS-TOPIK.apk';
+const _apkUrl = 'https://github.com/brosandy9999/epstopikabante2072/raw/main/apk/eps_topik_ubt_2026.apk';
 
 void triggerApkDownload() {
   final anchor = html.AnchorElement(href: _apkUrl)
-    ..setAttribute('download', 'EPS-TOPIK-UBT-Practice.apk')
+    ..setAttribute('download', 'eps_topik_ubt_2026.apk')
     ..setAttribute('target', '_blank')
     ..style.display = 'none';
   html.document.body?.children.add(anchor);
