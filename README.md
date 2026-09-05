@@ -1,17 +1,21 @@
-# eps_topik_app
+# 🇰🇷 EPS-TOPIK UBT 2026 Smart Exam & Study App (Production Edition)
 
-A new Flutter project.
+दक्षिण कोरियाको EPS-TOPIK UBT परीक्षाको आधिकारिक ४०-प्रश्न (२० रिडिङ + २० लिसनिङ) ढाँचामा आधारित पूर्ण स्वचालित बहुभाषिक (नेपाली, English, 한국어) परीक्षा तथा अध्ययन प्रणाली।
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+### 📲 Android Mobile App (APK) डाउनलोड गर्नुहोस्:
+👉 **[Click Here to Download Mobile APK (v2.4.0)](https://github.com/brosandy9999/epstopikabante2072/raw/main/apk/eps_topik_ubt_2026.apk)**
 
-A few resources to get you started if this is your first Flutter project:
+### 🌐 Live Web Portal (कम्प्युटर र ब्राउजरमा अनलाइन दिन):
+👉 **[https://brosandy9999.github.io/epstopikabante2072/](https://brosandy9999.github.io/epstopikabante2072/)**
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 🌟 मुख्य सुविधाहरू (Features):
+- **रियल-टाइम क्लाउड सिङ्क (Cloud Sync):** मोबाइल एप र वेब पोर्टल बीच २४ सै घण्टा रियल-टाइम डाटा सिङ्क।
+- **१००% बहुभाषिक इन्जिन:** नेपाली, English, र 한국어 तीनै भाषामा तत्कालै स्विच हुने।
+- **कडा परीक्षा मोड (Strict Exam Mode):** एन्टी-चीट, फूल-स्क्रिन लक, र आधिकारिक ५० मिनेट टाइमर।
+- **अध्ययन तथा अभ्यास मोड (Study & Practice Mode):** तत्कालै उत्तर, सहि व्याख्या, र २-पटक स्वतः बज्ने अडियो इन्जिन।
+- **अडियो बुक रिडर तथा मिनिङ बैंक:** पाठ्यपुस्तक १ र २ को पूर्ण च्याप्टर अडियो पिनिङ, फ्ल्यासकार्ड, र व्याकरण।
+- **स्वतन्त्र सुपर एडमिन तथा इन्स्टिच्युट पोर्टल:** कोटा व्यवस्थापन, सेट स्वीकृति, र विस्तृत नतिजा विश्लेषण।
