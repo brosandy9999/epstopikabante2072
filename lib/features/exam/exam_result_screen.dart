@@ -96,8 +96,7 @@ class ExamResultScreen extends StatelessWidget {
           foregroundColor: Colors.white,
           automaticallyImplyLeading: false,
           actions: [
-            LanguageService.instance.buildLanguageSwitcherWidget(),
-            const SizedBox(width: 10),
+                        const SizedBox(width: 10),
           ],
         ),
         body: SingleChildScrollView(

@@ -109,8 +109,7 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
             foregroundColor: Colors.white,
             elevation: 2,
             actions: [
-              lang.buildLanguageSwitcherWidget(isDark: true),
-              const SizedBox(width: 8),
+                            const SizedBox(width: 8),
             ],
           ),
           body: Column(

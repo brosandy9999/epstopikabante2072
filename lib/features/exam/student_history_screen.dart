@@ -55,8 +55,7 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
         foregroundColor: Colors.white,
         elevation: 2,
         actions: [
-          LanguageService.instance.buildLanguageSwitcherWidget(),
-          const SizedBox(width: 8),
+                    const SizedBox(width: 8),
         ],
       ),
       body: SingleChildScrollView(

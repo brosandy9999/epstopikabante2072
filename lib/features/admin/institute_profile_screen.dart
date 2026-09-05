@@ -99,8 +99,7 @@ class _InstituteProfileScreenState extends State<InstituteProfileScreen> {
             backgroundColor: const Color(0xFF1E3A8A),
             foregroundColor: Colors.white,
             actions: [
-              lang.buildLanguageSwitcherWidget(isDark: true),
-              const SizedBox(width: 8),
+                            const SizedBox(width: 8),
             ],
           ),
           body: Center(

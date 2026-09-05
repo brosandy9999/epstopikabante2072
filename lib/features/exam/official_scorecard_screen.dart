@@ -131,8 +131,7 @@ class OfficialScorecardScreen extends StatelessWidget {
           backgroundColor: const Color(0xFF1E3A8A),
           foregroundColor: Colors.white,
           actions: [
-            LanguageService.instance.buildLanguageSwitcherWidget(),
-            const SizedBox(width: 8),
+                        const SizedBox(width: 8),
             ElevatedButton.icon(
               onPressed: () => _triggerPrint(context),
               icon: const Icon(Icons.print, size: 18),

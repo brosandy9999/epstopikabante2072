@@ -104,8 +104,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
         foregroundColor: Colors.white,
         elevation: 1,
         actions: [
-          LanguageService.instance.buildLanguageSwitcherWidget(),
-          const SizedBox(width: 8),
+                    const SizedBox(width: 8),
         ],
       ),
       body: LayoutBuilder(

@@ -70,41 +70,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             backgroundColor: Colors.teal.shade800,
             foregroundColor: Colors.white,
             actions: [
-              // Language Switcher in Admin Header
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: AppLanguage.values.map((lang) {
-                    final isSel = LanguageService.instance.currentLanguage == lang;
-                    return InkWell(
-                      onTap: () => LanguageService.instance.setLanguage(lang),
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: isSel ? Colors.amber : Colors.transparent,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          '${lang.flag} ${lang.code.toUpperCase()}',
-                          style: TextStyle(
-                            color: isSel ? Colors.black87 : Colors.white,
-                            fontSize: 11,
-                            fontWeight: isSel ? FontWeight.bold : FontWeight.normal,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-              const SizedBox(width: 6),
+              
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber.shade800,

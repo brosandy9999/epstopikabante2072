@@ -159,8 +159,7 @@ class _TargetedPracticeScreenState extends State<TargetedPracticeScreen> {
         backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
         actions: [
-          LanguageService.instance.buildLanguageSwitcherWidget(),
-          const SizedBox(width: 8),
+                    const SizedBox(width: 8),
         ],
       ),
       body: Column(

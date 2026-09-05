@@ -262,8 +262,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   ],
                 ),
               ),
-              LanguageService.instance.buildLanguageSwitcherWidget(),
-              IconButton(
+                            IconButton(
                 icon: const Icon(Icons.download_for_offline_outlined),
                 tooltip: LanguageService.instance.tr('offline_storage'),
                 onPressed: () => _showOfflineManagerModal(context),
