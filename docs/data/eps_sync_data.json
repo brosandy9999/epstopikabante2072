@@ -1,0 +1,4326 @@
+{
+  "version": "2.4",
+  "channelId": "epstopikabante2072_main",
+  "timestamp": "2026-09-05T12:57:07.641301",
+  "deviceType": "mobile_app",
+  "sets": [
+    {
+      "id": "set_01",
+      "title": "제1회 EPS-TOPIK 실전 모의고사",
+      "sector": "제조업 (Manufacturing)",
+      "description": "उत्पादनमूलक क्षेत्रका लागि आधारभूत शब्दावली, कारखाना सुरक्षा, औजार र कार्यस्थल संवाद समावेश ४० प्रश्नहरूको आधिकारिक सेट।",
+      "totalQuestions": 40,
+      "durationMinutes": 50,
+      "passMarks": 50.0,
+      "isApproved": true,
+      "createdByRole": "superAdmin",
+      "instituteId": null,
+      "instituteName": null,
+      "isLiveExam": false,
+      "liveExamDate": null,
+      "isStrictMode": true,
+      "questions": [
+        {
+          "questionId": "Q01",
+          "questionText": "[1] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "가방입니다.",
+            "공책입니다.",
+            "수첩입니다.",
+            "안경입니다."
+          ]
+        },
+        {
+          "questionId": "Q02",
+          "questionText": "[2] 다음 그림을 보고 맞는 단어를 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "의사",
+            "경찰관",
+            "소방관",
+            "요리사"
+          ]
+        },
+        {
+          "questionId": "Q03",
+          "questionText": "[3] 다음 질문에 맞는 표지를 고르십시오. '주차금지'",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "차를 세우지 마십시오.",
+            "담배를 피우지 마십시오.",
+            "사진을 찍지 마십시오.",
+            "뛰어가지 마십시오."
+          ]
+        },
+        {
+          "questionId": "Q04",
+          "questionText": "[4] 다음 안내판의 설명으로 알맞은 것은 무엇입니까?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "비상구입니다.",
+            "화장실입니다.",
+            "식당입니다.",
+            "엘리베이터입니다."
+          ]
+        },
+        {
+          "questionId": "Q05",
+          "questionText": "[5] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 어디에 가요?\n나: 시장에 (      ).",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "가요",
+            "와요",
+            "봐요",
+            "사요"
+          ]
+        },
+        {
+          "questionId": "Q06",
+          "questionText": "[6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 사과가 얼마예요?\n나: 한 개에 천 (      )이에요.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "명",
+            "개",
+            "원",
+            "병"
+          ]
+        },
+        {
+          "questionId": "Q07",
+          "questionText": "[7] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 오늘 날씨가 어때요?\n나: 비가 와서 날씨가 (      ).",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "더워요",
+            "흐려요",
+            "따뜻해요",
+            "맑아요"
+          ]
+        },
+        {
+          "questionId": "Q08",
+          "questionText": "[8] 다음 단어와 관계있는 것은 무엇입니까?\n[ 밥, 찌개, 김치, 반찬 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "식사",
+            "과일",
+            "계절",
+            "운동"
+          ]
+        },
+        {
+          "questionId": "Q09",
+          "questionText": "[9] 다음 영수증을 보고 맞지 않는 것을 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "사과를 샀습니다.",
+            "우유는 사지 않았습니다.",
+            "모두 6,500원입니다.",
+            "카드로 계산했습니다."
+          ]
+        },
+        {
+          "questionId": "Q10",
+          "questionText": "[10] 다음 글을 읽고 내용과 같은 것을 고르십시오.\n저는 베트남 사람입니다. 한국 공장에서 일합니다. 일이 조금 힘들지만 재미있습니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "이 사람은 공장에서 일합니다.",
+            "이 사람은 한국 사람입니다.",
+            "공장 일이 아주 쉽습니다.",
+            "이 사람은 학생입니다."
+          ]
+        },
+        {
+          "questionId": "Q11",
+          "questionText": "[11] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월요일부터 금요일까지 일하고, 토요일과 일요일은 (      )입니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "주말",
+            "평일",
+            "휴가",
+            "생일"
+          ]
+        },
+        {
+          "questionId": "Q12",
+          "questionText": "[12] 다음 글의 내용과 맞는 것을 고르십시오.\n우리 회사는 9시에 시작해서 오후 6시에 끝납니다. 점심시간은 12시 30분부터 1시간입니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "점심시간은 12시 30분부터입니다.",
+            "회사는 8시에 시작합니다.",
+            "오후 5시에 일이 끝납니다.",
+            "점심시간은 30분입니다."
+          ]
+        },
+        {
+          "questionId": "Q13",
+          "questionText": "[13] 다음 단어의 반대말은 무엇입니까?\n[ 들어가다 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "올라가다",
+            "나오다",
+            "내려가다",
+            "돌아가다"
+          ]
+        },
+        {
+          "questionId": "Q14",
+          "questionText": "[14] 다음 단어와 비슷한 말은 무엇입니까?\n[ 이야기하다 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "노래하다",
+            "말하다",
+            "생각하다",
+            "일하다"
+          ]
+        },
+        {
+          "questionId": "Q15",
+          "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n작업장에 들어가기 전에는 반드시 안전모와 (      )를 착용해야 합니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "안전화",
+            "슬리퍼",
+            "운동복",
+            "모자"
+          ]
+        },
+        {
+          "questionId": "Q16",
+          "questionText": "[16] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 이 기계는 어떻게 꺼요?\n나: 빨간색 스위치를 (      ) 됩니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "켜면",
+            "누르면",
+            "열면",
+            "닫으면"
+          ]
+        },
+        {
+          "questionId": "Q17",
+          "questionText": "[17] 다음 설명에 맞는 어휘를 고르십시오.\n[ 물건을 담아서 옮기는 데 쓰는 직사각형 상자 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "상자",
+            "사다리",
+            "줄자",
+            "망치"
+          ]
+        },
+        {
+          "questionId": "Q18",
+          "questionText": "[18] 다음 중 작업 중 화재가 났을 때 가장 먼저 해야 할 일은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "사진을 찍는다.",
+            "물건을 챙긴다.",
+            "불이야 외치고 대피한다.",
+            "계속 일한다."
+          ]
+        },
+        {
+          "questionId": "Q19",
+          "questionText": "[19] 다음 글을 읽고 물음에 답하십시오.\n한국에서는 어른에게 물건을 드릴 때 두 손으로 드려야 합니다. 그리고 식사할 때 어른이 먼저 수저를 든 후에 먹습니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "어른에게 두 손으로 물건을 드립니다.",
+            "한 손으로 드려도 괜찮습니다.",
+            "식사할 때 먼저 먹어도 됩니다.",
+            "한국에는 이런 예절이 없습니다."
+          ]
+        },
+        {
+          "questionId": "Q20",
+          "questionText": "[20] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월급을 받으면 고향에 있는 가족에게 돈을 (      ) 합니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "바꾸려고",
+            "보내려고",
+            "찾으려고",
+            "빌리려고"
+          ]
+        },
+        {
+          "questionId": "Q21",
+          "questionText": "[21] 들은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "공장",
+            "시장",
+            "식당",
+            "서점"
+          ],
+          "audioScript": "공장",
+          "audioScriptNepali": "कारखाना"
+        },
+        {
+          "questionId": "Q22",
+          "questionText": "[22] 들은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "가방",
+            "모자",
+            "구두",
+            "바지"
+          ],
+          "audioScript": "모자",
+          "audioScriptNepali": "टोपी"
+        },
+        {
+          "questionId": "Q23",
+          "questionText": "[23] 그림을 보고 알맞은 대답을 고르십시오.\n이것은 무엇입니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "안경입니다.",
+            "장갑입니다.",
+            "안전화입니다.",
+            "마스크입니다."
+          ],
+          "audioScript": "이것은 무엇입니까? 안전화입니다.",
+          "audioScriptNepali": "यो के हो? सुरक्षा जुत्ता हो।"
+        },
+        {
+          "questionId": "Q24",
+          "questionText": "[24] 질문을 듣고 알맞은 대답을 고르십시오.\n한국 사람입니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 한국 사람입니다.",
+            "아니요, 베트남에 갑니다.",
+            "네, 회사원입니다.",
+            "아니요, 학생이 아닙니다."
+          ],
+          "audioScript": "한국 사람입니까?",
+          "audioScriptNepali": "तपाईं कोरियन मानिस हुनुहुन्छ?"
+        },
+        {
+          "questionId": "Q25",
+          "questionText": "[25] 질문을 듣고 알맞은 대답을 고르십시오.\n지금 몇 시예요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "오후 2시예요.",
+            "2개 있어요.",
+            "2만 원이에요.",
+            "2층이에요."
+          ],
+          "audioScript": "지금 몇 시예요?",
+          "audioScriptNepali": "अहिले कति बज्यो?"
+        },
+        {
+          "questionId": "Q26",
+          "questionText": "[26] 질문을 듣고 알맞은 대답을 고르십시오.\n이 일은 언제까지 끝내야 합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "오늘 오후까지 끝내세요.",
+            "어제 끝냈습니다.",
+            "공장에 있습니다.",
+            "내일 시작했습니다."
+          ],
+          "audioScript": "이 일은 언제까지 끝내야 합니까?",
+          "audioScriptNepali": "यो काम कहिलेसम्म सकिसक्नु पर्छ?"
+        },
+        {
+          "questionId": "Q27",
+          "questionText": "[27] 질문을 듣고 알맞은 대답을 고르십시오.\n작업을 시작하기 전에 무엇을 해야 합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "집에 갑니다.",
+            "식사를 합니다.",
+            "보호구를 착용합니다.",
+            "잠을 잡니다."
+          ],
+          "audioScript": "작업을 시작하기 전에 무엇을 해야 합니까?",
+          "audioScriptNepali": "काम सुरु गर्नुअघि के गर्नुपर्छ?"
+        },
+        {
+          "questionId": "Q28",
+          "questionText": "[28] 질문을 듣고 알맞은 대답을 고르십시오.\n수루 씨, 오늘 저녁에 시간 있어요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 시간 있어요.",
+            "아니요, 어제 만났어요.",
+            "네, 밥을 먹었어요.",
+            "아니요, 영화가 끝났어요."
+          ],
+          "audioScript": "수루 씨, 오늘 저녁에 시간 있어요?",
+          "audioScriptNepali": "सुरु जी, आज साँझ फुर्सद छ?"
+        },
+        {
+          "questionId": "Q29",
+          "questionText": "[29] 질문을 듣고 알맞은 대답을 고르십시오.\n퇴근 후에 뭐 할 거예요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "출근했어요.",
+            "친구를 만날 거예요.",
+            "어제 잤어요.",
+            "회사에 있어요."
+          ],
+          "audioScript": "퇴근 후에 뭐 할 거예요?",
+          "audioScriptNepali": "काम सकिएपछि के गर्नुहुन्छ?"
+        },
+        {
+          "questionId": "Q30",
+          "questionText": "[30] 이야기를 듣고 질문에 알맞은 대답을 고르십시오.\n남자는 무엇을 찾고 있습니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "안전모",
+            "작업복",
+            "줄자",
+            "도면"
+          ],
+          "audioScript": "반장님, 안전모가 어디에 있어요? 저기 선반 위에 있어요.",
+          "audioScriptNepali": "क्याप्टेन ज्यू, सुरक्षा टोपी (हेलमेट) कहाँ छ? उ त्यहाँ र्‍याक माथि छ।"
+        },
+        {
+          "questionId": "Q31",
+          "questionText": "[31] 대화를 듣고 여자가 가려고 하는 곳을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "우체국",
+            "은행",
+            "약국",
+            "병원"
+          ],
+          "audioScript": "머리가 너무 아파서 약국에 가서 두통약을 사야겠어요.",
+          "audioScriptNepali": "टाउको धेरै दुखेर औषधि पसल गएर टाउको दुखाईको औषधि किन्नुपर्ला।"
+        },
+        {
+          "questionId": "Q32",
+          "questionText": "[32] 대화를 듣고 두 사람이 오늘 할 일을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "영화 보기",
+            "운동하기",
+            "쇼핑하기",
+            "공부하기"
+          ],
+          "audioScript": "오늘 퇴근하고 영화 보러 갈까요? 좋아요, 같이 가요.",
+          "audioScriptNepali": "आज छुट्टी भएपछि चलचित्र हेर्न जाने हो? हुन्छ, सँगै जाउँ।"
+        },
+        {
+          "questionId": "Q33",
+          "questionText": "[33] 다음을 듣고 이어지는 말로 가장 알맞은 것을 고르십시오.\n식사 맛있게 하셨어요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 제가 할게요.",
+            "네, 정말 맛있게 잘 먹었어요.",
+            "아니요, 아직 안 왔어요.",
+            "네, 어제 먹을 거예요."
+          ],
+          "audioScript": "식사 맛있게 하셨어요?",
+          "audioScriptNepali": "खाना मिठो गरी खानुभयो?"
+        },
+        {
+          "questionId": "Q34",
+          "questionText": "[34] 대화를 듣고 남자의 직업을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "용접공",
+            "농부",
+            "운전기사",
+            "요리사"
+          ],
+          "audioScript": "저는 공장에서 철판을 용접하는 용접공입니다.",
+          "audioScriptNepali": "म कारखानामा फलामको पाता वेल्डिङ गर्ने वेल्डर हुँ।"
+        },
+        {
+          "questionId": "Q35",
+          "questionText": "[35] 이야기를 듣고 질문에 알맞은 답을 고르십시오.\n남자는 왜 늦었습니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "잠을 많이 자서",
+            "길을 잃어버려서",
+            "교통이 복잡해서",
+            "버스를 놓쳐서"
+          ],
+          "audioScript": "왜 이렇게 늦었어요? 출근 시간에 차가 너무 많이 막혀서 늦었어요.",
+          "audioScriptNepali": "किन यति ढिलो हुनुभयो? काममा आउने समयमा गाडी धेरै जाम भएर ढिलो भयो।"
+        },
+        {
+          "questionId": "Q36",
+          "questionText": "[36] 대화를 듣고 두 사람이 만날 시간을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "5시 30분",
+            "6시",
+            "6시 30분",
+            "7시"
+          ],
+          "audioScript": "우리 몇 시에 만날까요? 6시 30분에 만나요.",
+          "audioScriptNepali": "हामी कति बजे भेट्ने? ६:३० बजे भेटौं।"
+        },
+        {
+          "questionId": "Q37",
+          "questionText": "[37] 대화를 듣고 남자가 주문한 음식을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "김치찌개",
+            "된장찌개",
+            "비빔밥",
+            "불고기"
+          ],
+          "audioScript": "여기 김치찌개 하나 주세요.",
+          "audioScriptNepali": "यहाँ एउटा किम्ची चिगे दिनुहोस्।"
+        },
+        {
+          "questionId": "Q38",
+          "questionText": "[38] 다음을 듣고 들은 내용과 일치하는 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "기계가 고장 났습니다.",
+            "작업이 모두 끝났습니다.",
+            "내일은 휴일입니다.",
+            "공장이 문을 닫습니다."
+          ],
+          "audioScript": "안내 말씀 드리겠습니다. 오늘 기계 점검으로 인해 공장 작업이 모두 끝났습니다.",
+          "audioScriptNepali": "जानकारी गराउँदछु। आज मेसिन जाँचका कारण कारखानाको काम सकिएको छ।"
+        },
+        {
+          "questionId": "Q39",
+          "questionText": "[39] 대화를 듣고 여자가 할 일로 알맞은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "상자를 옮긴다.",
+            "기계를 청소한다.",
+            "반장님을 부른다.",
+            "퇴근 준비를 한다."
+          ],
+          "audioScript": "반장님, 제가 상자를 창고로 옮길게요.",
+          "audioScriptNepali": "क्याप्टेन ज्यू, म यो बक्स गोदाममा सार्नेछु।"
+        },
+        {
+          "questionId": "Q40",
+          "questionText": "[40] 대화를 듣고 물음에 답하십시오.\n남자는 내일 몇 시에 출근합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "7시",
+            "8시",
+            "9시",
+            "10시"
+          ],
+          "audioScript": "내일은 아침 8시까지 출근해야 합니다.",
+          "audioScriptNepali": "भोलि बिहान ८ बजेसम्म काममा आउनुपर्छ।"
+        }
+      ],
+      "answerKeys": {
+        "Q01": {
+          "correctIndex": 1,
+          "explanation": "तस्बिरमा कापी (Notebook) देखाइएको छ। कोरियनमा कापीलाई \"공책\" भनिन्छ।"
+        },
+        "Q02": {
+          "correctIndex": 2,
+          "explanation": "तस्बिरमा आगो निभाउने दमकलकर्मी देखाइएको छ जसलाई \"소방관\" भनिन्छ।"
+        },
+        "Q03": {
+          "correctIndex": 0,
+          "explanation": "\"주차금지\" को अर्थ पार्किङ निषेध हो, त्यसैले \"차를 세우지 마십시오\" सहि उत्तर हो।"
+        },
+        "Q04": {
+          "correctIndex": 0,
+          "explanation": "हरियो रङको भाग्ने मान्छे भएको संकेत आपतकालीन ढोका \"비상구\" (Emergency Exit) हो।"
+        },
+        "Q05": {
+          "correctIndex": 0,
+          "explanation": "\"कहाँ जानुहुन्छ?\" को उत्तरमा \"बजार जान्छु (시장에 가요)\" सहि हुन्छ।"
+        },
+        "Q06": {
+          "correctIndex": 2,
+          "explanation": "कोरियाली मुद्रा गन्ती गर्दा \"원\" (Won) प्रयोग गरिन्छ (천 원 = १००० वन)।"
+        },
+        "Q07": {
+          "correctIndex": 1,
+          "explanation": "पानी परेको दिन मौसम बादल लाग्ने \"흐려요\" हुन्छ।"
+        },
+        "Q08": {
+          "correctIndex": 0,
+          "explanation": "भात, सुप, किम्ची खानासँग सम्बन्धित भएकाले \"식사\" (खाना) सम्बन्धित शब्द हो।"
+        },
+        "Q09": {
+          "correctIndex": 1,
+          "explanation": "रसिदमा \"우유: 2,500원\" लेखिएको छ, त्यसैले \"दुध किनेन\" भन्नु गलत हो।"
+        },
+        "Q10": {
+          "correctIndex": 0,
+          "explanation": "अनुच्छेदमा म कोरियाली फ्याक्ट्रीमा काम गर्छु भनिएको छ।"
+        },
+        "Q11": {
+          "correctIndex": 0,
+          "explanation": "शनिबार र आइतबारलाई कोरियामा \"주말\" (Weekend) भनिन्छ।"
+        },
+        "Q12": {
+          "correctIndex": 0,
+          "explanation": "कम्पनीको लन्च समय \"12시 30분\" बाट सुरु हुन्छ।"
+        },
+        "Q13": {
+          "correctIndex": 1,
+          "explanation": "भित्र पस्नु (들어가다) को उल्टो शब्द बाहिर निस्कनु (나오다) हो।"
+        },
+        "Q14": {
+          "correctIndex": 1,
+          "explanation": "कुरा गर्नु (이야기하다) को उस्तै अर्थ बोल्नु (말하다) हो।"
+        },
+        "Q15": {
+          "correctIndex": 0,
+          "explanation": "कार्यस्थलमा पस्दा हेल्मेट र सुरक्षित जुत्ता (안전화) अनिवार्य लगाउनुपर्छ।"
+        },
+        "Q16": {
+          "correctIndex": 1,
+          "explanation": "स्वीच बन्द गर्नका लागि थिच्नु (누르면) सहि क्रियापद हो।"
+        },
+        "Q17": {
+          "correctIndex": 0,
+          "explanation": "सामान राख्ने र ओसार्ने बाकसलाई \"상자\" भनिन्छ।"
+        },
+        "Q18": {
+          "correctIndex": 2,
+          "explanation": "आगो लाग्दा अरूलाई जानकारी दिन चिच्याउँदै सुरक्षित ठाउँमा भाग्नुपर्छ।"
+        },
+        "Q19": {
+          "correctIndex": 0,
+          "explanation": "ठूलाबडालाई सामान दिँदा दुई हातले दिनुपर्छ।"
+        },
+        "Q20": {
+          "correctIndex": 1,
+          "explanation": "तलब पाएपछि घरमा पैसा पठाउने विचार (보내려고) सहि उत्तर हो।"
+        },
+        "Q21": {
+          "correctIndex": 0,
+          "explanation": "सुनेको आवाज \"공장\" (फ्याक्ट्री) सहि उत्तर हो।"
+        },
+        "Q22": {
+          "correctIndex": 1,
+          "explanation": "सुनेको शब्द \"모자\" (टोपी) सहि उत्तर हो।"
+        },
+        "Q23": {
+          "correctIndex": 2,
+          "explanation": "कार्यस्थल सुरक्षा जुत्तालाई \"안전화\" (Safety Shoes) भनिन्छ।"
+        },
+        "Q24": {
+          "correctIndex": 0,
+          "explanation": "\"कोरियन हुनुहुन्छ?\" को उपयुक्त जवाफ \"ने, कोरियन हुँ\" हो।"
+        },
+        "Q25": {
+          "correctIndex": 0,
+          "explanation": "समय सोधेको हुनाले \"오후 2시예요\" (दिउँसोको २ बज्यो) सहि उत्तर हो।"
+        },
+        "Q26": {
+          "correctIndex": 0,
+          "explanation": "\"यो काम कहिलेसम्म सक्नुपर्छ?\" को जवाफ \"आज दिउँसोसम्म सक्नुहोस्\" हो।"
+        },
+        "Q27": {
+          "correctIndex": 2,
+          "explanation": "काम सुरु गर्नुअघि सुरक्षा पोशाक (보호구) लगाउनुपर्छ।"
+        },
+        "Q28": {
+          "correctIndex": 0,
+          "explanation": "\"आज साँझ समय छ?\" को स्वाभाविक उत्तर \"ने, समय छ\" हो।"
+        },
+        "Q29": {
+          "correctIndex": 1,
+          "explanation": "\"काम सकिएपछि के गर्नुहुन्छ?\" को उत्तर \"साथीलाई भेट्नेछु\" हो।"
+        },
+        "Q30": {
+          "correctIndex": 0,
+          "explanation": "मान्छेले सुरक्षा हेल्मेट खोजिरहेको हुन्छ।"
+        },
+        "Q31": {
+          "correctIndex": 2,
+          "explanation": "महिला औषधि किन्न \"약국\" (फार्मेसी) जान लागेकी हुन्।"
+        },
+        "Q32": {
+          "correctIndex": 0,
+          "explanation": "दुई साथीहरू साँझ फिल्म हेर्न \"영화 보기\" जान लागेका हुन्।"
+        },
+        "Q33": {
+          "correctIndex": 1,
+          "explanation": "\"खाना मिठो खानुभयो?\" भन्दा \"ने, निकै मिठो मानेर खाएँ\" भनिन्छ।"
+        },
+        "Q34": {
+          "correctIndex": 0,
+          "explanation": "वेल्डिङ सम्बन्धी कुरा भइरहेकाले पेशा \"용접공\" (वेल्डर) हो।"
+        },
+        "Q35": {
+          "correctIndex": 2,
+          "explanation": "सवारी जाम (교통이 복잡해서) भएकाले ढिला भएको हो।"
+        },
+        "Q36": {
+          "correctIndex": 1,
+          "explanation": "दुई जना ६ बजे (6시) भेट्ने तय गर्छन्।"
+        },
+        "Q37": {
+          "correctIndex": 0,
+          "explanation": "रेस्टुरेन्टमा किम्ची चिगे अर्डर गरिएको हो।"
+        },
+        "Q38": {
+          "correctIndex": 1,
+          "explanation": "आजको काम सकिएको घोषणा गरिएको हो।"
+        },
+        "Q39": {
+          "correctIndex": 0,
+          "explanation": "महिलाले बाकस ओसार्ने काम गर्नेछिन्।"
+        },
+        "Q40": {
+          "correctIndex": 1,
+          "explanation": "भोलि बिहान ८ बजे कम्पनी आइपुग्नुपर्ने कुरा हुन्छ।"
+        }
+      }
+    },
+    {
+      "id": "set_02",
+      "title": "제2회 농축산업 실전 모의고사",
+      "sector": "농축산업 (Agriculture & Livestock)",
+      "description": "कृषि, तरकारी खेती, पशुपालन, बालीनाली र मौसमी कार्यसँग सम्बन्धित विशिष्ट प्रश्नहरूको नमुना सेट।",
+      "totalQuestions": 40,
+      "durationMinutes": 50,
+      "passMarks": 50.0,
+      "isApproved": true,
+      "createdByRole": "superAdmin",
+      "instituteId": null,
+      "instituteName": null,
+      "isLiveExam": false,
+      "liveExamDate": null,
+      "isStrictMode": true,
+      "questions": [
+        {
+          "questionId": "S2_Q01",
+          "questionText": "[1] 다음 그림을 보고 맞는 단어를 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "호미입니다.",
+            "삽입니다.",
+            "낫입니다.",
+            "괭이입니다."
+          ]
+        },
+        {
+          "questionId": "S2_Q02",
+          "questionText": "[2] 다음 그림을 보고 알맞은 가축을 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "소",
+            "돼지",
+            "닭",
+            "오리"
+          ]
+        },
+        {
+          "questionId": "S2_Q03",
+          "questionText": "[3] 다음 표지의 의미로 알맞은 것은 무엇입니까? '출입금지'",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "들어오지 마십시오.",
+            "손대지 마십시오.",
+            "담배를 피우지 마십시오.",
+            "주차하지 마십시오."
+          ]
+        },
+        {
+          "questionId": "S2_Q04",
+          "questionText": "[4] 비닐하우스의 온도를 조절하기 위해 무엇을 열어야 합니까?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "환풍기",
+            "보일러",
+            "창문과 문",
+            "수도꼭지"
+          ]
+        },
+        {
+          "questionId": "S2_Q05",
+          "questionText": "[5] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n밭에 씨앗을 (      ) 후에 물을 줍니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "심은",
+            "자른",
+            "먹은",
+            "파는"
+          ]
+        },
+        {
+          "questionId": "S2_Q06",
+          "questionText": "[6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 돼지에게 밥을 주었습니까?\n나: 네, 아침에 (      )을 주었습니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "사료",
+            "비료",
+            "약",
+            "흙"
+          ]
+        },
+        {
+          "questionId": "S2_Q07",
+          "questionText": "[7] 다음 단어와 관계있는 것은 무엇입니까?\n[ 토마토, 배추, 상추, 고추 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "채소",
+            "과일",
+            "고기",
+            "곡식"
+          ]
+        },
+        {
+          "questionId": "S2_Q08",
+          "questionText": "[8] 농약 살포 시 착용해야 하는 안전 장비가 아닌 것은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "마스크",
+            "방제복",
+            "고무장갑",
+            "슬리퍼"
+          ]
+        },
+        {
+          "questionId": "S2_Q09",
+          "questionText": "[9] 다음 글을 읽고 내용과 같은 것을 고르십시오.\n가을에는 벼를 베고 과일을 수확합니다. 농촌에서 가장 바쁜 계절입니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "가을은 농촌이 바쁩니다.",
+            "겨울에 벼를 벱니다.",
+            "봄에 과일을 수확합니다.",
+            "가을에는 일이 없습니다."
+          ]
+        },
+        {
+          "questionId": "S2_Q10",
+          "questionText": "[10] 다음 닭 사육장(양계장) 관리 수칙 중 맞는 것은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "매일 사료통을 청소합니다.",
+            "환기를 시키지 않습니다.",
+            "온도를 차갑게 유지합니다.",
+            "물을 주지 않습니다."
+          ]
+        },
+        {
+          "questionId": "S2_Q11",
+          "questionText": "[11] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n채소에 벌레가 많아서 (      )를 뿌려야 합니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "농약",
+            "물",
+            "기름",
+            "페인트"
+          ]
+        },
+        {
+          "questionId": "S2_Q12",
+          "questionText": "[12] 다음 단어의 반대말은 무엇입니까?\n[ 수확하다 (Harvest) ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "심다 (Plant)",
+            "팔다 (Sell)",
+            "먹다 (Eat)",
+            "씻다 (Wash)"
+          ]
+        },
+        {
+          "questionId": "S2_Q13",
+          "questionText": "[13] 다음 설명에 맞는 어휘를 고르십시오.\n[ 소나 돼지, 닭을 기르는 건물 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "축사",
+            "기숙사",
+            "식당",
+            "사무실"
+          ]
+        },
+        {
+          "questionId": "S2_Q14",
+          "questionText": "[14] 비닐하우스 안에서 일할 때 주의할 점은 무엇입니까?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "충분한 수분을 섭취하고 휴식한다.",
+            "물을 전혀 마시지 않는다.",
+            "두꺼운 겨울 옷을 입는다.",
+            "창문을 다 닫고 일한다."
+          ]
+        },
+        {
+          "questionId": "S2_Q15",
+          "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n과일을 상자에 담아서 창고로 (      ).",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "운반합니다",
+            "버립니다",
+            "태웁니다",
+            "뿌립니다"
+          ]
+        },
+        {
+          "questionId": "S2_Q16",
+          "questionText": "[16] 풀을 벨 때 사용하는 도구는 무엇입니까?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "낫",
+            "망치",
+            "못",
+            "드라이버"
+          ]
+        },
+        {
+          "questionId": "S2_Q17",
+          "questionText": "[17] 다음 중 거름(비료)을 주는 올바른 이유는?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "작물이 잘 자라도록 하기 위해",
+            "벌레를 잡기 위해",
+            "물을 빼기 위해",
+            "창고를 청소하기 위해"
+          ]
+        },
+        {
+          "questionId": "S2_Q18",
+          "questionText": "[18] 축사를 청소할 때 가장 먼저 해야 할 일은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "분뇨(똥)를 치운다.",
+            "소에게 노래를 틀어준다.",
+            "문을 잠근다.",
+            "불을 끈다."
+          ]
+        },
+        {
+          "questionId": "S2_Q19",
+          "questionText": "[19] 다음 농장 일정표를 보고 알맞은 것을 고르십시오.\n[월: 씨앗 뿌리기, 화: 비료 주기, 수: 물주기]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "화요일에는 비료를 줍니다.",
+            "월요일에는 물을 줍니다.",
+            "수요일에는 씨앗을 뿌립니다.",
+            "목요일에 수확합니다."
+          ]
+        },
+        {
+          "questionId": "S2_Q20",
+          "questionText": "[20] 트랙터나 경운기를 운전할 때 주의사항은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "안전벨트를 매고 서행한다.",
+            "과속으로 운전한다.",
+            "휴대폰을 보며 운전한다.",
+            "음주 후 운전한다."
+          ]
+        },
+        {
+          "questionId": "S2_Q21",
+          "questionText": "[21] 들은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "삽",
+            "낫",
+            "칼",
+            "못"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q22",
+          "questionText": "[22] 들은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "오이",
+            "가지",
+            "호박",
+            "당근"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q23",
+          "questionText": "[23] 그림을 보고 알맞은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "소를 키웁니다.",
+            "돼지를 키웁니다.",
+            "닭을 키웁니다.",
+            "양을 키웁니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q24",
+          "questionText": "[24] 질문을 듣고 알맞은 대답을 고르십시오.\n오늘 비닐하우스 환기시켰어요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 아침에 열어 두었어요.",
+            "아니요, 밥을 먹었어요.",
+            "네, 씨앗을 샀어요.",
+            "아니요, 사과를 땄어요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q25",
+          "questionText": "[25] 질문을 듣고 알맞은 대답을 고르십시오.\n사료는 하루에 몇 번 줍니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "하루에 두 번 줍니다.",
+            "사료가 맛있습니다.",
+            "돼지가 10마리 있습니다.",
+            "어제 샀습니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q26",
+          "questionText": "[26] 대화를 듣고 남자가 할 일을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "물 주기",
+            "잡초 뽑기",
+            "사료 주기",
+            "상자 나르기"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q27",
+          "questionText": "[27] 대화를 듣고 여자가 찾는 도구를 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "호미",
+            "삽",
+            "사다리",
+            "가위"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q28",
+          "questionText": "[28] 질문을 듣고 알맞은 대답을 고르십시오.\n상추 수확은 언제 시작해요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "내일 아침 일찍 시작해요.",
+            "어제 다 팔았어요.",
+            "상추가 싱싱해요.",
+            "시장에 있어요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q29",
+          "questionText": "[29] 대화를 듣고 작업 장소를 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "토마토 온실",
+            "돼지 축사",
+            "과수원",
+            "양계장"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q30",
+          "questionText": "[30] 이야기를 듣고 질문에 답하십시오.\n남자는 왜 병원에 가야 합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "허리를 다쳐서",
+            "배가 아파서",
+            "감기에 걸려서",
+            "눈이 아파서"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q31",
+          "questionText": "[31] 대화를 듣고 오늘 할 작업을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "과일 포장하기",
+            "씨앗 뿌리기",
+            "농약 치기",
+            "비료 주기"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q32",
+          "questionText": "[32] 대화를 듣고 여자의 고향 날씨를 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "따뜻하고 비가 자주 옴",
+            "매우 춥고 눈이 옴",
+            "건조하고 바람이 붐",
+            "사계절이 뚜렷함"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q33",
+          "questionText": "[33] 질문을 듣고 알맞은 대답을 고르십시오.\n농약 칠 때 마스크 썼어요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 마스크 착용했어요.",
+            "아니요, 물을 마셨어요.",
+            "네, 밥을 먹었어요.",
+            "아니요, 모자를 샀어요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q34",
+          "questionText": "[34] 대화를 듣고 두 사람이 이야기하는 작물을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "딸기",
+            "수박",
+            "포도",
+            "사과"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q35",
+          "questionText": "[35] 대화를 듣고 남자가 오후에 할 일을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "트랙터 청소하기",
+            "잡초 제거하기",
+            "거름 주기",
+            "휴식하기"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q36",
+          "questionText": "[36] 대화를 듣고 소의 상태가 어떤지 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "밥을 잘 안 먹고 아픔",
+            "아주 건강함",
+            "새끼를 낳았음",
+            "잠을 자고 있음"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q37",
+          "questionText": "[37] 대화를 듣고 내일 날씨를 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "비가 많이 옴",
+            "맑고 화창함",
+            "눈이 내림",
+            "안개가 낌"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q38",
+          "questionText": "[38] 대화를 듣고 여자가 사 오기로 한 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "장갑과 장화",
+            "가위와 칼",
+            "모자와 수건",
+            "비료와 사료"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q39",
+          "questionText": "[39] 대화를 듣고 퇴근 시간으로 알맞은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "오후 5시",
+            "오후 6시",
+            "오후 6시 30분",
+            "오후 7시"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S2_Q40",
+          "questionText": "[40] 대화를 듣고 질문에 답하십시오.\n상자 몇 개를 트럭에 실었습니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "20개",
+            "30개",
+            "40개",
+            "50개"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        }
+      ],
+      "answerKeys": {
+        "S2_Q01": {
+          "correctIndex": 0,
+          "explanation": "तस्बिरमा देखिएको सानो कुटोलाई कोरियनमा \"호미\" (Homi) भनिन्छ।"
+        },
+        "S2_Q02": {
+          "correctIndex": 1,
+          "explanation": "तस्बिरमा सुँगुर देखाइएको छ जसलाई कोरियनमा \"돼지\" भनिन्छ।"
+        },
+        "S2_Q03": {
+          "correctIndex": 0,
+          "explanation": "\"출입금지\" भनेको भित्र पस्न निषेध हो (들어오지 마십시오)।"
+        },
+        "S2_Q04": {
+          "correctIndex": 2,
+          "explanation": "प्लास्टिक घर (Vinyl house) को तापक्रम मिलाउन झ्याल र ढोका खोल्नुपर्छ।"
+        },
+        "S2_Q05": {
+          "correctIndex": 0,
+          "explanation": "बारीमा बीउ रोपेपछि (심은 후에) पानी हालिन्छ।"
+        },
+        "S2_Q06": {
+          "correctIndex": 0,
+          "explanation": "गाईबस्तु वा सुँगुरलाई दिने दानालाई \"사료\" भनिन्छ।"
+        },
+        "S2_Q07": {
+          "correctIndex": 0,
+          "explanation": "गोलभेँडा, बन्दा, सागपात आदि सबै तरकारी (채소) हुन्।"
+        },
+        "S2_Q08": {
+          "correctIndex": 3,
+          "explanation": "विषादी छर्कँदा चप्पल (슬리퍼) लगाउनु असुरक्षित र गलत हो।"
+        },
+        "S2_Q09": {
+          "correctIndex": 0,
+          "explanation": "शरद ऋतु (가을) मा बाली भित्र्याउने हुँदा गाउँघर व्यस्त हुन्छ।"
+        },
+        "S2_Q10": {
+          "correctIndex": 0,
+          "explanation": "कुखुरा फार्ममा दानाको भाँडो सधैं सफा राख्नुपर्छ।"
+        },
+        "S2_Q11": {
+          "correctIndex": 0,
+          "explanation": "कीरा मार्नका लागि विषादी \"농약\" छर्कनुपर्छ।"
+        },
+        "S2_Q12": {
+          "correctIndex": 0,
+          "explanation": "बाली भित्र्याउनु (수확하다) को उल्टो बीउ रोप्नु (심다) हो।"
+        },
+        "S2_Q13": {
+          "correctIndex": 0,
+          "explanation": "पशु चौपाया पाल्ने गोठलाई \"축사\" भनिन्छ।"
+        },
+        "S2_Q14": {
+          "correctIndex": 0,
+          "explanation": "गर्मी हुने ठाउँमा काम गर्दा पानी पिउँदै आराम गर्नुपर्छ।"
+        },
+        "S2_Q15": {
+          "correctIndex": 0,
+          "explanation": "सामान गोदाममा ओसार्नुलाई \"운반합니다\" भनिन्छ।"
+        },
+        "S2_Q16": {
+          "correctIndex": 0,
+          "explanation": "घाँस काट्न प्रयोग गरिने हँसियालाई \"낫\" भनिन्छ।"
+        },
+        "S2_Q17": {
+          "correctIndex": 0,
+          "explanation": "बालीनाली राम्रोसँग हुर्कनका लागि मल (비료) दिइन्छ।"
+        },
+        "S2_Q18": {
+          "correctIndex": 0,
+          "explanation": "गोठ सफा गर्दा पहिले गोबर र दिसा (분뇨) फाल्नुपर्छ।"
+        },
+        "S2_Q19": {
+          "correctIndex": 0,
+          "explanation": "तालिका अनुसार मंगलबार मल दिने काम छ।"
+        },
+        "S2_Q20": {
+          "correctIndex": 0,
+          "explanation": "ट्र्याक्टर चलाउँदा सिटबेल्ट बाँधेर विस्तारै चलाउनुपर्छ।"
+        },
+        "S2_Q21": {
+          "correctIndex": 0,
+          "explanation": "सुनेको औजार बेल्चा \"삽\" हो।"
+        },
+        "S2_Q22": {
+          "correctIndex": 0,
+          "explanation": "सुनेको तरकारी काँक्रो \"오이\" हो।"
+        },
+        "S2_Q23": {
+          "correctIndex": 0,
+          "explanation": "तस्बिरमा गाई/गोरु पालेको देखाइएको छ (소를 키웁니다)।"
+        },
+        "S2_Q24": {
+          "correctIndex": 0,
+          "explanation": "भेन्टिलेसन खोलिसकेको जवाफ \"네, 아침에 열어 두었어요\" सहि हो।"
+        },
+        "S2_Q25": {
+          "correctIndex": 0,
+          "explanation": "कति पटक दाना दिइन्छ भन्दा \"하루에 두 번 줍니다\" (दिनको दुई पटक) उपयुक्त हुन्छ।"
+        },
+        "S2_Q26": {
+          "correctIndex": 1,
+          "explanation": "पुरुषले घाँस वा झार उखेल्ने (잡초 뽑기) काम गर्छ।"
+        },
+        "S2_Q27": {
+          "correctIndex": 0,
+          "explanation": "महिलाले सानो कुटो \"호미\" खोजिरहेकी हुन्।"
+        },
+        "S2_Q28": {
+          "correctIndex": 0,
+          "explanation": "भोलि बिहानै साग टिप्ने काम सुरु हुनेछ।"
+        },
+        "S2_Q29": {
+          "correctIndex": 0,
+          "explanation": "गोलभेँडाको प्लास्टिक टनेल (토마토 온실) मा काम भइरहेको छ।"
+        },
+        "S2_Q30": {
+          "correctIndex": 0,
+          "explanation": "गह्रौं सामान उचाल्दा कम्मर दुखेकाले अस्पताल जानुपरेको हो।"
+        },
+        "S2_Q31": {
+          "correctIndex": 0,
+          "explanation": "फलफूल प्याकिङ गर्ने (과일 포장하기) काम हुनेछ।"
+        },
+        "S2_Q32": {
+          "correctIndex": 0,
+          "explanation": "न्यानो र पानी परिरहने मौसम छ।"
+        },
+        "S2_Q33": {
+          "correctIndex": 0,
+          "explanation": "विषादी छर्कँदा मास्क लगाएको जवाफ \"네, 마스크 착용했어요\" हो।"
+        },
+        "S2_Q34": {
+          "correctIndex": 0,
+          "explanation": "स्ट्रबेरी (딸기) खेती सम्बन्धी कुरा भइरहेको छ।"
+        },
+        "S2_Q35": {
+          "correctIndex": 0,
+          "explanation": "दिउँसो ट्र्याक्टर सफा गर्ने काम हुन्छ।"
+        },
+        "S2_Q36": {
+          "correctIndex": 0,
+          "explanation": "गाईले दाना नखाएर बिरामी परेको छ।"
+        },
+        "S2_Q37": {
+          "correctIndex": 0,
+          "explanation": "भोलि धेरै पानी पर्ने मौसम पूर्वानुमान छ।"
+        },
+        "S2_Q38": {
+          "correctIndex": 0,
+          "explanation": "पन्जा र गमबुट किनेर ल्याउने सहमति भएको छ।"
+        },
+        "S2_Q39": {
+          "correctIndex": 1,
+          "explanation": "साँझ ६ बजे (오후 6시) काम छुट्टी हुन्छ।"
+        },
+        "S2_Q40": {
+          "correctIndex": 1,
+          "explanation": "ट्रकमा ३० वटा बाकस (30개) लोड गरिएको छ।"
+        }
+      }
+    },
+    {
+      "id": "set_03",
+      "title": "제3회 건설 및 현장안전 모의고사",
+      "sector": "건설/안전 (Construction & Safety)",
+      "description": "निर्माण क्षेत्र, गह्रौं उपकरण, सुरक्षा पोशाक र औद्योगिक दुर्घटना रोकथाम सम्बन्धी वास्तविक परीक्षा सेट।",
+      "totalQuestions": 40,
+      "durationMinutes": 50,
+      "passMarks": 50.0,
+      "isApproved": true,
+      "createdByRole": "superAdmin",
+      "instituteId": null,
+      "instituteName": null,
+      "isLiveExam": false,
+      "liveExamDate": null,
+      "isStrictMode": true,
+      "questions": [
+        {
+          "questionId": "S3_Q01",
+          "questionText": "[3회 1] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "가방입니다.",
+            "공책입니다.",
+            "수첩입니다.",
+            "안경입니다."
+          ]
+        },
+        {
+          "questionId": "S3_Q02",
+          "questionText": "[3회 2] 다음 그림을 보고 맞는 단어를 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "의사",
+            "경찰관",
+            "소방관",
+            "요리사"
+          ]
+        },
+        {
+          "questionId": "S3_Q03",
+          "questionText": "[3] 다음 질문에 맞는 표지를 고르십시오. '주차금지'",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "차를 세우지 마십시오.",
+            "담배를 피우지 마십시오.",
+            "사진을 찍지 마십시오.",
+            "뛰어가지 마십시오."
+          ]
+        },
+        {
+          "questionId": "S3_Q04",
+          "questionText": "[4] 다음 안내판의 설명으로 알맞은 것은 무엇입니까?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "비상구입니다.",
+            "화장실입니다.",
+            "식당입니다.",
+            "엘리베이터입니다."
+          ]
+        },
+        {
+          "questionId": "S3_Q05",
+          "questionText": "[5] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 어디에 가요?\n나: 시장에 (      ).",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "가요",
+            "와요",
+            "봐요",
+            "사요"
+          ]
+        },
+        {
+          "questionId": "S3_Q06",
+          "questionText": "[6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 사과가 얼마예요?\n나: 한 개에 천 (      )이에요.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "명",
+            "개",
+            "원",
+            "병"
+          ]
+        },
+        {
+          "questionId": "S3_Q07",
+          "questionText": "[7] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 오늘 날씨가 어때요?\n나: 비가 와서 날씨가 (      ).",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "더워요",
+            "흐려요",
+            "따뜻해요",
+            "맑아요"
+          ]
+        },
+        {
+          "questionId": "S3_Q08",
+          "questionText": "[8] 다음 단어와 관계있는 것은 무엇입니까?\n[ 밥, 찌개, 김치, 반찬 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "식사",
+            "과일",
+            "계절",
+            "운동"
+          ]
+        },
+        {
+          "questionId": "S3_Q09",
+          "questionText": "[9] 다음 영수증을 보고 맞지 않는 것을 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "사과를 샀습니다.",
+            "우유는 사지 않았습니다.",
+            "모두 6,500원입니다.",
+            "카드로 계산했습니다."
+          ]
+        },
+        {
+          "questionId": "S3_Q10",
+          "questionText": "[10] 다음 글을 읽고 내용과 같은 것을 고르십시오.\n저는 베트남 사람입니다. 한국 공장에서 일합니다. 일이 조금 힘들지만 재미있습니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "이 사람은 공장에서 일합니다.",
+            "이 사람은 한국 사람입니다.",
+            "공장 일이 아주 쉽습니다.",
+            "이 사람은 학생입니다."
+          ]
+        },
+        {
+          "questionId": "S3_Q11",
+          "questionText": "[11] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월요일부터 금요일까지 일하고, 토요일과 일요일은 (      )입니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "주말",
+            "평일",
+            "휴가",
+            "생일"
+          ]
+        },
+        {
+          "questionId": "S3_Q12",
+          "questionText": "[12] 다음 글의 내용과 맞는 것을 고르십시오.\n우리 회사는 9시에 시작해서 오후 6시에 끝납니다. 점심시간은 12시 30분부터 1시간입니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "점심시간은 12시 30분부터입니다.",
+            "회사는 8시에 시작합니다.",
+            "오후 5시에 일이 끝납니다.",
+            "점심시간은 30분입니다."
+          ]
+        },
+        {
+          "questionId": "S3_Q13",
+          "questionText": "[13] 다음 단어의 반대말은 무엇입니까?\n[ 들어가다 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "올라가다",
+            "나오다",
+            "내려가다",
+            "돌아가다"
+          ]
+        },
+        {
+          "questionId": "S3_Q14",
+          "questionText": "[14] 다음 단어와 비슷한 말은 무엇입니까?\n[ 이야기하다 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "노래하다",
+            "말하다",
+            "생각하다",
+            "일하다"
+          ]
+        },
+        {
+          "questionId": "S3_Q15",
+          "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n작업장에 들어가기 전에는 반드시 안전모와 (      )를 착용해야 합니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "안전화",
+            "슬리퍼",
+            "운동복",
+            "모자"
+          ]
+        },
+        {
+          "questionId": "S3_Q16",
+          "questionText": "[16] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 이 기계는 어떻게 꺼요?\n나: 빨간색 스위치를 (      ) 됩니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "켜면",
+            "누르면",
+            "열면",
+            "닫으면"
+          ]
+        },
+        {
+          "questionId": "S3_Q17",
+          "questionText": "[17] 다음 설명에 맞는 어휘를 고르십시오.\n[ 물건을 담아서 옮기는 데 쓰는 직사각형 상자 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "상자",
+            "사다리",
+            "줄자",
+            "망치"
+          ]
+        },
+        {
+          "questionId": "S3_Q18",
+          "questionText": "[18] 다음 중 작업 중 화재가 났을 때 가장 먼저 해야 할 일은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "사진을 찍는다.",
+            "물건을 챙긴다.",
+            "불이야 외치고 대피한다.",
+            "계속 일한다."
+          ]
+        },
+        {
+          "questionId": "S3_Q19",
+          "questionText": "[19] 다음 글을 읽고 물음에 답하십시오.\n한국에서는 어른에게 물건을 드릴 때 두 손으로 드려야 합니다. 그리고 식사할 때 어른이 먼저 수저를 든 후에 먹습니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "어른에게 두 손으로 물건을 드립니다.",
+            "한 손으로 드려도 괜찮습니다.",
+            "식사할 때 먼저 먹어도 됩니다.",
+            "한국에는 이런 예절이 없습니다."
+          ]
+        },
+        {
+          "questionId": "S3_Q20",
+          "questionText": "[20] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월급을 받으면 고향에 있는 가족에게 돈을 (      ) 합니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "바꾸려고",
+            "보내려고",
+            "찾으려고",
+            "빌리려고"
+          ]
+        },
+        {
+          "questionId": "S3_Q21",
+          "questionText": "[3회 21] 들은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "공장",
+            "시장",
+            "식당",
+            "서점"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q22",
+          "questionText": "[22] 들은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "가방",
+            "모자",
+            "구두",
+            "바지"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q23",
+          "questionText": "[23] 그림을 보고 알맞은 대답을 고르십시오.\n이것은 무엇입니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "안경입니다.",
+            "장갑입니다.",
+            "안전화입니다.",
+            "마스크입니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q24",
+          "questionText": "[24] 질문을 듣고 알맞은 대답을 고르십시오.\n한국 사람입니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 한국 사람입니다.",
+            "아니요, 베트남에 갑니다.",
+            "네, 회사원입니다.",
+            "아니요, 학생이 아닙니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q25",
+          "questionText": "[25] 질문을 듣고 알맞은 대답을 고르십시오.\n지금 몇 시예요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "오후 2시예요.",
+            "2개 있어요.",
+            "2만 원이에요.",
+            "2층이에요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q26",
+          "questionText": "[26] 질문을 듣고 알맞은 대답을 고르십시오.\n이 일은 언제까지 끝내야 합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "오늘 오후까지 끝내세요.",
+            "어제 끝냈습니다.",
+            "공장에 있습니다.",
+            "내일 시작했습니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q27",
+          "questionText": "[27] 질문을 듣고 알맞은 대답을 고르십시오.\n작업을 시작하기 전에 무엇을 해야 합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "집에 갑니다.",
+            "식사를 합니다.",
+            "보호구를 착용합니다.",
+            "잠을 잡니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q28",
+          "questionText": "[28] 질문을 듣고 알맞은 대답을 고르십시오.\n수루 씨, 오늘 저녁에 시간 있어요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 시간 있어요.",
+            "아니요, 어제 만났어요.",
+            "네, 밥을 먹었어요.",
+            "아니요, 영화가 끝났어요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q29",
+          "questionText": "[29] 질문을 듣고 알맞은 대답을 고르십시오.\n퇴근 후에 뭐 할 거예요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "출근했어요.",
+            "친구를 만날 거예요.",
+            "어제 잤어요.",
+            "회사에 있어요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q30",
+          "questionText": "[30] 이야기를 듣고 질문에 알맞은 대답을 고르십시오.\n남자는 무엇을 찾고 있습니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "안전모",
+            "작업복",
+            "줄자",
+            "도면"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q31",
+          "questionText": "[31] 대화를 듣고 여자가 가려고 하는 곳을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "우체국",
+            "은행",
+            "약국",
+            "병원"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q32",
+          "questionText": "[32] 대화를 듣고 두 사람이 오늘 할 일을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "영화 보기",
+            "운동하기",
+            "쇼핑하기",
+            "공부하기"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q33",
+          "questionText": "[33] 다음을 듣고 이어지는 말로 가장 알맞은 것을 고르십시오.\n식사 맛있게 하셨어요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 제가 할게요.",
+            "네, 정말 맛있게 잘 먹었어요.",
+            "아니요, 아직 안 왔어요.",
+            "네, 어제 먹을 거예요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q34",
+          "questionText": "[34] 대화를 듣고 남자의 직업을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "용접공",
+            "농부",
+            "운전기사",
+            "요리사"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q35",
+          "questionText": "[35] 이야기를 듣고 질문에 알맞은 답을 고르십시오.\n남자는 왜 늦었습니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "잠을 많이 자서",
+            "길을 잃어버려서",
+            "교통이 복잡해서",
+            "버스를 놓쳐서"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q36",
+          "questionText": "[36] 대화를 듣고 두 사람이 만날 시간을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "5시 30분",
+            "6시",
+            "6시 30분",
+            "7시"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q37",
+          "questionText": "[37] 대화를 듣고 남자가 주문한 음식을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "김치찌개",
+            "된장찌개",
+            "비빔밥",
+            "불고기"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q38",
+          "questionText": "[38] 다음을 듣고 들은 내용과 일치하는 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "기계가 고장 났습니다.",
+            "작업이 모두 끝났습니다.",
+            "내일은 휴일입니다.",
+            "공장이 문을 닫습니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q39",
+          "questionText": "[39] 대화를 듣고 여자가 할 일로 알맞은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "상자를 옮긴다.",
+            "기계를 청소한다.",
+            "반장님을 부른다.",
+            "퇴근 준비를 한다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S3_Q40",
+          "questionText": "[40] 대화를 듣고 물음에 답하십시오.\n남자는 내일 몇 시에 출근합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "7시",
+            "8시",
+            "9시",
+            "10시"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        }
+      ],
+      "answerKeys": {
+        "S3_Q01": {
+          "correctIndex": 1,
+          "explanation": "तस्बिरमा कापी (Notebook) देखाइएको छ। कोरियनमा कापीलाई \"공책\" भनिन्छ।"
+        },
+        "S3_Q02": {
+          "correctIndex": 2,
+          "explanation": "तस्बिरमा आगो निभाउने दमकलकर्मी देखाइएको छ जसलाई \"소방관\" भनिन्छ।"
+        },
+        "S3_Q03": {
+          "correctIndex": 0,
+          "explanation": "\"주차금지\" को अर्थ पार्किङ निषेध हो, त्यसैले \"차를 세우지 마십시오\" सहि उत्तर हो।"
+        },
+        "S3_Q04": {
+          "correctIndex": 0,
+          "explanation": "हरियो रङको भाग्ने मान्छे भएको संकेत आपतकालीन ढोका \"비상구\" (Emergency Exit) हो।"
+        },
+        "S3_Q05": {
+          "correctIndex": 0,
+          "explanation": "\"कहाँ जानुहुन्छ?\" को उत्तरमा \"बजार जान्छु (시장에 가요)\" सहि हुन्छ।"
+        },
+        "S3_Q06": {
+          "correctIndex": 2,
+          "explanation": "कोरियाली मुद्रा गन्ती गर्दा \"원\" (Won) प्रयोग गरिन्छ (천 원 = १००० वन)।"
+        },
+        "S3_Q07": {
+          "correctIndex": 1,
+          "explanation": "पानी परेको दिन मौसम बादल लाग्ने \"흐려요\" हुन्छ।"
+        },
+        "S3_Q08": {
+          "correctIndex": 0,
+          "explanation": "भात, सुप, किम्ची खानासँग सम्बन्धित भएकाले \"식사\" (खाना) सम्बन्धित शब्द हो।"
+        },
+        "S3_Q09": {
+          "correctIndex": 1,
+          "explanation": "रसिदमा \"우유: 2,500원\" लेखिएको छ, त्यसैले \"दुध किनेन\" भन्नु गलत हो।"
+        },
+        "S3_Q10": {
+          "correctIndex": 0,
+          "explanation": "अनुच्छेदमा म कोरियाली फ्याक्ट्रीमा काम गर्छु भनिएको छ।"
+        },
+        "S3_Q11": {
+          "correctIndex": 0,
+          "explanation": "शनिबार र आइतबारलाई कोरियामा \"주말\" (Weekend) भनिन्छ।"
+        },
+        "S3_Q12": {
+          "correctIndex": 0,
+          "explanation": "कम्पनीको लन्च समय \"12시 30분\" बाट सुरु हुन्छ।"
+        },
+        "S3_Q13": {
+          "correctIndex": 1,
+          "explanation": "भित्र पस्नु (들어가다) को उल्टो शब्द बाहिर निस्कनु (나오다) हो।"
+        },
+        "S3_Q14": {
+          "correctIndex": 1,
+          "explanation": "कुरा गर्नु (이야기하다) को उस्तै अर्थ बोल्नु (말하다) हो।"
+        },
+        "S3_Q15": {
+          "correctIndex": 0,
+          "explanation": "कार्यस्थलमा पस्दा हेल्मेट र सुरक्षित जुत्ता (안전화) अनिवार्य लगाउनुपर्छ।"
+        },
+        "S3_Q16": {
+          "correctIndex": 1,
+          "explanation": "स्वीच बन्द गर्नका लागि थिच्नु (누르면) सहि क्रियापद हो।"
+        },
+        "S3_Q17": {
+          "correctIndex": 0,
+          "explanation": "सामान राख्ने र ओसार्ने बाकसलाई \"상자\" भनिन्छ।"
+        },
+        "S3_Q18": {
+          "correctIndex": 2,
+          "explanation": "आगो लाग्दा अरूलाई जानकारी दिन चिच्याउँदै सुरक्षित ठाउँमा भाग्नुपर्छ।"
+        },
+        "S3_Q19": {
+          "correctIndex": 0,
+          "explanation": "ठूलाबडालाई सामान दिँदा दुई हातले दिनुपर्छ।"
+        },
+        "S3_Q20": {
+          "correctIndex": 1,
+          "explanation": "तलब पाएपछि घरमा पैसा पठाउने विचार (보내려고) सहि उत्तर हो।"
+        },
+        "S3_Q21": {
+          "correctIndex": 0,
+          "explanation": "सुनेको आवाज \"공장\" (फ्याक्ट्री) सहि उत्तर हो।"
+        },
+        "S3_Q22": {
+          "correctIndex": 1,
+          "explanation": "सुनेको शब्द \"모자\" (टोपी) सहि उत्तर हो।"
+        },
+        "S3_Q23": {
+          "correctIndex": 2,
+          "explanation": "कार्यस्थल सुरक्षा जुत्तालाई \"안전화\" (Safety Shoes) भनिन्छ।"
+        },
+        "S3_Q24": {
+          "correctIndex": 0,
+          "explanation": "\"कोरियन हुनुहुन्छ?\" को उपयुक्त जवाफ \"ने, कोरियन हुँ\" हो।"
+        },
+        "S3_Q25": {
+          "correctIndex": 0,
+          "explanation": "समय सोधेको हुनाले \"오후 2시예요\" (दिउँसोको २ बज्यो) सहि उत्तर हो।"
+        },
+        "S3_Q26": {
+          "correctIndex": 0,
+          "explanation": "\"यो काम कहिलेसम्म सक्नुपर्छ?\" को जवाफ \"आज दिउँसोसम्म सक्नुहोस्\" हो।"
+        },
+        "S3_Q27": {
+          "correctIndex": 2,
+          "explanation": "काम सुरु गर्नुअघि सुरक्षा पोशाक (보호구) लगाउनुपर्छ।"
+        },
+        "S3_Q28": {
+          "correctIndex": 0,
+          "explanation": "\"आज साँझ समय छ?\" को स्वाभाविक उत्तर \"ने, समय छ\" हो।"
+        },
+        "S3_Q29": {
+          "correctIndex": 1,
+          "explanation": "\"काम सकिएपछि के गर्नुहुन्छ?\" को उत्तर \"साथीलाई भेट्नेछु\" हो।"
+        },
+        "S3_Q30": {
+          "correctIndex": 0,
+          "explanation": "मान्छेले सुरक्षा हेल्मेट खोजिरहेको हुन्छ।"
+        },
+        "S3_Q31": {
+          "correctIndex": 2,
+          "explanation": "महिला औषधि किन्न \"약국\" (फार्मेसी) जान लागेकी हुन्।"
+        },
+        "S3_Q32": {
+          "correctIndex": 0,
+          "explanation": "दुई साथीहरू साँझ फिल्म हेर्न \"영화 보기\" जान लागेका हुन्।"
+        },
+        "S3_Q33": {
+          "correctIndex": 1,
+          "explanation": "\"खाना मिठो खानुभयो?\" भन्दा \"ने, निकै मिठो मानेर खाएँ\" भनिन्छ।"
+        },
+        "S3_Q34": {
+          "correctIndex": 0,
+          "explanation": "वेल्डिङ सम्बन्धी कुरा भइरहेकाले पेशा \"용접공\" (वेल्डर) हो।"
+        },
+        "S3_Q35": {
+          "correctIndex": 2,
+          "explanation": "सवारी जाम (교통이 복잡해서) भएकाले ढिला भएको हो।"
+        },
+        "S3_Q36": {
+          "correctIndex": 1,
+          "explanation": "दुई जना ६ बजे (6시) भेट्ने तय गर्छन्।"
+        },
+        "S3_Q37": {
+          "correctIndex": 0,
+          "explanation": "रेस्टुरेन्टमा किम्ची चिगे अर्डर गरिएको हो।"
+        },
+        "S3_Q38": {
+          "correctIndex": 1,
+          "explanation": "आजको काम सकिएको घोषणा गरिएको हो।"
+        },
+        "S3_Q39": {
+          "correctIndex": 0,
+          "explanation": "महिलाले बाकस ओसार्ने काम गर्नेछिन्।"
+        },
+        "S3_Q40": {
+          "correctIndex": 1,
+          "explanation": "भोलि बिहान ८ बजे कम्पनी आइपुग्नुपर्ने कुरा हुन्छ।"
+        }
+      }
+    },
+    {
+      "id": "set_04",
+      "title": "제4회 직장생활 및 한국문화 모의고사",
+      "sector": "일반/문화 (Workplace Culture & Etiquette)",
+      "description": "कोरियाली चाडपर्व, बिदा, तलब भुक्तानी, बैंक, अस्पताल र दैनिक जीवनयापन संवाद सम्बन्धी महत्वपूर्ण सेट।",
+      "totalQuestions": 40,
+      "durationMinutes": 50,
+      "passMarks": 50.0,
+      "isApproved": true,
+      "createdByRole": "superAdmin",
+      "instituteId": null,
+      "instituteName": null,
+      "isLiveExam": false,
+      "liveExamDate": null,
+      "isStrictMode": true,
+      "questions": [
+        {
+          "questionId": "S4_S2_Q01",
+          "questionText": "[4회 1] 다음 그림을 보고 맞는 단어를 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "호미입니다.",
+            "삽입니다.",
+            "낫입니다.",
+            "괭이입니다."
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q02",
+          "questionText": "[2] 다음 그림을 보고 알맞은 가축을 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "소",
+            "돼지",
+            "닭",
+            "오리"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q03",
+          "questionText": "[3] 다음 표지의 의미로 알맞은 것은 무엇입니까? '출입금지'",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "들어오지 마십시오.",
+            "손대지 마십시오.",
+            "담배를 피우지 마십시오.",
+            "주차하지 마십시오."
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q04",
+          "questionText": "[4] 비닐하우스의 온도를 조절하기 위해 무엇을 열어야 합니까?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "환풍기",
+            "보일러",
+            "창문과 문",
+            "수도꼭지"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q05",
+          "questionText": "[5] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n밭에 씨앗을 (      ) 후에 물을 줍니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "심은",
+            "자른",
+            "먹은",
+            "파는"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q06",
+          "questionText": "[6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 돼지에게 밥을 주었습니까?\n나: 네, 아침에 (      )을 주었습니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "사료",
+            "비료",
+            "약",
+            "흙"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q07",
+          "questionText": "[7] 다음 단어와 관계있는 것은 무엇입니까?\n[ 토마토, 배추, 상추, 고추 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "채소",
+            "과일",
+            "고기",
+            "곡식"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q08",
+          "questionText": "[8] 농약 살포 시 착용해야 하는 안전 장비가 아닌 것은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "마스크",
+            "방제복",
+            "고무장갑",
+            "슬리퍼"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q09",
+          "questionText": "[9] 다음 글을 읽고 내용과 같은 것을 고르십시오.\n가을에는 벼를 베고 과일을 수확합니다. 농촌에서 가장 바쁜 계절입니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "가을은 농촌이 바쁩니다.",
+            "겨울에 벼를 벱니다.",
+            "봄에 과일을 수확합니다.",
+            "가을에는 일이 없습니다."
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q10",
+          "questionText": "[10] 다음 닭 사육장(양계장) 관리 수칙 중 맞는 것은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "매일 사료통을 청소합니다.",
+            "환기를 시키지 않습니다.",
+            "온도를 차갑게 유지합니다.",
+            "물을 주지 않습니다."
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q11",
+          "questionText": "[11] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n채소에 벌레가 많아서 (      )를 뿌려야 합니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "농약",
+            "물",
+            "기름",
+            "페인트"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q12",
+          "questionText": "[12] 다음 단어의 반대말은 무엇입니까?\n[ 수확하다 (Harvest) ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "심다 (Plant)",
+            "팔다 (Sell)",
+            "먹다 (Eat)",
+            "씻다 (Wash)"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q13",
+          "questionText": "[13] 다음 설명에 맞는 어휘를 고르십시오.\n[ 소나 돼지, 닭을 기르는 건물 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "축사",
+            "기숙사",
+            "식당",
+            "사무실"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q14",
+          "questionText": "[14] 비닐하우스 안에서 일할 때 주의할 점은 무엇입니까?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "충분한 수분을 섭취하고 휴식한다.",
+            "물을 전혀 마시지 않는다.",
+            "두꺼운 겨울 옷을 입는다.",
+            "창문을 다 닫고 일한다."
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q15",
+          "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n과일을 상자에 담아서 창고로 (      ).",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "운반합니다",
+            "버립니다",
+            "태웁니다",
+            "뿌립니다"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q16",
+          "questionText": "[16] 풀을 벨 때 사용하는 도구는 무엇입니까?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "낫",
+            "망치",
+            "못",
+            "드라이버"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q17",
+          "questionText": "[17] 다음 중 거름(비료)을 주는 올바른 이유는?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "작물이 잘 자라도록 하기 위해",
+            "벌레를 잡기 위해",
+            "물을 빼기 위해",
+            "창고를 청소하기 위해"
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q18",
+          "questionText": "[18] 축사를 청소할 때 가장 먼저 해야 할 일은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "분뇨(똥)를 치운다.",
+            "소에게 노래를 틀어준다.",
+            "문을 잠근다.",
+            "불을 끈다."
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q19",
+          "questionText": "[19] 다음 농장 일정표를 보고 알맞은 것을 고르십시오.\n[월: 씨앗 뿌리기, 화: 비료 주기, 수: 물주기]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "화요일에는 비료를 줍니다.",
+            "월요일에는 물을 줍니다.",
+            "수요일에는 씨앗을 뿌립니다.",
+            "목요일에 수확합니다."
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q20",
+          "questionText": "[20] 트랙터나 경운기를 운전할 때 주의사항은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "안전벨트를 매고 서행한다.",
+            "과속으로 운전한다.",
+            "휴대폰을 보며 운전한다.",
+            "음주 후 운전한다."
+          ]
+        },
+        {
+          "questionId": "S4_S2_Q21",
+          "questionText": "[4회 21] 들은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "삽",
+            "낫",
+            "칼",
+            "못"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q22",
+          "questionText": "[22] 들은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "오이",
+            "가지",
+            "호박",
+            "당근"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q23",
+          "questionText": "[23] 그림을 보고 알맞은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "소를 키웁니다.",
+            "돼지를 키웁니다.",
+            "닭을 키웁니다.",
+            "양을 키웁니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q24",
+          "questionText": "[24] 질문을 듣고 알맞은 대답을 고르십시오.\n오늘 비닐하우스 환기시켰어요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 아침에 열어 두었어요.",
+            "아니요, 밥을 먹었어요.",
+            "네, 씨앗을 샀어요.",
+            "아니요, 사과를 땄어요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q25",
+          "questionText": "[25] 질문을 듣고 알맞은 대답을 고르십시오.\n사료는 하루에 몇 번 줍니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "하루에 두 번 줍니다.",
+            "사료가 맛있습니다.",
+            "돼지가 10마리 있습니다.",
+            "어제 샀습니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q26",
+          "questionText": "[26] 대화를 듣고 남자가 할 일을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "물 주기",
+            "잡초 뽑기",
+            "사료 주기",
+            "상자 나르기"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q27",
+          "questionText": "[27] 대화를 듣고 여자가 찾는 도구를 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "호미",
+            "삽",
+            "사다리",
+            "가위"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q28",
+          "questionText": "[28] 질문을 듣고 알맞은 대답을 고르십시오.\n상추 수확은 언제 시작해요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "내일 아침 일찍 시작해요.",
+            "어제 다 팔았어요.",
+            "상추가 싱싱해요.",
+            "시장에 있어요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q29",
+          "questionText": "[29] 대화를 듣고 작업 장소를 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "토마토 온실",
+            "돼지 축사",
+            "과수원",
+            "양계장"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q30",
+          "questionText": "[30] 이야기를 듣고 질문에 답하십시오.\n남자는 왜 병원에 가야 합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "허리를 다쳐서",
+            "배가 아파서",
+            "감기에 걸려서",
+            "눈이 아파서"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q31",
+          "questionText": "[31] 대화를 듣고 오늘 할 작업을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "과일 포장하기",
+            "씨앗 뿌리기",
+            "농약 치기",
+            "비료 주기"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q32",
+          "questionText": "[32] 대화를 듣고 여자의 고향 날씨를 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "따뜻하고 비가 자주 옴",
+            "매우 춥고 눈이 옴",
+            "건조하고 바람이 붐",
+            "사계절이 뚜렷함"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q33",
+          "questionText": "[33] 질문을 듣고 알맞은 대답을 고르십시오.\n농약 칠 때 마스크 썼어요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 마스크 착용했어요.",
+            "아니요, 물을 마셨어요.",
+            "네, 밥을 먹었어요.",
+            "아니요, 모자를 샀어요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q34",
+          "questionText": "[34] 대화를 듣고 두 사람이 이야기하는 작물을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "딸기",
+            "수박",
+            "포도",
+            "사과"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q35",
+          "questionText": "[35] 대화를 듣고 남자가 오후에 할 일을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "트랙터 청소하기",
+            "잡초 제거하기",
+            "거름 주기",
+            "휴식하기"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q36",
+          "questionText": "[36] 대화를 듣고 소의 상태가 어떤지 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "밥을 잘 안 먹고 아픔",
+            "아주 건강함",
+            "새끼를 낳았음",
+            "잠을 자고 있음"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q37",
+          "questionText": "[37] 대화를 듣고 내일 날씨를 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "비가 많이 옴",
+            "맑고 화창함",
+            "눈이 내림",
+            "안개가 낌"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q38",
+          "questionText": "[38] 대화를 듣고 여자가 사 오기로 한 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "장갑과 장화",
+            "가위와 칼",
+            "모자와 수건",
+            "비료와 사료"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q39",
+          "questionText": "[39] 대화를 듣고 퇴근 시간으로 알맞은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "오후 5시",
+            "오후 6시",
+            "오후 6시 30분",
+            "오후 7시"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S4_S2_Q40",
+          "questionText": "[40] 대화를 듣고 질문에 답하십시오.\n상자 몇 개를 트럭에 실었습니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "20개",
+            "30개",
+            "40개",
+            "50개"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        }
+      ],
+      "answerKeys": {
+        "S4_S2_Q01": {
+          "correctIndex": 0,
+          "explanation": "तस्बिरमा देखिएको सानो कुटोलाई कोरियनमा \"호미\" (Homi) भनिन्छ।"
+        },
+        "S4_S2_Q02": {
+          "correctIndex": 1,
+          "explanation": "तस्बिरमा सुँगुर देखाइएको छ जसलाई कोरियनमा \"돼지\" भनिन्छ।"
+        },
+        "S4_S2_Q03": {
+          "correctIndex": 0,
+          "explanation": "\"출입금지\" भनेको भित्र पस्न निषेध हो (들어오지 마십시오)।"
+        },
+        "S4_S2_Q04": {
+          "correctIndex": 2,
+          "explanation": "प्लास्टिक घर (Vinyl house) को तापक्रम मिलाउन झ्याल र ढोका खोल्नुपर्छ।"
+        },
+        "S4_S2_Q05": {
+          "correctIndex": 0,
+          "explanation": "बारीमा बीउ रोपेपछि (심은 후에) पानी हालिन्छ।"
+        },
+        "S4_S2_Q06": {
+          "correctIndex": 0,
+          "explanation": "गाईबस्तु वा सुँगुरलाई दिने दानालाई \"사료\" भनिन्छ।"
+        },
+        "S4_S2_Q07": {
+          "correctIndex": 0,
+          "explanation": "गोलभेँडा, बन्दा, सागपात आदि सबै तरकारी (채소) हुन्।"
+        },
+        "S4_S2_Q08": {
+          "correctIndex": 3,
+          "explanation": "विषादी छर्कँदा चप्पल (슬리퍼) लगाउनु असुरक्षित र गलत हो।"
+        },
+        "S4_S2_Q09": {
+          "correctIndex": 0,
+          "explanation": "शरद ऋतु (가을) मा बाली भित्र्याउने हुँदा गाउँघर व्यस्त हुन्छ।"
+        },
+        "S4_S2_Q10": {
+          "correctIndex": 0,
+          "explanation": "कुखुरा फार्ममा दानाको भाँडो सधैं सफा राख्नुपर्छ।"
+        },
+        "S4_S2_Q11": {
+          "correctIndex": 0,
+          "explanation": "कीरा मार्नका लागि विषादी \"농약\" छर्कनुपर्छ।"
+        },
+        "S4_S2_Q12": {
+          "correctIndex": 0,
+          "explanation": "बाली भित्र्याउनु (수확하다) को उल्टो बीउ रोप्नु (심다) हो।"
+        },
+        "S4_S2_Q13": {
+          "correctIndex": 0,
+          "explanation": "पशु चौपाया पाल्ने गोठलाई \"축사\" भनिन्छ।"
+        },
+        "S4_S2_Q14": {
+          "correctIndex": 0,
+          "explanation": "गर्मी हुने ठाउँमा काम गर्दा पानी पिउँदै आराम गर्नुपर्छ।"
+        },
+        "S4_S2_Q15": {
+          "correctIndex": 0,
+          "explanation": "सामान गोदाममा ओसार्नुलाई \"운반합니다\" भनिन्छ।"
+        },
+        "S4_S2_Q16": {
+          "correctIndex": 0,
+          "explanation": "घाँस काट्न प्रयोग गरिने हँसियालाई \"낫\" भनिन्छ।"
+        },
+        "S4_S2_Q17": {
+          "correctIndex": 0,
+          "explanation": "बालीनाली राम्रोसँग हुर्कनका लागि मल (비료) दिइन्छ।"
+        },
+        "S4_S2_Q18": {
+          "correctIndex": 0,
+          "explanation": "गोठ सफा गर्दा पहिले गोबर र दिसा (분뇨) फाल्नुपर्छ।"
+        },
+        "S4_S2_Q19": {
+          "correctIndex": 0,
+          "explanation": "तालिका अनुसार मंगलबार मल दिने काम छ।"
+        },
+        "S4_S2_Q20": {
+          "correctIndex": 0,
+          "explanation": "ट्र्याक्टर चलाउँदा सिटबेल्ट बाँधेर विस्तारै चलाउनुपर्छ।"
+        },
+        "S4_S2_Q21": {
+          "correctIndex": 0,
+          "explanation": "सुनेको औजार बेल्चा \"삽\" हो।"
+        },
+        "S4_S2_Q22": {
+          "correctIndex": 0,
+          "explanation": "सुनेको तरकारी काँक्रो \"오이\" हो।"
+        },
+        "S4_S2_Q23": {
+          "correctIndex": 0,
+          "explanation": "तस्बिरमा गाई/गोरु पालेको देखाइएको छ (소를 키웁니다)।"
+        },
+        "S4_S2_Q24": {
+          "correctIndex": 0,
+          "explanation": "भेन्टिलेसन खोलिसकेको जवाफ \"네, 아침에 열어 두었어요\" सहि हो।"
+        },
+        "S4_S2_Q25": {
+          "correctIndex": 0,
+          "explanation": "कति पटक दाना दिइन्छ भन्दा \"하루에 두 번 줍니다\" (दिनको दुई पटक) उपयुक्त हुन्छ।"
+        },
+        "S4_S2_Q26": {
+          "correctIndex": 1,
+          "explanation": "पुरुषले घाँस वा झार उखेल्ने (잡초 뽑기) काम गर्छ।"
+        },
+        "S4_S2_Q27": {
+          "correctIndex": 0,
+          "explanation": "महिलाले सानो कुटो \"호미\" खोजिरहेकी हुन्।"
+        },
+        "S4_S2_Q28": {
+          "correctIndex": 0,
+          "explanation": "भोलि बिहानै साग टिप्ने काम सुरु हुनेछ।"
+        },
+        "S4_S2_Q29": {
+          "correctIndex": 0,
+          "explanation": "गोलभेँडाको प्लास्टिक टनेल (토마토 온실) मा काम भइरहेको छ।"
+        },
+        "S4_S2_Q30": {
+          "correctIndex": 0,
+          "explanation": "गह्रौं सामान उचाल्दा कम्मर दुखेकाले अस्पताल जानुपरेको हो।"
+        },
+        "S4_S2_Q31": {
+          "correctIndex": 0,
+          "explanation": "फलफूल प्याकिङ गर्ने (과일 포장하기) काम हुनेछ।"
+        },
+        "S4_S2_Q32": {
+          "correctIndex": 0,
+          "explanation": "न्यानो र पानी परिरहने मौसम छ।"
+        },
+        "S4_S2_Q33": {
+          "correctIndex": 0,
+          "explanation": "विषादी छर्कँदा मास्क लगाएको जवाफ \"네, 마스크 착용했어요\" हो।"
+        },
+        "S4_S2_Q34": {
+          "correctIndex": 0,
+          "explanation": "स्ट्रबेरी (딸기) खेती सम्बन्धी कुरा भइरहेको छ।"
+        },
+        "S4_S2_Q35": {
+          "correctIndex": 0,
+          "explanation": "दिउँसो ट्र्याक्टर सफा गर्ने काम हुन्छ।"
+        },
+        "S4_S2_Q36": {
+          "correctIndex": 0,
+          "explanation": "गाईले दाना नखाएर बिरामी परेको छ।"
+        },
+        "S4_S2_Q37": {
+          "correctIndex": 0,
+          "explanation": "भोलि धेरै पानी पर्ने मौसम पूर्वानुमान छ।"
+        },
+        "S4_S2_Q38": {
+          "correctIndex": 0,
+          "explanation": "पन्जा र गमबुट किनेर ल्याउने सहमति भएको छ।"
+        },
+        "S4_S2_Q39": {
+          "correctIndex": 1,
+          "explanation": "साँझ ६ बजे (오후 6시) काम छुट्टी हुन्छ।"
+        },
+        "S4_S2_Q40": {
+          "correctIndex": 1,
+          "explanation": "ट्रकमा ३० वटा बाकस (30개) लोड गरिएको छ।"
+        }
+      }
+    },
+    {
+      "id": "set_05",
+      "title": "제5회 최종 실전 종합 모의고사",
+      "sector": "실전 종합 (Final Real Exam Simulation)",
+      "description": "HRD Korea को वास्तविक परीक्षा स्तर अनुसार तयार पारिएको ४० प्रश्नहरूको अन्तिम नमुना सेट।",
+      "totalQuestions": 40,
+      "durationMinutes": 50,
+      "passMarks": 50.0,
+      "isApproved": true,
+      "createdByRole": "superAdmin",
+      "instituteId": null,
+      "instituteName": null,
+      "isLiveExam": false,
+      "liveExamDate": null,
+      "isStrictMode": true,
+      "questions": [
+        {
+          "questionId": "S5_Q01",
+          "questionText": "[실전 1] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "가방입니다.",
+            "공책입니다.",
+            "수첩입니다.",
+            "안경입니다."
+          ]
+        },
+        {
+          "questionId": "S5_Q02",
+          "questionText": "[실전 2] 다음 그림을 보고 맞는 단어를 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "의사",
+            "경찰관",
+            "소방관",
+            "요리사"
+          ]
+        },
+        {
+          "questionId": "S5_Q03",
+          "questionText": "[3] 다음 질문에 맞는 표지를 고르십시오. '주차금지'",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "차를 세우지 마십시오.",
+            "담배를 피우지 마십시오.",
+            "사진을 찍지 마십시오.",
+            "뛰어가지 마십시오."
+          ]
+        },
+        {
+          "questionId": "S5_Q04",
+          "questionText": "[4] 다음 안내판의 설명으로 알맞은 것은 무엇입니까?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "비상구입니다.",
+            "화장실입니다.",
+            "식당입니다.",
+            "엘리베이터입니다."
+          ]
+        },
+        {
+          "questionId": "S5_Q05",
+          "questionText": "[5] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 어디에 가요?\n나: 시장에 (      ).",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "가요",
+            "와요",
+            "봐요",
+            "사요"
+          ]
+        },
+        {
+          "questionId": "S5_Q06",
+          "questionText": "[6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 사과가 얼마예요?\n나: 한 개에 천 (      )이에요.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "명",
+            "개",
+            "원",
+            "병"
+          ]
+        },
+        {
+          "questionId": "S5_Q07",
+          "questionText": "[7] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 오늘 날씨가 어때요?\n나: 비가 와서 날씨가 (      ).",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "더워요",
+            "흐려요",
+            "따뜻해요",
+            "맑아요"
+          ]
+        },
+        {
+          "questionId": "S5_Q08",
+          "questionText": "[8] 다음 단어와 관계있는 것은 무엇입니까?\n[ 밥, 찌개, 김치, 반찬 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "식사",
+            "과일",
+            "계절",
+            "운동"
+          ]
+        },
+        {
+          "questionId": "S5_Q09",
+          "questionText": "[9] 다음 영수증을 보고 맞지 않는 것을 고르십시오.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "사과를 샀습니다.",
+            "우유는 사지 않았습니다.",
+            "모두 6,500원입니다.",
+            "카드로 계산했습니다."
+          ]
+        },
+        {
+          "questionId": "S5_Q10",
+          "questionText": "[10] 다음 글을 읽고 내용과 같은 것을 고르십시오.\n저는 베트남 사람입니다. 한국 공장에서 일합니다. 일이 조금 힘들지만 재미있습니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "이 사람은 공장에서 일합니다.",
+            "이 사람은 한국 사람입니다.",
+            "공장 일이 아주 쉽습니다.",
+            "이 사람은 학생입니다."
+          ]
+        },
+        {
+          "questionId": "S5_Q11",
+          "questionText": "[11] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월요일부터 금요일까지 일하고, 토요일과 일요일은 (      )입니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "주말",
+            "평일",
+            "휴가",
+            "생일"
+          ]
+        },
+        {
+          "questionId": "S5_Q12",
+          "questionText": "[12] 다음 글의 내용과 맞는 것을 고르십시오.\n우리 회사는 9시에 시작해서 오후 6시에 끝납니다. 점심시간은 12시 30분부터 1시간입니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "점심시간은 12시 30분부터입니다.",
+            "회사는 8시에 시작합니다.",
+            "오후 5시에 일이 끝납니다.",
+            "점심시간은 30분입니다."
+          ]
+        },
+        {
+          "questionId": "S5_Q13",
+          "questionText": "[13] 다음 단어의 반대말은 무엇입니까?\n[ 들어가다 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "올라가다",
+            "나오다",
+            "내려가다",
+            "돌아가다"
+          ]
+        },
+        {
+          "questionId": "S5_Q14",
+          "questionText": "[14] 다음 단어와 비슷한 말은 무엇입니까?\n[ 이야기하다 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "노래하다",
+            "말하다",
+            "생각하다",
+            "일하다"
+          ]
+        },
+        {
+          "questionId": "S5_Q15",
+          "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n작업장에 들어가기 전에는 반드시 안전모와 (      )를 착용해야 합니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "안전화",
+            "슬리퍼",
+            "운동복",
+            "모자"
+          ]
+        },
+        {
+          "questionId": "S5_Q16",
+          "questionText": "[16] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 이 기계는 어떻게 꺼요?\n나: 빨간색 스위치를 (      ) 됩니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "켜면",
+            "누르면",
+            "열면",
+            "닫으면"
+          ]
+        },
+        {
+          "questionId": "S5_Q17",
+          "questionText": "[17] 다음 설명에 맞는 어휘를 고르십시오.\n[ 물건을 담아서 옮기는 데 쓰는 직사각형 상자 ]",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "상자",
+            "사다리",
+            "줄자",
+            "망치"
+          ]
+        },
+        {
+          "questionId": "S5_Q18",
+          "questionText": "[18] 다음 중 작업 중 화재가 났을 때 가장 먼저 해야 할 일은?",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "사진을 찍는다.",
+            "물건을 챙긴다.",
+            "불이야 외치고 대피한다.",
+            "계속 일한다."
+          ]
+        },
+        {
+          "questionId": "S5_Q19",
+          "questionText": "[19] 다음 글을 읽고 물음에 답하십시오.\n한국에서는 어른에게 물건을 드릴 때 두 손으로 드려야 합니다. 그리고 식사할 때 어른이 먼저 수저를 든 후에 먹습니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "어른에게 두 손으로 물건을 드립니다.",
+            "한 손으로 드려도 괜찮습니다.",
+            "식사할 때 먼저 먹어도 됩니다.",
+            "한국에는 이런 예절이 없습니다."
+          ]
+        },
+        {
+          "questionId": "S5_Q20",
+          "questionText": "[20] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월급을 받으면 고향에 있는 가족에게 돈을 (      ) 합니다.",
+          "questionNumber": 1,
+          "isListening": false,
+          "textOptions": [
+            "바꾸려고",
+            "보내려고",
+            "찾으려고",
+            "빌리려고"
+          ]
+        },
+        {
+          "questionId": "S5_Q21",
+          "questionText": "[실전 21] 들은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "공장",
+            "시장",
+            "식당",
+            "서점"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q22",
+          "questionText": "[22] 들은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "가방",
+            "모자",
+            "구두",
+            "바지"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q23",
+          "questionText": "[23] 그림을 보고 알맞은 대답을 고르십시오.\n이것은 무엇입니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "안경입니다.",
+            "장갑입니다.",
+            "안전화입니다.",
+            "마스크입니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q24",
+          "questionText": "[24] 질문을 듣고 알맞은 대답을 고르십시오.\n한국 사람입니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 한국 사람입니다.",
+            "아니요, 베트남에 갑니다.",
+            "네, 회사원입니다.",
+            "아니요, 학생이 아닙니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q25",
+          "questionText": "[25] 질문을 듣고 알맞은 대답을 고르십시오.\n지금 몇 시예요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "오후 2시예요.",
+            "2개 있어요.",
+            "2만 원이에요.",
+            "2층이에요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q26",
+          "questionText": "[26] 질문을 듣고 알맞은 대답을 고르십시오.\n이 일은 언제까지 끝내야 합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "오늘 오후까지 끝내세요.",
+            "어제 끝냈습니다.",
+            "공장에 있습니다.",
+            "내일 시작했습니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q27",
+          "questionText": "[27] 질문을 듣고 알맞은 대답을 고르십시오.\n작업을 시작하기 전에 무엇을 해야 합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "집에 갑니다.",
+            "식사를 합니다.",
+            "보호구를 착용합니다.",
+            "잠을 잡니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q28",
+          "questionText": "[28] 질문을 듣고 알맞은 대답을 고르십시오.\n수루 씨, 오늘 저녁에 시간 있어요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 시간 있어요.",
+            "아니요, 어제 만났어요.",
+            "네, 밥을 먹었어요.",
+            "아니요, 영화가 끝났어요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q29",
+          "questionText": "[29] 질문을 듣고 알맞은 대답을 고르십시오.\n퇴근 후에 뭐 할 거예요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "출근했어요.",
+            "친구를 만날 거예요.",
+            "어제 잤어요.",
+            "회사에 있어요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q30",
+          "questionText": "[30] 이야기를 듣고 질문에 알맞은 대답을 고르십시오.\n남자는 무엇을 찾고 있습니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "안전모",
+            "작업복",
+            "줄자",
+            "도면"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q31",
+          "questionText": "[31] 대화를 듣고 여자가 가려고 하는 곳을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "우체국",
+            "은행",
+            "약국",
+            "병원"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q32",
+          "questionText": "[32] 대화를 듣고 두 사람이 오늘 할 일을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "영화 보기",
+            "운동하기",
+            "쇼핑하기",
+            "공부하기"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q33",
+          "questionText": "[33] 다음을 듣고 이어지는 말로 가장 알맞은 것을 고르십시오.\n식사 맛있게 하셨어요?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "네, 제가 할게요.",
+            "네, 정말 맛있게 잘 먹었어요.",
+            "아니요, 아직 안 왔어요.",
+            "네, 어제 먹을 거예요."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q34",
+          "questionText": "[34] 대화를 듣고 남자의 직업을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "용접공",
+            "농부",
+            "운전기사",
+            "요리사"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q35",
+          "questionText": "[35] 이야기를 듣고 질문에 알맞은 답을 고르십시오.\n남자는 왜 늦었습니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "잠을 많이 자서",
+            "길을 잃어버려서",
+            "교통이 복잡해서",
+            "버스를 놓쳐서"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q36",
+          "questionText": "[36] 대화를 듣고 두 사람이 만날 시간을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "5시 30분",
+            "6시",
+            "6시 30분",
+            "7시"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q37",
+          "questionText": "[37] 대화를 듣고 남자가 주문한 음식을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "김치찌개",
+            "된장찌개",
+            "비빔밥",
+            "불고기"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q38",
+          "questionText": "[38] 다음을 듣고 들은 내용과 일치하는 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "기계가 고장 났습니다.",
+            "작업이 모두 끝났습니다.",
+            "내일은 휴일입니다.",
+            "공장이 문을 닫습니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q39",
+          "questionText": "[39] 대화를 듣고 여자가 할 일로 알맞은 것을 고르십시오.",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "상자를 옮긴다.",
+            "기계를 청소한다.",
+            "반장님을 부른다.",
+            "퇴근 준비를 한다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "S5_Q40",
+          "questionText": "[40] 대화를 듣고 물음에 답하십시오.\n남자는 내일 몇 시에 출근합니까?",
+          "questionNumber": 21,
+          "isListening": true,
+          "questionAudioUrl": "assets/audio/sample_listening.mp3",
+          "textOptions": [
+            "7시",
+            "8시",
+            "9시",
+            "10시"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        }
+      ],
+      "answerKeys": {
+        "S5_Q01": {
+          "correctIndex": 1,
+          "explanation": "तस्बिरमा कापी (Notebook) देखाइएको छ। कोरियनमा कापीलाई \"공책\" भनिन्छ।"
+        },
+        "S5_Q02": {
+          "correctIndex": 2,
+          "explanation": "तस्बिरमा आगो निभाउने दमकलकर्मी देखाइएको छ जसलाई \"소방관\" भनिन्छ।"
+        },
+        "S5_Q03": {
+          "correctIndex": 0,
+          "explanation": "\"주차금지\" को अर्थ पार्किङ निषेध हो, त्यसैले \"차를 세우지 마십시오\" सहि उत्तर हो।"
+        },
+        "S5_Q04": {
+          "correctIndex": 0,
+          "explanation": "हरियो रङको भाग्ने मान्छे भएको संकेत आपतकालीन ढोका \"비상구\" (Emergency Exit) हो।"
+        },
+        "S5_Q05": {
+          "correctIndex": 0,
+          "explanation": "\"कहाँ जानुहुन्छ?\" को उत्तरमा \"बजार जान्छु (시장에 가요)\" सहि हुन्छ।"
+        },
+        "S5_Q06": {
+          "correctIndex": 2,
+          "explanation": "कोरियाली मुद्रा गन्ती गर्दा \"원\" (Won) प्रयोग गरिन्छ (천 원 = १००० वन)।"
+        },
+        "S5_Q07": {
+          "correctIndex": 1,
+          "explanation": "पानी परेको दिन मौसम बादल लाग्ने \"흐려요\" हुन्छ।"
+        },
+        "S5_Q08": {
+          "correctIndex": 0,
+          "explanation": "भात, सुप, किम्ची खानासँग सम्बन्धित भएकाले \"식사\" (खाना) सम्बन्धित शब्द हो।"
+        },
+        "S5_Q09": {
+          "correctIndex": 1,
+          "explanation": "रसिदमा \"우유: 2,500원\" लेखिएको छ, त्यसैले \"दुध किनेन\" भन्नु गलत हो।"
+        },
+        "S5_Q10": {
+          "correctIndex": 0,
+          "explanation": "अनुच्छेदमा म कोरियाली फ्याक्ट्रीमा काम गर्छु भनिएको छ।"
+        },
+        "S5_Q11": {
+          "correctIndex": 0,
+          "explanation": "शनिबार र आइतबारलाई कोरियामा \"주말\" (Weekend) भनिन्छ।"
+        },
+        "S5_Q12": {
+          "correctIndex": 0,
+          "explanation": "कम्पनीको लन्च समय \"12시 30분\" बाट सुरु हुन्छ।"
+        },
+        "S5_Q13": {
+          "correctIndex": 1,
+          "explanation": "भित्र पस्नु (들어가다) को उल्टो शब्द बाहिर निस्कनु (나오다) हो।"
+        },
+        "S5_Q14": {
+          "correctIndex": 1,
+          "explanation": "कुरा गर्नु (이야기하다) को उस्तै अर्थ बोल्नु (말하다) हो।"
+        },
+        "S5_Q15": {
+          "correctIndex": 0,
+          "explanation": "कार्यस्थलमा पस्दा हेल्मेट र सुरक्षित जुत्ता (안전화) अनिवार्य लगाउनुपर्छ।"
+        },
+        "S5_Q16": {
+          "correctIndex": 1,
+          "explanation": "स्वीच बन्द गर्नका लागि थिच्नु (누르면) सहि क्रियापद हो।"
+        },
+        "S5_Q17": {
+          "correctIndex": 0,
+          "explanation": "सामान राख्ने र ओसार्ने बाकसलाई \"상자\" भनिन्छ।"
+        },
+        "S5_Q18": {
+          "correctIndex": 2,
+          "explanation": "आगो लाग्दा अरूलाई जानकारी दिन चिच्याउँदै सुरक्षित ठाउँमा भाग्नुपर्छ।"
+        },
+        "S5_Q19": {
+          "correctIndex": 0,
+          "explanation": "ठूलाबडालाई सामान दिँदा दुई हातले दिनुपर्छ।"
+        },
+        "S5_Q20": {
+          "correctIndex": 1,
+          "explanation": "तलब पाएपछि घरमा पैसा पठाउने विचार (보내려고) सहि उत्तर हो।"
+        },
+        "S5_Q21": {
+          "correctIndex": 0,
+          "explanation": "सुनेको आवाज \"공장\" (फ्याक्ट्री) सहि उत्तर हो।"
+        },
+        "S5_Q22": {
+          "correctIndex": 1,
+          "explanation": "सुनेको शब्द \"모자\" (टोपी) सहि उत्तर हो।"
+        },
+        "S5_Q23": {
+          "correctIndex": 2,
+          "explanation": "कार्यस्थल सुरक्षा जुत्तालाई \"안전화\" (Safety Shoes) भनिन्छ।"
+        },
+        "S5_Q24": {
+          "correctIndex": 0,
+          "explanation": "\"कोरियन हुनुहुन्छ?\" को उपयुक्त जवाफ \"ने, कोरियन हुँ\" हो।"
+        },
+        "S5_Q25": {
+          "correctIndex": 0,
+          "explanation": "समय सोधेको हुनाले \"오후 2시예요\" (दिउँसोको २ बज्यो) सहि उत्तर हो।"
+        },
+        "S5_Q26": {
+          "correctIndex": 0,
+          "explanation": "\"यो काम कहिलेसम्म सक्नुपर्छ?\" को जवाफ \"आज दिउँसोसम्म सक्नुहोस्\" हो।"
+        },
+        "S5_Q27": {
+          "correctIndex": 2,
+          "explanation": "काम सुरु गर्नुअघि सुरक्षा पोशाक (보호구) लगाउनुपर्छ।"
+        },
+        "S5_Q28": {
+          "correctIndex": 0,
+          "explanation": "\"आज साँझ समय छ?\" को स्वाभाविक उत्तर \"ने, समय छ\" हो।"
+        },
+        "S5_Q29": {
+          "correctIndex": 1,
+          "explanation": "\"काम सकिएपछि के गर्नुहुन्छ?\" को उत्तर \"साथीलाई भेट्नेछु\" हो।"
+        },
+        "S5_Q30": {
+          "correctIndex": 0,
+          "explanation": "मान्छेले सुरक्षा हेल्मेट खोजिरहेको हुन्छ।"
+        },
+        "S5_Q31": {
+          "correctIndex": 2,
+          "explanation": "महिला औषधि किन्न \"약국\" (फार्मेसी) जान लागेकी हुन्।"
+        },
+        "S5_Q32": {
+          "correctIndex": 0,
+          "explanation": "दुई साथीहरू साँझ फिल्म हेर्न \"영화 보기\" जान लागेका हुन्।"
+        },
+        "S5_Q33": {
+          "correctIndex": 1,
+          "explanation": "\"खाना मिठो खानुभयो?\" भन्दा \"ने, निकै मिठो मानेर खाएँ\" भनिन्छ।"
+        },
+        "S5_Q34": {
+          "correctIndex": 0,
+          "explanation": "वेल्डिङ सम्बन्धी कुरा भइरहेकाले पेशा \"용접공\" (वेल्डर) हो।"
+        },
+        "S5_Q35": {
+          "correctIndex": 2,
+          "explanation": "सवारी जाम (교통이 복잡해서) भएकाले ढिला भएको हो।"
+        },
+        "S5_Q36": {
+          "correctIndex": 1,
+          "explanation": "दुई जना ६ बजे (6시) भेट्ने तय गर्छन्।"
+        },
+        "S5_Q37": {
+          "correctIndex": 0,
+          "explanation": "रेस्टुरेन्टमा किम्ची चिगे अर्डर गरिएको हो।"
+        },
+        "S5_Q38": {
+          "correctIndex": 1,
+          "explanation": "आजको काम सकिएको घोषणा गरिएको हो।"
+        },
+        "S5_Q39": {
+          "correctIndex": 0,
+          "explanation": "महिलाले बाकस ओसार्ने काम गर्नेछिन्।"
+        },
+        "S5_Q40": {
+          "correctIndex": 1,
+          "explanation": "भोलि बिहान ८ बजे कम्पनी आइपुग्नुपर्ने कुरा हुन्छ।"
+        }
+      }
+    }
+  ],
+  "users": [
+    {
+      "id": "STU_001",
+      "username": "student",
+      "password": "student123",
+      "name": "राम बहादुर (Ram Bahadur)",
+      "registrationNo": "01234567",
+      "mobileNumber": "9841234567",
+      "batch": "2026 Batch A (बिहानी सत्र)",
+      "sector": "제조업 (Manufacturing)",
+      "status": "सक्रिय (Active)",
+      "role": "student",
+      "instituteId": "inst_01",
+      "instituteName": "ग्लोबल कोरियन भाषा इन्स्टिच्युट",
+      "instituteLogo": "assets/images/institute_logo_default.png",
+      "profilePhoto": null
+    },
+    {
+      "id": "STU_002",
+      "username": "sita",
+      "password": "student123",
+      "name": "सीता शर्मा (Sita Sharma)",
+      "registrationNo": "01234568",
+      "mobileNumber": "9841234568",
+      "batch": "2026 Batch A (बिहानी सत्र)",
+      "sector": "농축산 (Agriculture)",
+      "status": "सक्रिय (Active)",
+      "role": "student",
+      "instituteId": "inst_01",
+      "instituteName": "ग्लोबल कोरियन भाषा इन्स्टिच्युट",
+      "instituteLogo": "assets/images/institute_logo_default.png",
+      "profilePhoto": null
+    },
+    {
+      "id": "STU_003",
+      "username": "kiran",
+      "password": "student123",
+      "name": "किरण गुरुङ (Kiran Gurung)",
+      "registrationNo": "01234569",
+      "mobileNumber": "9841234569",
+      "batch": "2026 Batch B (दिवा सत्र)",
+      "sector": "제조업 (Manufacturing)",
+      "status": "सक्रिय (Active)",
+      "role": "student",
+      "instituteId": "inst_01",
+      "instituteName": "ग्लोबल कोरियन भाषा इन्स्टिच्युट",
+      "instituteLogo": "assets/images/institute_logo_default.png",
+      "profilePhoto": null
+    },
+    {
+      "id": "STU_004",
+      "username": "anita",
+      "password": "student123",
+      "name": "अनिता तामाङ (Anita Tamang)",
+      "registrationNo": "01234570",
+      "mobileNumber": "9841234570",
+      "batch": "2026 Batch C (साँझ सत्र)",
+      "sector": "건설업 (Construction)",
+      "status": "सक्रिय (Active)",
+      "role": "student",
+      "instituteId": "inst_01",
+      "instituteName": "ग्लोबल कोरियन भाषा इन्स्टिच्युट",
+      "instituteLogo": "assets/images/institute_logo_default.png",
+      "profilePhoto": null
+    }
+  ],
+  "attempts": [
+    {
+      "setId": "set_01",
+      "setTitle": "제1회 EPS-TOPIK 실전 모의고사 (제조업)",
+      "studentId": "student",
+      "studentName": "राम थापा (Ram Thapa)",
+      "registrationNo": "2026-001",
+      "score": 87.5,
+      "readingScore": 42.5,
+      "listeningScore": 45.0,
+      "isPassed": true,
+      "completedAt": "2026-09-05T10:57:07.608177",
+      "timeSpentSeconds": 1620,
+      "userAnswers": {}
+    },
+    {
+      "setId": "set_02",
+      "setTitle": "제2회 농축산업 실전 모의고사 (농축산)",
+      "studentId": "sita_g",
+      "studentName": "सिता गुरुङ (Sita Gurung)",
+      "registrationNo": "2026-002",
+      "score": 72.5,
+      "readingScore": 35.0,
+      "listeningScore": 37.5,
+      "isPassed": true,
+      "completedAt": "2026-09-05T07:57:07.608177",
+      "timeSpentSeconds": 1840,
+      "userAnswers": {}
+    },
+    {
+      "setId": "set_03",
+      "setTitle": "제3회 건설 및 현장안전 모의고사 (건설)",
+      "studentId": "bikash_s",
+      "studentName": "विकास श्रेष्ठ (Bikash Shrestha)",
+      "registrationNo": "2026-003",
+      "score": 47.5,
+      "readingScore": 22.5,
+      "listeningScore": 25.0,
+      "isPassed": false,
+      "completedAt": "2026-09-05T03:57:07.608177",
+      "timeSpentSeconds": 2100,
+      "userAnswers": {}
+    },
+    {
+      "setId": "set_04",
+      "setTitle": "제4회 직장생활 및 한국문화 모의고사 (문화)",
+      "studentId": "sujan_r",
+      "studentName": "सुजन राई (Sujan Rai)",
+      "registrationNo": "2026-004",
+      "score": 77.5,
+      "readingScore": 37.5,
+      "listeningScore": 40.0,
+      "isPassed": true,
+      "completedAt": "2026-09-04T12:57:07.608177",
+      "timeSpentSeconds": 1530,
+      "userAnswers": {}
+    },
+    {
+      "setId": "set_05",
+      "setTitle": "제5회 최종 실전 종합 모의고사 (종합)",
+      "studentId": "anita_t",
+      "studentName": "अनिता तामाङ (Anita Tamang)",
+      "registrationNo": "2026-005",
+      "score": 92.5,
+      "readingScore": 45.0,
+      "listeningScore": 47.5,
+      "isPassed": true,
+      "completedAt": "2026-09-04T08:57:07.608177",
+      "timeSpentSeconds": 1480,
+      "userAnswers": {}
+    }
+  ],
+  "flashcards": [
+    {
+      "id": "vfc_01",
+      "koreanWord": "안전모",
+      "pronunciation": "आन्जनमो",
+      "nepaliMeaning": "सुरक्षा हेल्मेट (Safety Helmet)",
+      "chapterNo": 48,
+      "chapterTitle": "기초 한국어",
+      "topic": "सुरक्षा सामग्री",
+      "visualIcon": "⛑️",
+      "exampleSentence": "머리를 보호하기 위해 공사장에서 항상 안전모를 착용합니다.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_02",
+      "koreanWord": "안전화",
+      "pronunciation": "आन्जन्व्हा",
+      "nepaliMeaning": "सुरक्षा जुत्ता (Safety Shoes)",
+      "chapterNo": 48,
+      "chapterTitle": "기초 한국어",
+      "topic": "सुरक्षा सामग्री",
+      "visualIcon": "🥾",
+      "exampleSentence": "발에 무거운 철판이 떨어지지 않도록 안전화를 신으세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_03",
+      "koreanWord": "망치",
+      "pronunciation": "माङ्छी",
+      "nepaliMeaning": "हथौडा (Hammer)",
+      "chapterNo": 41,
+      "chapterTitle": "기초 한국어",
+      "topic": "कारखाना औजार",
+      "visualIcon": "🔨",
+      "exampleSentence": "못을 박을 때 손을 다치지 않게 망치를 조심해서 쓰세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_04",
+      "koreanWord": "톱",
+      "pronunciation": "थोप",
+      "nepaliMeaning": "करौंती (Hand Saw)",
+      "chapterNo": 41,
+      "chapterTitle": "기초 한국어",
+      "topic": "कारखाना औजार",
+      "visualIcon": "🪚",
+      "exampleSentence": "목재를 원하는 크기로 톱을 이용해 자릅니다.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_05",
+      "koreanWord": "사다리",
+      "pronunciation": "सादारी",
+      "nepaliMeaning": "भर्याङ (Ladder)",
+      "chapterNo": 41,
+      "chapterTitle": "기초 한국어",
+      "topic": "कारखाना औजार",
+      "visualIcon": "🪜",
+      "exampleSentence": "높은 벽에 페인트를 칠할 때 사다리를 바닥에 단단히 고정하세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_06",
+      "koreanWord": "비닐하우스",
+      "pronunciation": "बिनिल्हाउसु",
+      "nepaliMeaning": "टनेल / हरितगृह (Greenhouse)",
+      "chapterNo": 45,
+      "chapterTitle": "기초 한국어",
+      "topic": "कृषि तथा पशुपालन",
+      "visualIcon": "🏡",
+      "exampleSentence": "겨울철에는 비닐하우스 안에서 토마토와 오이를 키웁니다.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_07",
+      "koreanWord": "소화기",
+      "pronunciation": "सोह्वागी",
+      "nepaliMeaning": "अग्नि नियन्त्रक उपकरण (Fire Extinguisher)",
+      "chapterNo": 48,
+      "chapterTitle": "기초 한국어",
+      "topic": "सुरक्षा सामग्री",
+      "visualIcon": "🧯",
+      "exampleSentence": "불이 났을 때는 즉시 소화기의 안전핀을 뽑고 분사하세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_08",
+      "koreanWord": "지게차",
+      "pronunciation": "चिगेछा",
+      "nepaliMeaning": "फोर्कलिफ्ट गाडी (Forklift)",
+      "chapterNo": 43,
+      "chapterTitle": "기초 한국어",
+      "topic": "निर्माण तथा ढुवानी",
+      "visualIcon": "🚜",
+      "exampleSentence": "무거운 파렛트를 지게차로 트럭에 싣습니다.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_09",
+      "koreanWord": "보안경",
+      "pronunciation": "पोआनग्योङ",
+      "nepaliMeaning": "सुरक्षा चस्मा (Safety Glasses)",
+      "chapterNo": 48,
+      "chapterTitle": "다치지 않게 조심하세요 (सुरक्षा सतर्कता)",
+      "topic": "सुरक्षा सामग्री",
+      "visualIcon": "🥽",
+      "exampleSentence": "용접이나 그라인더 작업 시에는 눈을 보호하기 위해 보안경을 쓰세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c1_01",
+      "koreanWord": "안녕하세요",
+      "pronunciation": "आन्न्योङ्हासेयो",
+      "nepaliMeaning": "नमस्ते / नमस्कार (Hello / Good day)",
+      "chapterNo": 1,
+      "chapterTitle": "한글 익히기 및 인사말 (वर्णमाला र अभिवादन)",
+      "topic": "अभिवादन",
+      "visualIcon": "🤝",
+      "exampleSentence": "선생님을 만났을 때 공손하게 \"안녕하세요\"라고 인사합니다.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c1_02",
+      "koreanWord": "감사합니다",
+      "pronunciation": "खाम्साहाम्निदा",
+      "nepaliMeaning": "धन्यवाद (Thank you)",
+      "chapterNo": 1,
+      "chapterTitle": "한글 익히기 및 인사말 (वर्णमाला र अभिवादन)",
+      "topic": "अभिवादन",
+      "visualIcon": "🙏",
+      "exampleSentence": "도움을 받았을 때는 항상 \"감사합니다\"라고 인사하세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c1_03",
+      "koreanWord": "죄송합니다",
+      "pronunciation": "श्वेसोङहाम्निदा",
+      "nepaliMeaning": "माफ गर्नुहोस् (I am sorry)",
+      "chapterNo": 1,
+      "chapterTitle": "한글 익히기 및 인사말 (वर्णमाला र अभिवादन)",
+      "topic": "अभिवादन",
+      "visualIcon": "🙇",
+      "exampleSentence": "실수를 했을 때는 정중하게 \"죄송합니다\"라고 사과합니다.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c6_01",
+      "koreanWord": "네팔 사람",
+      "pronunciation": "नेपाल साराम",
+      "nepaliMeaning": "नेपाली नागरिक (Nepali Citizen)",
+      "chapterNo": 6,
+      "chapterTitle": "저는 투안입니다 (आत्मपरिचय)",
+      "topic": "आत्मपरिचय",
+      "visualIcon": "🇳🇵",
+      "exampleSentence": "저는 네팔에서 온 투안이라고 합니다.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c6_02",
+      "koreanWord": "회사원",
+      "pronunciation": "ह्वेसावन",
+      "nepaliMeaning": "कम्पनी कर्मचारी (Company Employee)",
+      "chapterNo": 6,
+      "chapterTitle": "저는 투안입니다 (आत्मपरिचय)",
+      "topic": "पेशा",
+      "visualIcon": "💼",
+      "exampleSentence": "저는 한국 가구 공장에서 일하는 회사원입니다.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c7_01",
+      "koreanWord": "화장실",
+      "pronunciation": "ह्वाजाङ्सिल",
+      "nepaliMeaning": "शौचालय (Restroom / Toilet)",
+      "chapterNo": 7,
+      "chapterTitle": "여기가 사무실이에요 (स्थान र कार्यालय)",
+      "topic": "दैनिक स्थान",
+      "visualIcon": "🚻",
+      "exampleSentence": "화장실이 어디에 있는지 가르쳐 주세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c7_02",
+      "koreanWord": "기숙사",
+      "pronunciation": "खिसुकसा",
+      "nepaliMeaning": "होस्टेल / आवासगृह (Dormitory)",
+      "chapterNo": 7,
+      "chapterTitle": "여기가 사무실이에요 (स्थान र कार्यालय)",
+      "topic": "दैनिक स्थान",
+      "visualIcon": "🏢",
+      "exampleSentence": "퇴근 후에는 공장 옆 기숙사에서 휴식을 취합니다.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c11_01",
+      "koreanWord": "얼마예요?",
+      "pronunciation": "अलमायेयो?",
+      "nepaliMeaning": "कति मूल्य पर्छ? (How much is it?)",
+      "chapterNo": 11,
+      "chapterTitle": "사과 다섯 개 주세요 (किनमेल र गन्ती)",
+      "topic": "किनमेल",
+      "visualIcon": "💰",
+      "exampleSentence": "이 신선한 사과 한 상자에 얼마예요?",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c11_02",
+      "koreanWord": "깎아 주세요",
+      "pronunciation": "क्काक्का छुसेयो",
+      "nepaliMeaning": "अलि छुट दिनुहोस् (Please give a discount)",
+      "chapterNo": 11,
+      "chapterTitle": "사과 다섯 개 주세요 (किनमेल र गन्ती)",
+      "topic": "किनमेल",
+      "visualIcon": "🏷️",
+      "exampleSentence": "조금 비싸네요, 천 원만 깎아 주세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c42_01",
+      "koreanWord": "프레스 기계",
+      "pronunciation": "फुरेस खिग्ये",
+      "nepaliMeaning": "प्रेस मेसिन (Press Machine)",
+      "chapterNo": 42,
+      "chapterTitle": "이 기계 어떻게 작동해요? (मेसिन सञ्चालन)",
+      "topic": "कारखाना औजार",
+      "visualIcon": "⚙️",
+      "exampleSentence": "프레스 기계를 작동할 때는 손가락이 끼이지 않게 두 손으로 버튼을 누르세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c42_02",
+      "koreanWord": "비상 스위치",
+      "pronunciation": "पिसाङ सुविछि",
+      "nepaliMeaning": "आपतकालीन स्विच (Emergency Switch)",
+      "chapterNo": 42,
+      "chapterTitle": "이 기계 어떻게 작동해요? (मेसिन सञ्चालन)",
+      "topic": "सुरक्षा सामग्री",
+      "visualIcon": "🛑",
+      "exampleSentence": "위험한 상황이 발생하면 즉시 빨간색 비상 스위치를 누르세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c51_01",
+      "koreanWord": "표준근로계약서",
+      "pronunciation": "फ्योजुन-कुन्रो-ख्येयाक्स",
+      "nepaliMeaning": "आधिकारिक श्रम सम्झौता पत्र (Standard Labor Contract)",
+      "chapterNo": 51,
+      "chapterTitle": "한국에 가서 일을 하고 싶어요 (श्रम सम्झौता)",
+      "topic": "श्रम कानुन",
+      "visualIcon": "📜",
+      "exampleSentence": "한국에 입국하기 전에 표준근로계약서의 근무 조건과 임금을 꼼꼼히 확인하세요.",
+      "isMastered": false,
+      "audioUrl": null
+    },
+    {
+      "id": "vfc_c51_02",
+      "koreanWord": "수습기간",
+      "pronunciation": "सुसुपखिगान",
+      "nepaliMeaning": "परीक्षण कार्य अवधि (Probation Period)",
+      "chapterNo": 51,
+      "chapterTitle": "한국에 가서 일을 하고 싶어요 (श्रम सम्झौता)",
+      "topic": "श्रम कानुन",
+      "visualIcon": "⏳",
+      "exampleSentence": "수습기간은 보통 3개월 이내로 정해져 있습니다.",
+      "isMastered": false,
+      "audioUrl": null
+    }
+  ],
+  "books": [
+    {
+      "id": "book_new_01",
+      "title": "EPS-TOPIK 한국어 표준교재 1권 (2024 नयाँ परिमार्जित संस्करण)",
+      "subtitle": "आधारभूत कोरियन भाषा तथा दैनिक जीवनयापन (अध्याय ०१ देखि ३०)",
+      "editionType": "नयाँ संस्करण (New Edition)",
+      "level": "Book 1 (기초)",
+      "chaptersCount": 30,
+      "description": "वर्णमाला (हन्गुल), अभिवादन, किनमेल, दिशा, मिति/समय, मौसम, परिवार, खाना र दैनिक कार्यस्थल संवादहरू समेटिएको नवीनतम परिमार्जित आधिकारिक पाठ्यपुस्तक।",
+      "pdfUrl": "https://hrdkorea.or.kr/epstopik/book1.pdf",
+      "chapterPdfs": {},
+      "highlightTopics": [
+        "제1과~5과: 한글 익히기 (वर्णमाला र उच्चारण)",
+        "제6과~10과: 자기소개 및 일상생활 (आत्मपरिचय र दिनचर्या)",
+        "제11과~15과: 물건 사기 및 날씨 (किनमेल र मौसम)",
+        "제16과~20과: 취미 및 교통 (रुचि र यातायात)",
+        "제21과~30과: 약속, 전화 및 병원 (भेटघाट र स्वास्थ्य)"
+      ],
+      "audioTracks": [],
+      "createdAt": "2026-09-05T12:57:07.624340"
+    },
+    {
+      "id": "book_new_02",
+      "title": "EPS-TOPIK 한국어 표준교재 2권 (2024 नयाँ परिमार्जित संस्करण)",
+      "subtitle": "कार्यस्थल भाषा, सुरक्षा, श्रम कानुन तथा संस्कृति (अध्याय ३१ देखि ६०)",
+      "editionType": "नयाँ संस्करण (New Edition)",
+      "level": "Book 2 (실전/직장)",
+      "chaptersCount": 30,
+      "description": "कारखाना औजार, कार्यस्थल सुरक्षा, औद्योगिक दुर्घटना रोकथाम, कृषि र निर्माण शब्दावली, कोरियाली संस्कृति, श्रम सम्झौता, तलब र बिमा सम्बन्धी आधिकारिक पाठ्यपुस्तक।",
+      "pdfUrl": "https://hrdkorea.or.kr/epstopik/book2.pdf",
+      "chapterPdfs": {},
+      "highlightTopics": [
+        "제31과~40과: 한국 문화 및 직장 예절 (कोरियाली संस्कृति र मर्यादा)",
+        "제41과~50과: 제조업 도구 및 안전 수칙 (उत्पादन औजार र सुरक्षा)",
+        "제51과~55과: 고용허가제 및 근로계약 (श्रम कानुन र सम्झौता)",
+        "제56과~60과: 휴가, 체류 연장 및 귀국 (बिदा, भिसा थप र स्वदेश फिर्ता)"
+      ],
+      "audioTracks": [],
+      "createdAt": "2026-09-05T12:57:07.624929"
+    },
+    {
+      "id": "book_old_01",
+      "title": "EPS-TOPIK 한국어 표준교재 (2013 पुरानो संस्करण - Classic)",
+      "subtitle": "क्लासिक आधारभूत पाठ्यपुस्तक १ र २ (अध्याय ०१ देखि ६०)",
+      "editionType": "पुरानो संस्करण (Old Edition)",
+      "level": "Book 1 & 2 (Classic)",
+      "chaptersCount": 60,
+      "description": "पहिलेदेखि नै अभ्यास गरिँदै आएका आधारभूत शब्दहरू, व्याकरणका संरचनाहरू र विगतका परीक्षामा धेरै सोधिएका प्रश्नहरू भएको क्लासिक पुरानो संस्करण।",
+      "pdfUrl": "https://hrdkorea.or.kr/epstopik/classic.pdf",
+      "chapterPdfs": {},
+      "highlightTopics": [
+        "क्लासिक हन्गुल र आधारभूत शब्दावली (अध्याय १-३०)",
+        "कार्यस्थल तथा निर्माण साइट संवाद (अध्याय ३१-६०)"
+      ],
+      "audioTracks": [],
+      "createdAt": "2026-08-26T12:57:07.624929"
+    },
+    {
+      "id": "book_guide_01",
+      "title": "고용허가제 표준 한국어 실전 단어장 (विशेष शब्दावली गाइड)",
+      "subtitle": "कार्यस्थल तथा उद्योग क्षेत्र अनुसारका २००० अत्यावश्यक मिनिङहरू",
+      "editionType": "विशेष गाइड (Special Guide)",
+      "level": "단어장 (Vocabulary)",
+      "chaptersCount": 60,
+      "description": "म्यानुफ्याक्चरिङ, कृषि, निर्माण, र मत्स्यपालन क्षेत्रका आधिकारिक शब्दावली, चित्र र उदाहरण सहितको विशेष पकेट गाइड।",
+      "pdfUrl": "https://hrdkorea.or.kr/epstopik/vocab_guide.pdf",
+      "chapterPdfs": {},
+      "highlightTopics": [
+        "औद्योगिक औजार तथा सुरक्षा शब्दावली",
+        "कृषि तथा निर्माण उपकरण शब्दावली",
+        "श्रम कानुन तथा सम्झौता शब्दावली"
+      ],
+      "audioTracks": [],
+      "createdAt": "2026-08-16T12:57:07.625567"
+    }
+  ],
+  "videos": [
+    {
+      "id": "vid_01",
+      "title": "EPS-TOPIK Book 1: अध्याय १ देखि १० आधारभूत वर्णमाला र दैनिक संवाद",
+      "instructor": "कोरियन भाषा मुख्य प्रशिक्षक",
+      "duration": "४५ मिनेट",
+      "videoUrl": "https://youtube.com",
+      "category": "Book 1 पाठ्यपुस्तक",
+      "description": "हन्गुल वर्णमाला, स्वर तथा व्यञ्जन, बाछिमका नियमहरू र आत्मपरिचय सम्बन्धी पूर्ण भिडियो पाठ।",
+      "isFree": true,
+      "createdAt": "2026-09-05T12:57:07.628104"
+    },
+    {
+      "id": "vid_02",
+      "title": "कारखाना औजार तथा कार्यस्थल सुरक्षा उपकरण प्रत्यक्ष भिडियो गाइड",
+      "instructor": "प्राविधिक कार्यशाला संयोजक",
+      "duration": "३० मिनेट",
+      "videoUrl": "https://youtube.com",
+      "category": "औजार तथा सुरक्षा",
+      "description": "म्यानुफ्याक्चरिङ तथा कन्स्ट्रक्सनमा प्रयोग हुने ५० वटा औजारहरूको प्रत्यक्ष कोरियाली नाम र काम गर्ने तरिका।",
+      "isFree": true,
+      "createdAt": "2026-09-05T12:57:07.628701"
+    }
+  ],
+  "grammar": [
+    {
+      "id": "g_01",
+      "title": "-(으)ㄹ 수 있다 / 없다",
+      "structure": "धातु + (으)ㄹ 수 있다/없다",
+      "category": "योग्यता तथा सम्भावना",
+      "nepaliExplanation": "कुनै पनि काम गर्न \"सक्नु\" वा \"नसक्नु\" (क्षमता वा सम्भावना) जनाउन यो व्याकरण प्रयोग गरिन्छ। बाछिम भएमा -을 수 있다 र बाछिम नभएमा वा ㄹ भएमा -ㄹ 수 있다 जोडिन्छ।",
+      "examples": [
+        {
+          "korean": "저는 한국어를 말할 수 있어요.",
+          "nepali": "म कोरियन भाषा बोल्न सक्छु।"
+        },
+        {
+          "korean": "작업 중에는 휴대전화를 사용할 수 없습니다.",
+          "nepali": "कामको समयमा मोबाइल फोन प्रयोग गर्न सकिँदैन।"
+        }
+      ],
+      "createdAt": "2026-09-05T12:57:07.630690"
+    },
+    {
+      "id": "g_02",
+      "title": "-아/어서",
+      "structure": "धातु + 아/어서",
+      "category": "कारण तथा क्रमिकता",
+      "nepaliExplanation": "पहिलो वाक्य दोस्रो वाक्यको \"कारण\" हुँदा (भएर / भएकोले) वा दुई कामहरू एकपछि अर्को लगातार गर्दा प्रयोग गरिन्छ।",
+      "examples": [
+        {
+          "korean": "배가 아파서 병원에 갔어요.",
+          "nepali": "पेट दुखेकोले अस्पताल गएँ।"
+        },
+        {
+          "korean": "공장에 가서 기계를 점검하세요.",
+          "nepali": "कारखानामा गएर मेसिन चेकजाँच गर्नुहोस्।"
+        }
+      ],
+      "createdAt": "2026-09-05T12:57:07.631286"
+    }
+  ],
+  "dictionary": [
+    {
+      "id": "dict_01",
+      "koreanWord": "안전모",
+      "pronunciation": "आन्जनमो",
+      "nepaliMeaning": "सुरक्षा हेल्मेट (Safety Helmet)",
+      "partOfSpeech": "संज्ञा (Noun)",
+      "chapterNo": 48,
+      "category": "सुरक्षा (Safety)",
+      "exampleKorean": "공사장에서는 반드시 안전모를 착용해야 합니다.",
+      "exampleNepali": "निर्माण स्थलमा अनिवार्य रूपमा सुरक्षा हेल्मेट लगाउनुपर्छ।"
+    },
+    {
+      "id": "dict_02",
+      "koreanWord": "안전화",
+      "pronunciation": "आन्जन्व्हा",
+      "nepaliMeaning": "सुरक्षा जुत्ता (Safety Boots)",
+      "partOfSpeech": "संज्ञा (Noun)",
+      "chapterNo": 48,
+      "category": "सुरक्षा (Safety)",
+      "exampleKorean": "무거운 물건을 옮길 때는 안전화를 신으세요.",
+      "exampleNepali": "गह्रौं सामान सार्दा सुरक्षा जुत्ता लगाउनुहोस्।"
+    },
+    {
+      "id": "dict_03",
+      "koreanWord": "망치",
+      "pronunciation": "माङ्छी",
+      "nepaliMeaning": "हथौडा (Hammer)",
+      "partOfSpeech": "संज्ञा (Noun)",
+      "chapterNo": 41,
+      "category": "औजार (Tools)",
+      "exampleKorean": "못을 박으려면 망치가 필요합니다.",
+      "exampleNepali": "काँटी ठोक्नका लागि हथौडा आवश्यक पर्दछ।"
+    },
+    {
+      "id": "dict_04",
+      "koreanWord": "톱",
+      "pronunciation": "थोप",
+      "nepaliMeaning": "करौंती (Hand Saw)",
+      "partOfSpeech": "संज्ञा (Noun)",
+      "chapterNo": 41,
+      "category": "औजार (Tools)",
+      "exampleKorean": "나무를 톱으로 자르세요.",
+      "exampleNepali": "काठलाई करौंतीले काट्नुहोस्।"
+    },
+    {
+      "id": "dict_05",
+      "koreanWord": "용접하다",
+      "pronunciation": "योङजबहादा",
+      "nepaliMeaning": "वेल्डिङ गर्नु (To Weld)",
+      "partOfSpeech": "क्रिया (Verb)",
+      "chapterNo": 42,
+      "category": "उत्पादन (Manufacturing)",
+      "exampleKorean": "철판을 불꽃으로 용접합니다.",
+      "exampleNepali": "फलामको पातालाई आगोको ज्वालाले वेल्डिङ गरिन्छ।"
+    },
+    {
+      "id": "dict_06",
+      "koreanWord": "수확하다",
+      "pronunciation": "सुह्वाकहादा",
+      "nepaliMeaning": "बाली भित्र्याउनु / टिप्नु (To Harvest)",
+      "partOfSpeech": "क्रिया (Verb)",
+      "chapterNo": 45,
+      "category": "कृषि (Agriculture)",
+      "exampleKorean": "가을에는 잘 익은 벼와 과일을 수확합니다.",
+      "exampleNepali": "शरद ऋतुमा राम्रोसँग पाकेको धान र फलफूल भित्र्याइन्छ।"
+    },
+    {
+      "id": "dict_07",
+      "koreanWord": "근로계약서",
+      "pronunciation": "कुल्लोकेयाक्स",
+      "nepaliMeaning": "श्रम सम्झौता पत्र (Labor Contract)",
+      "partOfSpeech": "संज्ञा (Noun)",
+      "chapterNo": 52,
+      "category": "श्रम कानुन (Labor Law)",
+      "exampleKorean": "근로계약서에 근무 시간과 임금이 적혀 있습니다.",
+      "exampleNepali": "श्रम सम्झौता पत्रमा कामको समय र तलब लेखिएको हुन्छ।"
+    },
+    {
+      "id": "dict_08",
+      "koreanWord": "친절하다",
+      "pronunciation": "छिन्जलहादा",
+      "nepaliMeaning": "दयालु हुनु / भद्र हुनु (To be Kind)",
+      "partOfSpeech": "विशेषण (Adjective)",
+      "chapterNo": 6,
+      "category": "दैनिक (General)",
+      "exampleKorean": "공장 반장님이 아주 친절해요.",
+      "exampleNepali": "कारखानाका क्याप्टेन ज्यू धेरै दयालु हुनुहुन्छ।"
+    }
+  ],
+  "notices": [
+    {
+      "id": "notice_01",
+      "title": "📢 २०२६ प्रथम चरण EPS-TOPIK विशेष UBT परीक्षा तालिका प्रकाशित!",
+      "content": "सम्पूर्ण विद्यार्थी साथीहरूलाई सूचित गरिन्छ कि आगामी महिना सञ्चालन हुने कोरियाली भाषा परीक्षाका लागि नयाँ मोडल सेट १ देखि ५ र र्‍यान्डम परीक्षा हल उपलब्ध गराइएको छ।",
+      "author": "परीक्षा शाखा प्रमुख",
+      "priority": "अति जरुरी",
+      "category": "परीक्षा",
+      "date": "2026-09-05T08:57:07.635219",
+      "isPinned": true
+    }
+  ],
+  "institutes": [
+    {
+      "id": "inst_01",
+      "name": "ग्लोबल कोरियन भाषा इन्स्टिच्युट (Global Korean Institute)",
+      "code": "GLOBAL_KTM",
+      "logoUrl": "assets/images/institute_logo_default.png",
+      "phone": "9851234567",
+      "email": "contact@globalinstitute.edu.np",
+      "address": "बागबजार, काठमाडौं (Bagbazar, Kathmandu)",
+      "aboutUs": "नेपालकै अग्रणी कोरियन भाषा शिक्षण तथा EPS-TOPIK UBT परीक्षा तयारी केन्द्र। १० वर्षभन्दा बढीको अनुभव र हजारौं सफल विद्यार्थीहरू।",
+      "allowedSetsQuota": 5,
+      "validityExpiry": "2027-09-05T12:57:07.638775",
+      "maxStudentsQuota": 200,
+      "isActive": true,
+      "customSetQuota": 1,
+      "customSetDurationDays": 365,
+      "mainSetQuota": 5,
+      "mainSetDurationDays": 365,
+      "assignedSetIds": [
+        "set_01",
+        "set_02",
+        "set_03",
+        "set_04",
+        "set_05"
+      ],
+      "createdAt": "2026-09-05T12:57:07.640709"
+    },
+    {
+      "id": "inst_02",
+      "name": "एभरेष्ट कोरियन एकेडेमी (Everest Korean Academy)",
+      "code": "EVEREST_POK",
+      "logoUrl": "assets/images/institute_logo_default.png",
+      "phone": "9846001122",
+      "email": "info@everestkorean.com",
+      "address": "महेन्द्रपुल, पोखरा (Mahendrapool, Pokhara)",
+      "aboutUs": "गण्डकी प्रदेशको भरपर्दो कोरियन भाषा इन्स्टिच्युट। उच्चस्तरीय कम्प्युटर UBT ल्याब तथा दक्ष भाषा प्रशिक्षक।",
+      "allowedSetsQuota": 3,
+      "validityExpiry": "2026-12-04T12:57:07.640709",
+      "maxStudentsQuota": 100,
+      "isActive": true,
+      "customSetQuota": 1,
+      "customSetDurationDays": 365,
+      "mainSetQuota": 5,
+      "mainSetDurationDays": 365,
+      "assignedSetIds": [
+        "set_01",
+        "set_02",
+        "set_03"
+      ],
+      "createdAt": "2026-09-05T12:57:07.641301"
+    }
+  ]
+}
