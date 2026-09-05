@@ -791,7 +791,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
           ),
           const SizedBox(height: 14),
 
-          // Firebase Realtime DB Setup Card
+          // Cloud Server Realtime DB Setup Card
           Card(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.deepOrange.shade200)),
             child: Padding(
@@ -803,7 +803,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                     children: [
                       const Icon(Icons.fireplace_rounded, size: 20, color: Colors.deepOrange),
                       const SizedBox(width: 8),
-                      const Text('Firebase Cloud Sync Database:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      const Text('GitHub Cloud Sync Server:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                       const Spacer(),
                       TextButton.icon(
                         icon: const Icon(Icons.help_outline, size: 16),
@@ -817,7 +817,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                                 children: [
                                   const Icon(Icons.auto_awesome, color: Colors.deepOrange),
                                   const SizedBox(width: 8),
-                                  Text(LanguageService.instance.trText(ne: 'नि:शुल्क Firebase बनाउने तरिका', en: 'How to create free Firebase', ko: '무료 Firebase 생성 가이드')),
+                                  Text(LanguageService.instance.trText(ne: 'नि:शुल्क Cloud Server बनाउने तरिका', en: 'How to create free Cloud Server', ko: '무료 Cloud Server 생성 가이드')),
                                 ],
                               ),
                               content: const SingleChildScrollView(
@@ -844,7 +844,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                   TextField(
                     controller: _firebaseUrlCtrl,
                     decoration: InputDecoration(
-                      hintText: 'https://your-project-default-rtdb.firebaseio.com',
+                      hintText: 'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/data/eps_sync_data.json',
                       prefixIcon: const Icon(Icons.link, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                       isDense: true,
@@ -870,7 +870,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                             _firebaseUrlCtrl.text = sync.cloudEndpoint;
                             setState(() {
                               _isSuccess = true;
-                              _statusMessage = LanguageService.instance.trText(ne: '✅ Firebase URL सुरक्षित भयो!', en: '✅ Firebase URL saved successfully!', ko: '✅ Firebase URL이 저장되었습니다!');
+                              _statusMessage = LanguageService.instance.trText(ne: '✅ Cloud Server URL सुरक्षित भयो!', en: '✅ Cloud Server URL saved successfully!', ko: '✅ Cloud Server URL이 저장되었습니다!');
                             });
                           }
                         },
@@ -885,8 +885,8 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                           setState(() {
                             _isSuccess = ok;
                             _statusMessage = ok
-                                ? LanguageService.instance.trText(ne: '✅ Firebase सँग सफलतापूर्वक कनेक्सन भयो!', en: '✅ Connected to Firebase successfully!', ko: '✅ Firebase에 성공적으로 연결되었습니다!')
-                                : (LanguageService.instance.trText(ne: '❌ Firebase कनेक्सन असफल: ', en: '❌ Firebase connection failed: ', ko: '❌ Firebase 연결 실패: ') + (sync.lastError ?? ""));
+                                ? LanguageService.instance.trText(ne: '✅ Cloud Server सँग सफलतापूर्वक कनेक्सन भयो!', en: '✅ Connected to Cloud Server successfully!', ko: '✅ Cloud Server에 성공적으로 연결되었습니다!')
+                                : (LanguageService.instance.trText(ne: '❌ Cloud Server कनेक्सन असफल: ', en: '❌ Cloud Server connection failed: ', ko: '❌ Cloud Server 연결 실패: ') + (sync.lastError ?? ""));
                           });
                         },
                       ),

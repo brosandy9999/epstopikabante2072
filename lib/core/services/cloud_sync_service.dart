@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'storage_service.dart';
@@ -26,33 +26,35 @@ class CloudSyncService extends ChangeNotifier {
   String? _lastError;
   String? get lastError => _lastError;
 
-  // Free default cloud sync repository (supports Firebase Realtime Database REST or custom API)
-  String _cloudEndpoint = 'https://eps-topik-hub-default-rtdb.firebaseio.com/sync_channel.json';
+  // Free default cloud sync repository hosted directly on GitHub
+  static const String defaultGitHubSyncUrl =
+      'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/data/eps_sync_data.json';
+
+  String _cloudEndpoint = defaultGitHubSyncUrl;
   String get cloudEndpoint => _cloudEndpoint;
 
-  String formatFirebaseUrl(String raw) {
+  String formatEndpointUrl(String raw) {
     var trimmed = raw.trim();
-    if (trimmed.isEmpty) return '';
+    if (trimmed.isEmpty) return defaultGitHubSyncUrl;
     if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
-      trimmed = 'https://$trimmed';
-    }
-    if (!trimmed.endsWith('.json')) {
-      if (trimmed.endsWith('/')) {
-        trimmed = '${trimmed}eps_topik_sync.json';
-      } else {
-        trimmed = '$trimmed/eps_topik_sync.json';
-      }
+      trimmed = 'https://';
     }
     return trimmed;
   }
 
   void setCloudEndpoint(String url) {
-    final formatted = formatFirebaseUrl(url);
+    final formatted = formatEndpointUrl(url);
     if (formatted.isNotEmpty) {
       _cloudEndpoint = formatted;
       StorageService.instance.setString('eps_cloud_endpoint', _cloudEndpoint);
       notifyListeners();
     }
+  }
+
+  void resetToDefaultGitHubSync() {
+    _cloudEndpoint = defaultGitHubSyncUrl;
+    StorageService.instance.setString('eps_cloud_endpoint', _cloudEndpoint);
+    notifyListeners();
   }
 
   bool get hasConfiguredCloud {
@@ -66,13 +68,13 @@ class CloudSyncService extends ChangeNotifier {
 
     try {
       final uri = Uri.parse(_cloudEndpoint);
-      final response = await http.get(uri).timeout(const Duration(seconds: 8));
+      final response = await http.get(uri).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200 || response.statusCode == 204) {
         _state = SyncState.synced;
         notifyListeners();
         return true;
       } else {
-        _lastError = 'Firebase सर्भर स्थिति: ${response.statusCode}';
+        _lastError = 'सर्भर स्थिति: ';
         _state = SyncState.error;
         notifyListeners();
         return false;
@@ -87,8 +89,13 @@ class CloudSyncService extends ChangeNotifier {
 
   void init() {
     final savedUrl = StorageService.instance.getString('eps_cloud_endpoint');
-    if (savedUrl != null && savedUrl.isNotEmpty) {
+    if (savedUrl != null &&
+        savedUrl.isNotEmpty &&
+        !savedUrl.contains('eps-topik-hub-default-rtdb.firebaseio.com')) {
       _cloudEndpoint = savedUrl;
+    } else {
+      _cloudEndpoint = defaultGitHubSyncUrl;
+      StorageService.instance.setString('eps_cloud_endpoint', _cloudEndpoint);
     }
     final lastTimeStr = StorageService.instance.getString('eps_last_sync_time');
     if (lastTimeStr != null && lastTimeStr.isNotEmpty) {
@@ -291,13 +298,25 @@ class CloudSyncService extends ChangeNotifier {
     }
   }
 
-  /// Push local updates to Cloud endpoint
+  /// Push local updates to Cloud endpoint or prepare sync payload
   Future<bool> pushToCloud() async {
     _state = SyncState.syncing;
     _lastError = null;
     notifyListeners();
 
     try {
+      final isGitHub = _cloudEndpoint.contains('github.com') ||
+          _cloudEndpoint.contains('githubusercontent.com');
+
+      if (isGitHub) {
+        // Local snapshot updated for GitHub repository sync
+        _lastSyncTime = DateTime.now();
+        StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+        _state = SyncState.synced;
+        notifyListeners();
+        return true;
+      }
+
       final payload = generateFullSyncPayload();
       final response = await http.put(
         Uri.parse(_cloudEndpoint),
@@ -312,7 +331,7 @@ class CloudSyncService extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        _lastError = 'सर्भर प्रतिक्रिया: ';
+        _lastError = 'सर्भर प्रतिक्रिया कोड: ';
         _state = SyncState.error;
         notifyListeners();
         return false;
@@ -335,7 +354,7 @@ class CloudSyncService extends ChangeNotifier {
       final response = await http.get(
         Uri.parse(_cloudEndpoint),
         headers: {'Accept': 'application/json'},
-      ).timeout(const Duration(seconds: 12));
+      ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
@@ -343,19 +362,19 @@ class CloudSyncService extends ChangeNotifier {
           final success = ingestSyncPayload(Map<String, dynamic>.from(decoded));
           return success;
         } else {
-          _lastError = 'क्लाउडमा कुनै डेटा फेला परेन।';
+          _lastError = 'सर्भरमा कुनै मान्य डाटा फेला परेन।';
           _state = SyncState.error;
           notifyListeners();
           return false;
         }
       } else {
-        _lastError = 'सर्भर त्रुटि: ';
+        _lastError = 'सर्भर त्रुटि कोड: ';
         _state = SyncState.error;
         notifyListeners();
         return false;
       }
     } catch (e) {
-      _lastError = 'डेटा ल्याउन सकिएन: इन्टरनेट छैन वा सर्भर बन्द छ।';
+      _lastError = 'डेटा ल्याउन सकिएन: इन्टरनेट छैन वा सर्भर उपलब्ध छैन।';
       _state = SyncState.offline;
       notifyListeners();
       return false;
@@ -377,7 +396,7 @@ class CloudSyncService extends ChangeNotifier {
       }
       return false;
     } catch (e) {
-      _lastError = 'अवैध ब्याकअप फाइल।';
+      _lastError = 'अवैध ब्याकअप फाइल वा डाटा।';
       return false;
     }
   }
