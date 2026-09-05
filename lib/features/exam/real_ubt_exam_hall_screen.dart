@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -54,6 +55,12 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     WidgetsBinding.instance.addObserver(this);
     _questions = widget.mockSet?.questions ?? QuestionBankService.instance.getFull40ExamQuestions();
     _startCountdownTimer();
+
+    // 🔒 Force Landscape Orientation for Authentic UBT Exam Hall Terminal
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
   }
 
   @override
@@ -61,6 +68,14 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _remainingSecondsNotifier.dispose();
+
+    // 🔓 Restore all screen orientations upon exiting the exam hall
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     super.dispose();
   }
 
@@ -600,8 +615,161 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     );
   }
 
+
+  Widget _buildRotateToLandscapePrompt(BuildContext context) {
+    final lang = LanguageService.instance;
+    return Scaffold(
+      backgroundColor: const Color(0xFF0F172A),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // HRD Korea Official UBT Badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.amber.shade700, width: 1.5),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text('🇰🇷', style: TextStyle(fontSize: 14)),
+                      const SizedBox(width: 8),
+                      Text(
+                        lang.trText(
+                          ne: 'आधिकारिक HRD Korea UBT परीक्षा मोड',
+                          en: 'Official HRD Korea UBT Mode',
+                          ko: '한국산업인력공단 공식 UBT 모드',
+                        ),
+                        style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 11),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Animated/Glow Rotating Icon
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.amber.shade400, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.amber.withValues(alpha: 0.25),
+                        blurRadius: 20,
+                        spreadRadius: 4,
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.screen_rotation_rounded, size: 48, color: Colors.amber),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Main Instruction
+                Text(
+                  lang.trText(
+                    ne: 'कृपया आफ्नो मोबाइललाई तेर्सो (Landscape) मोडमा घुमाउनुहोस्',
+                    en: 'Please Rotate Your Device to Landscape',
+                    ko: '기기를 가로(Landscape) 모드로 회전해 주세요',
+                  ),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Explanation
+                Text(
+                  lang.trText(
+                    ne: 'EPS-TOPIK UBT परीक्षा वास्तविक परीक्षा हलमा झैँ कम्प्युटर/ट्याबलेट स्क्रिन (Landscape) मा दिनुपर्ने गरी तयार पारिएको छ। मोबाइल तेर्सो बनाउनासाथ परीक्षा स्वतः सुरु हुनेछ।',
+                    en: 'The EPS-TOPIK UBT exam layout requires landscape orientation for the authentic split-screen reading and listening experience.',
+                    ko: '실제 UBT 시험장 환경과 동일한 40문항 2분할 화면 구성을 위해 가로(Landscape) 화면이 필수입니다.',
+                  ),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey.shade300,
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 28),
+
+                // Force Landscape & Exit Buttons
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 10,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.amber.shade700,
+                        foregroundColor: Colors.black87,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: () {
+                        SystemChrome.setPreferredOrientations([
+                          DeviceOrientation.landscapeLeft,
+                          DeviceOrientation.landscapeRight,
+                        ]);
+                      },
+                      icon: const Icon(Icons.screen_lock_landscape, size: 18),
+                      label: Text(
+                        lang.trText(
+                          ne: 'Landscape Mode सक्रिय गर्नुहोस्',
+                          en: 'Enable Landscape',
+                          ko: '가로 모드 적용',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
+                    ),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white70,
+                        side: const BorderSide(color: Colors.white38),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      onPressed: _confirmExit,
+                      icon: const Icon(Icons.close, size: 16),
+                      label: Text(
+                        lang.trText(ne: 'बाहिरिनुहोस्', en: 'Exit Exam', ko: '시험 나가기'),
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // In mobile portrait, enforce authentic landscape rotation prompt
+    final mediaQuery = MediaQuery.of(context);
+    final isPortrait = mediaQuery.orientation == Orientation.portrait && mediaQuery.size.width < 600;
+    if (isPortrait) {
+      return _buildRotateToLandscapePrompt(context);
+    }
+
     final currentQ = _questions[_currentQuestionIndex];
     final isReading = _currentQuestionIndex < 20;
 
