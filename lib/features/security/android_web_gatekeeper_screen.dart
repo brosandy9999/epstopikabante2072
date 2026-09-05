@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import '../../core/services/language_service.dart';
 import '../../core/services/download_helper.dart';
-import '../authentication/login_screen.dart';
 
 /// Android Web Gatekeeper Screen
-/// Blocks Android mobile browsers from directly running the exam to enforce FLAG_SECURE anti-screenshot protection.
-/// Directs users to download or launch the official Android Native App (APK).
+/// 100% Blocks Android mobile browsers from accessing the web application.
+/// Strictly presents the official Android Native App (APK) download option.
 class AndroidWebGatekeeperScreen extends StatelessWidget {
   const AndroidWebGatekeeperScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: LanguageService.instance,
-      builder: (context, _) => Scaffold(
-        backgroundColor: const Color(0xFF0F172A),
+    return PopScope(
+      canPop: false,
+      child: ListenableBuilder(
+        listenable: LanguageService.instance,
+        builder: (context, _) => Scaffold(
+          backgroundColor: const Color(0xFF0F172A),
         body: Container(
           width: double.infinity,
           height: double.infinity,
@@ -161,9 +162,9 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                           icon: const Icon(Icons.download_for_offline_rounded, size: 26),
                           label: Text(
                             LanguageService.instance.trText(
-                              ne: 'आधिकारिक Android APK डाउनलोड गर्नुहोस् (५८.७ MB)',
-                              en: 'Download Official Android App (58.7 MB APK)',
-                              ko: '공식 안드로이드 APK 다운로드 (58.7 MB)',
+                              ne: 'आधिकारिक Android APK डाउनलोड गर्नुहोस् (१९.५ MB)',
+                              en: 'Download Official Android App (19.5 MB APK)',
+                              ko: '공식 안드로이드 APK 다운로드 (19.5 MB)',
                             ),
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                           ),
@@ -287,28 +288,31 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                         ],
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 28),
 
-                      // Discrete Admin / Teacher Portal Override Link
-                      TextButton.icon(
-                        style: TextButton.styleFrom(
-                          foregroundColor: const Color(0xFF64748B),
+                      // Desktop Notice
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E293B).withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFF334155)),
                         ),
-                        icon: const Icon(Icons.admin_panel_settings_outlined, size: 16),
-                        label: Text(
-                          LanguageService.instance.trText(
-                            ne: 'शिक्षक / एडमिन वेब लगइन (प्रशासनिक पोर्टल)',
-                            en: 'Teacher / Admin Web Portal (Management Only)',
-                            ko: '교사 / 관리자 웹 포털 (관리 전용)',
-                          ),
-                          style: const TextStyle(fontSize: 12, decoration: TextDecoration.underline),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.laptop_chromebook_rounded, size: 16, color: Color(0xFF94A3B8)),
+                            const SizedBox(width: 8),
+                            Text(
+                              LanguageService.instance.trText(
+                                ne: 'कम्प्युटर / ल्यापटपमा भने सिधै वेब पोर्टल चल्नेछ',
+                                en: 'Web portal is fully available on Desktop/Laptop computers',
+                                ko: 'PC/노트북 브라우저에서는 웹 포털을 바로 이용하실 수 있습니다',
+                              ),
+                              style: const TextStyle(fontSize: 11.5, color: Color(0xFF94A3B8)),
+                            ),
+                          ],
                         ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const LoginScreen()),
-                          );
-                        },
                       ),
                       const SizedBox(height: 12),
                     ],
@@ -319,8 +323,9 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildStepRow(String stepNumber, IconData icon, String description) {
     return Row(

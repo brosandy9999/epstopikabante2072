@@ -178,7 +178,7 @@
       </div>
 
       <a href="https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/apk/eps_topik_ubt_2026.apk" download="eps_topik_ubt_2026.apk" class="gk-btn-download">
-        📥 आधिकारिक Android APK डाउनलोड गर्नुहोस् (५८.७ MB)
+        📥 आधिकारिक Android APK डाउनलोड गर्नुहोस् (१९.५ MB)
       </a>
 
       <button onclick="window.location.href='intent://open#Intent;scheme=epstopik;package=com.example.eps_topik_app;end'" class="gk-btn-launch">
@@ -200,16 +200,32 @@
           <div>एप खोली १००% सुरक्षित परीक्षा हल, अडियो र सम्पूर्ण सुविधा प्रयोग गर्नुहोस्।</div>
         </div>
       </div>
+      
+      <div style="margin-top: 24px; padding: 10px 14px; background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; border-radius: 10px; font-size: 11.5px; color: #94A3B8;">
+        💻 कम्प्युटर वा ल्यापटपमा भने सिधै वेब पोर्टल चलाउन सकिन्छ
+      </div>
     </div>
   </div>
 
   <script>
-    // Immediate Android Mobile Detection (Runs in < 1ms)
+    // Immediate Strict Android Mobile Detection & 100% Web Gatekeeper
+    var isAndroid = false;
     try {
       var ua = navigator.userAgent.toLowerCase();
-      var isAndroid = ua.indexOf('android') > -1 || (ua.indexOf('mobile') > -1 && ua.indexOf('iphone') === -1 && ua.indexOf('ipad') === -1);
+      var platform = (navigator.platform || '').toLowerCase();
+      var isIOS = ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1 || ua.indexOf('ipod') > -1 || (platform.indexOf('mac') > -1 && navigator.maxTouchPoints > 1);
+      var isWindows = ua.indexOf('windows') > -1 || platform.indexOf('win') > -1;
+      var isMac = ua.indexOf('macintosh') > -1 || platform.indexOf('mac') > -1;
+
+      if (!isIOS && !isWindows && !isMac) {
+        if (ua.indexOf('android') > -1 || platform.indexOf('android') > -1 || platform.indexOf('linux arm') > -1 || platform.indexOf('linux aarch64') > -1 || ua.indexOf('mobile') > -1) {
+          isAndroid = true;
+        }
+      }
+      
       if (isAndroid) {
         document.getElementById('android-gatekeeper').style.display = 'block';
+        document.body.style.background = '#0F172A';
       }
     } catch(e) {}
 
@@ -254,7 +270,14 @@
         console.warn('Native Korean TTS error:', err);
       }
     };
+
+    // 5. Strictly load Flutter engine only for non-Android devices (saves bandwidth & prevents bypass)
+    if (!isAndroid) {
+      var flutterScript = document.createElement('script');
+      flutterScript.src = 'flutter_bootstrap.js';
+      flutterScript.async = true;
+      document.body.appendChild(flutterScript);
+    }
   </script>
-  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
