@@ -1,3 +1,4 @@
+import 'core/services/platform_detector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -86,7 +87,7 @@ class EpsTopikApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color(0xFFF3F4F6),
             useMaterial3: true,
           ),
-          home: (kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+          home: isAndroidWeb
               ? const AndroidWebGatekeeperScreen()
               : const LoginScreen(),
         );
@@ -2914,6 +2915,9 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (isAndroidWeb) {
+      return const AndroidWebGatekeeperScreen();
+    }
     final filteredList = _filteredQuestions;
     if (_currentIndex >= filteredList.length) {
       _currentIndex = 0;

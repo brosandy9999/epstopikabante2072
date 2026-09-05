@@ -1,3 +1,5 @@
+import '../../core/services/platform_detector.dart';
+import '../security/android_web_gatekeeper_screen.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -763,6 +765,10 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
 
   @override
   Widget build(BuildContext context) {
+    // 🛡️ STRICT SECURITY: Block exam hall on Android Web browsers (Must use official APK)
+    if (isAndroidWeb) {
+      return const AndroidWebGatekeeperScreen();
+    }
     // In mobile portrait, enforce authentic landscape rotation prompt
     final mediaQuery = MediaQuery.of(context);
     final isPortrait = mediaQuery.orientation == Orientation.portrait && mediaQuery.size.width < 600;

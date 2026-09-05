@@ -1,3 +1,5 @@
+import '../../core/services/platform_detector.dart';
+import '../security/android_web_gatekeeper_screen.dart';
 import 'package:flutter/material.dart';
 import '../../core/models/mock_test_model.dart';
 import '../../core/services/question_bank_service.dart';
@@ -241,6 +243,10 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                       ElevatedButton.icon(
                         onPressed: () {
                           final randomSet = QuestionBankService.instance.generateRandomBlueprintExam();
+                          if (isAndroidWeb) {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => const AndroidWebGatekeeperScreen()));
+                            return;
+                          }
                           final mode = LanguageService.instance.modePreference;
                           if (mode == ExamModePreference.strictExam) {
                             Navigator.push(
@@ -448,6 +454,10 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
             child: ElevatedButton.icon(
               onPressed: () {
                 final isStrict = lang.modePreference == ExamModePreference.strictExam;
+                if (isAndroidWeb) {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AndroidWebGatekeeperScreen()));
+                  return;
+                }
                 if (isStrict) {
                   Navigator.push(
                     context,
