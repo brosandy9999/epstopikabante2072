@@ -3,6 +3,7 @@ import '../../core/models/mock_test_model.dart';
 import '../../core/services/question_bank_service.dart';
 import '../../core/services/exam_service.dart';
 import '../../core/services/language_service.dart';
+import '../../core/services/cloud_sync_service.dart';
 import 'real_ubt_exam_hall_screen.dart';
 import '../../main.dart';
 
@@ -17,11 +18,59 @@ class MockTestListScreen extends StatefulWidget {
 
 class _MockTestListScreenState extends State<MockTestListScreen> {
   String _selectedSector = 'all';
+  bool _isSyncing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // स्क्रिन खुल्नासाथ ब्याकग्राउन्डमा स्वतः क्लाउडबाट नयाँ प्रश्नहरू सिङ्क गर्ने (Silent Auto-Sync)
+    _autoSyncQuestions();
+  }
+
+  Future<void> _autoSyncQuestions({bool showSnackbar = false}) async {
+    if (_isSyncing) return;
+    setState(() => _isSyncing = true);
+    final success = await CloudSyncService.instance.pullFromCloud();
+    if (mounted) {
+      setState(() => _isSyncing = false);
+      if (showSnackbar) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(success
+                ? LanguageService.instance.trText(
+                    ne: '✅ क्लाउडबाट नयाँ प्रश्न सेटहरू सफलतापूर्वक सिङ्क भए!',
+                    en: '✅ Successfully synced new mock tests from cloud!',
+                    ko: '✅ 클라우드에서 새 모의고사 세트를 동기화했습니다!',
+                  )
+                : LanguageService.instance.trText(
+                    ne: '⚠️ नयाँ प्रश्न सिङ्क हुन सकेन। इन्टरनेट जाँच गर्नुहोस्।',
+                    en: '⚠️ Could not sync new questions. Please check internet connection.',
+                    ko: '⚠️ 모의고사 세트를 동기화할 수 없습니다. 인터넷을 확인하세요.',
+                  )),
+            backgroundColor: success ? Colors.teal : Colors.orange.shade800,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final allSets = QuestionBankService.instance.getAllMockSets();
+    return ListenableBuilder(
+      listenable: Listenable.merge([QuestionBankService.instance, LanguageService.instance]),
+      builder: (context, _) => _buildContent(context),
+    );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    // Student side: isApproved भएका sets मात्र देखाउने
+    final allSets = QuestionBankService.instance
+        .getAllMockSets()
+        .where((s) => s.isApproved)
+        .toList();
     final completedCount = ExamHistoryService.instance.completedSetsCount;
+    final lang = LanguageService.instance;
 
     final filteredSets = _selectedSector == 'all'
         ? allSets
@@ -30,22 +79,34 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "EPS-TOPIK Mock Test Portal (모의고사)",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              lang.trText(
+                ne: "EPS-TOPIK मोडल टेस्ट पोर्टल (Mock Tests)",
+                en: "EPS-TOPIK Mock Test Portal",
+                ko: "EPS-TOPIK 실전 모의고사 포털",
+              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             Text(
-              "५० मिनेट • ४० प्रश्न • १०० पूर्णांक (पूर्णांक १००, उत्तीर्णांक ५०)",
-              style: TextStyle(fontSize: 12, color: Colors.white70),
+              lang.trText(
+                ne: "५० मिनेट • ४० प्रश्न • १०० पूर्णाङ्क (उत्तीर्णाङ्क ५०)",
+                en: "50 Mins • 40 Questions • 100 Marks (Pass: 50)",
+                ko: "50분 • 40문항 • 100점 만점 (합격선 50점)",
+              ),
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
             ),
           ],
         ),
         backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
         elevation: 1,
+        actions: [
+          LanguageService.instance.buildLanguageSwitcherWidget(),
+          const SizedBox(width: 8),
+        ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -86,9 +147,13 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "실전 모의고사 세트 선택 (Mock Test Sets)",
-                              style: TextStyle(
+                            Text(
+                              lang.trText(
+                                ne: "आधिकारिक मोडल परीक्षा सेटहरू छान्नुहोस्",
+                                en: "Select Official Mock Test Sets",
+                                ko: "실전 모의고사 세트 선택",
+                              ),
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -96,7 +161,11 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              "कुल ${allSets.length} वटा आधिकारिक सेटहरू उपलब्ध छन्। तपाईंले $completedCount वटा सेट पूरा गर्नुभएको छ।",
+                              lang.trText(
+                                ne: "कुल ${allSets.length} वटा आधिकारिक सेटहरू उपलब्ध छन्। तपाईंले $completedCount वटा पूरा गर्नुभयो।",
+                                en: "Total ${allSets.length} official sets available. You have completed $completedCount.",
+                                ko: "총 ${allSets.length}개 공식 모의고사 제공. 응시 완료: $completedCount개.",
+                              ),
                               style: const TextStyle(color: Colors.white70, fontSize: 13),
                             ),
                           ],
@@ -113,15 +182,15 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildSectorChip("전체 (सबै सेट)", 'all'),
+                      _buildSectorChip(lang.trText(ne: "सबै (${allSets.length})", en: "All (${allSets.length})", ko: "전체 (${allSets.length})"), 'all'),
                       const SizedBox(width: 8),
-                      _buildSectorChip("제조업 (Manufacturing)", '제조업'),
+                      _buildSectorChip(lang.trText(ne: "उत्पादन (Manufacturing)", en: "Manufacturing", ko: "제조업"), '제조업'),
                       const SizedBox(width: 8),
-                      _buildSectorChip("농축산업 (Agriculture)", '농축산'),
+                      _buildSectorChip(lang.trText(ne: "कृषि (Agriculture)", en: "Agriculture", ko: "농축산"), '농축산'),
                       const SizedBox(width: 8),
-                      _buildSectorChip("건설/안전 (Construction)", '건설'),
+                      _buildSectorChip(lang.trText(ne: "निर्माण (Construction)", en: "Construction", ko: "건설"), '건설'),
                       const SizedBox(width: 8),
-                      _buildSectorChip("실전 종합 (Simulation)", '실전'),
+                      _buildSectorChip(lang.trText(ne: "सिमुलेसन (Simulation)", en: "Simulation", ko: "실전"), '실전'),
                     ],
                   ),
                 ),
@@ -148,18 +217,22 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                         child: Icon(Icons.casino, color: Colors.white, size: 28),
                       ),
                       const SizedBox(width: 14),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '🎲 अनन्त र्‍यान्डम परीक्षा (Random Blueprint Exam)',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                              lang.trText(ne: '🎲 अनन्त र्‍यान्डम परीक्षा', en: '🎲 Infinite Random Exam', ko: '🎲 무작위 실전 모의고사'),
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
-                              'हरेक पटक नयाँ-नयाँ ४० प्रश्नहरू स्वतः छानिने असीमित परीक्षा',
-                              style: TextStyle(color: Colors.white70, fontSize: 12),
+                              lang.trText(
+                                ne: 'हरेक पटक नयाँ-नयाँ ४० प्रश्नहरू स्वतः छानिने असीमित परीक्षा',
+                                en: 'Unlimited 40-question randomized blueprint exam generated on the fly',
+                                ko: '매번 새로운 40문항이 무작위로 출제되는 무제한 실전 시험',
+                              ),
+                              style: const TextStyle(color: Colors.white70, fontSize: 12),
                             ),
                           ],
                         ),
@@ -181,7 +254,10 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                           }
                         },
                         icon: const Icon(Icons.play_arrow, size: 18),
-                        label: const Text('स्टार्ट Exam', style: TextStyle(fontWeight: FontWeight.bold)),
+                        label: Text(
+                          lang.trText(ne: 'परीक्षा सुरु', en: 'Start Exam', ko: '시험 시작'),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF0F172A),
                           foregroundColor: Colors.white,
@@ -191,6 +267,8 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                     ],
                   ),
                 ),
+
+                const SizedBox(height: 20),
 
                 // 3. Mock Test Cards Grid
                 if (isWide)
@@ -248,6 +326,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
 
   Widget _buildSetCard(MockTestSet set) {
     final bestAttempt = ExamHistoryService.instance.getBestAttempt(set.id);
+    final lang = LanguageService.instance;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -298,7 +377,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        "최고: ${bestAttempt.score.toStringAsFixed(1)} / 100",
+                        "${lang.trText(ne: 'उत्कृष्ट:', en: 'Best:', ko: '최고:')} ${bestAttempt.score.toStringAsFixed(1)} / 100",
                         style: TextStyle(
                           color: bestAttempt.isPassed ? Colors.green.shade900 : Colors.red.shade900,
                           fontWeight: FontWeight.bold,
@@ -316,7 +395,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    "미응시 (नयाँ)",
+                    lang.trText(ne: "नयाँ (नदिएको)", en: "New (Not Attempted)", ko: "미응시 (신규)"),
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -352,9 +431,9 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildInfoItem(Icons.help_outline, "४० प्रश्नहरू (२० R + २० L)"),
-                _buildInfoItem(Icons.timer_outlined, "५० मिनेट"),
-                _buildInfoItem(Icons.military_tech_outlined, "१०० पूर्णांक"),
+                _buildInfoItem(Icons.help_outline, lang.trText(ne: "४० प्रश्नहरू", en: "40 Questions", ko: "40문항")),
+                _buildInfoItem(Icons.timer_outlined, lang.trText(ne: "५० मिनेट", en: "50 Mins", ko: "50분")),
+                _buildInfoItem(Icons.military_tech_outlined, lang.trText(ne: "१०० पूर्णाङ्क", en: "100 Marks", ko: "100점 만점")),
               ],
             ),
           ),
@@ -366,7 +445,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
-                final isStrict = LanguageService.instance.modePreference == ExamModePreference.strictExam;
+                final isStrict = lang.modePreference == ExamModePreference.strictExam;
                 if (isStrict) {
                   Navigator.push(
                     context,
@@ -385,9 +464,9 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
               },
               icon: const Icon(Icons.play_arrow_rounded, size: 20),
               label: Text(
-                LanguageService.instance.modePreference == ExamModePreference.strictExam
-                    ? "स्टार्ट Exam (Start Exam)"
-                    : "स्टार्ट Exam (Study Mode)",
+                lang.modePreference == ExamModePreference.strictExam
+                    ? lang.trText(ne: "परीक्षा सुरु गर्नुहोस्", en: "Start Official Exam", ko: "실전 시험 시작")
+                    : lang.trText(ne: "अभ्यास सुरु गर्नुहोस्", en: "Start Practice", ko: "연습 시작하기"),
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               style: ElevatedButton.styleFrom(

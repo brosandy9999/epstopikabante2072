@@ -1,3 +1,4 @@
+import '../../core/services/language_service.dart';
 import 'package:flutter/material.dart';
 import '../question_engine/question_template.dart';
 import '../../core/services/question_bank_service.dart';
@@ -302,12 +303,12 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
           Center(
             child: Text(
               isLocked
-                  ? '재생 종료 (Audio Locked - २ पटक समाप्त)'
+                  ? LanguageService.instance.trText(ne: 'अडियो समाप्त (२/२ बजिसक्यो)', en: 'Audio Finished (Played 2/2)', ko: '재생 종료 (2/2회 완료)')
                   : (isPlaying
-                      ? (_audioState == StudyAudioState.playingFirst ? '1회차 재생 중... (१/२)' : '2회차 자동 반복 중... (२/२)')
+                      ? (_audioState == StudyAudioState.playingFirst ? LanguageService.instance.trText(ne: 'पहिलो पटक बज्दैछ... (१/२)', en: 'Playing Round 1... (1/2)', ko: '1회차 재생 중... (1/2)') : LanguageService.instance.trText(ne: 'दोस्रो पटक बज्दैछ... (२/२)', en: 'Playing Round 2... (2/2)', ko: '2회차 자동 반복 중... (2/2)'))
                       : (isIntermission
-                          ? '잠시 후 2회차 자동 반복...'
-                          : '오디오 재생 (यहाँ थिचेपछि २ पटक बज्नेछ)')),
+                          ? LanguageService.instance.trText(ne: 'केही क्षणमा दोस्रो पटक स्वतः बज्नेछ...', en: 'Playing second round shortly...', ko: '잠시 후 2회차 자동 반복...')
+                          : LanguageService.instance.trText(ne: '🔊 अडियो बजाउनुहोस् (२ पटक बज्नेछ)', en: '🔊 Play Audio (Plays 2 times)', ko: '🔊 오디오 재생 (2회 연속 재생)'))),
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
@@ -375,8 +376,8 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          '[보기 선택] 정답을 고르십시오:',
+        Text(
+          LanguageService.instance.trText(ne: '[विकल्प छनोट] सहि उत्तर रोज्नुहोस्:', en: '[Options] Choose the correct answer:', ko: '[보기 선택] 정답을 고르십시오:'),
           style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey),
         ),
         const SizedBox(height: 14),
@@ -402,7 +403,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
               badge = Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(4)),
-                child: const Text('✓ 정답 (सहि)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                child: Text(LanguageService.instance.trText(ne: '✓ सहि उत्तर', en: '✓ Correct Answer', ko: '✓ 정답'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
               );
             } else if (isThisSelected && !isThisCorrect) {
               bgColor = const Color(0xFFFEE2E2);
@@ -411,7 +412,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
               badge = Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(4)),
-                child: const Text('✗ 내 선택 (गलत)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                child: Text(LanguageService.instance.trText(ne: '✗ मेरो रोजाइ (गलत)', en: '✗ My Choice (Incorrect)', ko: '✗ 내 선택 (오답)'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
               );
             }
           }
@@ -479,7 +480,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          isCorrect ? '맞았습니다! 정답입니다 🎉' : '틀렸습니다! 오답입니다 ❌',
+                          isCorrect ? LanguageService.instance.trText(ne: 'सहि उत्तर! बधाई छ 🎉', en: 'Correct Answer! Congratulations 🎉', ko: '맞았습니다! 정답입니다 🎉') : LanguageService.instance.trText(ne: 'गलत उत्तर! फेरि प्रयास गर्नुहोस् ❌', en: 'Incorrect! Try again ❌', ko: '틀렸습니다! 다시 시도해보세요 ❌'),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 15,
@@ -493,7 +494,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
                         widget.onRetry();
                       },
                       icon: const Icon(Icons.refresh, size: 16),
-                      label: const Text('다시 풀기 (पुनः प्रयास)'),
+                      label: Text(LanguageService.instance.trText(ne: 'पुनः प्रयास गर्नुहोस्', en: 'Try Again', ko: '다시 풀기')),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: isCorrect ? Colors.green.shade900 : Colors.red.shade900,
                         side: BorderSide(color: isCorrect ? Colors.green : Colors.red),
@@ -513,8 +514,8 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              '정답 해설 (नेपाली व्याख्या):',
+                            Text(
+                              LanguageService.instance.trText(ne: 'सहि उत्तर व्याख्या:', en: 'Answer Explanation:', ko: '정답 해설:'),
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
                             ),
                             const SizedBox(height: 4),

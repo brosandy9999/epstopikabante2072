@@ -21,7 +21,6 @@ import 'features/exam/exam_review_screen.dart';
 
 import 'core/services/storage_service.dart';
 import 'core/services/language_service.dart';
-import 'features/settings/settings_screen.dart';
 import 'features/settings/universal_settings_dialog.dart';
 import 'features/exam/real_ubt_exam_hall_screen.dart';
 import 'features/practice/weakness_analysis_screen.dart';
@@ -73,15 +72,20 @@ class EpsTopikApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'EPS-TOPIK UBT',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1E3A8A)),
-        scaffoldBackgroundColor: const Color(0xFFF3F4F6),
-        useMaterial3: true,
-      ),
-      home: const LoginScreen(),
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) {
+        return MaterialApp(
+          title: 'EPS-TOPIK UBT',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1E3A8A)),
+            scaffoldBackgroundColor: const Color(0xFFF3F4F6),
+            useMaterial3: true,
+          ),
+          home: const LoginScreen(),
+        );
+      },
     );
   }
 }
@@ -99,186 +103,7 @@ class StudentDashboardScreen extends StatefulWidget {
 }
 
 class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
-  void _showAccountDetailsModal(BuildContext context, AppUser s) {
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Container(
-            width: 480,
-            padding: const EdgeInsets.all(24),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header with Close Button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(Icons.manage_accounts, color: Color(0xFF1E3A8A), size: 24),
-                          SizedBox(width: 8),
-                          Text(
-                            "मेरो खाता तथा सेटिङहरू (Account)",
-                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                          ),
-                        ],
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(ctx),
-                      ),
-                    ],
-                  ),
-                  const Divider(height: 20),
 
-                  // Student Avatar & Identity Banner
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEFF6FF),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: Colors.blue.shade100),
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: const Color(0xFF1E3A8A),
-                          child: Text(
-                            s.name.isNotEmpty ? s.name[0] : 'S',
-                            style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                s.name,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A)),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                "दर्ता नं: ${s.registrationNo ?? '01234567'}  •  ID: ${s.username}",
-                                style: const TextStyle(color: Colors.black54, fontSize: 12),
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(color: Colors.blue.shade100, borderRadius: BorderRadius.circular(4)),
-                                    child: Text(s.batch.split(' ')[0] + ' ' + s.batch.split(' ')[1], style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(color: Colors.green.shade100, borderRadius: BorderRadius.circular(4)),
-                                    child: const Text('सक्रिय खाता (Active)', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.green)),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  // Allowed Sector Info
-                  ListTile(
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                    leading: const CircleAvatar(radius: 16, backgroundColor: Color(0xFFF1F5F9), child: Icon(Icons.factory, size: 16, color: Color(0xFF1E3A8A))),
-                    title: const Text("औद्योगिक क्षेत्र (Sector)", style: TextStyle(fontSize: 12, color: Colors.black54)),
-                    subtitle: Text(s.sector, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Language Selection
-                  const Text("🌐 भाषा चयन गर्नुहोस् (Language):", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A))),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      _buildLangChoiceChip('नेपाली', AppLanguage.nepali),
-                      _buildLangChoiceChip('English', AppLanguage.english),
-                      _buildLangChoiceChip('한국어', AppLanguage.korean),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Actions: Password, Preferences, Logout
-                  const Divider(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
-                          },
-                          icon: const Icon(Icons.lock_reset, size: 16),
-                          label: const Text("पासवर्ड परिवर्तन", style: TextStyle(fontSize: 12)),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF1E3A8A),
-                            side: const BorderSide(color: Color(0xFF1E3A8A)),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
-                          },
-                          icon: const Icon(Icons.tune, size: 16),
-                          label: const Text("थप प्राथमिकताहरू", style: TextStyle(fontSize: 12)),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF0F766E),
-                            side: const BorderSide(color: Color(0xFF0F766E)),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Logout Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        _confirmUserLogout(context);
-                      },
-                      icon: const Icon(Icons.logout, size: 18),
-                      label: const Text("खाताबाट लगआउट गर्नुहोस् (Logout)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDC2626),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
   int _currentTab = 4; // Start on Dashboard by default, or tap any tab
   int _gridColumnsOverride = 0; // 0 = Auto, 1 = Single column, 2 = 2 columns, 3 = 3 columns
@@ -286,25 +111,15 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   double _pinchBaseScale = 1.0;
   bool _directScrollZoomEnabled = false;
 
-  List<String> _getTabTitles() => [
-    LanguageService.instance.tr('tab_profile'),
-    LanguageService.instance.tr('tab_exam'),
-    LanguageService.instance.tr('tab_study'),
-    LanguageService.instance.tr('tab_result'),
-    LanguageService.instance.tr('tab_dashboard'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: LanguageService.instance,
       builder: (context, _) {
-        final lang = LanguageService.instance;
         final s = widget.student ?? AuthService.instance.students.first;
         final allSets = QuestionBankService.instance.getAllMockSets();
         final screenWidth = MediaQuery.of(context).size.width;
         final bool isMobile = screenWidth < 850;
-        final tabTitles = _getTabTitles();
 
         return Listener(
           onPointerSignal: (pointerSignal) {
@@ -381,7 +196,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5, color: Colors.white),
                       ),
                       Text(
-                        'नेपाल-कोरिया भाषा अध्ययन तथा UBT परीक्षा केन्द्र • ${s.name}',
+                        '${LanguageService.instance.tr('app_subtitle')} • ${s.name}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.w500),
@@ -406,7 +221,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.remove, size: 14, color: Colors.white),
-                      tooltip: 'जुम घटाउनुहोस्',
+                      tooltip: LanguageService.instance.trText(ne: 'जुम घटाउनुहोस्', en: 'Zoom Out', ko: '축소'),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
                       onPressed: () {
@@ -433,7 +248,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     ),
                     IconButton(
                       icon: const Icon(Icons.add, size: 14, color: Colors.white),
-                      tooltip: 'जुम बढाउनुहोस् (१ स्तम्भ)',
+                      tooltip: LanguageService.instance.trText(ne: 'जुम बढाउनुहोस्', en: 'Zoom In', ko: '확대'),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
                       onPressed: () {
@@ -446,9 +261,10 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   ],
                 ),
               ),
+              LanguageService.instance.buildLanguageSwitcherWidget(),
               IconButton(
                 icon: const Icon(Icons.download_for_offline_outlined),
-                tooltip: '📦 इन-एप अफलाइन भण्डारण',
+                tooltip: LanguageService.instance.tr('offline_storage'),
                 onPressed: () => _showOfflineManagerModal(context),
               ),
               if (s.role == UserRole.superAdmin)
@@ -461,7 +277,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       elevation: 2,
                     ),
                     icon: const Icon(Icons.workspace_premium, size: 16),
-                    label: const Text('सुपर एडमिन पोर्टल', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                    label: Text(LanguageService.instance.tr('super_admin_portal'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
@@ -472,19 +288,13 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 ),
               IconButton(
                 icon: const Icon(Icons.settings),
-                tooltip: 'सेटिङ (भाषा, पासवर्ड, प्रोफाइल फोटो)',
+                tooltip: LanguageService.instance.tr('settings'),
                 onPressed: () => showUniversalSettingsDialog(context),
               ),
               IconButton(
                 icon: const Icon(Icons.logout),
-                tooltip: 'लगआउट',
-                onPressed: () {
-                  AuthService.instance.logout();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  );
-                },
+                tooltip: LanguageService.instance.tr('logout'),
+                onPressed: () => AuthService.confirmAndLogout(context),
               ),
               const SizedBox(width: 8),
             ],
@@ -501,31 +311,31 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             unselectedFontSize: 10,
             selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
             elevation: 16,
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
-                activeIcon: Icon(Icons.home_rounded),
-                label: 'Home',
+                icon: const Icon(Icons.home_outlined),
+                activeIcon: const Icon(Icons.home_rounded),
+                label: LanguageService.instance.tr('tab_home'),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.timer_outlined),
-                activeIcon: Icon(Icons.timer_rounded),
-                label: 'UBT Exam',
+                icon: const Icon(Icons.timer_outlined),
+                activeIcon: const Icon(Icons.timer_rounded),
+                label: LanguageService.instance.tr('tab_exam'),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.auto_stories_outlined),
-                activeIcon: Icon(Icons.auto_stories_rounded),
-                label: 'Study Practice',
+                icon: const Icon(Icons.auto_stories_outlined),
+                activeIcon: const Icon(Icons.auto_stories_rounded),
+                label: LanguageService.instance.tr('tab_study'),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.folder_special_outlined),
-                activeIcon: Icon(Icons.folder_special_rounded),
-                label: 'Resource',
+                icon: const Icon(Icons.folder_special_outlined),
+                activeIcon: const Icon(Icons.folder_special_rounded),
+                label: LanguageService.instance.tr('books'),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline_rounded),
-                activeIcon: Icon(Icons.person_rounded),
-                label: 'Profile',
+                icon: const Icon(Icons.person_outline_rounded),
+                activeIcon: const Icon(Icons.person_rounded),
+                label: LanguageService.instance.tr('tab_profile'),
               ),
             ],
           ),
@@ -591,12 +401,12 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.radio_button_checked, size: 14, color: Colors.red),
-                          SizedBox(width: 6),
-                          Text("आजको दैनिक लाइभ परीक्षा (TODAY'S LIVE EXAM)", style: TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 11)),
+                          const Icon(Icons.radio_button_checked, size: 14, color: Colors.red),
+                          const SizedBox(width: 6),
+                          Text(LanguageService.instance.tr("today_live_exam"), style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w900, fontSize: 11)),
                         ],
                       ),
                     ),
@@ -635,9 +445,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   runSpacing: 6,
                   children: [
                     _buildLiveBadge(Icons.timer, '५० मिनेट'),
-                    _buildLiveBadge(Icons.quiz, '४० प्रश्नहरू (२० R + २० L)'),
-                    _buildLiveBadge(Icons.assignment_turned_in, 'पूर्णाङ्क १०० / उत्तीर्णाङ्क ५०'),
-                    _buildLiveBadge(Icons.security, 'एन्टी-चीट लक'),
+                    _buildLiveBadge(Icons.quiz, LanguageService.instance.isEnglish ? '40 Questions (20 R + 20 L)' : (LanguageService.instance.isKorean ? '40 문항 (읽기 20 + 듣기 20)' : '४० प्रश्नहरू (२० रिडिङ + २० लिसनिङ)')),
+                    _buildLiveBadge(Icons.assignment_turned_in, LanguageService.instance.trText(ne: 'पूर्णाङ्क १०० / उत्तीर्णाङ्क ५०', en: 'Full Marks 100 / Pass 50', ko: '100점 만점 / 50점 합격')),
+                    _buildLiveBadge(Icons.security, LanguageService.instance.trText(ne: 'एन्टी-चीट लक', en: 'Anti-Cheat Locked', ko: '부정행위 방지 잠금')),
                   ],
                 ),
                 const SizedBox(height: 18),
@@ -675,7 +485,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                               ).then((_) => setState(() {}));
                             },
                             icon: const Icon(Icons.play_circle_fill, color: Colors.red, size: 22),
-                            label: const Text('लाइभ परीक्षा सुरु गर्नुहोस् (Start Exam)', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
+                            label: Text(LanguageService.instance.tr('start_exam_btn'), style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
                           ),
                         ),
                         OutlinedButton.icon(
@@ -694,14 +504,14 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                             setState(() {});
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(isDownloaded ? 'अफलाइन क्यासबाट हटाइयो।' : '✅ लाइभ परीक्षा इन-एप अफलाइन प्रयोगका लागि सुरक्षित गरियो!'),
+                                content: Text(isDownloaded ? LanguageService.instance.trText(ne: 'अफलाइन क्यासबाट हटाइयो।', en: 'Removed from offline cache.', ko: '오프라인 캐시에서 삭제되었습니다.') : LanguageService.instance.trText(ne: '✅ लाइभ परीक्षा इन-एप अफलाइन प्रयोगका लागि सुरक्षित गरियो!', en: '✅ Live exam saved for offline use!', ko: '✅ 라이브 시험이 오프라인용으로 저장되었습니다!')),
                                 backgroundColor: isDownloaded ? Colors.blueGrey : Colors.teal,
                               ),
                             );
                           },
                           icon: Icon(isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined, size: 18, color: Colors.amber),
                           label: Text(
-                            isDownloaded ? '✅ अफलाइन तयार (In-App)' : '⬇️ अफलाइन सेभ गर्नुहोस्',
+                            isDownloaded ? LanguageService.instance.trText(ne: '✅ अफलाइन तयार', en: '✅ Offline Ready', ko: '✅ 오프라인 준비완료') : LanguageService.instance.trText(ne: '⬇️ अफलाइन सेभ गर्नुहोस्', en: '⬇️ Save Offline', ko: '⬇️ 오프라인 저장'),
                             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                         ),
@@ -744,11 +554,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
 
           return AlertDialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            title: const Row(
+            title: Row(
               children: [
-                Icon(Icons.offline_pin, color: Color(0xFF0F766E), size: 26),
-                SizedBox(width: 10),
-                Text('सुरक्षित इन-एप अफलाइन भण्डारण', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+                const Icon(Icons.offline_pin, color: Color(0xFF0F766E), size: 26),
+                const SizedBox(width: 10),
+                Text(LanguageService.instance.trText(ne: 'सुरक्षित इन-एप अफलाइन भण्डारण', en: 'Secure In-App Offline Storage', ko: '안전한 인앱 오프라인 저장소'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
               ],
             ),
             content: SizedBox(
@@ -764,13 +574,13 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(color: Colors.blue.shade200),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Icon(Icons.security, color: Color(0xFF1E3A8A), size: 22),
-                        SizedBox(width: 10),
+                        const Icon(Icons.security, color: Color(0xFF1E3A8A), size: 22),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            '🔒 यहाँ डाउनलोड गरिएका सबै परीक्षा सेटहरू र पुस्तकहरू एप भित्रै सुरक्षित रहन्छन्। इन्टरनेट नहुँदा पनि तपाईं एपमै बसेर १००% अफलाइन परीक्षा दिन सक्नुहुन्छ। यो बाहिर एक्सपोर्ट हुँदैन।',
+                            LanguageService.instance.trText(ne: '🔒 यहाँ डाउनलोड गरिएका सबै परीक्षा सेटहरू र पुस्तकहरू एप भित्रै सुरक्षित रहन्छन्। इन्टरनेट नहुँदा पनि तपाईं एपमै बसेर १००% अफलाइन परीक्षा दिन सक्नुहुन्छ। यो बाहिर एक्सपोर्ट हुँदैन।', en: '🔒 All downloaded test sets and books remain safely inside the app. You can take exams 100% offline without internet.', ko: '🔒 다운로드된 모든 시험 세트와 교재는 앱 내에 안전하게 보관됩니다. 인터넷 없이도 100% 오프라인 응시가 가능합니다.'),
                             style: TextStyle(fontSize: 12, color: Color(0xFF1E3A8A)),
                           ),
                         ),
@@ -790,7 +600,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('अफलाइन परीक्षा सेटहरू', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                              Text(LanguageService.instance.trText(ne: 'अफलाइन परीक्षा सेटहरू', en: 'Offline Exam Sets', ko: '오프라인 시험 세트'), style: const TextStyle(fontSize: 11, color: Colors.black54)),
                               const SizedBox(height: 4),
                               Text('$setsCount वटा सेट', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
                             ],
@@ -808,7 +618,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('अफलाइन पुस्तकहरू', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                              Text(LanguageService.instance.trText(ne: 'अफलाइन पुस्तकहरू', en: 'Offline Textbooks', ko: '오프라인 교재'), style: const TextStyle(fontSize: 11, color: Colors.black54)),
                               const SizedBox(height: 4),
                               Text('$booksCount वटा पुस्तक', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
                             ],
@@ -833,11 +643,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       setModalState(() {});
                       setState(() {});
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('✅ सबै परीक्षा सेटहरू अफलाइन अध्ययनका लागि डाउनलोड भए!'), backgroundColor: Colors.teal),
+                        SnackBar(content: Text(LanguageService.instance.trText(ne: '✅ सबै परीक्षा सेटहरू अफलाइन अध्ययनका लागि डाउनलोड भए!', en: '✅ All exam sets downloaded for offline study!', ko: '✅ 모든 시험 세트가 오프라인용으로 다운로드되었습니다!')), backgroundColor: Colors.teal),
                       );
                     },
                     icon: const Icon(Icons.download, size: 18),
-                    label: const Text('⚡ सबै परीक्षा सेटहरू १-क्लिकमा डाउनलोड गर्नुहोस्'),
+                    label: Text(LanguageService.instance.trText(ne: '⚡ सबै परीक्षा सेटहरू १-क्लिकमा डाउनलोड गर्नुहोस्', en: '⚡ 1-Click Download All Exam Sets', ko: '⚡ 모든 시험 세트 1-클릭 다운로드')),
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
@@ -853,11 +663,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       setModalState(() {});
                       setState(() {});
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('✅ सबै पुस्तकहरू अफलाइन अध्ययनका लागि डाउनलोड भए!'), backgroundColor: Colors.teal),
+                        SnackBar(content: Text(LanguageService.instance.trText(ne: '✅ सबै पुस्तकहरू अफलाइन अध्ययनका लागि डाउनलोड भए!', en: '✅ All books downloaded for offline study!', ko: '✅ 모든 교재가 오프라인용으로 다운로드되었습니다!')), backgroundColor: Colors.teal),
                       );
                     },
                     icon: const Icon(Icons.menu_book, size: 18),
-                    label: const Text('⚡ सबै पुस्तकहरू १-क्लिकमा डाउनलोड गर्नुहोस्'),
+                    label: Text(LanguageService.instance.trText(ne: '⚡ सबै पुस्तकहरू १-क्लिकमा डाउनलोड गर्नुहोस्', en: '⚡ 1-Click Download All Books', ko: '⚡ 모든 교재 1-클릭 다운로드')),
                   ),
                   const SizedBox(height: 10),
                   OutlinedButton.icon(
@@ -873,11 +683,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       setModalState(() {});
                       setState(() {});
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('अफलाइन क्यास पूर्ण रूपमा खाली गरियो।')),
+                        SnackBar(content: Text(LanguageService.instance.trText(ne: 'अफलाइन क्यास पूर्ण रूपमा खाली गरियो।', en: 'Offline cache cleared completely.', ko: '오프라인 캐시가 완전히 삭제되었습니다.'))),
                       );
                     },
                     icon: const Icon(Icons.delete_outline, size: 18),
-                    label: const Text('🗑️ अफलाइन क्यास खाली गर्नुहोस् (Clear Cache)'),
+                    label: Text('🗑️ ' + LanguageService.instance.tr('clear_cache')),
                   ),
                 ],
               ),
@@ -885,7 +695,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('बन्द गर्नुहोस्'),
+                child: Text(LanguageService.instance.trText(ne: 'बन्द गर्नुहोस्', en: 'Close', ko: '닫기')),
               ),
             ],
           );
@@ -977,12 +787,12 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               child: const Icon(Icons.school, size: 30, color: Color(0xFF1E3A8A)),
             ),
             const SizedBox(width: 14),
-            const Expanded(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '📚 अध्ययन रिसोर्स केन्द्र (Resources - Book • Meaning • Grammar • Flashcard • Video)',
+                    '📚 ' + LanguageService.instance.tr('resources_hub'),
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1E3A8A)),
                   ),
                   SizedBox(height: 4),
@@ -1005,7 +815,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   MaterialPageRoute(builder: (context) => const StudentStudyHubScreen()),
                 );
               },
-              child: const Text('खोल्नुहोस्'),
+              child: Text(LanguageService.instance.trText(ne: 'खोल्नुहोस्', en: 'Open', ko: '열기')),
             ),
           ],
         ),
@@ -1064,7 +874,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               color: const Color(0xFF1E3A8A),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               children: [
                 Icon(Icons.timer, color: Colors.white, size: 30),
                 SizedBox(width: 14),
@@ -1072,10 +882,10 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("실전 시험 모드 (Official UBT Exam Mode)",
+                      Text(LanguageService.instance.trText(ne: "आधिकारिक UBT परीक्षा मोड", en: "Official UBT Exam Mode", ko: "실전 UBT 모의고사"),
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                       SizedBox(height: 4),
-                      Text("४० प्रश्नहरू • ५० मिनेट • पूर्णाङ्क १०० • उत्तीर्णाङ्क ५० • कडा एन्टी-चीट नियम",
+                      Text(LanguageService.instance.trText(ne: "४० प्रश्नहरू • ५० मिनेट • पूर्णाङ्क १०० • उत्तीर्णाङ्क ५० • कडा एन्टी-चीट", en: "40 Questions • 50 Mins • Total 100 • Pass 50 • Anti-Cheat", ko: "40문항 • 50분 • 총점 100점 • 합격선 50점 • 부정행위 방지"),
                           style: TextStyle(color: Colors.white70, fontSize: 12)),
                     ],
                   ),
@@ -1084,7 +894,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          const Text("परीक्षा दिन चाहेको सेट छान्नुहोस्:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(LanguageService.instance.trText(ne: "परीक्षा दिन चाहेको सेट छान्नुहोस्:", en: "Select Exam Set:", ko: "응시할 시험 세트를 선택하세요:"), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           ListView.separated(
             shrinkWrap: true,
@@ -1141,7 +951,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           ).then((_) => setState(() {}));
                         },
                         icon: const Icon(Icons.play_arrow, size: 18),
-                        label: const Text("परीक्षा सुरु"),
+                        label: Text(LanguageService.instance.tr("start_exam_btn")),
                       ),
                     ],
                   ),
@@ -1172,18 +982,18 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               color: const Color(0xFF0F766E),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.auto_stories, color: Colors.white, size: 30),
-                SizedBox(width: 14),
+                const Icon(Icons.auto_stories, color: Colors.white, size: 30),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("अध्ययन तथा अभ्यास मोड (Study & Practice Mode)",
+                      Text(LanguageService.instance.tr("study_practice_mode"),
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                       SizedBox(height: 4),
-                      Text("तत्काल सहि/गलत उत्तर • नेपालीमा विस्तृत व्याख्या • कोरियाली अडियो संवाद",
+                      Text(LanguageService.instance.trText(ne: "तत्काल सहि/गलत उत्तर • विस्तृत व्याख्या • कोरियाली अडियो संवाद", en: "Instant Feedback • Detailed Explanations • Korean Audio Dialogues", ko: "즉시 정답 확인 • 상세 해설 • 한국어 듣기 음원"),
                           style: TextStyle(color: Colors.white70, fontSize: 12)),
                     ],
                   ),
@@ -1212,21 +1022,21 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 22,
                     backgroundColor: Colors.white24,
                     child: Icon(Icons.school, color: Colors.white, size: 24),
                   ),
-                  SizedBox(width: 14),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('📚 EPS-TOPIK अध्ययन केन्द्र (Study Hub)', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+                        Text('📚 ' + LanguageService.instance.tr('resources_hub'), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
                         SizedBox(height: 4),
-                        Text('पाठ्यपुस्तक १ र २ • व्याकरण नियम • आवश्यक मिनिङ बैंक • सूचना', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        Text(LanguageService.instance.trText(ne: 'पाठ्यपुस्तक १ र २ • व्याकरण • मिनिङ बैंक • सूचना', en: 'Textbooks 1 & 2 • Grammar • Vocab Bank • Notices', ko: '표준교재 1·2권 • 문법 • 어휘집 • 공지사항'), style: const TextStyle(color: Colors.white70, fontSize: 12)),
                       ],
                     ),
                   ),
@@ -1236,7 +1046,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          const Text("अभ्यास गर्न चाहेको सेट छान्नुहोस्:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(LanguageService.instance.trText(ne: "अभ्यास गर्न चाहेको सेट छान्नुहोस्:", en: "Select Practice Set:", ko: "연습할 세트를 선택하세요:"), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           ListView.separated(
             shrinkWrap: true,
@@ -1284,7 +1094,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           ).then((_) => setState(() {}));
                         },
                         icon: const Icon(Icons.school, size: 18),
-                        label: const Text("अभ्यास सुरु"),
+                        label: Text(LanguageService.instance.tr("start_study_btn")),
                       ),
                     ],
                   ),
@@ -1329,7 +1139,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("मेरो विगत परीक्षा इतिहास तथा कमजोरी समीक्षा",
+                      Text(LanguageService.instance.trText(ne: "मेरो विगत परीक्षा इतिहास तथा कमजोरी समीक्षा", en: "My Exam History & Mistake Review", ko: "시험 기록 및 오답 복습"),
                           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 4),
                       Text("कुल परीक्षाहरू: ${allAttempts.length} पटक • सफल: ${allAttempts.where((a) => a.isPassed).length} पटक",
@@ -1372,17 +1182,17 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     child: const Icon(Icons.psychology, color: Colors.brown, size: 28),
                   ),
                   const SizedBox(width: 14),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '🧠 AI कमजोरी विश्लेषण तथा स्मार्ट अभ्यास',
+                          LanguageService.instance.trText(ne: '🧠 AI कमजोरी विश्लेषण तथा स्मार्ट अभ्यास', en: '🧠 AI Weakness Analysis & Smart Practice', ko: '🧠 AI 약점 분석 및 맞춤 학습'),
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.brown),
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'कुन विषयमा गल्ती भयो हेर्नुहोस् र कमजोर प्रश्नहरू मात्र अभ्यास गर्नुहोस्',
+                          LanguageService.instance.trText(ne: 'कुन विषयमा गल्ती भयो हेर्नुहोस् र कमजोर प्रश्नहरू मात्र अभ्यास गर्नुहोस्', en: 'Review mistakes and practice weak topics', ko: '틀린 문제를 분석하고 취약 유형만 집중 학습하세요'),
                           style: TextStyle(fontSize: 11, color: Colors.black87),
                         ),
                       ],
@@ -1403,13 +1213,13 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.grey.shade200),
               ),
-              child: const Column(
+              child: Column(
                 children: [
                   Icon(Icons.history, size: 48, color: Colors.grey),
                   SizedBox(height: 12),
-                  Text("अहिलेसम्म कुनै परीक्षा दिनुभएको छैन।", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(LanguageService.instance.trText(ne: "अहिलेसम्म कुनै परीक्षा दिनुभएको छैन।", en: "No exams taken yet.", ko: "아직 응시한 시험이 없습니다."), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   SizedBox(height: 4),
-                  Text("परीक्षा हलबाट कुनै पनि सेट सुरु गर्नुहोस्!", style: TextStyle(color: Colors.black54)),
+                  Text(LanguageService.instance.trText(ne: "परीक्षा हलबाट कुनै पनि सेट सुरु गर्नुहोस्!", en: "Start any set from the exam hall!", ko: "시험장에서 원하는 세트를 시작하세요!"), style: const TextStyle(color: Colors.black54)),
                 ],
               ),
             )
@@ -1442,7 +1252,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                                 border: Border.all(color: a.isPassed ? Colors.green : Colors.red),
                               ),
                               child: Text(
-                                a.isPassed ? "합격 (Pass)" : "불합격 (Fail)",
+                                LanguageService.instance.trText(ne: a.isPassed ? "उत्तीर्ण" : "अनुत्तीर्ण", en: a.isPassed ? "Passed" : "Failed", ko: a.isPassed ? "합격" : "불합격"),
                                 style: TextStyle(
                                   color: a.isPassed ? Colors.green.shade900 : Colors.red.shade900,
                                   fontWeight: FontWeight.bold,
@@ -1480,7 +1290,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                                 );
                               },
                               icon: const Icon(Icons.workspace_premium, size: 16),
-                              label: const Text("📄 आधिकारिक स्कोरकार्ड (PDF / Print)"),
+                              label: Text(LanguageService.instance.isEnglish ? "📄 Official Scorecard" : (LanguageService.instance.isKorean ? "📄 공식 성적표" : "📄 आधिकारिक स्कोरकार्ड")),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.amber.shade800,
                                 foregroundColor: Colors.white,
@@ -1503,7 +1313,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                                 );
                               },
                               icon: const Icon(Icons.fact_check, size: 16),
-                              label: const Text("🔍 कमजोरी समीक्षा (Review Mistakes)"),
+                              label: Text("🔍 " + LanguageService.instance.tr("mistake_review")),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF0F766E),
                                 foregroundColor: Colors.white,
@@ -1586,53 +1396,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
 );
   }
 
-  Widget _buildLangChoiceChip(String label, AppLanguage lang) {
-    final currentLang = LanguageService.instance.currentLanguage;
-    final isSel = currentLang == lang;
-    return ChoiceChip(
-      label: Text(label, style: TextStyle(color: isSel ? Colors.white : Colors.black87, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, fontSize: 12)),
-      selected: isSel,
-      selectedColor: const Color(0xFF1E3A8A),
-      backgroundColor: Colors.grey.shade100,
-      onSelected: (_) {
-        setState(() {
-          LanguageService.instance.setLanguage(lang);
-        });
-      },
-    );
-  }
 
-  void _confirmUserLogout(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.logout, color: Colors.red, size: 26),
-            SizedBox(width: 10),
-            Text('लगआउट पुष्टि गर्नुहोस्'),
-          ],
-        ),
-        content: const Text('के तपाईं आफ्नो खाताबाट लगआउट गर्न निश्चित हुनुहुन्छ?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('रद्द गर्नुहोस्')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () {
-              Navigator.pop(ctx);
-              AuthService.instance.logout();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-            },
-            child: const Text('हो, लगआउट गर्नुहोस्'),
-          ),
-        ],
-      ),
-    );
-  }
+
+
 
   // 1. PROFILE CARD
   // -----------------------------------------------------------------
@@ -1690,9 +1456,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   children: [
                     Row(
                       children: [
-                        const Text(
-                          "환영합니다! (स्वागत छ)",
-                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        Text(
+                          LanguageService.instance.trText(ne: 'स्वागत छ!', en: 'Welcome!', ko: '환영합니다!'),
+                          style: const TextStyle(color: Colors.white70, fontSize: 13),
                         ),
                         const SizedBox(width: 6),
                         Container(
@@ -1754,13 +1520,13 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.history_edu, size: 14, color: Color(0xFF1E3A8A)),
-                              SizedBox(width: 4),
-                              Text("विगत नतिजा तथा समीक्षा",
-                                  style: TextStyle(color: Color(0xFF1E3A8A), fontSize: 12, fontWeight: FontWeight.bold)),
+                              const Icon(Icons.history_edu, size: 14, color: Color(0xFF1E3A8A)),
+                              const SizedBox(width: 4),
+                              Text(LanguageService.instance.trText(ne: 'विगत नतिजा तथा समीक्षा', en: 'Past Results & Review', ko: '과거 성적 및 검토'),
+                                  style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 12, fontWeight: FontWeight.bold)),
                             ],
                           ),
                         ),
@@ -1829,17 +1595,17 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         child: const Icon(Icons.library_books, color: Color(0xFF1E3A8A), size: 20),
                       ),
                       const SizedBox(width: 8),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          "EPS-TOPIK बहु Mock Test सेटहरू (Available Test Sets)",
+                          LanguageService.instance.tr("available_sets"),
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    "सेट १ देखि ५ सम्मका आधिकारिक प्रश्न सेटहरू — जुनसुकै सेट छानेर परीक्षा वा अभ्यास सुरु गर्नुहोस्:",
+                  Text(
+                    LanguageService.instance.trText(ne: "आधिकारिक प्रश्न सेटहरू — जुनसुकै सेट छानेर परीक्षा वा अभ्यास सुरु गर्नुहोस्:", en: "Official Question Sets — Choose any set to start exam or practice:", ko: "공식 문제 세트 — 세트를 선택하여 시험 또는 연습을 시작하세요:"),
                     style: TextStyle(color: Colors.black54, fontSize: 13),
                   ),
                 ],
@@ -1854,7 +1620,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   ).then((_) => setState(() {}));
                 },
                 icon: const Icon(Icons.filter_list, size: 18),
-                label: const Text("सबै सेट पोर्टल"),
+                label: Text(LanguageService.instance.tr("all_sets_btn")),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF1E3A8A),
                   side: const BorderSide(color: Color(0xFF1E3A8A)),
@@ -1886,7 +1652,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       const Icon(Icons.zoom_in, size: 22, color: Color(0xFF1E3A8A)),
                       const SizedBox(width: 8),
                       Text(
-                        'स्क्रीन जुम र अटोमेटिक ग्रिड (Zoom: ${(_uiScale * 100).round()}%)',
+                        LanguageService.instance.isEnglish
+                            ? 'Screen Zoom (${(_uiScale * 100).round()}%)'
+                            : (LanguageService.instance.isKorean
+                                ? '화면 확대/축소 (${(_uiScale * 100).round()}%)'
+                                : 'स्क्रीन जुम (${(_uiScale * 100).round()}%)'),
                         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
                       ),
                     ],
@@ -1914,7 +1684,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                               Icon(Icons.mouse, size: 13, color: _directScrollZoomEnabled ? Colors.white : const Color(0xFF1E3A8A)),
                               const SizedBox(width: 4),
                               Text(
-                                _directScrollZoomEnabled ? '🖱️ माउस स्क्रल जुम: ON' : '🖱️ माउस स्क्रल जुम (Ctrl + Wheel)',
+                                _directScrollZoomEnabled
+                                    ? (LanguageService.instance.isEnglish ? '🖱️ Mouse Zoom: ON' : (LanguageService.instance.isKorean ? '🖱️ 마우스 줌: 켜짐' : '🖱️ माउस जुम: चालु'))
+                                    : (LanguageService.instance.isEnglish ? '🖱️ Mouse Zoom' : (LanguageService.instance.isKorean ? '🖱️ 마우스 줌' : '🖱️ माउस जुम')),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -1925,10 +1697,10 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           ),
                         ),
                       ),
-                      _buildGridColChip(0, '🔄 अटो ग्रिड'),
-                      _buildGridColChip(1, '🔲 १ स्तम्भ (एउटा मात्र ठूलो कार्ड)'),
-                      _buildGridColChip(2, '▦ २ स्तम्भ'),
-                      if (!isMobile) _buildGridColChip(3, '▤ ३ स्तम्भ'),
+                      _buildGridColChip(0, LanguageService.instance.trText(ne: '🔄 अटो ग्रिड', en: '🔄 Auto Grid', ko: '🔄 자동 그리드')),
+                      _buildGridColChip(1, LanguageService.instance.trText(ne: '🔲 १ स्तम्भ', en: '🔲 1 Column', ko: '🔲 1열')),
+                      _buildGridColChip(2, LanguageService.instance.trText(ne: '▦ २ स्तम्भ', en: '▦ 2 Columns', ko: '▦ 2열')),
+                      if (!isMobile) _buildGridColChip(3, LanguageService.instance.trText(ne: '▤ ३ स्तम्भ', en: '▤ 3 Columns', ko: '▤ 3열')),
                     ],
                   ),
                 ],
@@ -1938,7 +1710,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.zoom_out, color: Color(0xFF1E3A8A), size: 22),
-                    tooltip: 'जुम घटाउनुहोस् (Zoom Out)',
+                    tooltip: LanguageService.instance.tr('zoom_out'),
                     onPressed: () {
                       setState(() {
                         _uiScale = (_uiScale - 0.15).clamp(0.8, 1.8);
@@ -1968,7 +1740,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.zoom_in, color: Color(0xFF1E3A8A), size: 22),
-                    tooltip: 'जुम बढाउनुहोस् (Zoom In to Single Card)',
+                    tooltip: LanguageService.instance.tr('zoom_in'),
                     onPressed: () {
                       setState(() {
                         _uiScale = (_uiScale + 0.15).clamp(0.8, 1.8);
@@ -1986,7 +1758,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       });
                     },
                     icon: const Icon(Icons.restart_alt, size: 16),
-                    label: const Text('रिसेट १००%', style: TextStyle(fontSize: 11)),
+                    label: Text(LanguageService.instance.trText(ne: 'रिसेट १००%', en: 'Reset 100%', ko: '100% 초기화'), style: const TextStyle(fontSize: 11)),
                   ),
                 ],
               ),
@@ -2073,13 +1845,13 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   color: Colors.black26,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.casino, color: Colors.white, size: 16),
-                    SizedBox(width: 6),
+                    const Icon(Icons.casino, color: Colors.white, size: 16),
+                    const SizedBox(width: 6),
                     Text(
-                      '🎲 अनन्त र्‍यान्डम परीक्षा (Random Blueprint Exam)',
+                      '🎲 ' + LanguageService.instance.tr('random_exam'),
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                   ],
@@ -2091,18 +1863,17 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   color: Colors.white24,
                   borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Text('४० नयाँ प्रश्नहरू', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                child: Text(LanguageService.instance.trText(ne: '४० नयाँ प्रश्नहरू', en: '40 New Questions', ko: '새 40문항'), style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            'असीमित नयाँ मोडल सेट (Infinite Unique Mock Tests)',
+          Text(LanguageService.instance.tr('infinite_mock_sets'),
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'सयौं प्रश्नहरूबाट हरेक पटक स्वतः आधिकारिक EPS-TOPIK ब्लुप्रिन्ट अनुसार नयाँ २० रिडिङ र २० लिसनिङ प्रश्नहरू छानेर अनन्त परीक्षा सेट तयार हुन्छ।',
+          Text(
+            LanguageService.instance.trText(ne: 'सयौं प्रश्नहरूबाट स्वतः आधिकारिक ब्लुप्रिन्ट अनुसार नयाँ २० रिडिङ र २० लिसनिङ प्रश्न छानेर परीक्षा सेट तयार हुन्छ।', en: 'Generates unlimited unique exams with 20 Reading and 20 Listening questions directly from the official blueprint.', ko: '공식 출제 기준에 따라 읽기 20문항, 듣기 20문항의 새로운 실전 모의고사를 자동으로 구성합니다.'),
             style: TextStyle(color: Colors.white, fontSize: 13, height: 1.4),
           ),
           const SizedBox(height: 16),
@@ -2125,8 +1896,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 }
               },
               icon: const Icon(Icons.play_circle_fill, size: 20),
-              label: const Text(
-                '🎲 नयाँ र्‍यान्डम परीक्षा सुरु गर्नुहोस् (Start Random Exam)',
+              label: Text('🎲 ' + LanguageService.instance.tr('start_random_exam'),
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
               ),
               style: ElevatedButton.styleFrom(
@@ -2227,8 +1997,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Text(
-                      "미응시 (नयाँ सेट)",
+                    child: Text(
+                      LanguageService.instance.trText(ne: "नयाँ सेट", en: "New Set", ko: "미응시"),
                       style: TextStyle(fontSize: 11, color: Colors.black54, fontWeight: FontWeight.w500),
                     ),
                   ),
@@ -2253,19 +2023,19 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             const Divider(height: 20),
 
             // Specs
-            const Row(
+            Row(
               children: [
-                Icon(Icons.quiz_outlined, size: 14, color: Colors.blueGrey),
-                SizedBox(width: 4),
-                Text("४० प्रश्न (२० Reading + २० Listening)", style: TextStyle(fontSize: 11, color: Colors.black87)),
+                const Icon(Icons.quiz_outlined, size: 14, color: Colors.blueGrey),
+                const SizedBox(width: 4),
+                Text(LanguageService.instance.isEnglish ? '40 Questions (20 R + 20 L)' : (LanguageService.instance.isKorean ? '40 문항 (읽기 20 + 듣기 20)' : '४० प्रश्न (२० रिडिङ + २० लिसनिङ)'), style: const TextStyle(fontSize: 11, color: Colors.black87)),
                 Spacer(),
                 Icon(Icons.timer_outlined, size: 14, color: Colors.blueGrey),
                 SizedBox(width: 4),
-                Text("५० मिनेट", style: TextStyle(fontSize: 11, color: Colors.black87)),
+                Text(LanguageService.instance.trText(ne: "५० मिनेट", en: "50 Mins", ko: "50분"), style: const TextStyle(fontSize: 11, color: Colors.black87)),
                 Spacer(),
                 Icon(Icons.star_outline, size: 14, color: Colors.amber),
                 SizedBox(width: 4),
-                Text("पूर्णाङ्क १०० (उत्तीर्णाङ्क ५०)", style: TextStyle(fontSize: 11, color: Colors.black87)),
+                Text(LanguageService.instance.trText(ne: "पूर्णाङ्क १०० (उत्तीर्णाङ्क ५०)", en: "Total 100 (Pass 50)", ko: "총점 100 (합격 50)"), style: const TextStyle(fontSize: 11, color: Colors.black87)),
               ],
             ),
 
@@ -2300,8 +2070,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         icon: const Icon(Icons.play_arrow_rounded, size: 20),
                         label: Text(
                           LanguageService.instance.modePreference == ExamModePreference.strictExam
-                              ? "स्टार्ट Exam (Strict)"
-                              : "स्टार्ट Exam (Study)",
+                              ? LanguageService.instance.tr("start_exam_btn")
+                              : LanguageService.instance.tr("start_study_btn"),
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -2325,18 +2095,18 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         if (isDownloaded) {
                           await OfflineDownloadService.instance.removeDownloadedSet(set.id);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('अफलाइन क्यासबाट सेट हटाइयो।')),
+                            SnackBar(content: Text(LanguageService.instance.trText(ne: 'अफलाइन क्यासबाट सेट हटाइयो।', en: 'Set removed from offline cache.', ko: '오프라인 캐시에서 세트가 삭제되었습니다.'))),
                           );
                         } else {
                           await OfflineDownloadService.instance.downloadSet(set);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('✅ परीक्षा सेट इन-एप अफलाइन प्रयोगका लागि सुरक्षित गरियो!'), backgroundColor: Colors.teal),
+                            SnackBar(content: Text(LanguageService.instance.trText(ne: '✅ परीक्षा सेट इन-एप अफलाइन प्रयोगका लागि सुरक्षित गरियो!', en: '✅ Exam set saved for offline practice!', ko: '✅ 시험 세트가 오프라인 학습용으로 저장되었습니다!')), backgroundColor: Colors.teal),
                           );
                         }
                         setState(() {});
                       },
                       icon: Icon(isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined, size: 18),
-                      label: Text(isDownloaded ? '✅ अफलाइन' : '⬇️ डाउनलोड', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
+                      label: Text(LanguageService.instance.trText(ne: isDownloaded ? '✅ अफलाइन' : '⬇️ डाउनलोड', en: isDownloaded ? '✅ Offline' : '⬇️ Download', ko: isDownloaded ? '✅ 오프라인' : '⬇️ 다운로드'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
                     ),
                   ],
                 );
@@ -2347,198 +2117,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       ),
     );
   }
-
-  // -----------------------------------------------------------------
-  // 3. MODE OVERVIEW CARDS (Exam Mode & Study Mode)
-  // -----------------------------------------------------------------
-  Widget _buildModesSection(AppUser s, bool isMobile) {
-    final examCard = Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: EdgeInsets.all(isMobile ? 20.0 : 26.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CircleAvatar(
-                  radius: isMobile ? 24 : 28,
-                  backgroundColor: Colors.blue.shade100,
-                  child: const Icon(Icons.computer, size: 28, color: Color(0xFF1E3A8A)),
-                ),
-                Chip(
-                  label: const Text("실전 모의고사", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-                  backgroundColor: Colors.blue.shade50,
-                  labelStyle: const TextStyle(color: Color(0xFF1E3A8A)),
-                )
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              "UBT Real Exam Mode",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              "वास्तविक HRDK परीक्षा जस्तै ५० मिनेटको टाइमिङ, ४० वटा प्रश्न (२० Reading + २० Listening), अडियो लक र Strict Anti-cheat सहितको परीक्षा हल।",
-              style: TextStyle(color: Colors.black54, height: 1.4, fontSize: 13),
-            ),
-            const Divider(height: 28),
-            const Row(
-              children: [
-                Icon(Icons.check_circle_outline, color: Colors.blue, size: 16),
-                SizedBox(width: 8),
-                Text("कुल प्रश्न: ४० वटा (पूर्णाङ्क १००, उत्तीर्णाङ्क ५०)", style: TextStyle(fontSize: 13)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Row(
-              children: [
-                Icon(Icons.timer_outlined, color: Colors.orange, size: 16),
-                SizedBox(width: 8),
-                Text("समय: ५० मिनेट (काउन्टडाउन र Auto-Submit)", style: TextStyle(fontSize: 13)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Row(
-              children: [
-                Icon(Icons.lock_outline, color: Colors.red, size: 16),
-                SizedBox(width: 8),
-                Text("सेक्युरिटी: Full Screen र Audio Play limit", style: TextStyle(fontSize: 13)),
-              ],
-            ),
-            const SizedBox(height: 22),
-            SizedBox(
-              width: double.infinity,
-              height: 46,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  final firstSet = QuestionBankService.instance.getAllMockSets().first;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RealUbtExamHallScreen(student: s, mockSet: firstSet)),
-                  ).then((_) => setState(() {}));
-                },
-                icon: const Icon(Icons.play_arrow),
-                label: const Text("पहिलो सेटबाट सुरु गर्नुहोस् (Start Exam)", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E3A8A),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-
-    final studyCard = Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: EdgeInsets.all(isMobile ? 20.0 : 26.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CircleAvatar(
-                  radius: isMobile ? 24 : 28,
-                  backgroundColor: Colors.teal.shade100,
-                  child: const Icon(Icons.school, size: 28, color: Colors.teal),
-                ),
-                Chip(
-                  label: const Text("연습 / 학습 모드", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-                  backgroundColor: Colors.teal.shade50,
-                  labelStyle: TextStyle(color: Colors.teal.shade900),
-                )
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Study & Practice Mode",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.teal.shade900),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              "परीक्षाको दबाब बिना सिक्ने मोड। प्रत्येक प्रश्नको उत्तर छान्नेबित्तिकै सही/गलत थाहा हुनेछ र किन सही भयो भनेर नेपाली/कोरियनमा व्याख्या पढ्न पाइनेछ।",
-              style: TextStyle(color: Colors.black54, height: 1.4, fontSize: 13),
-            ),
-            const Divider(height: 28),
-            const Row(
-              children: [
-                Icon(Icons.lightbulb_outline, color: Colors.teal, size: 16),
-                SizedBox(width: 8),
-                Text("तत्काल उत्तर र व्याख्या (Instant Explanations)", style: TextStyle(fontSize: 13)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Row(
-              children: [
-                Icon(Icons.hourglass_disabled, color: Colors.green, size: 16),
-                SizedBox(width: 8),
-                Text("समयको कुनै दबाब छैन (Self-paced Learning)", style: TextStyle(fontSize: 13)),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Row(
-              children: [
-                Icon(Icons.auto_stories_outlined, color: Colors.purple, size: 16),
-                SizedBox(width: 8),
-                Text("शब्दावली र व्याकरण सुधार गर्ने उत्तम अभ्यास", style: TextStyle(fontSize: 13)),
-              ],
-            ),
-            const SizedBox(height: 22),
-            SizedBox(
-              width: double.infinity,
-              height: 46,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  final firstSet = QuestionBankService.instance.getAllMockSets().first;
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => StudyModeScreen(mockSet: firstSet)),
-                  ).then((_) => setState(() {}));
-                },
-                icon: const Icon(Icons.menu_book),
-                label: const Text("पहिलो सेट अभ्यास गर्नुहोस् (Start Study)", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal.shade800,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-
-    if (isMobile) {
-      return Column(
-        children: [
-          examCard,
-          const SizedBox(height: 20),
-          studyCard,
-        ],
-      );
-    } else {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(child: examCard),
-          const SizedBox(width: 25),
-          Expanded(child: studyCard),
-        ],
-      );
-    }
-  }
 }
-
 
 // ------------------------------------------------------------------
 // ADMIN DASHBOARD (???????? ???? ????? - Wrapper)
@@ -2592,17 +2171,17 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("परीक्षाबाट बाहिरिन चाहनुहुन्छ?"),
-        content: const Text("यदि तपाईं अहिले बाहिरिनुभयो भने तपाईंको चालु परीक्षा बीचमै रोकिनेछ। के तपाईं निश्चित हुनुहुन्छ?"),
+        title: Text(LanguageService.instance.trText(ne: "परीक्षाबाट बाहिरिन चाहनुहुन्छ?", en: "Exit Exam?", ko: "시험을 중단하시겠습니까?")),
+        content: Text(LanguageService.instance.trText(ne: "यदि तपाईं अहिले बाहिरिनुभयो भने तपाईंको चालु परीक्षा बीचमै रोकिनेछ। के तपाईं निश्चित हुनुहुन्छ?", en: "Leaving now will cancel your ongoing exam progress. Are you sure?", ko: "지금 퇴실하시면 진행 중인 시험이 중단됩니다. 정말 나가시겠습니까?")),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("परीक्षा जारी राख्नुहोस्")),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(LanguageService.instance.trText(ne: "परीक्षा जारी राख्नुहोस्", en: "Continue Exam", ko: "시험 계속하기"))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () {
               Navigator.pop(ctx); // Close dialog
               Navigator.pop(context); // Pop back to Student Portal
             },
-            child: const Text("बाहिरिनुहोस् (Exit)"),
+            child: Text(LanguageService.instance.tr("exit")),
           ),
         ],
       ),
@@ -2618,26 +2197,25 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.help_outline, color: Color(0xFF1E3A8A), size: 28),
             SizedBox(width: 10),
-            Text("परीक्षा सबमिट गर्नुहुन्छ?"),
+            Text(LanguageService.instance.trText(ne: "परीक्षा सबमिट गर्नुहुन्छ?", en: "Submit Exam?", ko: "시험을 제출하시겠습니까?")),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("विद्यार्थी: ${widget.student?.name ?? 'राम बहादुर'}", style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text("दर्ता नम्बर: ${widget.student?.registrationNo ?? '01234567'}"),
+            Text(LanguageService.instance.trText(ne: "विद्यार्थी: ${widget.student?.name ?? 'परीक्षार्थी'}", en: "Student: ${widget.student?.name ?? 'Candidate'}", ko: "수험자: ${widget.student?.name ?? '수험생'}"), style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(LanguageService.instance.trText(ne: "दर्ता नम्बर: ${widget.student?.registrationNo ?? '01234567'}", en: "Reg No: ${widget.student?.registrationNo ?? '01234567'}", ko: "수험번호: ${widget.student?.registrationNo ?? '01234567'}")),
             const Divider(height: 20),
-            Text("• कुल प्रश्न: $totalQuestions वटा"),
-            Text("• हल गरिएका प्रश्न: $attempted वटा", style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-            Text("• नछोएका प्रश्न: $unattempted वटा", style: TextStyle(color: unattempted > 0 ? Colors.red : Colors.grey)),
+            Text(LanguageService.instance.trText(ne: "• कुल प्रश्न: $totalQuestions वटा", en: "• Total Questions: $totalQuestions", ko: "• 총 문항: $totalQuestions")),
+            Text(LanguageService.instance.trText(ne: "• हल गरिएका प्रश्न: $attempted वटा", en: "• Answered: $attempted", ko: "• 작성 문항: $attempted"), style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+            Text(LanguageService.instance.trText(ne: "• नछोएका प्रश्न: $unattempted वटा", en: "• Unanswered: $unattempted", ko: "• 미작성 문항: $unattempted"), style: TextStyle(color: unattempted > 0 ? Colors.red : Colors.grey)),
             const SizedBox(height: 12),
-            const Text(
-              "के तपाईं परीक्षा समाप्त गरी नतिजा कार्ड (Scorecard) हेर्न निश्चित हुनुहुन्छ?",
+            Text(LanguageService.instance.isEnglish ? "Are you sure you want to finish the exam and view the scorecard?" : (LanguageService.instance.isKorean ? "시험을 종료하고 성적표를 확인하시겠습니까?" : "के तपाईं परीक्षा समाप्त गरी नतिजा कार्ड हेर्न निश्चित हुनुहुन्छ?"),
               style: TextStyle(fontWeight: FontWeight.w500),
             ),
           ],
@@ -2645,7 +2223,7 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text("परीक्षा जारी राख्नुहोस्"),
+            child: Text(LanguageService.instance.trText(ne: "परीक्षा जारी राख्नुहोस्", en: "Continue Exam", ko: "계속 풀기")),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -2669,7 +2247,7 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                 ),
               );
             }, 
-            child: const Text("सबमिट गर्नुहोस् (View Result)"),
+            child: Text(LanguageService.instance.tr("view_result")),
           ),
         ],
       ),
@@ -2698,7 +2276,7 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back, color: Colors.black87),
-                        tooltip: "परीक्षा छोड्नुहोस् (Exit Exam)",
+                        tooltip: LanguageService.instance.tr("exit_exam"),
                         onPressed: _confirmExitExam,
                       ),
                       const SizedBox(width: 8),
@@ -2707,14 +2285,14 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("수험번호: ${widget.student?.registrationNo ?? '01234567'}", style: const TextStyle(fontSize: 12, color: Colors.black54)),
-                          Text("성명: ${widget.student?.name ?? 'राम बहादुर'}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text(LanguageService.instance.trText(ne: "दर्ता नं: ${widget.student?.registrationNo ?? '01234567'}", en: "Reg No: ${widget.student?.registrationNo ?? '01234567'}", ko: "수험번호: ${widget.student?.registrationNo ?? '01234567'}"), style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                          Text(LanguageService.instance.trText(ne: "नाम: ${widget.student?.name ?? 'परीक्षार्थी'}", en: "Name: ${widget.student?.name ?? 'Candidate'}", ko: "성명: ${widget.student?.name ?? '수험생'}"), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                         ],
                       ),
                       const SizedBox(width: 25),
                       Chip(
                         label: Text(
-                          isReading ? "읽기 (Reading 1-20)" : "듣기 (Listening 21-40)",
+                          isReading ? LanguageService.instance.trText(ne: "रिडिङ (१-२०)", en: "Reading (1-20)", ko: "읽기 (1-20)") : LanguageService.instance.trText(ne: "लिसनिङ (२१-४०)", en: "Listening (21-40)", ko: "듣기 (21-40)"),
                           style: TextStyle(
                             color: isReading ? Colors.blue.shade900 : Colors.orange.shade900,
                             fontWeight: FontWeight.bold,
@@ -2730,12 +2308,17 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.grey.shade300)),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.pinch, size: 14, color: Color(0xFF1E3A8A)),
-                            SizedBox(width: 4),
-                            Text('पिन्च गरी जुम गर्नुहोस् (Pinch to Zoom)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+                            const Icon(Icons.pinch, size: 14, color: Color(0xFF1E3A8A)),
+                            const SizedBox(width: 4),
+                            Text(
+                              LanguageService.instance.isEnglish
+                                  ? 'Pinch to Zoom'
+                                  : (LanguageService.instance.isKorean ? '화면 확대/축소' : 'पिन्च गरी जुम गर्नुहोस्'),
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                            ),
                           ],
                         ),
                       ),
@@ -2796,10 +2379,10 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                   ElevatedButton.icon(
                     onPressed: _currentQuestionIndex > 0 ? _previousQuestion : null,
                     icon: const Icon(Icons.arrow_back),
-                    label: const Text("이전 (अघिल्लो)", style: TextStyle(fontSize: 15)),
+                    label: Text(LanguageService.instance.tr('prev_btn'), style: const TextStyle(fontSize: 15)),
                   ),
 
-                  // CENTER: Pull-up / Clickable All Questions Sheet (खिचेपछि/क्लिक गरेपछि खुल्ने)
+                  // CENTER: Pull-up / Clickable All Questions Sheet
                   Material(
                     color: Colors.white.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(10),
@@ -2817,9 +2400,9 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                           children: [
                             const Icon(Icons.keyboard_arrow_up, color: Colors.amber, size: 26),
                             const SizedBox(width: 8),
-                            const Text(
-                              "전체문항 (सबै प्रश्नहरू)",
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                            Text(
+                              LanguageService.instance.tr('all_questions_grid'),
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
                             ),
                             const SizedBox(width: 10),
                             Container(
@@ -2829,7 +2412,11 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                "हल: ${_selectedAnswers.length}/40",
+                                LanguageService.instance.isEnglish
+                                    ? "Attempted: ${_selectedAnswers.length}/40"
+                                    : (LanguageService.instance.isKorean
+                                        ? "풀이: ${_selectedAnswers.length}/40"
+                                        : "हल: ${_selectedAnswers.length}/40"),
                                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                               ),
                             ),
@@ -2841,7 +2428,7 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                "문항 ${_currentQuestionIndex + 1} / 40",
+                                LanguageService.instance.trText(ne: "प्रश्न ${_currentQuestionIndex + 1} / ४०", en: "Question ${_currentQuestionIndex + 1} / 40", ko: "문항 ${_currentQuestionIndex + 1} / 40"),
                                 style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 12),
                               ),
                             ),
@@ -2863,7 +2450,9 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _currentQuestionIndex < _questions.length - 1 ? "다음 (पछिल्लो)" : "최종 제출 (सबमिट)", 
+                          _currentQuestionIndex < _questions.length - 1
+                              ? LanguageService.instance.tr('next_btn')
+                              : LanguageService.instance.tr('finish_exam'),
                           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 8),
@@ -2913,9 +2502,9 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                     children: [
                       const Icon(Icons.grid_view, color: Color(0xFF1E3A8A), size: 24),
                       const SizedBox(width: 10),
-                      const Text(
-                        "전체문항 (सबै ४० प्रश्नहरूको तालिका)",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1E3A8A)),
+                      Text(
+                        LanguageService.instance.tr('all_questions_label'),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1E3A8A)),
                       ),
                     ],
                   ),
@@ -2925,14 +2514,18 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                         decoration: BoxDecoration(color: const Color(0xFF1E3A8A), borderRadius: BorderRadius.circular(6)),
                         child: Text(
-                          "हल गरिएको: ${_selectedAnswers.length} / 40",
+                          LanguageService.instance.isEnglish
+                              ? "Attempted: ${_selectedAnswers.length} / 40"
+                              : (LanguageService.instance.isKorean
+                                  ? "답안 작성: ${_selectedAnswers.length} / 40"
+                                  : "हल गरिएको: ${_selectedAnswers.length} / 40"),
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ),
                       const SizedBox(width: 10),
                       IconButton(
                         icon: const Icon(Icons.close),
-                        tooltip: "बन्द गर्नुहोस्",
+                        tooltip: LanguageService.instance.tr('close_btn'),
                         onPressed: () => Navigator.pop(ctx),
                       ),
                     ],
@@ -2947,11 +2540,11 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
               child: Row(
                 children: [
-                  _buildLegendItem(const Color(0xFF1E3A8A), "हल भइसकेको (Answered)", textColor: Colors.white),
+                  _buildLegendItem(const Color(0xFF1E3A8A), LanguageService.instance.tr("answered"), textColor: Colors.white),
                   const SizedBox(width: 16),
-                  _buildLegendItem(Colors.grey.shade200, "बाँकी (Unanswered)", textColor: Colors.black87),
+                  _buildLegendItem(Colors.grey.shade200, LanguageService.instance.tr("unanswered"), textColor: Colors.black87),
                   const SizedBox(width: 16),
-                  _buildLegendItem(Colors.red, "हालको प्रश्न (Active)", textColor: Colors.white),
+                  _buildLegendItem(Colors.red, LanguageService.instance.tr("active_q"), textColor: Colors.white),
                 ],
               ),
             ),
@@ -3170,12 +2763,12 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.grid_view, color: Color(0xFF1E3A8A), size: 22),
-                        SizedBox(width: 10),
+                        const Icon(Icons.grid_view, color: Color(0xFF1E3A8A), size: 22),
+                        const SizedBox(width: 10),
                         Text(
-                          '전체문항 (दुई खण्ड ग्रिड: Reading & Listening)',
+                          LanguageService.instance.isEnglish ? 'All Questions (Reading & Listening)' : (LanguageService.instance.isKorean ? '전체문항 (읽기 및 듣기)' : 'सबै प्रश्नहरू (रिडिङ र लिसनिङ)'),
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E3A8A)),
                         ),
                       ],
@@ -3352,7 +2945,7 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.grid_view),
-            tooltip: "सबै प्रश्नहरूको ग्रिड",
+            tooltip: LanguageService.instance.tr("all_questions_grid"),
             onPressed: _openQuestionJumpModal,
           ),
         ],
@@ -3368,17 +2961,17 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterChip("전체 (सबै ४०)", StudyFilter.all),
+                    _buildFilterChip(LanguageService.instance.isEnglish ? "All (40 Qs)" : (LanguageService.instance.isKorean ? "전체 (40문항)" : "सबै (४० प्रश्न)"), StudyFilter.all),
                     const SizedBox(width: 8),
-                    _buildFilterChip("읽기 (Reading २०)", StudyFilter.reading),
+                    _buildFilterChip(LanguageService.instance.isEnglish ? "Reading (20)" : (LanguageService.instance.isKorean ? "읽기 (20문항)" : "रिडिङ (२० प्रश्न)"), StudyFilter.reading),
                     const SizedBox(width: 8),
-                    _buildFilterChip("듣기 (Listening २०)", StudyFilter.listening),
+                    _buildFilterChip(LanguageService.instance.isEnglish ? "Listening (20)" : (LanguageService.instance.isKorean ? "듣기 (20문항)" : "लिसनिङ (२० प्रश्न)"), StudyFilter.listening),
                     const SizedBox(width: 14),
-                    _buildBadge("हल: ${_userAnswers.length}/${filteredList.length}", Colors.blueGrey),
+                    _buildBadge(LanguageService.instance.trText(ne: "हल: ${_userAnswers.length}/${filteredList.length}", en: "Answered: ${_userAnswers.length}/${filteredList.length}", ko: "풀이: ${_userAnswers.length}/${filteredList.length}"), Colors.blueGrey),
                     const SizedBox(width: 8),
-                    _buildBadge("सहि: $correctCount", Colors.green),
+                    _buildBadge(LanguageService.instance.trText(ne: "सहि: $correctCount", en: "Correct: $correctCount", ko: "정답: $correctCount"), Colors.green),
                     const SizedBox(width: 8),
-                    _buildBadge("गलत: $incorrectCount", Colors.red),
+                    _buildBadge(LanguageService.instance.trText(ne: "गलत: $incorrectCount", en: "Incorrect: $incorrectCount", ko: "오답: $incorrectCount"), Colors.red),
                   ],
                 ),
               ),
@@ -3406,7 +2999,7 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        (q is ReadingTextQuestion || (q is UniversalQuestion && !q.isListening)) ? "읽기 (Reading)" : "듣기 (Listening)",
+                        (q is ReadingTextQuestion || (q is UniversalQuestion && !q.isListening)) ? LanguageService.instance.trText(ne: "रिडिङ", en: "Reading", ko: "읽기") : LanguageService.instance.trText(ne: "लिसनिङ", en: "Listening", ko: "듣기"),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
@@ -3418,12 +3011,12 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(6)),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.pinch, size: 13, color: Color(0xFF0F766E)),
                           SizedBox(width: 4),
-                          Text('पिन्च गरी जुम गर्नुहोस्', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0F766E))),
+                          Text(LanguageService.instance.trText(ne: 'पिन्च गरी जुम गर्नुहोस्', en: 'Pinch to zoom', ko: '핀치하여 확대/축소'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0F766E))),
                         ],
                       ),
                     ),
@@ -3475,7 +3068,7 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
             ElevatedButton.icon(
               onPressed: _currentIndex > 0 ? () => setState(() => _currentIndex--) : null,
               icon: const Icon(Icons.arrow_back, size: 18),
-              label: Text(isMobile ? "अघिल्लो" : "◀ अघिल्लो प्रश्न"),
+              label: Text(LanguageService.instance.tr('prev_btn')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.grey.shade200,
                 foregroundColor: Colors.black87,
@@ -3492,7 +3085,7 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
               label: Text(
                 isMobile
                     ? "▲ [${_currentIndex + 1}/${filteredList.length}]"
-                    : "▲ प्रश्न सूची (सबै प्रश्नहरू) • [문항 ${_currentIndex + 1}/${filteredList.length}]",
+                    : LanguageService.instance.isEnglish ? "▲ Question List • [Q ${_currentIndex + 1}/${filteredList.length}]" : (LanguageService.instance.isKorean ? "▲ 전체문항 • [문항 ${_currentIndex + 1}/${filteredList.length}]" : "▲ प्रश्न सूची • [प्रश्न ${_currentIndex + 1}/${filteredList.length}]"),
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
               ),
               style: OutlinedButton.styleFrom(
@@ -3507,7 +3100,7 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
             ElevatedButton.icon(
               onPressed: _currentIndex < filteredList.length - 1 ? () => setState(() => _currentIndex++) : null,
               icon: const Icon(Icons.arrow_forward, size: 18),
-              label: Text(isMobile ? "अर्को" : "अर्को प्रश्न ▶"),
+              label: Text(LanguageService.instance.tr('next_btn')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0F766E),
                 foregroundColor: Colors.white,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../core/services/language_service.dart';
 import '../../core/models/study_material_model.dart';
 import '../../core/services/study_material_service.dart';
+import '../../core/services/cloud_sync_service.dart';
 import '../../core/services/offline_download_service.dart';
 import '../../core/services/korean_tts_service.dart';
 import '../../core/services/audio_playback_service.dart';
@@ -24,11 +26,11 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
   late TabController _tabController;
 
   // Book filters
-  String _selectedBookEdition = 'सबै (All)';
+  String _selectedBookEdition = 'all';
 
   // Dictionary search and filters
   String _dictSearch = '';
-  String _selectedPartOfSpeech = 'सबै (All)';
+  String _selectedPartOfSpeech = 'all';
 
   // Chapter titles map for EPS-TOPIK
   static final Map<int, String> _chapterTitleMap = {
@@ -61,8 +63,12 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
   };
 
   String _getChapterName(int chap) {
-    if (chap == 0) return 'सबै ६० अध्यायहरू (All 60 Chapters)';
-    return _chapterTitleMap[chap] ?? '제${chap}과: 표준교재 단어장 (अध्याय $chap)';
+    if (chap == 0) return '📚 ' + LanguageService.instance.tr('all_chapters');
+    return _chapterTitleMap[chap] ?? LanguageService.instance.trText(
+      ne: '제${chap}과: 표준교재 단어장 (अध्याय $chap)',
+      en: 'Chap ${chap}: Standard Vocab',
+      ko: '제${chap}과: 표준교재 단어장',
+    );
   }
 
   void _showAttachAudioDialog(VisualFlashcard card) {
@@ -76,14 +82,14 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
             children: [
               const Icon(Icons.audiotrack, color: Color(0xFF1E3A8A)),
               const SizedBox(width: 8),
-              Text('${card.koreanWord} - अडियो जोड्नुहोस्', style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              Text(LanguageService.instance.trText(ne: '${card.koreanWord} - अडियो जोड्नुहोस्', en: '${card.koreanWord} - Attach Audio', ko: '${card.koreanWord} - 음원 첨부'), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
             ],
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('यस शब्दका लागि कम्प्युटर/मोबाइलबाट MP3 अडियो रोज्नुहोस्:', style: TextStyle(fontSize: 13, color: Colors.black87)),
+              Text(LanguageService.instance.trText(ne: 'यस शब्दका लागि कम्प्युटर/मोबाइलबाट MP3 अडियो रोज्नुहोस्:', en: 'Select MP3 audio for this word from your device:', ko: '이 단어의 MP3 음원을 기기에서 선택하세요:'), style: const TextStyle(fontSize: 13, color: Colors.black87)),
               const SizedBox(height: 10),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
@@ -101,23 +107,23 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                 },
                 icon: const Icon(Icons.audio_file, size: 18),
                 label: Text(urlCtrl.text.isEmpty
-                    ? '📁 डिभाइसबाट सिधै MP3 रोज्नुहोस् (Pick MP3)'
-                    : 'अडियो लोड भयो ✅ (${urlCtrl.text.startsWith("data:") ? "Local File" : "URL"})'),
+                    ? (LanguageService.instance.isEnglish ? '📁 Pick Audio from device' : (LanguageService.instance.isKorean ? '📁 기기에서 오디오 선택' : '📁 डिभाइसबाट सिधै अडियो रोज्नुहोस्'))
+                    : (LanguageService.instance.isEnglish ? 'Audio loaded ✅' : (LanguageService.instance.isKorean ? '오디오 로드 완료 ✅' : 'अडियो लोड भयो ✅'))),
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: urlCtrl,
-                decoration: const InputDecoration(
-                  labelText: 'वा अडियो URL लिङ्क राख्नुहोस् (Optional URL)',
+                decoration: InputDecoration(
+                  labelText: LanguageService.instance.isEnglish ? 'Or enter audio link' : (LanguageService.instance.isKorean ? '또는 오디오 링크 입력' : 'वा अडियो लिङ्क राख्नुहोस्'),
                   hintText: 'https://hrd.go.kr/audio/word.mp3',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.link),
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.link),
                 ),
               ),
             ],
           ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('रद्द')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(LanguageService.instance.tr('cancel'))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
             onPressed: () {
@@ -142,7 +148,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
               }
               Navigator.pop(ctx);
             },
-            child: const Text('अडियो सेभ गर्नुहोस्'),
+            child: Text(LanguageService.instance.trText(ne: 'अडियो सेभ गर्नुहोस्', en: 'Save Audio', ko: '오디오 저장')),
           ),
         ],
       ),
@@ -152,7 +158,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
 
   // Visual Flashcard state
   int _selectedFlashcardChapter = 0; // 0 = all chapters
-  String _selectedFlashcardTopic = 'सबै (All)';
+  String _selectedFlashcardTopic = 'all';
   int _currentFlashcardIndex = 0;
   bool _autoPlayTts = true;
   final Set<String> _flippedFlashcardIds = {};
@@ -166,6 +172,11 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
     super.initState();
     _tabController = TabController(length: 6, vsync: this, initialIndex: widget.initialTabIndex);
     _flashcardPageController = PageController();
+
+    // पृष्ठभूमिमा स्वतः सिङ्क गर्ने (Silent background sync on open without manual buttons)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      CloudSyncService.instance.pullFromCloud().catchError((_) => false);
+    });
   }
 
   @override
@@ -177,19 +188,25 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) => Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.folder_special, size: 24),
-            SizedBox(width: 10),
+            const Icon(Icons.folder_special, size: 24),
+            const SizedBox(width: 10),
             Text(
-              'EPS-TOPIK अध्ययन स्रोत (Resources Hub)',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+              LanguageService.instance.tr('resources_hub'),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
             ),
           ],
         ),
+        actions: [
+          LanguageService.instance.buildLanguageSwitcherWidget(),
+          const SizedBox(width: 8),
+        ],
         backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
         elevation: 2,
@@ -202,41 +219,52 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-          tabs: const [
-            Tab(icon: Icon(Icons.menu_book, size: 18), text: 'किताबहरू (Books)'),
-            Tab(icon: Icon(Icons.auto_stories, size: 18), text: 'डिक्सनरी (Dictionary)'),
-            Tab(icon: Icon(Icons.style, size: 18), text: 'चित्र फ्ल्यास कार्ड (Flashcards)'),
-            Tab(icon: Icon(Icons.translate, size: 18), text: 'ग्रामर (Grammar)'),
-            Tab(icon: Icon(Icons.play_circle_filled, size: 18), text: 'भिडियो कोर्स (Videos)'),
-            Tab(icon: Icon(Icons.campaign, size: 18), text: 'सूचना (Notices)'),
+          tabs: [
+            Tab(icon: const Icon(Icons.menu_book, size: 18), text: LanguageService.instance.tr('books')),
+            Tab(icon: const Icon(Icons.auto_stories, size: 18), text: LanguageService.instance.tr('dictionary')),
+            Tab(icon: const Icon(Icons.style, size: 18), text: LanguageService.instance.tr('flashcards')),
+            Tab(icon: const Icon(Icons.translate, size: 18), text: LanguageService.instance.tr('grammar')),
+            Tab(icon: const Icon(Icons.play_circle_filled, size: 18), text: LanguageService.instance.tr('videos')),
+            Tab(icon: const Icon(Icons.campaign, size: 18), text: LanguageService.instance.tr('notices')),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1180), child: _buildBooksTab())),
-          Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 860), child: _buildDictionaryTab())),
-          Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 640), child: _buildVisualFlashcardsTab())),
-          Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 960), child: _buildGrammarTab())),
-          Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1180), child: _buildVideoCourseTab())),
-          Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 860), child: _buildNoticesTab())),
-        ],
+      body: ListenableBuilder(
+        listenable: Listenable.merge([LanguageService.instance, StudyMaterialService.instance]),
+        builder: (context, _) {
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1180), child: _buildBooksTab())),
+              Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 860), child: _buildDictionaryTab())),
+              Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 640), child: _buildVisualFlashcardsTab())),
+              Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 960), child: _buildGrammarTab())),
+              Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 1180), child: _buildVideoCourseTab())),
+              Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 860), child: _buildNoticesTab())),
+            ],
+          );
+        },
       ),
-    );
-  }
+    ),
+  );
+}
 
   // -------------------------------------------------------------
   // TAB 1: UNLIMITED BOOKS (नयाँ तथा पुराना असीमित किताबहरू)
   // -------------------------------------------------------------
   Widget _buildBooksTab() {
     final allBooks = StudyMaterialService.instance.getAllBooks();
-    final editions = ['सबै (All)', 'नयाँ संस्करण (New Edition)', 'पुरानो संस्करण (Old Edition)', 'विशेष गाइड (Special Guide)'];
+    final lang = LanguageService.instance;
+    final editions = [
+      {'key': 'all', 'label': lang.tr('all')},
+      {'key': 'नयाँ', 'label': lang.tr('new_edition')},
+      {'key': 'पुरानो', 'label': lang.tr('old_edition')},
+      {'key': 'विशेष', 'label': lang.tr('special_guide')},
+    ];
 
     final filtered = allBooks.where((b) {
-      if (_selectedBookEdition == 'सबै (All)') return true;
-      final key = _selectedBookEdition.split(' ')[0];
-      return b.editionType.contains(key);
+      if (_selectedBookEdition == 'all') return true;
+      return b.editionType.contains(_selectedBookEdition);
     }).toList();
 
     return Column(
@@ -248,15 +276,15 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
             scrollDirection: Axis.horizontal,
             child: Row(
               children: editions.map((ed) {
-                final isSel = _selectedBookEdition == ed;
+                final isSel = _selectedBookEdition == ed['key'];
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
-                    label: Text(ed, style: TextStyle(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
+                    label: Text(ed['label']!, style: TextStyle(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
                     selected: isSel,
                     selectedColor: const Color(0xFF1E3A8A),
                     backgroundColor: Colors.grey.shade100,
-                    onSelected: (_) => setState(() => _selectedBookEdition = ed),
+                    onSelected: (_) => setState(() => _selectedBookEdition = ed['key']!),
                   ),
                 );
               }).toList(),
@@ -265,7 +293,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
         ),
         Expanded(
           child: filtered.isEmpty
-              ? const Center(child: Text('कुनै किताब भेटिएन।', style: TextStyle(color: Colors.black54)))
+              ? Center(child: Text(LanguageService.instance.trText(ne: 'कुनै किताब भेटिएन।', en: 'No books found.', ko: '교재를 찾을 수 없습니다.'), style: const TextStyle(color: Colors.black54)))
               : LayoutBuilder(
                   builder: (ctx, constraints) {
                     final bool isWide = constraints.maxWidth > 700;
@@ -333,32 +361,32 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                               border: Border.all(color: isNew ? Colors.blue : Colors.amber.shade700),
                             ),
                             child: Text(
-                              b.editionType,
+                              b.localizedEditionType(),
                               style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isNew ? Colors.blue.shade900 : Colors.amber.shade900),
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text('${b.chaptersCount} वटा अध्याय', style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                          Text(LanguageService.instance.trText(ne: '${b.chaptersCount} वटा अध्याय', en: '${b.chaptersCount} Chapters', ko: '${b.chaptersCount}개 과'), style: const TextStyle(fontSize: 11, color: Colors.black54)),
                         ],
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        b.title,
+                        b.localizedTitle(),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F172A)),
                       ),
                       const SizedBox(height: 4),
-                      Text(b.subtitle, style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                      Text(b.localizedSubtitle(), style: const TextStyle(fontSize: 12, color: Colors.black54)),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
-            Text(b.description, style: const TextStyle(fontSize: 13, height: 1.5, color: Colors.black87)),
+            Text(b.localizedDescription(), style: const TextStyle(fontSize: 13, height: 1.5, color: Colors.black87)),
             const SizedBox(height: 12),
-            const Text('📌 मुख्य विशेषताहरू (Highlights):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E3A8A))),
+            Text('📌 ' + LanguageService.instance.tr('highlights') + ':', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E3A8A))),
             const SizedBox(height: 6),
-            ...b.highlightTopics.map((topic) => Padding(
+            ...b.localizedHighlights().map((topic) => Padding(
                   padding: const EdgeInsets.only(bottom: 4),
                   child: Row(
                     children: [
@@ -389,7 +417,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                           );
                         },
                         icon: const Icon(Icons.chrome_reader_mode, size: 18),
-                        label: const Text('📖 अडियोसहितको पुस्तक खोल्नुहोस्'),
+                        label: Text(LanguageService.instance.trText(ne: 'अडियोसहित पुस्तक खोल्नुहोस्', en: 'Open Book with Audio', ko: '오디오 포함 교재 열기')),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -404,18 +432,18 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                         if (isDownloaded) {
                           await OfflineDownloadService.instance.removeDownloadedBook(b.id);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('अफलाइन क्यासबाट पुस्तक हटाइयो।')),
+                            SnackBar(content: Text(LanguageService.instance.trText(ne: 'अफलाइन क्यासबाट पुस्तक हटाइयो।', en: 'Book removed from offline cache.', ko: '오프라인 캐시에서 교재가 삭제되었습니다.'))),
                           );
                         } else {
                           await OfflineDownloadService.instance.downloadBook(b.id);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('✅ पुस्तक इन-एप अफलाइन अध्ययनका लागि डाउनलोड भयो!'), backgroundColor: Colors.teal),
+                            SnackBar(content: Text(LanguageService.instance.trText(ne: '✅ पुस्तक इन-एप अफलाइन अध्ययनका लागि डाउनलोड भयो!', en: '✅ Book downloaded for offline study!', ko: '✅ 교재가 오프라인 학습용으로 다운로드되었습니다!')), backgroundColor: Colors.teal),
                           );
                         }
                         setState(() {});
                       },
                       icon: Icon(isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined, size: 18),
-                      label: Text(isDownloaded ? '✅ अफलाइन सेभ' : '⬇️ अफलाइन सेभ', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      label: Text(LanguageService.instance.trText(ne: isDownloaded ? '✅ अफलाइन सेभ' : '⬇️ अफलाइन सेभ', en: isDownloaded ? '✅ Saved Offline' : '⬇️ Save Offline', ko: isDownloaded ? '✅ 오프라인 저장됨' : '⬇️ 오프라인 저장'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                     ),
                   ],
                 );
@@ -467,7 +495,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('बुझें (Close)'),
+            child: Text(LanguageService.instance.tr('close')),
           ),
         ],
       ),
@@ -479,12 +507,17 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
   // -------------------------------------------------------------
   Widget _buildDictionaryTab() {
     final allWords = StudyMaterialService.instance.getAllDictionaryWords();
-    final parts = ['सबै (All)', 'संज्ञा (Noun)', 'क्रिया (Verb)', 'विशेषण (Adjective)'];
+    final lang = LanguageService.instance;
+    final parts = [
+      {'key': 'all', 'label': lang.tr('all')},
+      {'key': 'संज्ञा', 'label': lang.tr('noun')},
+      {'key': 'क्रिया', 'label': lang.tr('verb')},
+      {'key': 'विशेषण', 'label': lang.tr('adjective')},
+    ];
 
     final filtered = allWords.where((w) {
-      if (_selectedPartOfSpeech != 'सबै (All)') {
-        final key = _selectedPartOfSpeech.split(' ')[0];
-        if (!w.partOfSpeech.contains(key)) return false;
+      if (_selectedPartOfSpeech != 'all') {
+        if (!w.partOfSpeech.contains(_selectedPartOfSpeech)) return false;
       }
       if (_dictSearch.isEmpty) return true;
       final q = _dictSearch.toLowerCase();
@@ -502,7 +535,11 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
             children: [
               TextField(
                 decoration: InputDecoration(
-                  hintText: 'शब्द खोज्नुहोस् (जस्तै: 안전모, हथौडा, 용접, safe...)',
+                  hintText: LanguageService.instance.isEnglish
+                      ? 'Search words (e.g. helmet, hammer, welding)...'
+                      : (LanguageService.instance.isKorean
+                          ? '단어 검색 (예: 안전모, 망치, 용접)...'
+                          : 'शब्द खोज्नुहोस् (जस्तै: 안전모, हथौडा, 용접)...'),
                   prefixIcon: const Icon(Icons.search, color: Color(0xFF1E3A8A)),
                   suffixIcon: _dictSearch.isNotEmpty
                       ? IconButton(icon: const Icon(Icons.clear), onPressed: () => setState(() => _dictSearch = ''))
@@ -519,15 +556,15 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: parts.map((p) {
-                    final isSel = _selectedPartOfSpeech == p;
+                    final isSel = _selectedPartOfSpeech == p['key'];
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: ChoiceChip(
-                        label: Text(p, style: TextStyle(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
+                        label: Text(p['label']!, style: TextStyle(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
                         selected: isSel,
                         selectedColor: const Color(0xFF1E3A8A),
                         backgroundColor: Colors.grey.shade100,
-                        onSelected: (_) => setState(() => _selectedPartOfSpeech = p),
+                        onSelected: (_) => setState(() => _selectedPartOfSpeech = p['key']!),
                       ),
                     );
                   }).toList(),
@@ -538,7 +575,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
         ),
         Expanded(
           child: filtered.isEmpty
-              ? const Center(child: Text('डिक्सनरीमा कुनै शब्द भेटिएन।', style: TextStyle(color: Colors.black54)))
+              ? Center(child: Text(LanguageService.instance.trText(ne: 'डिक्सनरीमा कुनै शब्द भेटिएन।', en: 'No words found in dictionary.', ko: '사전에서 단어를 찾을 수 없습니다.'), style: const TextStyle(color: Colors.black54)))
               : ListView.separated(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   itemCount: filtered.length,
@@ -570,7 +607,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.volume_up, color: Color(0xFF1E3A8A), size: 22),
-                                      tooltip: 'उच्चारण सुन्नुहोस्',
+                                      tooltip: LanguageService.instance.tr('tts_listen'),
                                       onPressed: () => KoreanTtsService.instance.speakKorean(w.koreanWord),
                                     ),
                                   ],
@@ -578,7 +615,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                   decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)),
-                                  child: Text('제${w.chapterNo}과 • ${w.partOfSpeech.split(' ')[0]}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black54)),
+                                  child: Text(LanguageService.instance.trText(ne: 'अध्याय ${w.chapterNo} • ${w.partOfSpeech.split(" ")[0]}', en: 'Chap ${w.chapterNo} • ${w.partOfSpeech.split(" ")[0]}', ko: '제${w.chapterNo}과 • ${w.partOfSpeech.split(" ")[0]}'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black54)),
                                 ),
                               ],
                             ),
@@ -616,11 +653,18 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
   // -------------------------------------------------------------
   Widget _buildVisualFlashcardsTab() {
     final allCards = StudyMaterialService.instance.getAllVisualFlashcards();
-    final topics = ['सबै (All)', 'कारखाना औजार', 'सुरक्षा सामग्री', 'कृषि तथा पशुपालन', 'निर्माण तथा ढुवानी'];
+    final lang = LanguageService.instance;
+    final topics = [
+      {'key': 'all', 'label': lang.tr('all')},
+      {'key': 'कारखाना औजार', 'label': lang.isEnglish ? 'Factory Tools' : (lang.isKorean ? '공장 도구' : 'कारखाना औजार')},
+      {'key': 'सुरक्षा सामग्री', 'label': lang.isEnglish ? 'Safety Equipment' : (lang.isKorean ? '안전 장비' : 'सुरक्षा सामग्री')},
+      {'key': 'कृषि तथा पशुपालन', 'label': lang.isEnglish ? 'Agriculture & Livestock' : (lang.isKorean ? '농축산업' : 'कृषि तथा पशुपालन')},
+      {'key': 'निर्माण तथा ढुवानी', 'label': lang.isEnglish ? 'Construction & Transport' : (lang.isKorean ? '건설 및 운송' : 'निर्माण तथा ढुवानी')},
+    ];
 
     final filtered = allCards.where((c) {
       if (_selectedFlashcardChapter > 0 && c.chapterNo != _selectedFlashcardChapter) return false;
-      if (_selectedFlashcardTopic != 'सबै (All)' && !c.topic.contains(_selectedFlashcardTopic)) return false;
+      if (_selectedFlashcardTopic != 'all' && !c.topic.contains(_selectedFlashcardTopic)) return false;
       return true;
     }).toList();
 
@@ -638,13 +682,13 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                 children: [
                   Row(
                     children: [
-                      const Text('अध्याय:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E3A8A))),
+                      Text(LanguageService.instance.tr('chapter') + ':', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E3A8A))),
                       const SizedBox(width: 8),
                       DropdownButton<int>(
                         value: _selectedFlashcardChapter,
                         isDense: true,
                         items: [
-                          const DropdownMenuItem(value: 0, child: Text('📚 सबै ६० अध्यायहरू (All Chapters)')),
+                          DropdownMenuItem(value: 0, child: Text('📚 ' + LanguageService.instance.tr('all_chapters'))),
                           ...List.generate(60, (index) {
                             final ch = index + 1;
                             final cardCount = allCards.where((c) => c.chapterNo == ch).length;
@@ -672,7 +716,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                       Icon(Icons.volume_up, size: 18, color: _autoPlayTts ? const Color(0xFF1E3A8A) : Colors.grey),
                       const SizedBox(width: 4),
                       Text(
-                        'अटो TTS:',
+                        LanguageService.instance.trText(ne: 'अटो TTS:', en: 'Auto TTS:', ko: '자동 발음:'),
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _autoPlayTts ? const Color(0xFF1E3A8A) : Colors.grey),
                       ),
                       Switch(
@@ -694,17 +738,17 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: topics.map((t) {
-                    final isSel = _selectedFlashcardTopic == t;
+                    final isSel = _selectedFlashcardTopic == t['key'];
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: ChoiceChip(
-                        label: Text(t, style: TextStyle(fontSize: 11, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
+                        label: Text(t['label']!, style: TextStyle(fontSize: 11, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
                         selected: isSel,
                         selectedColor: const Color(0xFF1E3A8A),
                         backgroundColor: Colors.grey.shade100,
                         onSelected: (_) {
                           setState(() {
-                            _selectedFlashcardTopic = t;
+                            _selectedFlashcardTopic = t['key']!;
                             _currentFlashcardIndex = 0;
                             if (_flashcardPageController.hasClients) {
                               _flashcardPageController.jumpToPage(0);
@@ -723,7 +767,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
         // Flashcard Swipeable Deck
         Expanded(
           child: filtered.isEmpty
-              ? const Center(child: Text('छानिएको अध्याय वा टपिकमा कुनै फ्ल्यासकार्ड भेटिएन।', style: TextStyle(color: Colors.black54)))
+              ? Center(child: Text(LanguageService.instance.trText(ne: 'कुनै फ्ल्यासकार्ड भेटिएन।', en: 'No flashcards found.', ko: '단어장을 찾을 수 없습니다.'), style: const TextStyle(color: Colors.black54)))
               : Column(
                   children: [
                     const SizedBox(height: 12),
@@ -856,7 +900,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                               ),
                                               onPressed: () => KoreanTtsService.instance.speakKorean(card.koreanWord),
                                               icon: const Icon(Icons.volume_up, size: 18),
-                                              label: const Text('🔊 TTS उच्चारण'),
+                                              label: Text(LanguageService.instance.trText(ne: '🔊 TTS उच्चारण', en: '🔊 TTS Audio', ko: '🔊 TTS 발음')),
                                             ),
                                             // 2. Uploaded Custom Audio Button
                                             ElevatedButton.icon(
@@ -883,13 +927,13 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                               ),
                                               label: Text(
                                                 (card.audioUrl != null && card.audioUrl!.isNotEmpty)
-                                                    ? '🎵 आफ्नै अडियो'
-                                                    : '🎵 अडियो जोड्नुहोस्',
+                                                    ? LanguageService.instance.trText(ne: '🎵 आफ्नै अडियो', en: '🎵 Custom Audio', ko: '🎵 내 오디오')
+                                                    : LanguageService.instance.trText(ne: '🎵 अडियो जोड्नुहोस्', en: '🎵 Add Audio', ko: '🎵 오디오 추가'),
                                               ),
                                             ),
                                           ],
                                         ),
-                                        const Text('👆 कार्ड थिचेर नेपाली अर्थ हेर्नुहोस् (Tap to Flip)', style: TextStyle(fontSize: 12, color: Colors.blueGrey)),
+                                        Text('👆 ' + LanguageService.instance.tr('tap_to_flip'), style: const TextStyle(fontSize: 12, color: Colors.blueGrey)),
                                       ] else ...[
                                         // Back: Nepali Meaning & Examples
                                         Column(
@@ -906,7 +950,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                               child: Column(
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  const Text('कार्यस्थल उदाहरण वाक्य:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black54)),
+                                                  Text(LanguageService.instance.trText(ne: 'कार्यस्थल उदाहरण वाक्य:', en: 'Workplace Example Sentence:', ko: '직장 실무 예문:'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.black54)),
                                                   const SizedBox(height: 4),
                                                   Text(card.exampleSentence, style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.black87)),
                                                 ],
@@ -927,17 +971,17 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                             });
                                           },
                                           icon: Icon(card.isMastered ? Icons.check_circle : Icons.bookmark_add, size: 18),
-                                          label: Text(card.isMastered ? '✓ कण्ठ भयो (Mastered)' : 'कण्ठ भयो भनी चिन्ह लगाउनुहोस्'),
+                                          label: Text(card.isMastered ? '✓ ' + LanguageService.instance.tr('mastered') : (LanguageService.instance.isEnglish ? 'Mark as Mastered' : (LanguageService.instance.isKorean ? '암기완료로 표시' : 'कण्ठ भयो भनी चिन्ह लगाउनुहोस्'))),
                                         ),
                                       ],
 
                                       // Swipe indicator
-                                      const Row(
+                                      Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Icon(Icons.arrow_back, size: 12, color: Colors.black38),
                                           SizedBox(width: 6),
-                                          Text('स्वाइप गर्नुहोस् (Swipe to Next)', style: TextStyle(fontSize: 11, color: Colors.black45)),
+                                          Text(LanguageService.instance.tr('swipe_to_next'), style: const TextStyle(fontSize: 11, color: Colors.black45)),
                                           SizedBox(width: 6),
                                           Icon(Icons.arrow_forward, size: 12, color: Colors.black38),
                                         ],
@@ -969,7 +1013,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                   }
                                 : null,
                             icon: const Icon(Icons.chevron_left),
-                            label: const Text('अघिल्लो'),
+                            label: Text(LanguageService.instance.trText(ne: 'अघिल्लो', en: 'Previous', ko: '이전')),
                           ),
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
@@ -982,7 +1026,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                   }
                                 : null,
                             icon: const Icon(Icons.chevron_right),
-                            label: const Text('अर्को कार्ड'),
+                            label: Text(LanguageService.instance.trText(ne: 'अर्को कार्ड', en: 'Next Card', ko: '다음 카드')),
                           ),
                         ],
                       ),
@@ -1054,7 +1098,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                         ),
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 4),
-                          child: Text('संरचना: ${g.structure}', style: const TextStyle(fontSize: 12, color: Colors.black87)),
+                          child: Text(LanguageService.instance.trText(ne: 'संरचना: ${g.structure}', en: 'Structure: ${g.structure}', ko: '문형: ${g.structure}'), style: const TextStyle(fontSize: 12, color: Colors.black87)),
                         ),
                         children: [
                           Container(
@@ -1063,11 +1107,11 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('नेपालीमा नियम र व्याख्या:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F172A))),
+                                Text(LanguageService.instance.trText(ne: 'नियम र व्याख्या:', en: 'Rules & Explanation:', ko: '문법 규칙 및 해설:'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F172A))),
                                 const SizedBox(height: 4),
                                 Text(g.nepaliExplanation, style: const TextStyle(fontSize: 13, height: 1.5, color: Colors.black87)),
                                 const SizedBox(height: 14),
-                                const Text('कार्यस्थल तथा परीक्षा उदाहरण वाक्यहरू:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A))),
+                                Text(LanguageService.instance.trText(ne: 'कार्यस्थल तथा परीक्षा उदाहरण वाक्यहरू:', en: 'Workplace & Exam Example Sentences:', ko: '실무 및 시험 예문:'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A))),
                                 const SizedBox(height: 8),
                                 ...g.examples.map((ex) => Container(
                                       margin: const EdgeInsets.only(bottom: 8),
@@ -1139,7 +1183,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                           child: const Icon(Icons.play_arrow_rounded, color: Color(0xFF1E3A8A), size: 34),
                         ),
                         const SizedBox(height: 8),
-                        Text('भिडियो कक्षा (${v.duration})', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                        Text(LanguageService.instance.trText(ne: 'भिडियो कक्षा (${v.duration})', en: 'Video Lesson (${v.duration})', ko: '동영상 강의 (${v.duration})'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
                   ],

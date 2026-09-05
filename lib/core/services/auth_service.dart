@@ -1,3 +1,5 @@
+import 'language_service.dart';
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'storage_service.dart';
@@ -352,6 +354,73 @@ class AuthService extends ChangeNotifier {
   void logout() {
     _currentUser = null;
     notifyListeners();
+  }
+
+  /// Universal Logout Confirmation Dialog for ALL User Roles (Student, Admin, Super Admin)
+  static void confirmAndLogout(BuildContext context, {VoidCallback? onAfterLogout}) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.logout, color: Colors.red, size: 24),
+            const SizedBox(width: 8),
+            Text(
+              LanguageService.instance.trText(
+                ne: 'लगआउट पुष्टि गर्नुहोस्',
+                en: 'Confirm Logout',
+                ko: '로그아웃 확인',
+              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+          ],
+        ),
+        content: Text(
+          LanguageService.instance.trText(
+            ne: 'के तपाईं आफ्नो खाताबाट लगआउट गर्न निश्चित हुनुहुन्छ?',
+            en: 'Are you sure you want to log out of your account?',
+            ko: '정말 계정에서 로그아웃하시겠습니까?',
+          ),
+          style: const TextStyle(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(
+              LanguageService.instance.trText(
+                ne: 'रद्द गर्नुहोस्',
+                en: 'Cancel',
+                ko: '취소',
+              ),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () {
+              Navigator.pop(ctx);
+              AuthService.instance.logout();
+              if (onAfterLogout != null) {
+                onAfterLogout();
+              } else {
+                Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+              }
+            },
+            child: Text(
+              LanguageService.instance.trText(
+                ne: 'हो, लगआउट गर्नुहोस्',
+                en: 'Yes, Log Out',
+                ko: '예, 로그아웃',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
 

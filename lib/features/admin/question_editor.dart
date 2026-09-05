@@ -3,6 +3,7 @@ import '../../core/services/question_bank_service.dart';
 import '../question_engine/question_template.dart';
 import '../../core/services/file_upload_service.dart';
 import '../../core/services/audio_playback_service.dart';
+import '../../core/services/language_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
 
 /// Phase 11: Question Editor (रुल २९)
@@ -66,8 +67,12 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
       QuestionBankService.instance.addCustomQuestion(newQ, ans);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("✅ प्रश्न सफलतापूर्वक स्थानीय डाटाबेसमा सुरक्षित भयो! (Saved to Offline Database)"),
+        SnackBar(
+          content: Text(LanguageService.instance.trText(
+            ne: "✅ प्रश्न सफलतापूर्वक स्थानीय डाटाबेसमा सुरक्षित भयो!",
+            en: "✅ Question saved successfully to local database!",
+            ko: "✅ 문항이 로컬 데이터베이스에 저장되었습니다!",
+          )),
           backgroundColor: Colors.green,
         ),
       );
@@ -86,24 +91,32 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        padding: const EdgeInsets.all(24.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 10)],
-        ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Create New Question (नयाँ प्रश्न बनाउनुहोस्)",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.teal),
-              ),
-              const SizedBox(height: 20),
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) {
+        final lang = LanguageService.instance;
+        return SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(24.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 10)],
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    lang.trText(
+                      ne: "नयाँ प्रश्न बनाउनुहोस्",
+                      en: "Create New Question",
+                      ko: "새 문항 작성",
+                    ),
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.teal),
+                  ),
+                  const SizedBox(height: 20),
 
               // Category Selection (Reading or Listening)
               Row(
@@ -132,7 +145,7 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
               TextFormField(
                 controller: _questionTextController,
                 decoration: const InputDecoration(
-                  labelText: "Question Text (प्रश्न)",
+                  labelText: "प्रश्न वाक्य",
                   border: OutlineInputBorder(),
                   hintText: "जस्तै: 빈칸에 들어갈 가장 알맞은 것을 고르십시오.",
                 ),
@@ -192,7 +205,7 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
               const SizedBox(height: 30),
 
               // 4 Options
-              const Text("Options (४ वटा विकल्पहरू):", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Text("४ वटा विकल्पहरू:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               ...List.generate(4, (index) {
                 return Padding(
@@ -226,10 +239,14 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
               // Explanation
               TextFormField(
                 controller: _explanationController,
-                decoration: const InputDecoration(
-                  labelText: "Explanation (व्याख्या)",
-                  border: OutlineInputBorder(),
-                  hintText: "विद्यार्थीले Study Mode मा हेर्ने व्याख्या लेख्नुहोस्।",
+                decoration: InputDecoration(
+                  labelText: lang.trText(ne: "विस्तृत व्याख्या", en: "Detailed Explanation", ko: "정답 상세 해설"),
+                  border: const OutlineInputBorder(),
+                  hintText: lang.trText(
+                    ne: "विद्यार्थीले Study Mode मा हेर्ने व्याख्या लेख्नुहोस्।",
+                    en: "Write explanation visible to students in review mode.",
+                    ko: "오답노트 및 학습 모드에서 표시될 해설을 입력하세요.",
+                  ),
                 ),
                 maxLines: 2,
               ),
@@ -240,7 +257,14 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _saveQuestion,
                   icon: const Icon(Icons.save),
-                  label: const Text("Save Question to Database", style: TextStyle(fontSize: 18)),
+                  label: Text(
+                    lang.trText(
+                      ne: "डेटाबेसमा प्रश्न सुरक्षित गर्नुहोस्",
+                      en: "Save Question to Database",
+                      ko: "문항 데이터베이스에 저장하기",
+                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                     backgroundColor: Colors.teal.shade700,
@@ -252,6 +276,8 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 }

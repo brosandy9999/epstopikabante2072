@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/language_service.dart';
 
 /// Admin Student Batch Management & Credential Screen
 /// Allows teachers and administrators to organize students by batch,
@@ -20,11 +21,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   String _adminStatusMsg = '';
   bool _isAdminSuccess = false;
 
-  String _selectedBatchFilter = 'सबै ब्याचहरू (All Batches)';
+  String _selectedBatchFilter = 'सबै ब्याचहरू';
   final TextEditingController _studentSearchController = TextEditingController();
 
   final List<String> _batchesList = [
-    'सबै ब्याचहरू (All Batches)',
+    'सबै ब्याचहरू',
     '2026 Batch A (बिहानी सत्र)',
     '2026 Batch B (दिवा सत्र)',
     '2026 Batch C (साँझ सत्र)',
@@ -62,7 +63,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
     if (oldPass.isEmpty) {
       setState(() {
-        _adminStatusMsg = 'कृपया हालको एडमिन पासवर्ड प्रविष्ट गर्नुहोस्!';
+        _adminStatusMsg = LanguageService.instance.trText(
+          ne: 'कृपया हालको एडमिन पासवर्ड प्रविष्ट गर्नुहोस्!',
+          en: 'Please enter the current admin password!',
+          ko: '현재 관리자 비밀번호를 입력해주세요!',
+        );
         _isAdminSuccess = false;
       });
       return;
@@ -70,7 +75,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
     if (newPass.isNotEmpty && newPass != confirmPass) {
       setState(() {
-        _adminStatusMsg = 'नयाँ पासवर्ड र कन्फर्म पासवर्ड मिलेन!';
+        _adminStatusMsg = LanguageService.instance.trText(
+          ne: 'नयाँ पासवर्ड र कन्फर्म पासवर्ड मिलेन!',
+          en: 'New password and confirmation do not match!',
+          ko: '새 비밀번호와 확인 비밀번호가 일치하지 않습니다!',
+        );
         _isAdminSuccess = false;
       });
       return;
@@ -84,13 +93,21 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
     setState(() {
       if (success) {
-        _adminStatusMsg = 'सफल भयो! एडमिन लगइन विवरण सफलतापूर्वक परिवर्तन गरियो।';
+        _adminStatusMsg = LanguageService.instance.trText(
+          ne: 'सफल भयो! एडमिन लगइन विवरण सफलतापूर्वक परिवर्तन गरियो।',
+          en: 'Success! Admin login credentials updated successfully.',
+          ko: '성공! 관리자 로그인 정보가 변경되었습니다.',
+        );
         _isAdminSuccess = true;
         _adminOldPassController.clear();
         _adminNewPassController.clear();
         _adminConfirmPassController.clear();
       } else {
-        _adminStatusMsg = 'हालको पासवर्ड गलत छ! कृपया सही पासवर्ड हाल्नुहोस्।';
+        _adminStatusMsg = LanguageService.instance.trText(
+          ne: 'हालको पासवर्ड गलत छ! कृपया सही पासवर्ड हाल्नुहोस्।',
+          en: 'Current password is incorrect! Please try again.',
+          ko: '현재 비밀번호가 올바르지 않습니다. 다시 입력해주세요.',
+        );
         _isAdminSuccess = false;
       }
     });
@@ -103,7 +120,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     final passCtrl = TextEditingController(text: 'student123');
     String selectedBatch = '2026 Batch A (बिहानी सत्र)';
     String selectedSector = '제조업 (Manufacturing)';
-    String selectedStatus = 'सक्रिय (Active)';
+    String selectedStatus = 'सक्रिय';
     String error = '';
 
     showDialog(
@@ -111,11 +128,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Row(
+          title: Row(
             children: [
-              Icon(Icons.person_add, color: Color(0xFF1E3A8A)),
-              SizedBox(width: 10),
-              Text('नयाँ विद्यार्थी थप्नुहोस् (Add Student)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Icon(Icons.person_add, color: Color(0xFF1E3A8A)),
+              const SizedBox(width: 10),
+              Text(
+                LanguageService.instance.trText(
+                  ne: 'नयाँ विद्यार्थी थप्नुहोस्',
+                  en: 'Add New Student',
+                  ko: '새 수험생 등록',
+                ),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
             ],
           ),
           content: SingleChildScrollView(
@@ -133,12 +157,26 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     ),
                   TextField(
                     controller: nameCtrl,
-                    decoration: const InputDecoration(labelText: 'विद्यार्थीको पूरा नाम (Full Name)*', border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(
+                        ne: 'विद्यार्थीको पूरा नाम*',
+                        en: 'Student Full Name*',
+                        ko: '수험생 성명*',
+                      ),
+                      border: const OutlineInputBorder(),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: regCtrl,
-                    decoration: const InputDecoration(labelText: 'दर्ता नम्बर (Registration No. e.g. 01234575)*', border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(
+                        ne: 'दर्ता नम्बर (e.g. 01234575)*',
+                        en: 'Registration No (e.g. 01234575)*',
+                        ko: '수험번호 (e.g. 01234575)*',
+                      ),
+                      border: const OutlineInputBorder(),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -146,14 +184,28 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       Expanded(
                         child: TextField(
                           controller: userCtrl,
-                          decoration: const InputDecoration(labelText: 'Username (लगइन आईडी)*', border: OutlineInputBorder()),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(
+                              ne: 'प्रयोगकर्ता नाम (Username)*',
+                              en: 'Username*',
+                              ko: '아이디 (Username)*',
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: TextField(
                           controller: passCtrl,
-                          decoration: const InputDecoration(labelText: 'Password*', border: OutlineInputBorder()),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(
+                              ne: 'पासवर्ड (Password)*',
+                              en: 'Password*',
+                              ko: '비밀번호*',
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
                         ),
                       ),
                     ],
@@ -161,8 +213,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     value: selectedBatch,
-                    decoration: const InputDecoration(labelText: 'ब्याच (Batch)*', border: OutlineInputBorder()),
-                    items: _batchesList.skip(1).map((b) => DropdownMenuItem(value: b, child: Text(b, style: const TextStyle(fontSize: 13)))).toList(),
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(
+                        ne: 'ब्याच*',
+                        en: 'Batch*',
+                        ko: '학습 반*',
+                      ),
+                      border: const OutlineInputBorder(),
+                    ),
+                    items: _batchesList.skip(1).map((b) => DropdownMenuItem(
+                      value: b,
+                      child: Text(LanguageService.instance.batchText(b), style: const TextStyle(fontSize: 13)),
+                    )).toList(),
                     onChanged: (val) => setDialogState(() => selectedBatch = val!),
                   ),
                   const SizedBox(height: 12),
@@ -171,8 +233,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       Expanded(
                         child: DropdownButtonFormField<String>(
                           value: selectedSector,
-                          decoration: const InputDecoration(labelText: 'क्षेत्र (Sector)', border: OutlineInputBorder()),
-                          items: _sectorsList.map((s) => DropdownMenuItem(value: s, child: Text(s.split(' ')[0], style: const TextStyle(fontSize: 13)))).toList(),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(
+                              ne: 'औद्योगिक क्षेत्र',
+                              en: 'Industry Sector',
+                              ko: '업종 분야',
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+                          items: _sectorsList.map((s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(LanguageService.instance.sectorText(s), style: const TextStyle(fontSize: 13)),
+                          )).toList(),
                           onChanged: (val) => setDialogState(() => selectedSector = val!),
                         ),
                       ),
@@ -180,8 +252,24 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       Expanded(
                         child: DropdownButtonFormField<String>(
                           value: selectedStatus,
-                          decoration: const InputDecoration(labelText: 'स्थिति (Status)', border: OutlineInputBorder()),
-                          items: ['सक्रिय (Active)', 'निलम्बित (Suspended)'].map((st) => DropdownMenuItem(value: st, child: Text(st, style: const TextStyle(fontSize: 13)))).toList(),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(
+                              ne: 'स्थिति',
+                              en: 'Status',
+                              ko: '상태',
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: 'सक्रिय',
+                              child: Text(LanguageService.instance.statusText('सक्रिय'), style: const TextStyle(fontSize: 13)),
+                            ),
+                            DropdownMenuItem(
+                              value: 'निलम्बित',
+                              child: Text(LanguageService.instance.statusText('निलम्बित'), style: const TextStyle(fontSize: 13)),
+                            ),
+                          ],
                           onChanged: (val) => setDialogState(() => selectedStatus = val!),
                         ),
                       ),
@@ -192,12 +280,19 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('रद्द गर्नुहोस्')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(LanguageService.instance.trText(ne: 'रद्द गर्नुहोस्', en: 'Cancel', ko: '취소')),
+            ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
               onPressed: () {
                 if (nameCtrl.text.trim().isEmpty || userCtrl.text.trim().isEmpty || passCtrl.text.trim().isEmpty) {
-                  setDialogState(() => error = 'कृपया सबै आवश्यक विवरण भर्नुहोस्!');
+                  setDialogState(() => error = LanguageService.instance.trText(
+                    ne: 'कृपया सबै आवश्यक विवरण भर्नुहोस्!',
+                    en: 'Please fill in all required fields!',
+                    ko: '모든 필수 항목을 입력해주세요!',
+                  ));
                   return;
                 }
                 final ok = AuthService.instance.addStudent(
@@ -213,13 +308,24 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   setState(() {});
                   Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('नयाँ विद्यार्थी सफलतापूर्वक थपियो!'), backgroundColor: Colors.teal),
+                    SnackBar(
+                      content: Text(LanguageService.instance.trText(
+                        ne: 'नयाँ विद्यार्थी सफलतापूर्वक थपियो!',
+                        en: 'New student added successfully!',
+                        ko: '새 수험생이 등록되었습니다!',
+                      )),
+                      backgroundColor: Colors.teal,
+                    ),
                   );
                 } else {
-                  setDialogState(() => error = 'यो Username पहिले नै प्रयोगमा छ!');
+                  setDialogState(() => error = LanguageService.instance.trText(
+                    ne: 'यो Username पहिले नै प्रयोगमा छ!',
+                    en: 'This username is already taken!',
+                    ko: '이미 사용 중인 아이디입니다!',
+                  ));
                 }
               },
-              child: const Text('विद्यार्थी सेभ गर्नुहोस्'),
+              child: Text(LanguageService.instance.trText(ne: 'विद्यार्थी सेभ गर्नुहोस्', en: 'Save Student', ko: '수험생 저장')),
             ),
           ],
         ),
@@ -240,27 +346,58 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text('${student.name} - विवरण सम्पादन', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          title: Text(
+            '${student.name} - ' + LanguageService.instance.trText(ne: 'विवरण सम्पादन', en: 'Edit Credentials', ko: '정보 수정'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           content: SingleChildScrollView(
             child: SizedBox(
               width: 420,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'नाम (Name)', border: OutlineInputBorder())),
+                  TextField(
+                    controller: nameCtrl,
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(ne: 'नाम', en: 'Name', ko: '성명'),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Expanded(child: TextField(controller: userCtrl, decoration: const InputDecoration(labelText: 'Username', border: OutlineInputBorder()))),
+                      Expanded(
+                        child: TextField(
+                          controller: userCtrl,
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(ne: 'Username', en: 'Username', ko: '아이디'),
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
                       const SizedBox(width: 10),
-                      Expanded(child: TextField(controller: passCtrl, decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder()))),
+                      Expanded(
+                        child: TextField(
+                          controller: passCtrl,
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(ne: 'Password', en: 'Password', ko: '비밀번호'),
+                            border: const OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     value: _batchesList.contains(selectedBatch) ? selectedBatch : _batchesList[1],
-                    decoration: const InputDecoration(labelText: 'ब्याच (Batch)', border: OutlineInputBorder()),
-                    items: _batchesList.skip(1).map((b) => DropdownMenuItem(value: b, child: Text(b, style: const TextStyle(fontSize: 13)))).toList(),
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(ne: 'ब्याच', en: 'Batch', ko: '학습 반'),
+                      border: const OutlineInputBorder(),
+                    ),
+                    items: _batchesList.skip(1).map((b) => DropdownMenuItem(
+                      value: b,
+                      child: Text(LanguageService.instance.batchText(b), style: const TextStyle(fontSize: 13)),
+                    )).toList(),
                     onChanged: (val) => setDialogState(() => selectedBatch = val!),
                   ),
                   const SizedBox(height: 12),
@@ -269,8 +406,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       Expanded(
                         child: DropdownButtonFormField<String>(
                           value: _sectorsList.contains(selectedSector) ? selectedSector : _sectorsList.first,
-                          decoration: const InputDecoration(labelText: 'क्षेत्र', border: OutlineInputBorder()),
-                          items: _sectorsList.map((s) => DropdownMenuItem(value: s, child: Text(s.split(' ')[0], style: const TextStyle(fontSize: 13)))).toList(),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(ne: 'क्षेत्र', en: 'Sector', ko: '업종'),
+                            border: const OutlineInputBorder(),
+                          ),
+                          items: _sectorsList.map((s) => DropdownMenuItem(
+                            value: s,
+                            child: Text(LanguageService.instance.sectorText(s), style: const TextStyle(fontSize: 13)),
+                          )).toList(),
                           onChanged: (val) => setDialogState(() => selectedSector = val!),
                         ),
                       ),
@@ -278,8 +421,20 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       Expanded(
                         child: DropdownButtonFormField<String>(
                           value: selectedStatus,
-                          decoration: const InputDecoration(labelText: 'स्थिति', border: OutlineInputBorder()),
-                          items: ['सक्रिय (Active)', 'निलम्बित (Suspended)'].map((st) => DropdownMenuItem(value: st, child: Text(st, style: const TextStyle(fontSize: 13)))).toList(),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(ne: 'स्थिति', en: 'Status', ko: '상태'),
+                            border: const OutlineInputBorder(),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: 'सक्रिय',
+                              child: Text(LanguageService.instance.statusText('सक्रिय'), style: const TextStyle(fontSize: 13)),
+                            ),
+                            DropdownMenuItem(
+                              value: 'निलम्बित',
+                              child: Text(LanguageService.instance.statusText('निलम्बित'), style: const TextStyle(fontSize: 13)),
+                            ),
+                          ],
                           onChanged: (val) => setDialogState(() => selectedStatus = val!),
                         ),
                       ),
@@ -290,7 +445,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('रद्द गर्नुहोस्')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(LanguageService.instance.trText(ne: 'रद्द गर्नुहोस्', en: 'Cancel', ko: '취소')),
+            ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
               onPressed: () {
@@ -306,10 +464,17 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 setState(() {});
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('विद्यार्थीको विवरण सफलतापूर्वक अद्यावधिक गरियो!'), backgroundColor: Colors.teal),
+                  SnackBar(
+                    content: Text(LanguageService.instance.trText(
+                      ne: 'विद्यार्थीको विवरण सफलतापूर्वक अद्यावधिक गरियो!',
+                      en: 'Student details updated successfully!',
+                      ko: '수험생 정보가 변경되었습니다!',
+                    )),
+                    backgroundColor: Colors.teal,
+                  ),
                 );
               },
-              child: const Text('अपडेट गर्नुहोस्'),
+              child: Text(LanguageService.instance.trText(ne: 'अपडेट गर्नुहोस्', en: 'Update', ko: '저장')),
             ),
           ],
         ),
@@ -321,10 +486,21 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('विद्यार्थी हटाउने पुष्टि गर्नुहोस्'),
-        content: Text('के तपाईं निश्चित रूपमा "${student.name}" लाई हटाउन चाहनुहुन्छ?'),
+        title: Text(LanguageService.instance.trText(
+          ne: 'विद्यार्थी हटाउने पुष्टि गर्नुहोस्',
+          en: 'Confirm Delete Student',
+          ko: '수험생 삭제 확인',
+        )),
+        content: Text(LanguageService.instance.trText(
+          ne: 'के तपाईं निश्चित रूपमा "${student.name}" लाई हटाउन चाहनुहुन्छ?',
+          en: 'Are you sure you want to delete "${student.name}"?',
+          ko: '정말로 "${student.name}" 수험생을 삭제하시겠습니까?',
+        )),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('रद्द गर्नुहोस्')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(LanguageService.instance.trText(ne: 'रद्द गर्नुहोस्', en: 'Cancel', ko: '취소')),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () {
@@ -332,10 +508,17 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               setState(() {});
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('विद्यार्थी सफलतापूर्वक हटाइयो।'), backgroundColor: Colors.red),
+                SnackBar(
+                  content: Text(LanguageService.instance.trText(
+                    ne: 'विद्यार्थी सफलतापूर्वक हटाइयो।',
+                    en: 'Student deleted successfully.',
+                    ko: '수험생이 삭제되었습니다.',
+                  )),
+                  backgroundColor: Colors.red,
+                ),
               );
             },
-            child: const Text('हटाउनुहोस्'),
+            child: Text(LanguageService.instance.trText(ne: 'हटाउनुहोस्', en: 'Delete', ko: '삭제')),
           ),
         ],
       ),
@@ -344,22 +527,26 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final allStudents = AuthService.instance.students;
-    final query = _studentSearchController.text.trim().toLowerCase();
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) {
+        final lang = LanguageService.instance;
+        final allStudents = AuthService.instance.students;
+        final query = _studentSearchController.text.trim().toLowerCase();
 
-    final filteredStudents = allStudents.where((s) {
-      final matchesBatch = _selectedBatchFilter.contains('सबै') || s.batch == _selectedBatchFilter;
-      final matchesQuery = query.isEmpty ||
-          s.name.toLowerCase().contains(query) ||
-          s.username.toLowerCase().contains(query) ||
-          (s.registrationNo?.toLowerCase().contains(query) ?? false);
-      return matchesBatch && matchesQuery;
-    }).toList();
+        final filteredStudents = allStudents.where((s) {
+          final matchesBatch = _selectedBatchFilter.contains('सबै') || _selectedBatchFilter.contains('All') || s.batch == _selectedBatchFilter;
+          final matchesQuery = query.isEmpty ||
+              s.name.toLowerCase().contains(query) ||
+              s.username.toLowerCase().contains(query) ||
+              (s.registrationNo?.toLowerCase().contains(query) ?? false);
+          return matchesBatch && matchesQuery;
+        }).toList();
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           // 1. Header Card
           Container(
             padding: const EdgeInsets.all(22),
@@ -371,26 +558,34 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               ),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 28,
                   backgroundColor: Colors.white24,
                   child: Icon(Icons.groups_rounded, color: Colors.white, size: 34),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'विद्यार्थी ब्याच व्यवस्थापन (Student Batch Hub)',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                        LanguageService.instance.trText(
+                          ne: 'विद्यार्थी ब्याच तथा क्रेडिसियल व्यवस्थापन',
+                          en: 'Student Batch & Credentials Management',
+                          ko: '수험생 반별 및 계정 관리',
+                        ),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        'ब्याच अनुसार विद्यार्थीहरूको नामावली, क्षेत्र (Sector) र लगइन क्रेडिसियल नियन्त्रण',
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                        LanguageService.instance.trText(
+                          ne: 'ब्याच अनुसार विद्यार्थीहरूको नामावली, क्षेत्र र लगइन क्रेडिसियल नियन्त्रण',
+                          en: 'Manage student rosters, industry sectors, and login credentials by batch',
+                          ko: '반별 수험생 명단, 업종 선택 및 로그인 계정 정보 제어',
+                        ),
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                     ],
                   ),
@@ -417,7 +612,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           const Icon(Icons.badge, color: Color(0xFF1E3A8A)),
                           const SizedBox(width: 10),
                           Text(
-                            'दर्ता भएका विद्यार्थीहरू (${filteredStudents.length} जना)',
+                            LanguageService.instance.trText(
+                              ne: 'दर्ता भएका विद्यार्थीहरू (${filteredStudents.length} जना)',
+                              en: 'Registered Students (${filteredStudents.length})',
+                              ko: '등록된 수험생 목록 (${filteredStudents.length}명)',
+                            ),
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -425,7 +624,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       ElevatedButton.icon(
                         onPressed: _showAddStudentDialog,
                         icon: const Icon(Icons.add, size: 18),
-                        label: const Text('नयाँ विद्यार्थी थप्नुहोस्'),
+                        label: Text(LanguageService.instance.trText(
+                          ne: 'नयाँ विद्यार्थी थप्नुहोस्',
+                          en: 'Add Student',
+                          ko: '수험생 추가',
+                        )),
                         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
                       ),
                     ],
@@ -439,12 +642,19 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         flex: 2,
                         child: DropdownButtonFormField<String>(
                           value: _selectedBatchFilter,
-                          decoration: const InputDecoration(
-                            labelText: 'ब्याच फिल्टर (Filter by Batch)',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(
+                              ne: 'ब्याच फिल्टर',
+                              en: 'Filter by Batch',
+                              ko: '반별 필터',
+                            ),
+                            border: const OutlineInputBorder(),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           ),
-                          items: _batchesList.map((b) => DropdownMenuItem(value: b, child: Text(b, style: const TextStyle(fontSize: 13)))).toList(),
+                          items: _batchesList.map((b) => DropdownMenuItem(
+                            value: b,
+                            child: Text(LanguageService.instance.batchText(b), style: const TextStyle(fontSize: 13)),
+                          )).toList(),
                           onChanged: (val) => setState(() => _selectedBatchFilter = val!),
                         ),
                       ),
@@ -454,7 +664,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         child: TextField(
                           controller: _studentSearchController,
                           decoration: InputDecoration(
-                            hintText: 'विद्यार्थीको नाम, दर्ता नम्बर वा Username खोज्नुहोस्...',
+                            hintText: LanguageService.instance.trText(
+                              ne: 'विद्यार्थीको नाम, दर्ता नम्बर वा Username खोज्नुहोस्...',
+                              en: 'Search by name, reg no, or username...',
+                              ko: '이름, 수험번호, 아이디로 검색...',
+                            ),
                             prefixIcon: const Icon(Icons.search),
                             border: const OutlineInputBorder(),
                             contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -475,7 +689,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(30),
                       alignment: Alignment.center,
-                      child: const Text('कुनै विद्यार्थी भेटिएन।', style: TextStyle(color: Colors.black54)),
+                      child: Text(
+                        LanguageService.instance.trText(
+                          ne: 'कुनै विद्यार्थी भेटिएन।',
+                          en: 'No students found.',
+                          ko: '해당 조건의 수험생이 없습니다.',
+                        ),
+                        style: const TextStyle(color: Colors.black54),
+                      ),
                     )
                   else
                     ListView.separated(
@@ -485,7 +706,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       separatorBuilder: (_, __) => const Divider(),
                       itemBuilder: (context, i) {
                         final s = filteredStudents[i];
-                        final isActive = s.status.contains('सक्रिय');
+                        final isActive = s.status.contains('सक्रिय') || s.status.toLowerCase().contains('active');
 
                         return ListTile(
                           contentPadding: const EdgeInsets.symmetric(vertical: 4),
@@ -503,17 +724,23 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
-                                child: Text(s.batch.split(' ')[0] + ' ' + s.batch.split(' ')[1], style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
+                                child: Text(LanguageService.instance.batchText(s.batch), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
                               ),
                               const SizedBox(width: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
-                                child: Text(s.sector.split(' ')[0], style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.teal.shade900)),
+                                child: Text(LanguageService.instance.sectorText(s.sector), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.teal.shade900)),
                               ),
                             ],
                           ),
-                          subtitle: Text('दर्ता नं: ${s.registrationNo ?? "N/A"}  •  Username: ${s.username}  •  Password: ${s.password}'),
+                          subtitle: Text(
+                            LanguageService.instance.trText(
+                              ne: 'दर्ता नं: ${s.registrationNo ?? "N/A"}  •  Username: ${s.username}  •  Password: ${s.password}',
+                              en: 'Reg: ${s.registrationNo ?? "N/A"}  •  User: ${s.username}  •  Pass: ${s.password}',
+                              ko: '수험번호: ${s.registrationNo ?? "N/A"}  •  아이디: ${s.username}  •  비밀번호: ${s.password}',
+                            ),
+                          ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -524,16 +751,23 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   borderRadius: BorderRadius.circular(4),
                                   border: Border.all(color: isActive ? Colors.green : Colors.red),
                                 ),
-                                child: Text(isActive ? 'सक्रिय' : 'निलम्बित', style: TextStyle(fontSize: 10, color: isActive ? Colors.green.shade900 : Colors.red.shade900, fontWeight: FontWeight.bold)),
+                                child: Text(
+                                  LanguageService.instance.statusText(s.status),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: isActive ? Colors.green.shade900 : Colors.red.shade900,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.edit, color: Color(0xFF1E3A8A), size: 20),
-                                tooltip: 'सम्पादन गर्नुहोस्',
+                                tooltip: LanguageService.instance.trText(ne: 'सम्पादन गर्नुहोस्', en: 'Edit', ko: '수정'),
                                 onPressed: () => _showEditStudentDialog(s),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                                tooltip: 'हटाउनुहोस्',
+                                tooltip: LanguageService.instance.trText(ne: 'हटाउनुहोस्', en: 'Delete', ko: '삭제'),
                                 onPressed: () => _confirmDeleteStudent(s),
                               ),
                             ],
@@ -556,11 +790,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.security, color: Color(0xFF0F766E)),
-                      SizedBox(width: 10),
-                      Text('एडमिन क्रेडिसियल परिवर्तन (Admin Login Settings)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      const Icon(Icons.security, color: Color(0xFF0F766E)),
+                      const SizedBox(width: 10),
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: 'एडमिन क्रेडिसियल तथा पासवर्ड परिवर्तन',
+                          en: 'Admin Credentials & Password Management',
+                          ko: '학원 관리자 로그인 계정 및 비밀번호 변경',
+                        ),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                   const Divider(height: 24),
@@ -574,7 +815,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(color: _isAdminSuccess ? Colors.green : Colors.red),
                       ),
-                      child: Text(_adminStatusMsg, style: TextStyle(color: _isAdminSuccess ? Colors.green.shade900 : Colors.red.shade900)),
+                      child: Text(_adminStatusMsg, style: TextStyle(color: _isAdminSuccess ? Colors.green.shade900 : Colors.red.shade900, fontWeight: FontWeight.bold)),
                     ),
                   Row(
                     children: [
@@ -582,14 +823,28 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         child: TextField(
                           controller: _adminOldPassController,
                           obscureText: true,
-                          decoration: const InputDecoration(labelText: 'हालको एडमिन पासवर्ड (Current Password)*', border: OutlineInputBorder()),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(
+                              ne: 'हालको एडमिन पासवर्ड*',
+                              en: 'Current Admin Password*',
+                              ko: '현재 관리자 비밀번호*',
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
                         child: TextField(
                           controller: _adminNewUsernameController,
-                          decoration: const InputDecoration(labelText: 'नयाँ Username (वैकल्पिक)', border: OutlineInputBorder()),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(
+                              ne: 'नयाँ प्रयोगकर्ता नाम (Username)',
+                              en: 'New Admin Username',
+                              ko: '새 관리자 아이디 (Username)',
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
                         ),
                       ),
                     ],
@@ -601,7 +856,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         child: TextField(
                           controller: _adminNewPassController,
                           obscureText: true,
-                          decoration: const InputDecoration(labelText: 'नयाँ पासवर्ड (New Password)', border: OutlineInputBorder()),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(
+                              ne: 'नयाँ पासवर्ड',
+                              en: 'New Password',
+                              ko: '새 비밀번호',
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 14),
@@ -609,7 +871,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                         child: TextField(
                           controller: _adminConfirmPassController,
                           obscureText: true,
-                          decoration: const InputDecoration(labelText: 'नयाँ पासवर्ड पुष्टि गर्नुहोस् (Confirm)', border: OutlineInputBorder()),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(
+                              ne: 'नयाँ पासवर्ड पुष्टि गर्नुहोस्',
+                              en: 'Confirm New Password',
+                              ko: '새 비밀번호 확인',
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
                         ),
                       ),
                     ],
@@ -619,7 +888,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F766E), foregroundColor: Colors.white),
                     onPressed: _handleChangeAdminCredentials,
                     icon: const Icon(Icons.save, size: 18),
-                    label: const Text('एडमिन पासवर्ड सुरक्षित गर्नुहोस्'),
+                    label: Text(LanguageService.instance.trText(
+                      ne: 'एडमिन विवरण सुरक्षित गर्नुहोस्',
+                      en: 'Save Admin Credentials',
+                      ko: '관리자 정보 저장',
+                    )),
                   ),
                 ],
               ),
@@ -628,6 +901,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           const SizedBox(height: 30),
         ],
       ),
+    );
+      },
     );
   }
 }

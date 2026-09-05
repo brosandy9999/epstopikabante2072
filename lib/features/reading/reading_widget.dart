@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../question_engine/question_template.dart';
 import '../../core/widgets/smart_image_widget.dart';
+import '../../core/services/audio_playback_service.dart';
+import '../../core/services/language_service.dart';
 
 /// Authentic HRDK EPS-TOPIK UBT Reading Question Widget
 /// Split Layout: Question & Passage / Graphic on LEFT, Options 1-4 on RIGHT
@@ -54,14 +56,14 @@ class ReadingQuestionWidget extends StatelessWidget {
                           color: const Color(0xFF1E3A8A),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text(
-                          "?? (Reading)",
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                        child: Text(
+                          LanguageService.instance.readingSectionText(),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        "?? ??: ",
+                        LanguageService.instance.trText(ne: "प्रश्न प्रकार: ", en: "Question Type: ", ko: "문제 유형: "),
                         style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey.shade600, fontSize: 13),
                       ),
                     ],
@@ -79,19 +81,30 @@ class ReadingQuestionWidget extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "📌 प्रश्न विवरण तथा सामग्री:",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: "📌 प्रश्न विवरण तथा सामग्री:",
+                          en: "📌 Question Material & Passage:",
+                          ko: "📌 지문 및 문제 자료:",
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.pinch, size: 12, color: Color(0xFF1E3A8A)),
-                            SizedBox(width: 4),
-                            Text('पिन्च गरी जुम गर्नुहोस्', style: TextStyle(fontSize: 10, color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold)),
+                            const Icon(Icons.pinch, size: 12, color: Color(0xFF1E3A8A)),
+                            const SizedBox(width: 4),
+                            Text(
+                              LanguageService.instance.trText(
+                                ne: 'पिन्च गरी जुम गर्नुहोस्',
+                                en: 'Pinch / Scroll to zoom',
+                                ko: '확대/축소 가능',
+                              ),
+                              style: const TextStyle(fontSize: 10, color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold),
+                            ),
                           ],
                         ),
                       ),
@@ -132,7 +145,7 @@ class ReadingQuestionWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      "[???] ?? ?? ?????",
+                      "[선택지] 맞는 것을 고르십시오",
                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
                     ),
                     if (selectedOptionIndex != null)
@@ -151,8 +164,8 @@ class ReadingQuestionWidget extends StatelessWidget {
                 // 4 Options Stacked Vertically
                 ...List.generate(options.length, (index) {
                   final isSelected = selectedOptionIndex == index;
-                  final circledNumbers = ["?", "?", "?", "?"];
-                  final numLabel = index < circledNumbers.length ? circledNumbers[index] : "";
+                  const circledNumbers = ["\u2460", "\u2461", "\u2462", "\u2463"];
+                  final numLabel = index < circledNumbers.length ? circledNumbers[index] : "${index + 1}";
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 14),
@@ -197,15 +210,73 @@ class ReadingQuestionWidget extends StatelessWidget {
                               ),
                               const SizedBox(width: 14),
 
-                              // Option Text
+                              // Option Text & Media
                               Expanded(
-                                child: Text(
-                                  options[index],
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                    color: isSelected ? const Color(0xFF1E3A8A) : Colors.black87,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (options[index].isNotEmpty)
+                                      Text(
+                                        options[index],
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                          color: isSelected ? const Color(0xFF1E3A8A) : Colors.black87,
+                                        ),
+                                      ),
+                                    if (question is UniversalQuestion) ...[
+                                      if (index < (question as UniversalQuestion).imageOptions.length &&
+                                          (question as UniversalQuestion).imageOptions[index] != null &&
+                                          (question as UniversalQuestion).imageOptions[index]!.trim().isNotEmpty) ...[
+                                        const SizedBox(height: 8),
+                                        Container(
+                                          constraints: const BoxConstraints(maxHeight: 120),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(6),
+                                            border: Border.all(color: Colors.grey.shade300),
+                                          ),
+                                          clipBehavior: Clip.antiAlias,
+                                          child: SmartImageWidget(
+                                            imageSource: (question as UniversalQuestion).imageOptions[index]!.trim(),
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                      ],
+                                      if (index < (question as UniversalQuestion).audioOptions.length &&
+                                          (question as UniversalQuestion).audioOptions[index] != null &&
+                                          (question as UniversalQuestion).audioOptions[index]!.trim().isNotEmpty) ...[
+                                        const SizedBox(height: 6),
+                                        InkWell(
+                                          onTap: () => AudioPlaybackService.instance.playAudioUrl(
+                                              (question as UniversalQuestion).audioOptions[index]!.trim()),
+                                          borderRadius: BorderRadius.circular(20),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue.shade50,
+                                              borderRadius: BorderRadius.circular(20),
+                                              border: Border.all(color: Colors.blue.shade200),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(Icons.play_circle_fill, size: 16, color: Color(0xFF1E3A8A)),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  LanguageService.instance.trText(
+                                                    ne: 'अडियो सुन्नुहोस्',
+                                                    en: 'Play Audio',
+                                                    ko: '오디오 듣기',
+                                                  ),
+                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ],
                                 ),
                               ),
 
@@ -263,7 +334,7 @@ class ReadingQuestionWidget extends StatelessWidget {
           children: [
             Icon(Icons.menu_book, size: 70, color: Colors.blueGrey.shade700),
             const SizedBox(height: 10),
-            const Text("[ ? ? (Notebook) ]", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text("[ 공 책 (Notebook) ]", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           ],
         ),
       );
@@ -282,7 +353,7 @@ class ReadingQuestionWidget extends StatelessWidget {
           children: [
             Icon(Icons.local_fire_department, size: 70, color: Colors.deepOrange.shade600),
             const SizedBox(height: 10),
-            const Text("[ ??? (Firefighter) ]", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text("[ 소방관 (Firefighter) ]", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           ],
         ),
       );
@@ -307,7 +378,7 @@ class ReadingQuestionWidget extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            const Text("? ? ? ? (No Parking)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red)),
+            const Text("주 차 금 지 (No Parking)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red)),
           ],
         ),
       );
@@ -323,12 +394,12 @@ class ReadingQuestionWidget extends StatelessWidget {
         child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(child: Text("=== [???? ???] ===", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
+            Center(child: Text("=== [영수증 영수증] ===", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
             Divider(color: Colors.black45),
-            Text("? ??: ??, ??, ??"),
-            Text("? ?? ??: 15,000?"),
-            Text("? ?? ??: ???? (KB??)"),
-            Text("? ??: 2026. 09. 03  14:20"),
+            Text("• 품목: 사과, 우유, 빵"),
+            Text("• 결제 금액: 15,000원"),
+            Text("• 결제 수단: 신용카드 (KB국민)"),
+            Text("• 일시: 2026. 09. 03  14:20"),
           ],
         ),
       );

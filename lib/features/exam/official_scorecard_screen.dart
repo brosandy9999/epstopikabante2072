@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/exam_service.dart';
 import '../../core/services/question_bank_service.dart';
+import '../../core/services/language_service.dart';
 import '../question_engine/question_template.dart';
 
 /// Official HRD Korea Style EPS-TOPIK Scorecard & Certificate Screen
@@ -60,25 +60,37 @@ class OfficialScorecardScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.print, color: Color(0xFF1E3A8A), size: 28),
-            SizedBox(width: 10),
-            Text('🖨️ आधिकारिक स्कोरकार्ड प्रिन्ट / PDF'),
+            const Icon(Icons.print, color: Color(0xFF1E3A8A), size: 28),
+            const SizedBox(width: 10),
+            Text(LanguageService.instance.trText(
+              ne: '🖨️ आधिकारिक स्कोरकार्ड प्रिन्ट',
+              en: '🖨️ Print Official Scorecard',
+              ko: '🖨️ 공식 시험 성적표 인쇄',
+            )),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'कम्प्युटर वा ब्राउजरमा [ Ctrl + P ] थिचेर A4 साइजमा सिधै PDF सेभ गर्न वा प्रिन्टरबाट छाप्न सकिन्छ।',
-              style: TextStyle(fontSize: 14, height: 1.4),
+              LanguageService.instance.trText(
+                ne: 'कम्प्युटर वा ब्राउजरमा [ Ctrl + P ] थिचेर A4 साइजमा सिधै PDF सेभ गर्न वा प्रिन्टरबाट छाप्न सकिन्छ।',
+                en: 'Press [ Ctrl + P ] in your browser to print or save directly as an A4 PDF.',
+                ko: '브라우저에서 [ Ctrl + P ]를 눌러 A4 PDF로 저장하거나 바로 인쇄할 수 있습니다.',
+              ),
+              style: const TextStyle(fontSize: 14, height: 1.4),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
-              '📌 सुझाव: Print Setting मा "Layout: Portrait" र "Margins: Minimum" राख्नुहोला।',
-              style: TextStyle(fontSize: 12, color: Colors.black54),
+              LanguageService.instance.trText(
+                ne: '📌 सुझाव: Print Setting मा "Layout: Portrait" र "Margins: Minimum" राख्नुहोला।',
+                en: '📌 Tip: In print settings, select "Layout: Portrait" and "Margins: Minimum".',
+                ko: '📌 안내: 인쇄 설정에서 "레이아웃: 세로", "여백: 최소"로 지정하십시오.',
+              ),
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
             ),
           ],
         ),
@@ -86,7 +98,7 @@ class OfficialScorecardScreen extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('बुझें (OK)'),
+            child: Text(LanguageService.instance.trText(ne: 'बुझें (OK)', en: 'OK', ko: '확인')),
           ),
         ],
       ),
@@ -96,36 +108,49 @@ class OfficialScorecardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final answerKeys = QuestionBankService.instance.getAnswerKeys();
-    final name = student?.name ?? 'विद्यार्थी';
+    final name = student?.name ?? LanguageService.instance.trText(ne: 'विद्यार्थी', en: 'Student', ko: '수험자');
     final regNo = student?.registrationNo ?? '2026-0812-40';
     final dateStr = '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
     final mins = timeSpentSeconds ~/ 60;
     final secs = timeSpentSeconds % 60;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFE2E8F0),
-      appBar: AppBar(
-        title: const Text(
-          '성적확인서 (Official Scorecard)',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-        ),
-        backgroundColor: const Color(0xFF1E3A8A),
-        foregroundColor: Colors.white,
-        actions: [
-          ElevatedButton.icon(
-            onPressed: () => _triggerPrint(context),
-            icon: const Icon(Icons.print, size: 18),
-            label: const Text('🖨️ प्रिन्ट / PDF सेभ'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.amber.shade800,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFE2E8F0),
+        appBar: AppBar(
+          title: Text(
+            LanguageService.instance.trText(
+              ne: 'आधिकारिक स्कोरकार्ड',
+              en: 'Official Scorecard',
+              ko: '성적확인서 (공식 시험 성적표)',
             ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
-          const SizedBox(width: 12),
-        ],
-      ),
+          backgroundColor: const Color(0xFF1E3A8A),
+          foregroundColor: Colors.white,
+          actions: [
+            LanguageService.instance.buildLanguageSwitcherWidget(),
+            const SizedBox(width: 8),
+            ElevatedButton.icon(
+              onPressed: () => _triggerPrint(context),
+              icon: const Icon(Icons.print, size: 18),
+              label: Text(LanguageService.instance.trText(
+                ne: '🖨️ प्रिन्ट',
+                en: '🖨️ Print',
+                ko: '🖨️ 인쇄',
+              )),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber.shade800,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              ),
+            ),
+            const SizedBox(width: 12),
+          ],
+        ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Center(
@@ -493,6 +518,8 @@ class OfficialScorecardScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+      },
     );
   }
 

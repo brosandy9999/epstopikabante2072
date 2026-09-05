@@ -5,7 +5,9 @@ import '../../core/services/file_upload_service.dart';
 import '../../core/services/audio_playback_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/cloud_sync_service.dart';
 import '../../core/models/mock_test_model.dart';
+import '../../core/services/language_service.dart';
 import '../question_engine/question_template.dart';
 
 /// Admin 40-Question Set Management & Multi-Modal Question Editor
@@ -27,9 +29,9 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
   final List<String> _sectorsList = [
     '제조업 (Manufacturing)',
     '농축산업 (Agriculture & Livestock)',
-    '건설/안전 (Construction & Safety)',
+    '건설업 (Construction & Safety)',
     '어업 (Fishery)',
-    '실전 종합 (Final Real Exam Simulation)',
+    '실전 모의고사 (Final Real Exam Simulation)',
   ];
 
   @override
@@ -49,8 +51,8 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
   }
 
   void _showCreateNewSetDialog() {
-    final titleCtrl = TextEditingController(text: '제${QuestionBankService.instance.getAllMockSets().length + 1}회 EPS-TOPIK 실전 모의고사');
-    final descCtrl = TextEditingController(text: 'आधिकारिक EPS-TOPIK ब्लुप्रिन्ट अनुसार तयार पारिएको २० रिडिङ र २० लिसनिङ सहितको ४० प्रश्नहरूको आधिकारिक परीक्षा सेट।');
+    final titleCtrl = TextEditingController(text: '제\회 EPS-TOPIK 실전 모의고사');
+    final descCtrl = TextEditingController(text: '표준 EPS-TOPIK 실전 모의고사 40문항 풀 세트 (20 읽기 + 20 듣기)');
     String selectedSector = _sectorsList.first;
     String error = '';
 
@@ -59,11 +61,18 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Row(
+          title: Row(
             children: [
-              Icon(Icons.library_add, color: Color(0xFF0F766E), size: 24),
-              SizedBox(width: 8),
-              Text('नयाँ ४०-प्रश्न सेट सिर्जना गर्नुहोस्', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const Icon(Icons.add_circle, color: Color(0xFF0F766E)),
+              const SizedBox(width: 8),
+              Text(
+                LanguageService.instance.trText(
+                  ne: 'नयाँ ४०-प्रश्न सेट सिर्जना गर्नुहोस्',
+                  en: 'Create New 40-Question Set',
+                  ko: '새 40문항 세트 만들기',
+                ),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
             ],
           ),
           content: SizedBox(
@@ -81,12 +90,18 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                   ),
                 TextField(
                   controller: titleCtrl,
-                  decoration: const InputDecoration(labelText: 'सेटको शीर्षक (Set Title)*', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: LanguageService.instance.trText(ne: 'सेटको शीर्षक*', en: 'Set Title*', ko: '세트 제목*'),
+                    border: const OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   value: selectedSector,
-                  decoration: const InputDecoration(labelText: 'औद्योगिक क्षेत्र (Sector)*', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: LanguageService.instance.trText(ne: 'औद्योगिक क्षेत्र (Sector)*', en: 'Industry Sector*', ko: '업종 분야*'),
+                    border: const OutlineInputBorder(),
+                  ),
                   items: _sectorsList.map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontSize: 13)))).toList(),
                   onChanged: (val) => setDialogState(() => selectedSector = val!),
                 ),
@@ -94,20 +109,31 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                 TextField(
                   controller: descCtrl,
                   maxLines: 2,
-                  decoration: const InputDecoration(labelText: 'विवरण (Description)', border: OutlineInputBorder()),
+                  decoration: InputDecoration(
+                    labelText: LanguageService.instance.trText(ne: 'विवरण', en: 'Description', ko: '설명'),
+                    border: const OutlineInputBorder(),
+                  ),
                 ),
                 const SizedBox(height: 14),
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.blue.shade200)),
-                  child: const Row(
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue.shade200),
+                  ),
+                  child: Row(
                     children: [
-                      Icon(Icons.info_outline, color: Color(0xFF1E3A8A), size: 20),
-                      SizedBox(width: 8),
+                      const Icon(Icons.info_outline, color: Color(0xFF1E3A8A), size: 20),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'नोट: नयाँ सेट सिर्जना गर्दा स्वतः २० Reading र २० Listening गरी कुल ४० प्रश्नहरूको पूर्ण ब्लुप्रिन्ट तयार हुन्छ, जसलाई तपाईंले तुरुन्तै सम्पादन गर्न सक्नुहुन्छ।',
-                          style: TextStyle(fontSize: 11, color: Color(0xFF1E3A8A)),
+                          LanguageService.instance.trText(
+                            ne: 'नोट: नयाँ सेट सिर्जना गर्दा स्वतः २० Reading र २० Listening गरी कुल ४० प्रश्नहरूको पूर्ण ब्लुप्रिन्ट तयार हुन्छ, जसलाई तपाईंले तुरुन्तै सम्पादन गर्न सक्नुहुन्छ।',
+                            en: 'Note: Creating a new set automatically generates a 40-question blueprint (20 Reading + 20 Listening) ready for instant editing.',
+                            ko: '참고: 새 세트 생성 시 즉시 편집 가능한 40문항 청사진(20 읽기 + 20 듣기)이 자동 생성됩니다.',
+                          ),
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF1E3A8A)),
                         ),
                       ),
                     ],
@@ -117,12 +143,19 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('रद्द गर्नुहोस्')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(LanguageService.instance.tr('cancel')),
+            ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F766E), foregroundColor: Colors.white),
               onPressed: () {
                 if (titleCtrl.text.trim().isEmpty) {
-                  setDialogState(() => error = 'कृपया सेटको शीर्षक भर्नुहोस्!');
+                  setDialogState(() => error = LanguageService.instance.trText(
+                    ne: 'कृपया सेटको शीर्षक भर्नुहोस्!',
+                    en: 'Please enter a set title!',
+                    ko: '세트 제목을 입력해주세요!',
+                  ));
                   return;
                 }
                 final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
@@ -140,11 +173,21 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                   _selectedSet = newSet;
                 });
                 Navigator.pop(ctx);
+                CloudSyncService.instance.pushToCloud();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('✅ नयाँ ४०-प्रश्न सेट सफलतापूर्वक सिर्जना भयो! अब प्रश्नहरू सम्पादन गर्नुहोस्।'), backgroundColor: Colors.teal),
+                  SnackBar(
+                    content: Text(
+                      LanguageService.instance.trText(
+                        ne: '✅ नयाँ ४०-प्रश्न सेट सिर्जना भयो र क्लाउडमा स्वतः सिङ्क भयो!',
+                        en: '✅ New 40-question set created and synced to cloud!',
+                        ko: '✅ 새 40문항 세트가 생성되었고 클라우드에 동기화되었습니다!',
+                      ),
+                    ),
+                    backgroundColor: Colors.teal,
+                  ),
                 );
               },
-              child: const Text('सेट सिर्जना गर्नुहोस् (Create Set)'),
+              child: Text(LanguageService.instance.trText(ne: 'सेट सिर्जना गर्नुहोस्', en: 'Create Set', ko: '세트 생성')),
             ),
           ],
         ),
@@ -212,13 +255,13 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
-                              'प्रश्न $questionNo (${isReading ? "READING" : "LISTENING"})',
+                              '${LanguageService.instance.trText(ne: "प्रश्न", en: "Q", ko: "문항")} $questionNo (${isReading ? "READING" : "LISTENING"})',
                               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'सेट: ${set.title.split(' ')[0]}',
+                            '${LanguageService.instance.trText(ne: "सेट:", en: "Set:", ko: "세트:")} ${set.title.split(' ')[0]}',
                             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey),
                           ),
                         ],
@@ -229,7 +272,14 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                   const Divider(height: 20),
 
                   // 1. Question Text
-                  const Text('१. प्रश्न वाक्य / निर्देशन (Question Prompt & Text):*', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                  Text(
+                    LanguageService.instance.trText(
+                      ne: '१. प्रश्न वाक्य / निर्देशन:*',
+                      en: '1. Question Text / Instruction:*',
+                      ko: '1. 지문 / 발문 내용:*',
+                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
                   const SizedBox(height: 6),
                   TextField(
                     controller: textCtrl,
@@ -245,7 +295,14 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('२. प्रश्नको तस्बिर / ग्राफ (Question Image or Graph):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: '२. प्रश्नको तस्बिर / ग्राफ:',
+                          en: '2. Question Image / Graph:',
+                          ko: '2. 문제 이미지 / 그림 자료:',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                      ),
                       const SizedBox(height: 6),
                       Row(
                         children: [
@@ -259,18 +316,22 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                               final file = await FileUploadService.instance.pickImageFile();
                               if (file != null) {
                                 setDialogState(() {
-                                  imgCtrl.text = file.dataUrl;
+                                  imgCtrl.text = file.bestUrl;
                                 });
                               }
                             },
                             icon: const Icon(Icons.add_photo_alternate, size: 18),
-                            label: Text(imgCtrl.text.isEmpty ? '📁 डिभाइसबाट तस्बिर अपलोड गर्नुहोस् (Pick Image)' : 'तस्बिर लोड भयो ✅'),
+                            label: Text(imgCtrl.text.isEmpty
+                                ? LanguageService.instance.trText(ne: '📁 डिभाइसबाट तस्बिर अपलोड गर्नुहोस्', en: '📁 Upload Image from Device', ko: '📁 기기에서 이미지 업로드')
+                                : (imgCtrl.text.startsWith('https://firebasestorage')
+                                    ? '☁️ Firebase ✅'
+                                    : LanguageService.instance.trText(ne: 'तस्बिर लोड भयो ✅', en: 'Image Loaded ✅', ko: '이미지 로드됨 ✅'))),
                           ),
                           if (imgCtrl.text.isNotEmpty) ...[
                             const SizedBox(width: 8),
                             IconButton(
                               icon: const Icon(Icons.delete_outline, color: Colors.red),
-                              tooltip: 'तस्बिर हटाउनुहोस्',
+                              tooltip: LanguageService.instance.trText(ne: 'तस्बिर हटाउनुहोस्', en: 'Remove image', ko: '이미지 제거'),
                               onPressed: () => setDialogState(() => imgCtrl.clear()),
                             ),
                           ],
@@ -293,7 +354,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                       TextField(
                         controller: imgCtrl,
                         decoration: InputDecoration(
-                          hintText: 'वा वेब तस्बिर URL लिङ्क (Optional URL)',
+                          hintText: LanguageService.instance.trText(ne: 'वा तस्बिरको वेब लिङ्क', en: 'Or Image Web URL', ko: '또는 이미지 웹 링크 URL'),
                           border: const OutlineInputBorder(),
                           isDense: true,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -329,11 +390,14 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Row(
+                                Row(
                                   children: [
-                                    Icon(Icons.tune, size: 16, color: Color(0xFFEA580C)),
-                                    SizedBox(width: 6),
-                                    Text('अडियो प्रकार छनोट (Audio Mode):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF9A3412))),
+                                    const Icon(Icons.tune, size: 16, color: Color(0xFFEA580C)),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      LanguageService.instance.trText(ne: 'अडियो प्रकार छनोट:', en: 'Audio Type Selection:', ko: '오디오 유형 선택:'),
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF9A3412)),
+                                    ),
                                   ],
                                 ),
                                 const SizedBox(height: 4),
@@ -345,8 +409,11 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                       activeColor: const Color(0xFFEA580C),
                                       onChanged: (v) => setDialogState(() => isAudioOnly = v!),
                                     ),
-                                    const Expanded(
-                                      child: Text('केवल अडियो फाइल मात्र (Pure Audio Only - TTS बन्द)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEA580C))),
+                                    Expanded(
+                                      child: Text(
+                                        LanguageService.instance.trText(ne: 'केवल अडियो फाइल मात्र', en: 'Audio File Only (Strict Audio)', ko: '오디오 전용 문항'),
+                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEA580C)),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -358,8 +425,11 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                       activeColor: const Color(0xFFEA580C),
                                       onChanged: (v) => setDialogState(() => isAudioOnly = v!),
                                     ),
-                                    const Expanded(
-                                      child: Text('स्वचालित TTS वा दुवै (Auto TTS from Script)', style: TextStyle(fontSize: 12)),
+                                    Expanded(
+                                      child: Text(
+                                        LanguageService.instance.trText(ne: 'स्वचालित अडियो वा दुवै', en: 'Auto Speech / Dual Audio', ko: '음성 합성(TTS) 또는 겸용'),
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -377,12 +447,19 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(color: Colors.red.shade300),
                               ),
-                              child: const Row(
+                              child: Row(
                                 children: [
-                                  Icon(Icons.warning_amber, color: Colors.red, size: 18),
-                                  SizedBox(width: 8),
+                                  const Icon(Icons.warning_amber, color: Colors.red, size: 18),
+                                  const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text('⚠️ ध्यान दिनुहोस्: यो "केवल अडियो" प्रश्न हो। तलको बटनबाट आफ्नो डिभाइसको वास्तविक MP3 अडियो अपलोड गर्नुहोस्!', style: TextStyle(fontSize: 11, color: Colors.red, fontWeight: FontWeight.bold)),
+                                    child: Text(
+                                      LanguageService.instance.trText(
+                                        ne: '⚠️ ध्यान दिनुहोस्: यो "केवल अडियो" प्रश्न हो। तलको बटनबाट आफ्नो डिभाइसको वास्तविक MP3 अडियो अपलोड गर्नुहोस्!',
+                                        en: '⚠️ Note: This is an "Audio-Only" question. Please upload your MP3 file below!',
+                                        ko: '⚠️ 주의: 이 문제는 "오디오 전용" 문제입니다. 아래 버튼에서 실제 MP3 파일을 업로드해 주세요!',
+                                      ),
+                                      style: const TextStyle(fontSize: 11, color: Colors.red, fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -392,7 +469,9 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                isAudioOnly ? '🎧 वास्तविक अडियो फाइल (Pure Uploaded Audio):*' : '🎧 लिसनिङ अडियो (Audio वा TTS):',
+                                isAudioOnly
+                                    ? LanguageService.instance.trText(ne: '🎧 वास्तविक अडियो फाइल:*', en: '🎧 Audio File:*', ko: '🎧 실제 오디오 파일:*')
+                                    : LanguageService.instance.trText(ne: '🎧 लिसनिङ अडियो:', en: '🎧 Listening Audio:', ko: '🎧 듣기 오디오:'),
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF9A3412)),
                               ),
                               if (!isAudioOnly)
@@ -405,7 +484,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                     }
                                   },
                                   icon: const Icon(Icons.volume_up, size: 16),
-                                  label: const Text('TTS सुन्नुहोस्', style: TextStyle(fontSize: 11)),
+                                  label: Text(LanguageService.instance.trText(ne: 'TTS सुन्नुहोस्', en: 'Play TTS', ko: 'TTS 듣기'), style: const TextStyle(fontSize: 11)),
                                 ),
                             ],
                           ),
@@ -422,23 +501,27 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                   final file = await FileUploadService.instance.pickAudioFile();
                                   if (file != null) {
                                     setDialogState(() {
-                                      audioCtrl.text = file.dataUrl;
+                                      audioCtrl.text = file.bestUrl;
                                     });
                                   }
                                 },
                                 icon: const Icon(Icons.audio_file, size: 18),
-                                label: Text(audioCtrl.text.isEmpty ? '🎵 डिभाइसबाट MP3 अडियो अपलोड गर्नुहोस्' : 'अडियो लोड भयो ✅'),
+                                label: Text(audioCtrl.text.isEmpty
+                                    ? LanguageService.instance.trText(ne: '🎵 डिभाइसबाट MP3 अडियो अपलोड गर्नुहोस्', en: '🎵 Upload MP3 from Device', ko: '🎵 기기에서 MP3 오디오 업로드')
+                                    : (audioCtrl.text.startsWith('https://firebasestorage')
+                                        ? '☁️ Firebase ✅'
+                                        : LanguageService.instance.trText(ne: 'अडियो लोड भयो ✅', en: 'Audio Loaded ✅', ko: '오디오 로드됨 ✅'))),
                               ),
                               if (audioCtrl.text.isNotEmpty) ...[
                                 const SizedBox(width: 8),
                                 TextButton.icon(
                                   onPressed: () => AudioPlaybackService.instance.playAudioUrl(audioCtrl.text),
                                   icon: const Icon(Icons.play_circle_filled, size: 18, color: Colors.green),
-                                  label: const Text('प्ले', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                                  label: Text(LanguageService.instance.trText(ne: 'प्ले', en: 'Play', ko: '재생'), style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                  tooltip: 'अडियो हटाउनुहोस्',
+                                  tooltip: LanguageService.instance.trText(ne: 'अडियो हटाउनुहोस्', en: 'Remove audio', ko: '오디오 제거'),
                                   onPressed: () => setDialogState(() => audioCtrl.clear()),
                                 ),
                               ],
@@ -447,8 +530,8 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                           const SizedBox(height: 6),
                           TextField(
                             controller: audioCtrl,
-                            decoration: const InputDecoration(
-                              hintText: 'वा वेब अडियो URL लिङ्क (Optional URL)',
+                            decoration: InputDecoration(
+                              hintText: LanguageService.instance.trText(ne: 'वा अडियोको वेब लिङ्क', en: 'Or Audio Web URL', ko: '또는 오디오 웹 링크 URL'),
                               border: const OutlineInputBorder(),
                               fillColor: Colors.white,
                               filled: true,
@@ -462,9 +545,9 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                               Expanded(
                                 child: TextField(
                                   controller: scriptCtrl,
-                                  decoration: const InputDecoration(
-                                    labelText: 'अडियो कोरियन संवाद (Korean Script)',
-                                    border: OutlineInputBorder(),
+                                  decoration: InputDecoration(
+                                    labelText: LanguageService.instance.trText(ne: 'अडियो कोरियन संवाद', en: 'Korean Audio Script', ko: '한국어 대화 스크립트'),
+                                    border: const OutlineInputBorder(),
                                     fillColor: Colors.white,
                                     filled: true,
                                   ),
@@ -474,9 +557,9 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                               Expanded(
                                 child: TextField(
                                   controller: scriptNepCtrl,
-                                  decoration: const InputDecoration(
-                                    labelText: 'नेपाली अर्थ (Nepali Translation)',
-                                    border: OutlineInputBorder(),
+                                  decoration: InputDecoration(
+                                    labelText: LanguageService.instance.trText(ne: 'नेपाली/अंग्रेजी अनुवाद', en: 'Translation', ko: '번역 내용'),
+                                    border: const OutlineInputBorder(),
                                     fillColor: Colors.white,
                                     filled: true,
                                   ),
@@ -491,9 +574,19 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                   ],
 
                   // 4. Options 1 to 4 (Support Text, Image, Audio)
-                  const Text('४. चारवटा विकल्पहरू (Options 1 ~ 4):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E3A8A))),
+                  Text(
+                    LanguageService.instance.trText(ne: '४. चारवटा विकल्पहरू:', en: '4. Four Options:', ko: '4. 4가지 선택지:'),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E3A8A)),
+                  ),
                   const SizedBox(height: 4),
-                  const Text('प्रत्येक विकल्पमा टेक्स्ट, तस्बिर (URL) वा अडियो राख्न सक्नुहुन्छ:', style: TextStyle(fontSize: 11, color: Colors.black54)),
+                  Text(
+                    LanguageService.instance.trText(
+                      ne: 'प्रत्येक विकल्पमा टेक्स्ट, तस्बिर (URL) वा अडियो राख्न सक्नुहुन्छ:',
+                      en: 'Add text, image (URL), or audio for each option:',
+                      ko: '각 선택지에 텍스트, 이미지(URL) 또는 오디오를 설정할 수 있습니다:',
+                    ),
+                    style: const TextStyle(fontSize: 11, color: Colors.black54),
+                  ),
                   const SizedBox(height: 10),
 
                   ...List.generate(4, (i) {
@@ -517,7 +610,10 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 activeColor: Colors.green,
                                 onChanged: (val) => setDialogState(() => selectedCorrectIndex = val!),
                               ),
-                              Text('विकल्प ${i + 1} ${isCorrect ? "✓ (सही उत्तर)" : ""}', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: isCorrect ? Colors.green.shade800 : Colors.black87)),
+                              Text(
+                                '${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} ${i + 1} ${isCorrect ? "✓ (" + LanguageService.instance.trText(ne: "सही उत्तर", en: "Correct", ko: "정답") + ")" : ""}',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: isCorrect ? Colors.green.shade800 : Colors.black87),
+                              ),
                               const Spacer(),
                               if (optionAudioCtrls[i].text.isNotEmpty)
                                 IconButton(
@@ -533,7 +629,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 child: TextField(
                                   controller: optionTextCtrls[i],
                                   decoration: InputDecoration(
-                                    labelText: 'विकल्प ${i + 1} टेक्स्ट',
+                                    labelText: '${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} ${i + 1} ${LanguageService.instance.trText(ne: "टेक्स्ट", en: "Text", ko: "텍스트")}',
                                     border: const OutlineInputBorder(),
                                     isDense: true,
                                   ),
@@ -545,15 +641,113 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 child: TextField(
                                   controller: optionImgCtrls[i],
                                   decoration: InputDecoration(
-                                    labelText: 'तस्बिर URL (वैकल्पिक)',
+                                    labelText: LanguageService.instance.trText(ne: 'तस्बिर URL / अपलोड', en: 'Image URL / Upload', ko: '이미지 URL/업로드'),
                                     border: const OutlineInputBorder(),
                                     isDense: true,
                                     prefixIcon: const Icon(Icons.image, size: 16),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        optionImgCtrls[i].text.isNotEmpty ? Icons.check_circle : Icons.add_photo_alternate,
+                                        size: 18,
+                                        color: optionImgCtrls[i].text.startsWith('https://firebasestorage')
+                                            ? Colors.green
+                                            : const Color(0xFF1E3A8A),
+                                      ),
+                                      tooltip: LanguageService.instance.trText(ne: 'डिभाइसबाट तस्बिर रोज्नुहोस्', en: 'Pick image from device', ko: '기기에서 이미지 선택'),
+                                      onPressed: () async {
+                                        final file = await FileUploadService.instance.pickImageFile();
+                                        if (file != null) {
+                                          setDialogState(() {
+                                            optionImgCtrls[i].text = file.bestUrl;
+                                          });
+                                        }
+                                      },
+                                    ),
                                   ),
                                 ),
                               ),
+                              const SizedBox(width: 6),
+                              IconButton(
+                                icon: Icon(
+                                  optionAudioCtrls[i].text.isNotEmpty ? Icons.audio_file : Icons.upload_file,
+                                  size: 20,
+                                  color: optionAudioCtrls[i].text.startsWith('https://firebasestorage')
+                                      ? Colors.green
+                                      : Colors.deepOrange,
+                                ),
+                                tooltip: LanguageService.instance.trText(ne: 'डिभाइसबाट विकल्पको अडियो रोज्नुहोस्', en: 'Pick audio from device', ko: '기기에서 오디오 선택'),
+                                onPressed: () async {
+                                  final file = await FileUploadService.instance.pickAudioFile();
+                                  if (file != null) {
+                                    setDialogState(() {
+                                      optionAudioCtrls[i].text = file.bestUrl;
+                                    });
+                                  }
+                                },
+                              ),
                             ],
                           ),
+                          if (optionImgCtrls[i].text.isNotEmpty || optionAudioCtrls[i].text.isNotEmpty) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                if (optionImgCtrls[i].text.isNotEmpty) ...[
+                                  Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(color: Colors.grey.shade300),
+                                    ),
+                                    clipBehavior: Clip.antiAlias,
+                                    child: SmartImageWidget(imageSource: optionImgCtrls[i].text, fit: BoxFit.cover),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      optionImgCtrls[i].text.startsWith('https://firebasestorage')
+                                          ? '☁️ Firebase'
+                                          : LanguageService.instance.trText(ne: '🖼️ तस्बिर लोड भयो', en: '🖼️ Image loaded', ko: '🖼️ 이미지 로드됨'),
+                                      style: TextStyle(fontSize: 10, color: Colors.grey.shade700),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.close, size: 14, color: Colors.red),
+                                    tooltip: LanguageService.instance.trText(ne: 'तस्बिर हटाउनुहोस्', en: 'Remove image', ko: '이미지 제거'),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: () => setDialogState(() => optionImgCtrls[i].clear()),
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                                if (optionAudioCtrls[i].text.isNotEmpty) ...[
+                                  TextButton.icon(
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    icon: const Icon(Icons.play_circle_fill, size: 14, color: Colors.green),
+                                    label: Text(
+                                      optionAudioCtrls[i].text.startsWith('https://firebasestorage')
+                                          ? '☁️ Audio'
+                                          : '🎵 Audio',
+                                      style: const TextStyle(fontSize: 10, color: Colors.green),
+                                    ),
+                                    onPressed: () => AudioPlaybackService.instance.playAudioUrl(optionAudioCtrls[i].text),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.close, size: 14, color: Colors.red),
+                                    tooltip: LanguageService.instance.trText(ne: 'अडियो हटाउनुहोस्', en: 'Remove audio', ko: '오디오 제거'),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    onPressed: () => setDialogState(() => optionAudioCtrls[i].clear()),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     );
@@ -567,12 +761,15 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                         flex: 2,
                         child: DropdownButtonFormField<int>(
                           value: selectedCorrectIndex,
-                          decoration: const InputDecoration(labelText: 'सही उत्तर छान्नुहोस्*', border: OutlineInputBorder()),
-                          items: const [
-                            DropdownMenuItem(value: 0, child: Text('विकल्प १ (Option 1)')),
-                            DropdownMenuItem(value: 1, child: Text('विकल्प २ (Option 2)')),
-                            DropdownMenuItem(value: 2, child: Text('विकल्प ३ (Option 3)')),
-                            DropdownMenuItem(value: 3, child: Text('विकल्प ४ (Option 4)')),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(ne: 'सही उत्तर छान्नुहोस्*', en: 'Correct Answer*', ko: '정답 선택*'),
+                            border: const OutlineInputBorder(),
+                          ),
+                          items: [
+                            DropdownMenuItem(value: 0, child: Text('${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} 1')),
+                            DropdownMenuItem(value: 1, child: Text('${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} 2')),
+                            DropdownMenuItem(value: 2, child: Text('${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} 3')),
+                            DropdownMenuItem(value: 3, child: Text('${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} 4')),
                           ],
                           onChanged: (val) => setDialogState(() => selectedCorrectIndex = val!),
                         ),
@@ -582,7 +779,10 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                         flex: 3,
                         child: TextField(
                           controller: explCtrl,
-                          decoration: const InputDecoration(labelText: 'नेपाली व्याख्या (Nepali Explanation)*', border: OutlineInputBorder()),
+                          decoration: InputDecoration(
+                            labelText: LanguageService.instance.trText(ne: 'नेपाली/अंग्रेजी व्याख्या*', en: 'Explanation*', ko: '정답 해설*'),
+                            border: const OutlineInputBorder(),
+                          ),
                         ),
                       ),
                     ],
@@ -593,7 +793,10 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('रद्द गर्नुहोस्')),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: Text(LanguageService.instance.tr('cancel')),
+                      ),
                       const SizedBox(width: 12),
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
@@ -615,26 +818,105 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
 
                           final updatedAns = QuestionAnswerInfo(
                             correctIndex: selectedCorrectIndex,
-                            explanation: explCtrl.text.trim().isNotEmpty ? explCtrl.text.trim() : 'आधिकारिक समाधान।',
+                            explanation: explCtrl.text.trim().isNotEmpty ? explCtrl.text.trim() : 'Official explanation.',
                           );
 
-                          QuestionBankService.instance.updateQuestionInSet(
-                            setId: set.id,
-                            questionIndex: qIndex,
-                            updatedQuestion: updatedQ,
-                            updatedAnswer: updatedAns,
-                          );
+                          // १. कन्फर्मेसन डायलग (Confirmation Dialog)
+                          showDialog(
+                            context: context,
+                            builder: (confirmCtx) => AlertDialog(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              title: Row(
+                                children: [
+                                  const Icon(Icons.cloud_upload_rounded, color: Color(0xFF1E3A8A)),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    LanguageService.instance.trText(
+                                      ne: 'प्रश्न $questionNo सुरक्षित तथा सिङ्क गर्ने?',
+                                      en: 'Save & Sync Question $questionNo?',
+                                      ko: '문항 $questionNo 저장 및 동기화하시겠습니까?',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              content: Text(
+                                LanguageService.instance.trText(
+                                  ne: 'तपाईंले गर्नुभएको यो अपडेट सुरक्षित भई स्वतः क्लाउडमा सिङ्क हुनेछ। यसपछि सबै विद्यार्थी तथा अन्य डिभाइसहरूले नयाँ प्रश्न हेर्न सक्नेछन्। के तपाईं निश्चित हुनुहुन्छ?',
+                                  en: 'This update will be saved and auto-synced to cloud. All students will immediately receive this update. Are you sure?',
+                                  ko: '저장된 내용은 클라우드에 자동 동기화되며 모든 학생에게 즉시 반영됩니다. 계속하시겠습니까?',
+                                ),
+                                style: const TextStyle(fontSize: 13, height: 1.4),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(confirmCtx),
+                                  child: Text(LanguageService.instance.tr('cancel')),
+                                ),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1E3A8A),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  icon: const Icon(Icons.check_circle, size: 16),
+                                  label: Text(LanguageService.instance.trText(ne: 'हुन्छ, सेभ र सिङ्क गर्नुहोस्', en: 'Save & Sync', ko: '저장 및 동기화')),
+                                  onPressed: () async {
+                                    Navigator.pop(confirmCtx); // Close confirm
+                                    Navigator.pop(ctx); // Close editor dialog
 
-                          setState(() {
-                            _selectedSet = QuestionBankService.instance.getMockSetById(set.id);
-                          });
-                          Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('✅ प्रश्न $questionNo सफलतापूर्वक अद्यावधिक भयो!'), backgroundColor: Colors.teal),
+                                    // २. लोकल डेटाबेसमा अपडेट
+                                    QuestionBankService.instance.updateQuestionInSet(
+                                      setId: set.id,
+                                      questionIndex: qIndex,
+                                      updatedQuestion: updatedQ,
+                                      updatedAnswer: updatedAns,
+                                    );
+
+                                    setState(() {
+                                      _selectedSet = QuestionBankService.instance.getMockSetById(set.id);
+                                    });
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          LanguageService.instance.trText(
+                                            ne: '✅ प्रश्न $questionNo सेभ भयो। क्लाउडमा स्वतः सिङ्क हुँदैछ... ⏳',
+                                            en: '✅ Question $questionNo saved. Syncing to cloud... ⏳',
+                                            ko: '✅ 문항 $questionNo 저장 완료. 클라우드 동기화 중... ⏳',
+                                          ),
+                                        ),
+                                        backgroundColor: const Color(0xFF1E3A8A),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+
+                                    // ३. स्वतः क्लाउडमा पठाउने (Automatic Cloud Sync)
+                                    final synced = await CloudSyncService.instance.pushToCloud();
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(synced
+                                              ? LanguageService.instance.trText(
+                                                  ne: '☁️ प्रश्न $questionNo क्लाउडमा सफलतापूर्वक सिङ्क भयो!',
+                                                  en: '☁️ Question $questionNo successfully synced to cloud!',
+                                                  ko: '☁️ 문항 $questionNo 클라우드 동기화 성공!',
+                                                )
+                                              : LanguageService.instance.trText(
+                                                  ne: '⚠️ लोकल सेभ भयो, तर क्लाउड सिङ्क असफल।',
+                                                  en: '⚠️ Saved locally, cloud sync pending.',
+                                                  ko: '⚠️ 로컬 저장 완료, 클라우드 동기화 대기 중.',
+                                                )),
+                                          backgroundColor: synced ? Colors.teal : Colors.orange.shade800,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                           );
                         },
                         icon: const Icon(Icons.save, size: 18),
-                        label: const Text('प्रश्न सुरक्षित गर्नुहोस् (Save)'),
+                        label: Text(LanguageService.instance.trText(ne: 'प्रश्न सुरक्षित गर्नुहोस्', en: 'Save Question', ko: '문제 저장')),
                       ),
                     ],
                   ),
@@ -649,10 +931,15 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_selectedSet != null) {
-      return _buildSetQuestionInspector(_selectedSet!);
-    }
-    return _buildSetsList();
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) {
+        if (_selectedSet != null) {
+          return _buildSetQuestionInspector(_selectedSet!);
+        }
+        return _buildSetsList();
+      },
+    );
   }
 
   /// 1. Sets List View
@@ -686,18 +973,26 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                   child: Icon(Icons.assignment_turned_in_rounded, color: Colors.white, size: 34),
                 ),
                 const SizedBox(width: 16),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'EPS-TOPIK ४०-प्रश्न सेट व्यवस्थापन केन्द्र',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                        LanguageService.instance.trText(
+                          ne: 'EPS-TOPIK ४०-प्रश्न सेट व्यवस्थापन केन्द्र',
+                          en: 'EPS-TOPIK 40-Question Set Hub',
+                          ko: 'EPS-TOPIK 40문항 세트 관리 센터',
+                        ),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
-                        'प्रत्येक सेटमा २० रिडिङ र २० लिसनिङ प्रश्नहरू समावेश हुन्छन्। नयाँ सेट थप्न र सेट भित्रका प्रश्नहरू सम्पादन गर्न सक्नुहुन्छ।',
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
+                        LanguageService.instance.trText(
+                          ne: 'प्रत्येक सेटमा २० रिडिङ र २० लिसनिङ प्रश्नहरू समावेश हुन्छन्। नयाँ सेट थप्न र सेट भित्रका प्रश्नहरू सम्पादन गर्न सक्नुहुन्छ।',
+                          en: 'Each set contains 20 Reading and 20 Listening questions. Create and edit multi-modal questions with audio and images.',
+                          ko: '각 세트는 20개 읽기 및 20개 듣기 문항으로 구성됩니다. 새 세트를 추가하고 오디오/이미지 문항을 편집할 수 있습니다.',
+                        ),
+                        style: const TextStyle(color: Colors.white70, fontSize: 12),
                       ),
                     ],
                   ),
@@ -705,7 +1000,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                 ElevatedButton.icon(
                   onPressed: _showCreateNewSetDialog,
                   icon: const Icon(Icons.add, size: 18),
-                  label: const Text('नयाँ प्रश्न सेट बनाउनुहोस्'),
+                  label: Text(LanguageService.instance.trText(ne: 'नयाँ प्रश्न सेट बनाउनुहोस्', en: 'Create Question Set', ko: '새 문제 세트 만들기')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF0F766E),
@@ -722,7 +1017,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'प्रश्न सेटको शीर्षक वा क्षेत्र खोज्नुहोस्...',
+              hintText: LanguageService.instance.trText(ne: 'प्रश्न सेटको शीर्षक वा क्षेत्र खोज्नुहोस्...', en: 'Search question set title or sector...', ko: '문제 세트 제목 또는 분야 검색...'),
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -772,18 +1067,18 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                   decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
-                                  child: const Text('४० प्रश्नहरू (२० R + २० L)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+                                  child: Text(LanguageService.instance.trText(ne: '४० प्रश्नहरू (२० R + २० L)', en: '40 Questions (20 R + 20 L)', ko: '40문항 (20 R + 20 L)'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
                                 ),
                                 if (set.isLiveExam)
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(color: Colors.red.shade100, borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.red)),
-                                    child: const Row(
+                                    child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Icon(Icons.radio_button_checked, size: 12, color: Colors.red),
-                                        SizedBox(width: 4),
-                                        Text('🔴 आजको लाइभ परीक्षा (Daily Live)', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.red)),
+                                        const Icon(Icons.radio_button_checked, size: 12, color: Colors.red),
+                                        const SizedBox(width: 4),
+                                        Text(LanguageService.instance.trText(ne: '🔴 आजको दैनिक परीक्षा', en: "🔴 Today's Live Exam", ko: '🔴 오늘의 라이브 시험'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.red)),
                                       ],
                                     ),
                                   ),
@@ -795,7 +1090,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                     border: Border.all(color: set.isApproved ? Colors.green : Colors.amber.shade700),
                                   ),
                                   child: Text(
-                                    set.isApproved ? '🟢 स्वीकृत (Approved for All)' : '⏳ सुपर एडमिन स्वीकृतिको पर्खाइमा',
+                                    set.isApproved ? LanguageService.instance.trText(ne: '🟢 सबैका लागि स्वीकृत', en: '🟢 Approved for All', ko: '🟢 전체 승인됨') : LanguageService.instance.trText(ne: '⏳ सुपर एडमिन स्वीकृतिको पर्खाइमा', en: '⏳ Awaiting Super Admin Approval', ko: '⏳ 최고관리자 승인 대기중'),
                                     style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: set.isApproved ? Colors.green.shade900 : Colors.amber.shade900),
                                   ),
                                 ),
@@ -824,7 +1119,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                               });
                             },
                             icon: const Icon(Icons.manage_search, size: 16),
-                            label: const Text('४० प्रश्नहरू व्यवस्थापन गर्नुहोस्', style: TextStyle(fontSize: 12)),
+                            label: Text(LanguageService.instance.trText(ne: '४० प्रश्नहरू व्यवस्थापन गर्नुहोस्', en: 'Manage 40 Questions', ko: '40문항 관리'), style: TextStyle(fontSize: 12)),
                           ),
                           const SizedBox(height: 6),
                           OutlinedButton.icon(
@@ -838,15 +1133,16 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                               setState(() {
                                 QuestionBankService.instance.setLiveDailyExam(set.id, isLive: !set.isLiveExam);
                               });
+                              CloudSyncService.instance.pushToCloud();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(set.isLiveExam ? 'लाइभ परीक्षा हटाइयो।' : '🔴 ${set.title} आजको दैनिक लाइभ परीक्षा (Strict Mode) को रूपमा तोकियो!'),
+                                  content: Text(set.isLiveExam ? LanguageService.instance.trText(ne: 'लाइभ परीक्षा हटाइयो।', en: 'Live exam removed.', ko: '라이브 시험이 해제되었습니다.') : LanguageService.instance.trText(ne: '🔴 ${set.title} आजको दैनिक लाइभ परीक्षा (Strict Mode) को रूपमा तोकियो!', en: "🔴 ${set.title} set as Today's Live Exam (Strict Mode)!", ko: '🔴 ${set.title} 오늘의 라이브 시험(엄격 모드)으로 지정되었습니다!')),
                                   backgroundColor: set.isLiveExam ? Colors.blueGrey : Colors.teal,
                                 ),
                               );
                             },
                             icon: Icon(set.isLiveExam ? Icons.cancel_outlined : Icons.flash_on, size: 14),
-                            label: Text(set.isLiveExam ? 'लाइभ परीक्षा हटाउनुहोस्' : '🔴 आजको लाइभ परीक्षा बनाउनुहोस्', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                            label: Text(set.isLiveExam ? LanguageService.instance.trText(ne: 'लाइभ परीक्षा हटाउनुहोस्', en: 'Remove Live Exam', ko: '라이브 시험 해제') : LanguageService.instance.trText(ne: '🔴 आजको लाइभ परीक्षा बनाउनुहोस्', en: '🔴 Make Live Exam', ko: '🔴 오늘 라이브 시험 설정'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                           ),
                         ],
                       ),
@@ -888,7 +1184,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back),
-                  tooltip: 'सबै सेटहरूमा फर्कनुहोस्',
+                  tooltip: LanguageService.instance.trText(ne: 'सबै सेटहरूमा फर्कनुहोस्', en: 'Back to all sets', ko: '모든 세트로 돌아가기'),
                   onPressed: () => setState(() => _selectedSet = null),
                 ),
                 const SizedBox(width: 8),
@@ -903,7 +1199,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(4)),
-                            child: const Text('कुल ४० प्रश्न', style: TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold)),
+                            child: Text(LanguageService.instance.trText(ne: 'कुल ४० प्रश्न', en: 'Total 40 Questions', ko: '총 40문항'), style: TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold)),
                           ),
                         ],
                       ),
@@ -915,7 +1211,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                 ElevatedButton.icon(
                   onPressed: () => setState(() => _selectedSet = null),
                   icon: const Icon(Icons.list, size: 18),
-                  label: const Text('सेट सूची (Back to Sets)'),
+                  label: Text(LanguageService.instance.trText(ne: 'सेट सूची', en: 'Set List', ko: '세트 목록')),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.grey.shade200, foregroundColor: Colors.black87),
                 ),
               ],
@@ -926,11 +1222,11 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
           // Section Filter Tabs
           Row(
             children: [
-              _buildFilterChip('सबै ४० प्रश्नहरू (${questions.length})', 'all'),
+              _buildFilterChip(LanguageService.instance.trText(ne: 'सबै ४० प्रश्नहरू (${questions.length})', en: 'All 40 Questions (${questions.length})', ko: '전체 40문항 (${questions.length})'), 'all'),
               const SizedBox(width: 8),
-              _buildFilterChip('📖 रिडिङ (प्रश्न १ ~ २०)', 'reading'),
+              _buildFilterChip(LanguageService.instance.trText(ne: '📖 रिडिङ (प्रश्न १ ~ २०)', en: '📖 Reading (Q1 ~ 20)', ko: '📖 읽기 (1~20번)'), 'reading'),
               const SizedBox(width: 8),
-              _buildFilterChip('🎧 लिसनिङ (प्रश्न २१ ~ ४०)', 'listening'),
+              _buildFilterChip(LanguageService.instance.trText(ne: '🎧 लिसनिङ (प्रश्न २१ ~ ४०)', en: '🎧 Listening (Q21 ~ 40)', ko: '🎧 듣기 (21~40번)'), 'listening'),
             ],
           ),
           const SizedBox(height: 16),
@@ -990,7 +1286,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                   color: isReading ? const Color(0xFF1E3A8A) : const Color(0xFFEA580C),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                                child: Text('प्रश्न $qNo', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                                child: Text(LanguageService.instance.trText(ne: 'प्रश्न $qNo', en: 'Question $qNo', ko: '문항 $qNo'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
                               ),
                               const SizedBox(width: 8),
                               Container(
@@ -1003,7 +1299,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
-                                  child: const Text('🖼️ तस्बिर/ग्राफ', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.teal)),
+                                  child: Text(LanguageService.instance.trText(ne: '🖼️ तस्बिर/ग्राफ', en: '🖼️ Image/Graph', ko: '🖼️ 사진/그래프'), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.teal)),
                                 ),
                               ],
                               if (hasAud) ...[
@@ -1011,7 +1307,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(color: Colors.orange.shade50, borderRadius: BorderRadius.circular(4)),
-                                  child: const Text('🔊 अडियो', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange)),
+                                  child: Text(LanguageService.instance.trText(ne: '🔊 अडियो', en: '🔊 Audio', ko: '🔊 오디오'), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.orange)),
                                 ),
                               ],
                               if (hasOptionImg) ...[
@@ -1019,7 +1315,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                   decoration: BoxDecoration(color: Colors.purple.shade50, borderRadius: BorderRadius.circular(4)),
-                                  child: const Text('🖼️ विकल्पमा चित्र', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.purple)),
+                                  child: Text(LanguageService.instance.trText(ne: '🖼️ विकल्पमा चित्र', en: '🖼️ Image in Option', ko: '🖼️ 선택지 이미지'), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.purple)),
                                 ),
                               ],
                             ],
@@ -1032,7 +1328,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                             ),
                             onPressed: () => _showQuestionEditorDialog(set, qIndex, q),
                             icon: const Icon(Icons.edit, size: 16),
-                            label: const Text('सम्पादन गर्नुहोस्', style: TextStyle(fontSize: 12)),
+                            label: Text(LanguageService.instance.trText(ne: 'सम्पादन गर्नुहोस्', en: 'Edit', ko: '편집'), style: TextStyle(fontSize: 12)),
                           ),
                         ],
                       ),
@@ -1102,11 +1398,11 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Colors.green.shade200),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.green, size: 20),
-            SizedBox(width: 8),
-            Text('इन्स्टिच्युटहरूबाट स्वीकृतिको लागि कुनै पनि नयाँ सेट बाँकी छैन। सबै प्रश्न सेटहरू स्वीकृत छन्!', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 13)),
+            const Icon(Icons.check_circle, color: Colors.green, size: 20),
+            const SizedBox(width: 8),
+            Text(LanguageService.instance.trText(ne: 'इन्स्टिच्युटहरूबाट स्वीकृतिको लागि कुनै पनि नयाँ सेट बाँकी छैन। सबै प्रश्न सेटहरू स्वीकृत छन्!', en: 'No pending question sets from institutes. All sets are approved!', ko: '학원에서 대기 중인 문제 세트가 없습니다. 모두 승인되었습니다!'), style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 13)),
           ],
         ),
       );
@@ -1130,7 +1426,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                   const Icon(Icons.pending_actions, color: Color(0xFFB45309), size: 24),
                   const SizedBox(width: 8),
                   Text(
-                    '📥 इन्स्टिच्युटबाट आएका नयाँ प्रश्न सेटहरू (स्वीकृति सूची - ${pendingSets.length} वटा)',
+                    LanguageService.instance.trText(ne: '📥 इन्स्टिच्युटबाट आएका नयाँ प्रश्न सेटहरू (स्वीकृति सूची - ${pendingSets.length} वटा)', en: '📥 New Question Sets from Institutes (Pending Approval - ${pendingSets.length})', ko: '📥 학원에서 제출한 새 문제 세트 (승인 대기 - ${pendingSets.length}개)'),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF92400E)),
                   ),
                 ],
@@ -1139,13 +1435,13 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: Colors.amber.shade900, borderRadius: BorderRadius.circular(4)),
-                  child: const Text('सुपर एडमिन स्वीकृति आवश्यक', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  child: Text(LanguageService.instance.trText(ne: 'सुपर एडमिन स्वीकृति आवश्यक', en: 'Super Admin Approval Required', ko: '최고관리자 승인 필요'), style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                 ),
             ],
           ),
           const SizedBox(height: 6),
-          const Text(
-            'नियम: इन्स्टिच्युटले बनाएका प्रश्न सेटहरू सुपर एडमिनले जाँच र स्वीकृति (Approval) दिएपछि मात्र सबैतिर जान्छन्।',
+          Text(
+            LanguageService.instance.trText(ne: 'नियम: इन्स्टिच्युटले बनाएका प्रश्न सेटहरू सुपर एडमिनले जाँच र स्वीकृति (Approval) दिएपछि मात्र सबैतिर जान्छन्।', en: 'Rule: Question sets created by institutes will only be published after Super Admin review and approval.', ko: '규칙: 학원에서 생성한 문제 세트는 최고관리자의 검토 및 승인 후에만 배포됩니다.'),
             style: TextStyle(fontSize: 12, color: Colors.black87),
           ),
           const Divider(height: 18),
@@ -1168,7 +1464,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(pSet.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                          Text('${pSet.sector} • पठाउने इन्स्टिच्युट: ${pSet.instituteName ?? "इन्स्टिच्युट"}', style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                          Text('${pSet.sector} • ' + LanguageService.instance.trText(ne: 'पठाउने इन्स्टिच्युट: ', en: 'Submitting Institute: ', ko: '제출 학원: ') + (pSet.instituteName ?? LanguageService.instance.trText(ne: 'इन्स्टिच्युट', en: 'Institute', ko: '학원')), style: const TextStyle(fontSize: 11, color: Colors.black54)),
                         ],
                       ),
                     ),
@@ -1180,11 +1476,11 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                             QuestionBankService.instance.approveMockSet(pSet.id);
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('✅ ${pSet.title} सबैतिर पठाउनका लागि स्वीकृत गरियो!'), backgroundColor: Colors.teal),
+                            SnackBar(content: Text(LanguageService.instance.trText(ne: '✅ ${pSet.title} सबैतिर पठाउनका लागि स्वीकृत गरियो!', en: '✅ ${pSet.title} approved and published for all!', ko: '✅ ${pSet.title} 전체 배포용으로 승인되었습니다!')), backgroundColor: Colors.teal),
                           );
                         },
                         icon: const Icon(Icons.check, size: 14),
-                        label: const Text('✅ सबैतिर पठाउन स्वीकृत गर्नुहोस्', style: TextStyle(fontSize: 11)),
+                        label: Text(LanguageService.instance.trText(ne: '✅ सबैतिर पठाउन स्वीकृत गर्नुहोस्', en: '✅ Approve for All', ko: '✅ 전체 승인 및 배포'), style: const TextStyle(fontSize: 11)),
                       ),
                       const SizedBox(width: 8),
                       OutlinedButton.icon(
@@ -1195,13 +1491,13 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                           });
                         },
                         icon: const Icon(Icons.close, size: 14),
-                        label: const Text('अस्वीकार', style: TextStyle(fontSize: 11)),
+                        label: Text(LanguageService.instance.trText(ne: 'अस्वीकार', en: 'Reject', ko: '반려'), style: const TextStyle(fontSize: 11)),
                       ),
                     ] else ...[
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
-                        child: const Text('⏳ स्वीकृतिको पर्खाइमा', style: TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 11)),
+                        child: Text(LanguageService.instance.trText(ne: '⏳ स्वीकृतिको पर्खाइमा', en: '⏳ Pending Approval', ko: '⏳ 승인 대기중'), style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 11)),
                       ),
                     ],
                   ],

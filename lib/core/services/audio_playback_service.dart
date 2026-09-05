@@ -15,25 +15,50 @@ class AudioPlaybackService {
   AudioPlayer? _player;
   int _playbackSessionId = 0;
   StreamSubscription? _completeSubscription;
+  StreamSubscription? _positionSubscription;
+  StreamSubscription? _durationSubscription;
 
   /// Global state notifiers
   final ValueNotifier<bool> isPlayingNotifier = ValueNotifier<bool>(false);
   final ValueNotifier<String?> currentAudioSourceNotifier = ValueNotifier<String?>(null);
+  final ValueNotifier<Duration> positionNotifier = ValueNotifier<Duration>(Duration.zero);
+  final ValueNotifier<Duration> durationNotifier = ValueNotifier<Duration>(Duration.zero);
 
   bool get isPlaying => isPlayingNotifier.value;
   String? get currentSource => currentAudioSourceNotifier.value;
+  Duration get position => positionNotifier.value;
+  Duration get duration => durationNotifier.value;
 
   void _initPlayer() {
     try {
       _player = AudioPlayer();
       _completeSubscription?.cancel();
+      _positionSubscription?.cancel();
+      _durationSubscription?.cancel();
+
       _completeSubscription = _player?.onPlayerComplete.listen((_) {
         isPlayingNotifier.value = false;
         currentAudioSourceNotifier.value = null;
+        positionNotifier.value = Duration.zero;
+      });
+
+      _positionSubscription = _player?.onPositionChanged.listen((pos) {
+        positionNotifier.value = pos;
+      });
+
+      _durationSubscription = _player?.onDurationChanged.listen((dur) {
+        durationNotifier.value = dur;
       });
     } catch (_) {
       _player = null;
     }
+  }
+
+  /// Seek to position in the current track
+  Future<void> seek(Duration position) async {
+    try {
+      await _player?.seek(position);
+    } catch (_) {}
   }
 
   /// Stops any currently playing audio immediately
@@ -44,6 +69,8 @@ class AudioPlaybackService {
     } catch (_) {}
     isPlayingNotifier.value = false;
     currentAudioSourceNotifier.value = null;
+    positionNotifier.value = Duration.zero;
+    durationNotifier.value = Duration.zero;
   }
 
   /// Speaks Korean text using Korean TTS with exclusive single-playback
@@ -102,12 +129,18 @@ class AudioPlaybackService {
   /// Disposes audio player
   void dispose() {
     _completeSubscription?.cancel();
+    _positionSubscription?.cancel();
+    _durationSubscription?.cancel();
     _completeSubscription = null;
+    _positionSubscription = null;
+    _durationSubscription = null;
     try {
       _player?.dispose();
     } catch (_) {}
     _player = null;
     isPlayingNotifier.value = false;
     currentAudioSourceNotifier.value = null;
+    positionNotifier.value = Duration.zero;
+    durationNotifier.value = Duration.zero;
   }
 }

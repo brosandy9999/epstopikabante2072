@@ -5,7 +5,7 @@ import 'storage_service.dart';
 
 /// Central Study Material, Resources, Dictionary & Notice Management Service
 /// Supports unlimited book uploads, dictionary lookup, visual flashcards with chapters and topics.
-class StudyMaterialService {
+class StudyMaterialService extends ChangeNotifier {
   static final StudyMaterialService instance = StudyMaterialService._internal();
   StudyMaterialService._internal();
 
@@ -59,6 +59,7 @@ class StudyMaterialService {
     try {
       final list = _booksList!.map((b) => b.toJson()).toList();
       StorageService.instance.setString(_keyBooks, jsonEncode(list));
+      notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save books: $e');
     }
@@ -171,6 +172,7 @@ class StudyMaterialService {
     try {
       final list = _dictionaryList!.map((w) => w.toJson()).toList();
       StorageService.instance.setString(_keyDict, jsonEncode(list));
+      notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save dictionary: $e');
     }
@@ -327,6 +329,7 @@ class StudyMaterialService {
     try {
       final list = _visualCardsList!.map((c) => c.toJson()).toList();
       StorageService.instance.setString(_keyVisualCards, jsonEncode(list));
+      notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save visual flashcards: $e');
     }
@@ -618,6 +621,7 @@ class StudyMaterialService {
     try {
       final list = _notices!.map((n) => n.toJson()).toList();
       StorageService.instance.setString(_keyNotices, jsonEncode(list));
+      notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save notices: $e');
     }
@@ -671,6 +675,7 @@ class StudyMaterialService {
     try {
       final list = _grammarList!.map((g) => g.toJson()).toList();
       StorageService.instance.setString(_keyGrammar, jsonEncode(list));
+      notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save grammar: $e');
     }
@@ -738,6 +743,7 @@ class StudyMaterialService {
     try {
       final list = _videoList!.map((v) => v.toJson()).toList();
       StorageService.instance.setString(_keyVideos, jsonEncode(list));
+      notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save videos: $e');
     }

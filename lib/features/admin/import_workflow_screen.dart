@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../question_engine/question_template.dart';
 import '../../core/models/mock_test_model.dart';
 import '../../core/services/question_bank_service.dart';
+import '../../core/services/language_service.dart';
 
 enum ImportFormat { csv, json }
 
@@ -315,131 +316,153 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final existingSets = QuestionBankService.instance.getAllMockSets();
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) {
+        final lang = LanguageService.instance;
+        final existingSets = QuestionBankService.instance.getAllMockSets();
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header Card
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Row(
-              children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Colors.white24,
-                  child: Icon(Icons.upload_file, color: Colors.white, size: 32),
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header Card
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0F766E), Color(0xFF14B8A6)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "CSV / JSON थोक प्रश्न आयात पोर्टल (Bulk Ingestion)",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.white24,
+                      child: Icon(Icons.upload_file, color: Colors.white, size: 32),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lang.trText(
+                              ne: "CSV / JSON थोक प्रश्न आयात पोर्टल (Bulk Ingestion)",
+                              en: "CSV / JSON Bulk Question Ingestion Portal",
+                              ko: "CSV / JSON 대량 문항 가져오기 포털",
+                            ),
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            lang.trText(
+                              ne: "Excel, CSV वा JSON बाट एकै पटक धेरै प्रश्नहरू (Reading र Listening) एपमा थप्नुहोस् वा अपडेट गर्नुहोस्।",
+                              en: "Bulk import or update Reading & Listening questions seamlessly via Excel, CSV, or JSON.",
+                              ko: "Excel, CSV 또는 JSON 파일을 통해 읽기 및 듣기 문항을 일괄 등록하고 업데이트하세요.",
+                            ),
+                            style: const TextStyle(color: Colors.white70, fontSize: 13),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 4),
-                      Text(
-                        "Excel, CSV वा JSON बाट एकै पटक धेरै प्रश्नहरू (Reading र Listening) एपमा थप्नुहोस् वा अपडेट गर्नुहोस्।",
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Format Selection and Sample Buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Segmented Format Toggle
+                  Row(
+                    children: [
+                      ChoiceChip(
+                        label: const Text("📄 CSV Format (Excel)"),
+                        selected: _selectedFormat == ImportFormat.csv,
+                        selectedColor: const Color(0xFF0F766E),
+                        labelStyle: TextStyle(
+                          color: _selectedFormat == ImportFormat.csv ? Colors.white : Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        onSelected: (_) => setState(() => _selectedFormat = ImportFormat.csv),
+                      ),
+                      const SizedBox(width: 10),
+                      ChoiceChip(
+                        label: const Text("🧩 JSON Format"),
+                        selected: _selectedFormat == ImportFormat.json,
+                        selectedColor: const Color(0xFF0F766E),
+                        labelStyle: TextStyle(
+                          color: _selectedFormat == ImportFormat.json ? Colors.white : Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        onSelected: (_) => setState(() => _selectedFormat = ImportFormat.json),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
 
-          const SizedBox(height: 24),
-
-          // Format Selection and Sample Buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Segmented Format Toggle
-              Row(
-                children: [
-                  ChoiceChip(
-                    label: const Text("📄 CSV Format (Excel)"),
-                    selected: _selectedFormat == ImportFormat.csv,
-                    selectedColor: const Color(0xFF0F766E),
-                    labelStyle: TextStyle(
-                      color: _selectedFormat == ImportFormat.csv ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    onSelected: (_) => setState(() => _selectedFormat = ImportFormat.csv),
-                  ),
-                  const SizedBox(width: 10),
-                  ChoiceChip(
-                    label: const Text("🧩 JSON Format"),
-                    selected: _selectedFormat == ImportFormat.json,
-                    selectedColor: const Color(0xFF0F766E),
-                    labelStyle: TextStyle(
-                      color: _selectedFormat == ImportFormat.json ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    onSelected: (_) => setState(() => _selectedFormat = ImportFormat.json),
+                  // Load Sample Data Button
+                  OutlinedButton.icon(
+                    onPressed: _loadSampleData,
+                    icon: const Icon(Icons.download, size: 18),
+                    label: Text(lang.trText(
+                      ne: "📋 नमुना (${_selectedFormat == ImportFormat.csv ? 'CSV' : 'JSON'}) डाटा लोड गर्नुहोस्",
+                      en: "📋 Load Sample (${_selectedFormat == ImportFormat.csv ? 'CSV' : 'JSON'}) Data",
+                      ko: "📋 샘플 (${_selectedFormat == ImportFormat.csv ? 'CSV' : 'JSON'}) 데이터 불러오기",
+                    )),
+                    style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF0F766E)),
                   ),
                 ],
               ),
 
-              // Load Sample Data Button
-              OutlinedButton.icon(
-                onPressed: _loadSampleData,
-                icon: const Icon(Icons.download, size: 18),
-                label: Text("📋 नमुना (${_selectedFormat == ImportFormat.csv ? 'CSV' : 'JSON'}) डाटा लोड गर्नुहोस्"),
-                style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF0F766E)),
-              ),
-            ],
-          ),
+              const SizedBox(height: 14),
 
-          const SizedBox(height: 14),
-
-          // Raw Text Area
-          TextField(
-            controller: _textController,
-            maxLines: 12,
-            decoration: InputDecoration(
-              hintText: _selectedFormat == ImportFormat.csv
-                  ? 'type,questionText,option1,option2,option3,option4,correctIndex,explanation\\nreading,"[1] 다음 그림을...",가방,공책,수첩,안경,1,"व्याख्या..."'
-                  : '[\\n  {\\n    "type": "reading",\\n    "questionText": "...",\\n    "options": ["A", "B", "C", "D"],\\n    "correctIndex": 0,\\n    "explanation": "..."\\n  }\\n]',
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
-              contentPadding: const EdgeInsets.all(16),
-            ),
-            style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Parse and Validate Button
-          Row(
-            children: [
-              ElevatedButton.icon(
-                onPressed: _parseAndValidate,
-                icon: const Icon(Icons.analytics_outlined),
-                label: const Text("डाटा जाँच र प्रमाणीकरण गर्नुहोस् (Validate & Preview)",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F766E),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              // Raw Text Area
+              TextField(
+                controller: _textController,
+                maxLines: 12,
+                decoration: InputDecoration(
+                  hintText: _selectedFormat == ImportFormat.csv
+                      ? 'type,questionText,option1,option2,option3,option4,correctIndex,explanation\\nreading,"[1] 다음 그림을...",가방,공책,수첩,안경,1,"व्याख्या..."'
+                      : '[\\n  {\\n    "type": "reading",\\n    "questionText": "...",\\n    "options": ["A", "B", "C", "D"],\\n    "correctIndex": 0,\\n    "explanation": "..."\\n  }\\n]',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Colors.grey.shade300)),
+                  contentPadding: const EdgeInsets.all(16),
                 ),
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
               ),
-            ],
-          ),
+
+              const SizedBox(height: 16),
+
+              // Parse and Validate Button
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _parseAndValidate,
+                    icon: const Icon(Icons.analytics_outlined),
+                    label: Text(
+                      lang.trText(
+                        ne: "डाटा जाँच र प्रमाणीकरण गर्नुहोस् (Validate & Preview)",
+                        en: "Validate & Preview Data",
+                        ko: "데이터 유효성 검사 및 미리보기",
+                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0F766E),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    ),
+                  ),
+                ],
+              ),
 
           if (_validationError != null) ...[
             const SizedBox(height: 14),
@@ -625,6 +648,8 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
           ],
         ],
       ),
+    );
+      },
     );
   }
 

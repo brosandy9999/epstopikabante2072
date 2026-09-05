@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../question_engine/question_template.dart';
 import '../../core/services/question_bank_service.dart';
+import '../../core/services/language_service.dart';
 
 enum ReviewFilter { all, correct, incorrect, unanswered }
 
-/// Comprehensive Question-by-Question Review Screen (???? / Answer Key)
+/// Comprehensive Question-by-Question Review Screen (오답노트 / Answer Key)
 class ExamReviewScreen extends StatefulWidget {
   final List<QuestionTemplate> questions;
   final Map<int, int> userAnswers;
@@ -43,97 +44,110 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate counts for badges
-    int correctCount = 0;
-    int incorrectCount = 0;
-    int unansweredCount = 0;
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) {
+        final lang = LanguageService.instance;
 
-    for (int i = 0; i < widget.questions.length; i++) {
-      final q = widget.questions[i];
-      final keyInfo = _answerKeys[q.questionId];
-      final userChoice = widget.userAnswers[i];
+        // Calculate counts for badges
+        int correctCount = 0;
+        int incorrectCount = 0;
+        int unansweredCount = 0;
 
-      if (userChoice == null) {
-        unansweredCount++;
-      } else if (keyInfo != null && userChoice == keyInfo.correctIndex) {
-        correctCount++;
-      } else {
-        incorrectCount++;
-      }
-    }
+        for (int i = 0; i < widget.questions.length; i++) {
+          final q = widget.questions[i];
+          final keyInfo = _answerKeys[q.questionId];
+          final userChoice = widget.userAnswers[i];
 
-    // Filter questions
-    final filteredQuestionsWithIndex = <MapEntry<int, QuestionTemplate>>[];
-    for (int i = 0; i < widget.questions.length; i++) {
-      final q = widget.questions[i];
-      final keyInfo = _answerKeys[q.questionId];
-      final userChoice = widget.userAnswers[i];
+          if (userChoice == null) {
+            unansweredCount++;
+          } else if (keyInfo != null && userChoice == keyInfo.correctIndex) {
+            correctCount++;
+          } else {
+            incorrectCount++;
+          }
+        }
 
-      bool matches = false;
-      switch (_selectedFilter) {
-        case ReviewFilter.all:
-          matches = true;
-          break;
-        case ReviewFilter.correct:
-          matches = userChoice != null && keyInfo != null && userChoice == keyInfo.correctIndex;
-          break;
-        case ReviewFilter.incorrect:
-          matches = userChoice != null && keyInfo != null && userChoice != keyInfo.correctIndex;
-          break;
-        case ReviewFilter.unanswered:
-          matches = userChoice == null;
-          break;
-      }
+        // Filter questions
+        final filteredQuestionsWithIndex = <MapEntry<int, QuestionTemplate>>[];
+        for (int i = 0; i < widget.questions.length; i++) {
+          final q = widget.questions[i];
+          final keyInfo = _answerKeys[q.questionId];
+          final userChoice = widget.userAnswers[i];
 
-      if (matches) {
-        filteredQuestionsWithIndex.add(MapEntry(i, q));
-      }
-    }
+          bool matches = false;
+          switch (_selectedFilter) {
+            case ReviewFilter.all:
+              matches = true;
+              break;
+            case ReviewFilter.correct:
+              matches = userChoice != null && keyInfo != null && userChoice == keyInfo.correctIndex;
+              break;
+            case ReviewFilter.incorrect:
+              matches = userChoice != null && keyInfo != null && userChoice != keyInfo.correctIndex;
+              break;
+            case ReviewFilter.unanswered:
+              matches = userChoice == null;
+              break;
+          }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
-      appBar: AppBar(
-        title: Text(
-          widget.setTitle != null
-              ? "${widget.setTitle} (Review & Explanations)"
-              : "EPS-TOPIK परीक्षा प्रश्न-उत्तर समीक्षा (Review & Explanations)",
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-        ),
-        backgroundColor: const Color(0xFF1E3A8A),
-        foregroundColor: Colors.white,
-        elevation: 2,
-      ),
-      body: Column(
-        children: [
-          // Filter Chips Bar
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            color: Colors.white,
-            child: Row(
-              children: [
-                const Text("??????: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                const SizedBox(width: 8),
-                _buildFilterChip("??? (All 40)", ReviewFilter.all, widget.questions.length, Colors.blueGrey),
-                const SizedBox(width: 8),
-                _buildFilterChip("??? ()", ReviewFilter.correct, correctCount, Colors.green),
-                const SizedBox(width: 8),
-                _buildFilterChip("??? ()", ReviewFilter.incorrect, incorrectCount, Colors.red),
-                const SizedBox(width: 8),
-                _buildFilterChip("????? ()", ReviewFilter.unanswered, unansweredCount, Colors.orange),
-              ],
+          if (matches) {
+            filteredQuestionsWithIndex.add(MapEntry(i, q));
+          }
+        }
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF1F5F9),
+          appBar: AppBar(
+            title: Text(
+              widget.setTitle != null
+                  ? "${widget.setTitle} (${lang.trText(ne: 'समीक्षा तथा व्याख्या', en: 'Review & Explanations', ko: '오답 및 해설')})"
+                  : lang.trText(ne: "EPS-TOPIK परीक्षा प्रश्न-उत्तर समीक्षा", en: "EPS-TOPIK Answer Review", ko: "EPS-TOPIK 오답노트"),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
             ),
+            backgroundColor: const Color(0xFF1E3A8A),
+            foregroundColor: Colors.white,
+            elevation: 2,
+            actions: [
+              lang.buildLanguageSwitcherWidget(isDark: true),
+              const SizedBox(width: 8),
+            ],
           ),
-          const Divider(height: 1),
+          body: Column(
+            children: [
+              // Filter Chips Bar
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                color: Colors.white,
+                width: double.infinity,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      Text(lang.trText(ne: "फिल्टर: ", en: "Filter: ", ko: "필터: "), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(lang.trText(ne: "सबै (${widget.questions.length})", en: "All (${widget.questions.length})", ko: "전체 (${widget.questions.length})"), ReviewFilter.all, widget.questions.length, Colors.blueGrey),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(lang.trText(ne: "मिलेका ($correctCount)", en: "Correct ($correctCount)", ko: "정답 ($correctCount)"), ReviewFilter.correct, correctCount, Colors.green),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(lang.trText(ne: "बिग्रिएका ($incorrectCount)", en: "Incorrect ($incorrectCount)", ko: "오답 ($incorrectCount)"), ReviewFilter.incorrect, incorrectCount, Colors.red),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(lang.trText(ne: "नछोएका ($unansweredCount)", en: "Skipped ($unansweredCount)", ko: "미답 ($unansweredCount)"), ReviewFilter.unanswered, unansweredCount, Colors.orange),
+                    ],
+                  ),
+                ),
+              ),
+              const Divider(height: 1),
 
-          // Questions List
-          Expanded(
-            child: filteredQuestionsWithIndex.isEmpty
-                ? const Center(
-                    child: Text(
-                      "?? ???????? ???? ?????? ???? ?????",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  )
+              // Questions List
+              Expanded(
+                child: filteredQuestionsWithIndex.isEmpty
+                    ? Center(
+                        child: Text(
+                          lang.trText(ne: "यो फिल्टरमा कुनै प्रश्नहरू फेला परेनन्।", en: "No questions found in this filter.", ko: "해당 필터에 문항이 없습니다."),
+                          style: const TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                     itemCount: filteredQuestionsWithIndex.length,
@@ -148,9 +162,11 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                       final isCorrect = userChoice != null && keyInfo != null && userChoice == keyInfo.correctIndex;
                       final isUnanswered = userChoice == null;
 
-                      final options = (q is ReadingTextQuestion)
+                      final options = (q is UniversalQuestion)
                           ? q.textOptions
-                          : ((q is ListeningAudioQuestion) ? q.textOptions : <String>[]);
+                          : ((q is ReadingTextQuestion)
+                              ? q.textOptions
+                              : ((q is ListeningAudioQuestion) ? q.textOptions : <String>[]));
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 20),
@@ -183,13 +199,15 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                                           borderRadius: BorderRadius.circular(4),
                                         ),
                                         child: Text(
-                                          isReading ? "?? (Reading)" : "?? (Listening)",
+                                          isReading
+                                              ? lang.trText(ne: "📖 रिडिङ (Reading)", en: "📖 Reading", ko: "📖 읽기")
+                                              : lang.trText(ne: "🎧 लिसनिङ (Listening)", en: "🎧 Listening", ko: "🎧 듣기"),
                                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        "??  / 40 ()",
+                                        "${lang.trText(ne: 'प्रश्न', en: 'Q', ko: '문항')} ${qIndex + 1} / ${widget.questions.length}",
                                         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey.shade700, fontSize: 14),
                                       ),
                                     ],
@@ -224,8 +242,10 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                                         const SizedBox(width: 6),
                                         Text(
                                           isCorrect
-                                              ? "정답 (सही) +2.5점"
-                                              : (isUnanswered ? "미답 (खाली) 0점" : "오답 (गलत) 0점"),
+                                              ? lang.trText(ne: "सहि (+२.५)", en: "Correct (+2.5)", ko: "정답 (+2.5점)")
+                                              : (isUnanswered
+                                                  ? lang.trText(ne: "नछोएको (०)", en: "Skipped (0)", ko: "미답 (0점)")
+                                                  : lang.trText(ne: "गलत (०)", en: "Incorrect (0)", ko: "오답 (0점)")),
                                           style: TextStyle(
                                             color: isCorrect
                                                 ? Colors.green.shade900
@@ -252,8 +272,8 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                               ...List.generate(options.length, (optIdx) {
                                 final isCorrectChoice = keyInfo != null && optIdx == keyInfo.correctIndex;
                                 final isUserChoice = userChoice == optIdx;
-                                final circledNumbers = ["?", "?", "?", "?"];
-                                final label = optIdx < circledNumbers.length ? circledNumbers[optIdx] : "";
+                                const circledNumbers = ["\u2460", "\u2461", "\u2462", "\u2463"];
+                                final label = optIdx < circledNumbers.length ? circledNumbers[optIdx] : "${optIdx + 1}";
 
                                 Color optBgColor = Colors.grey.shade50;
                                 Color optBorderColor = Colors.grey.shade300;
@@ -267,7 +287,10 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                                   badge = Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(4)),
-                                    child: const Text("? ?? (??? ?????)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                                    child: Text(
+                                      lang.trText(ne: "सहि उत्तर", en: "Correct Answer", ko: "정답"),
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                                    ),
                                   );
                                 } else if (isUserChoice && !isCorrectChoice) {
                                   optBgColor = const Color(0xFFFEE2E2); // Light red
@@ -276,7 +299,10 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                                   badge = Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(4)),
-                                    child: const Text("? ? ?? (??????? ?????)", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                                    child: Text(
+                                      lang.trText(ne: "तपाईंले छानेको", en: "Your Choice", ko: "선택한 오답"),
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                                    ),
                                   );
                                 }
 
@@ -306,7 +332,7 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
 
                               const SizedBox(height: 12),
 
-                              // Explanation Box (?????? ? ?????? ????????)
+                              // Explanation Box
                               if (keyInfo != null)
                                 Container(
                                   width: double.infinity,
@@ -325,9 +351,9 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            const Text(
-                                              "?? ?? (????????):",
-                                              style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A), fontSize: 13),
+                                            Text(
+                                              lang.trText(ne: "व्याख्या तथा समाधान:", en: "Explanation & Key Info:", ko: "정답 해설:"),
+                                              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A), fontSize: 13),
                                             ),
                                             const SizedBox(height: 2),
                                             Text(
@@ -349,6 +375,8 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 

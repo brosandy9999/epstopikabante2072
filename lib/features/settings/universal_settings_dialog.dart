@@ -2,7 +2,6 @@ import '../../core/services/cloud_sync_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/language_service.dart';
-import '../../core/services/storage_service.dart';
 import '../../core/services/file_upload_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
 import '../authentication/login_screen.dart';
@@ -86,10 +85,10 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
     setState(() {
       if (success) {
         _isSuccess = true;
-        _statusMessage = '✅ प्रोफाइल विवरण र फोटो सफलतापूर्वक सुरक्षित भयो!';
+        _statusMessage = LanguageService.instance.isEnglish ? '✅ Profile and photo saved successfully!' : (LanguageService.instance.isKorean ? '✅ 프로필 정보와 사진이 저장되었습니다!' : '✅ प्रोफाइल विवरण र फोटो सफलतापूर्वक सुरक्षित भयो!');
       } else {
         _isSuccess = false;
-        _statusMessage = '❌ प्रोफाइल अपडेट गर्न सकिएन!';
+        _statusMessage = LanguageService.instance.isEnglish ? '❌ Failed to update profile!' : (LanguageService.instance.isKorean ? '❌ 프로필 업데이트 실패!' : '❌ प्रोफाइल अपडेट गर्न सकिएन!');
       }
     });
   }
@@ -103,7 +102,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
     if (currentPw.isEmpty || newPw.isEmpty || confirmPw.isEmpty) {
       setState(() {
         _isSuccess = false;
-        _statusMessage = '❌ कृपया सबै पासवर्ड विवरण भर्नुहोस्!';
+        _statusMessage = LanguageService.instance.isEnglish ? '❌ Please fill in all password fields!' : (LanguageService.instance.isKorean ? '❌ 모든 비밀번호 항목을 입력해주세요!' : '❌ कृपया सबै पासवर्ड विवरण भर्नुहोस्!');
       });
       return;
     }
@@ -111,7 +110,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
     if (currentPw != user.password) {
       setState(() {
         _isSuccess = false;
-        _statusMessage = '❌ हालको पासवर्ड मिलेन! कृपया सही पासवर्ड हाल्नुहोस्।';
+        _statusMessage = LanguageService.instance.isEnglish ? '❌ Current password is incorrect!' : (LanguageService.instance.isKorean ? '❌ 현재 비밀번호가 일치하지 않습니다!' : '❌ हालको पासवर्ड मिलेन! कृपया सही पासवर्ड हाल्नुहोस्।');
       });
       return;
     }
@@ -119,7 +118,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
     if (newPw.length < 4) {
       setState(() {
         _isSuccess = false;
-        _statusMessage = '❌ नयाँ पासवर्ड कम्तिमा ४ अक्षरको हुनुपर्छ!';
+        _statusMessage = LanguageService.instance.isEnglish ? '❌ New password must be at least 4 characters!' : (LanguageService.instance.isKorean ? '❌ 새 비밀번호는 최소 4자 이상이어야 합니다!' : '❌ नयाँ पासवर्ड कम्तिमा ४ अक्षरको हुनुपर्छ!');
       });
       return;
     }
@@ -127,7 +126,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
     if (newPw != confirmPw) {
       setState(() {
         _isSuccess = false;
-        _statusMessage = '❌ नयाँ पासवर्ड र पुष्टि पासवर्ड समान हुनुपर्छ!';
+        _statusMessage = LanguageService.instance.isEnglish ? '❌ New password and confirmation do not match!' : (LanguageService.instance.isKorean ? '❌ 새 비밀번호와 확인 비밀번호가 일치하지 않습니다!' : '❌ नयाँ पासवर्ड र पुष्टि पासवर्ड समान हुनुपर्छ!');
       });
       return;
     }
@@ -140,74 +139,44 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
     setState(() {
       if (success) {
         _isSuccess = true;
-        _statusMessage = '✅ पासवर्ड सफलतापूर्वक परिवर्तन भयो र सुरक्षित गरियो!';
+        _statusMessage = LanguageService.instance.isEnglish ? '✅ Password changed successfully!' : (LanguageService.instance.isKorean ? '✅ 비밀번호가 성공적으로 변경되었습니다!' : '✅ पासवर्ड सफलतापूर्वक परिवर्तन भयो र सुरक्षित गरियो!');
         _currentPwController.clear();
         _newPwController.clear();
         _confirmPwController.clear();
       } else {
         _isSuccess = false;
-        _statusMessage = '❌ पासवर्ड सुरक्षित गर्दा त्रुटि भयो!';
+        _statusMessage = LanguageService.instance.isEnglish ? '❌ Error saving password!' : (LanguageService.instance.isKorean ? '❌ 비밀번호 저장 중 오류 발생!' : '❌ पासवर्ड सुरक्षित गर्दा त्रुटि भयो!');
       }
     });
   }
 
   void _handleLogout() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.logout_rounded, color: Colors.red),
-            SizedBox(width: 8),
-            Text('लगआउट पुष्टि गर्नुहोस्'),
-          ],
-        ),
-        content: const Text('के तपाईं आफ्नो खाताबाट लगआउट हुन निश्चित हुनुहुन्छ?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('रद्द गर्नुहोस्'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () {
-              Navigator.pop(ctx);
-              Navigator.pop(context);
-              AuthService.instance.logout();
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                (route) => false,
-              );
-            },
-            child: const Text('लगआउट हुनुहोस्'),
-          ),
-        ],
-      ),
-    );
+    AuthService.confirmAndLogout(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final auth = AuthService.instance;
-    final user = auth.currentUser ?? auth.students.first;
-    final langService = LanguageService.instance;
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) {
+        final auth = AuthService.instance;
+        final user = auth.currentUser ?? auth.students.first;
+        final langService = LanguageService.instance;
 
-    String roleBadge;
-    Color roleColor;
-    if (user.role == UserRole.superAdmin) {
-      roleBadge = '👑 सुपर एडमिन (Super Admin Master)';
-      roleColor = const Color(0xFF0F172A);
-    } else if (user.role == UserRole.admin) {
-      roleBadge = '🏢 इन्स्टिच्युट एडमिन (Institute Admin)';
-      roleColor = const Color(0xFF0F766E);
-    } else {
-      roleBadge = '👨‍🎓 परीक्षार्थी (Student Candidate)';
-      roleColor = const Color(0xFF1E3A8A);
-    }
+        String roleBadge;
+        Color roleColor;
+        if (user.role == UserRole.superAdmin) {
+          roleBadge = '👑 ${langService.tr('role_super_admin')}';
+          roleColor = const Color(0xFF0F172A);
+        } else if (user.role == UserRole.admin) {
+          roleBadge = '🏢 ${langService.tr('role_admin')}';
+          roleColor = const Color(0xFF0F766E);
+        } else {
+          roleBadge = '👨‍🎓 ${langService.tr('role_student')}';
+          roleColor = const Color(0xFF1E3A8A);
+        }
 
-    return Dialog(
+        return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Container(
         width: 620,
@@ -270,7 +239,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  tooltip: 'बन्द गर्नुहोस्',
+                  tooltip: LanguageService.instance.tr('close_btn'),
                   onPressed: () => Navigator.pop(context),
                 ),
               ],
@@ -294,13 +263,13 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                 labelColor: Colors.white,
                 unselectedLabelColor: Colors.black87,
                 labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                tabs: const [
-                  Tab(icon: Icon(Icons.language, size: 16), text: '🌐 भाषा (Language)'),
-                  Tab(icon: Icon(Icons.person, size: 16), text: '👤 प्रोफाइल (Profile)'),
-                  Tab(icon: Icon(Icons.lock_reset, size: 16), text: '🔑 पासवर्ड (Password)'),
-                  Tab(icon: Icon(Icons.tune, size: 16), text: '⚙️ प्राथमिकता (Preferences)'),
-                  Tab(icon: Icon(Icons.sync, size: 16), text: '🔄 सिङ्क (Mobile & Cloud Sync)'),
-                  Tab(icon: Icon(Icons.info_outline, size: 16), text: '📦 डेटा र एप (Info)'),
+                tabs: [
+                  Tab(icon: const Icon(Icons.language, size: 16), text: '🌐 ${langService.tr('language')}'),
+                  Tab(icon: const Icon(Icons.person, size: 16), text: '👤 ${langService.tr('tab_profile')}'),
+                  Tab(icon: const Icon(Icons.lock_reset, size: 16), text: '🔑 ${langService.tr('change_password')}'),
+                  Tab(icon: const Icon(Icons.tune, size: 16), text: '⚙️ ${langService.tr('mode_preference')}'),
+                  Tab(icon: const Icon(Icons.sync, size: 16), text: '🔄 ${langService.tr('cloud_sync')}'),
+                  Tab(icon: const Icon(Icons.info_outline, size: 16), text: '📦 ${langService.tr('system_info')}'),
                 ],
               ),
             ),
@@ -344,7 +313,10 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                   // TAB 4: ⚙️ PREFERENCES & AUDIO
                   _buildPreferencesTab(langService),
 
-                  // TAB 5: 📦 DATA & SYSTEM INFO
+                  // TAB 5: 🔄 MOBILE & CLOUD SYNC
+                  _buildSyncTab(),
+
+                  // TAB 6: 📦 DATA & SYSTEM INFO
                   _buildDataAndInfoTab(),
                 ],
               ),
@@ -363,7 +335,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                   ),
                   onPressed: _handleLogout,
                   icon: const Icon(Icons.logout, size: 16),
-                  label: const Text('लगआउट हुनुहोस् (Logout)'),
+                  label: Text(langService.tr('logout')),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -372,7 +344,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('सम्पन्न भयो (Close)'),
+                  child: Text(langService.tr('done')),
                 ),
               ],
             ),
@@ -380,7 +352,9 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
         ),
       ),
     );
-  }
+  },
+);
+}
 
   // 🌐 TAB 1: LANGUAGE SETTINGS
   Widget _buildLanguageTab(LanguageService langService) {
@@ -389,9 +363,9 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 6),
-          const Text(
-            'प्रणालीको भाषा छान्नुहोस् (Select System Language):',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+          Text(
+            '${langService.tr('select_language')}:',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
           ),
           const SizedBox(height: 10),
           ...AppLanguage.values.map((lang) {
@@ -408,7 +382,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
               ),
               child: ListTile(
                 leading: Text(
-                  lang == AppLanguage.nepali ? '🇳🇵' : (lang == AppLanguage.korean ? '🇰🇷' : '🇬🇧'),
+                  lang.flag,
                   style: const TextStyle(fontSize: 26),
                 ),
                 title: Text(
@@ -425,7 +399,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                   setState(() {
                     langService.setLanguage(lang);
                     _isSuccess = true;
-                    _statusMessage = '🌐 भाषा परिवर्तन भयो: ${lang.displayName}';
+                    _statusMessage = '🌐 ${lang.displayName}';
                   });
                 },
               ),
@@ -443,9 +417,9 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 6),
-          const Text(
-            'अवतार वा प्रोफाइल फोटो रोज्नुहोस् (Select Profile Avatar):',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+          Text(
+            LanguageService.instance.isEnglish ? 'Choose Avatar or Profile Photo:' : (LanguageService.instance.isKorean ? '아바타 또는 프로필 사진 선택:' : 'अवतार वा प्रोफाइल फोटो रोज्नुहोस्:'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
           ),
           const SizedBox(height: 8),
 
@@ -498,18 +472,18 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
               }
             },
             icon: const Icon(Icons.add_a_photo, size: 18),
-            label: const Text('📁 कम्प्युटर/मोबाइलबाट आफ्नै फोटो रोज्नुहोस् (Pick Photo File)'),
+            label: Text(LanguageService.instance.isEnglish ? '📁 Choose photo from device' : (LanguageService.instance.isKorean ? '📁 기기에서 사진 선택' : '📁 कम्प्युटर/मोबाइलबाट आफ्नै फोटो रोज्नुहोस्')),
           ),
           const SizedBox(height: 16),
 
           // Name field
           TextField(
             controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: 'पूरा नाम (Full Name)',
-              prefixIcon: Icon(Icons.badge_outlined),
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: InputDecoration(
+              labelText: LanguageService.instance.tr('fullname'),
+              prefixIcon: const Icon(Icons.badge_outlined),
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             ),
           ),
           const SizedBox(height: 12),
@@ -518,11 +492,11 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
           TextField(
             controller: _mobileController,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(
-              labelText: 'मोबाइल नम्बर (Mobile Number)',
-              prefixIcon: Icon(Icons.phone_android_outlined),
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            decoration: InputDecoration(
+              labelText: LanguageService.instance.tr('mobile_number'),
+              prefixIcon: const Icon(Icons.phone_android_outlined),
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             ),
           ),
           const SizedBox(height: 16),
@@ -538,7 +512,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
               ),
               onPressed: _handleSaveProfile,
               icon: const Icon(Icons.save, size: 18),
-              label: const Text('प्रोफाइल विवरण सुरक्षित गर्नुहोस् (Save Profile)'),
+              label: Text(LanguageService.instance.tr('save_profile')),
             ),
           ),
         ],
@@ -553,9 +527,9 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 6),
-          const Text(
-            'सुरक्षा तथा पासवर्ड परिवर्तन (Change Account Password):',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+          Text(
+            LanguageService.instance.isEnglish ? 'Security & Password Change:' : (LanguageService.instance.isKorean ? '보안 및 비밀번호 변경:' : 'सुरक्षा तथा पासवर्ड परिवर्तन:'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
           ),
           const SizedBox(height: 12),
 
@@ -564,7 +538,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
             controller: _currentPwController,
             obscureText: _obscureCurrent,
             decoration: InputDecoration(
-              labelText: 'हालको पासवर्ड (Current Password)',
+              labelText: LanguageService.instance.tr('current_password'),
               prefixIcon: const Icon(Icons.lock_outline),
               suffixIcon: IconButton(
                 icon: Icon(_obscureCurrent ? Icons.visibility_off : Icons.visibility),
@@ -581,7 +555,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
             controller: _newPwController,
             obscureText: _obscureNew,
             decoration: InputDecoration(
-              labelText: 'नयाँ पासवर्ड (New Password)',
+              labelText: LanguageService.instance.tr('new_password'),
               prefixIcon: const Icon(Icons.lock_reset),
               suffixIcon: IconButton(
                 icon: Icon(_obscureNew ? Icons.visibility_off : Icons.visibility),
@@ -598,7 +572,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
             controller: _confirmPwController,
             obscureText: _obscureConfirm,
             decoration: InputDecoration(
-              labelText: 'नयाँ पासवर्ड पुनः हाल्नुहोस् (Confirm New Password)',
+              labelText: LanguageService.instance.tr('confirm_password'),
               prefixIcon: const Icon(Icons.check_circle_outline),
               suffixIcon: IconButton(
                 icon: Icon(_obscureConfirm ? Icons.visibility_off : Icons.visibility),
@@ -621,7 +595,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
               ),
               onPressed: _handleChangePassword,
               icon: const Icon(Icons.key, size: 18),
-              label: const Text('नयाँ पासवर्ड सुरक्षित गर्नुहोस् (Update Password)'),
+              label: Text(LanguageService.instance.tr('save_btn')),
             ),
           ),
         ],
@@ -636,9 +610,9 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 6),
-          const Text(
-            'अडियो तथा परीक्षा प्राथमिकताहरू (Audio & Exam Preferences):',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+          Text(
+            LanguageService.instance.isEnglish ? 'Audio & Exam Preferences:' : (LanguageService.instance.isKorean ? '오디오 및 시험 기본 설정:' : 'अडियो तथा परीक्षा प्राथमिकताहरू:'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
           ),
           const SizedBox(height: 12),
 
@@ -650,11 +624,11 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.speed, size: 18, color: Color(0xFF1E3A8A)),
-                      SizedBox(width: 8),
-                      Text('कोरियन अडियो उच्चारण गति (Listening Speed):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      const Icon(Icons.speed, size: 18, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 8),
+                      Text(LanguageService.instance.tr('audio_speed'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -665,7 +639,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                         padding: const EdgeInsets.only(right: 10),
                         child: ChoiceChip(
                           label: Text(
-                            sp == 0.8 ? '०.८x सुस्त (Slow)' : (sp == 1.0 ? '१.०x सामान्य (Normal)' : '१.२x छिटो (Fast)'),
+                            sp == 0.8 ? (LanguageService.instance.isEnglish ? '0.8x Slow' : (LanguageService.instance.isKorean ? '0.8x 느리게' : '०.८x सुस्त')) : (sp == 1.0 ? (LanguageService.instance.isEnglish ? '1.0x Normal' : (LanguageService.instance.isKorean ? '1.0x 보통' : '१.०x सामान्य')) : (LanguageService.instance.isEnglish ? '1.2x Fast' : (LanguageService.instance.isKorean ? '1.2x 빠름' : '१.२x छिटो'))),
                             style: TextStyle(fontSize: 11, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87),
                           ),
                           selected: isSel,
@@ -695,18 +669,18 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.timer_outlined, size: 18, color: Color(0xFF1E3A8A)),
-                      SizedBox(width: 8),
-                      Text('पूर्ववत परीक्षा मोड (Default Exam Mode):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      const Icon(Icons.timer_outlined, size: 18, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 8),
+                      Text(LanguageService.instance.tr('mode_preference'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                     ],
                   ),
                   const SizedBox(height: 8),
                   RadioListTile<ExamModePreference>(
                     dense: true,
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('🔴 Strict Exam Mode (५० मिनेट समय, एन्टी-चिट, वास्तविक परीक्षा)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    title: Text(LanguageService.instance.isEnglish ? '🔴 Strict UBT Exam Mode (50 mins, anti-cheat)' : (LanguageService.instance.isKorean ? '🔴 실전 UBT 시험 모드 (50분, 부정행위 방지)' : '🔴 कडा UBT परीक्षा मोड (५० मिनेट, वास्तविक परीक्षा)'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     value: ExamModePreference.strictExam,
                     groupValue: langService.modePreference,
                     onChanged: (v) {
@@ -720,7 +694,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                   RadioListTile<ExamModePreference>(
                     dense: true,
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('🟢 Study & Practice Mode (तत्काल सही/गलत उत्तर र व्याख्या)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    title: Text(LanguageService.instance.isEnglish ? '🟢 Study & Practice Mode (Instant answers & explanation)' : (LanguageService.instance.isKorean ? '🟢 자율 학습 모드 (즉시 정답 및 해설)' : '🟢 स्वतन्त्र अभ्यास मोड (तत्काल सही/गलत उत्तर र व्याख्या)'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                     value: ExamModePreference.studyPractice,
                     groupValue: langService.modePreference,
                     onChanged: (v) {
@@ -745,8 +719,8 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
   Widget _buildSyncTab() {
     final sync = CloudSyncService.instance;
     final lastTime = sync.lastSyncTime != null
-        ? '\:\ (\-\-\)'
-        : 'पहिलो पटक सिङ्क बाँकी';
+        ? '${sync.lastSyncTime!.hour.toString().padLeft(2, '0')}:${sync.lastSyncTime!.minute.toString().padLeft(2, '0')}'
+        : (LanguageService.instance.isEnglish ? 'First sync pending' : (LanguageService.instance.isKorean ? '첫 동기화 대기' : 'पहिलो पटक सिङ्क बाँकी'));
 
     String statusText;
     Color statusColor;
@@ -754,28 +728,27 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
 
     switch (sync.state) {
       case SyncState.syncing:
-        statusText = '🔄 सिङ्क भइरहेको छ... (Syncing in progress)';
+        statusText = LanguageService.instance.isEnglish ? '🔄 Syncing...' : (LanguageService.instance.isKorean ? '🔄 동기화 진행 중...' : '🔄 सिङ्क भइरहेको छ...');
         statusColor = Colors.orange;
         statusIcon = Icons.sync;
         break;
       case SyncState.synced:
-        statusText = '✅ सबै डेटा सिङ्क भइसक्यो (100% Up to Date)';
+        statusText = LanguageService.instance.isEnglish ? '✅ All data synced (Up-to-date)' : (LanguageService.instance.isKorean ? '✅ 모든 데이터 동기화 완료 (최신)' : '✅ सबै डेटा सिङ्क भइसक्यो (अप-टु-डेट)');
         statusColor = Colors.green;
         statusIcon = Icons.check_circle;
         break;
       case SyncState.error:
-        statusText = sync.lastError ?? '❌ सिङ्क त्रुटि';
+        statusText = sync.lastError ?? (LanguageService.instance.isEnglish ? '❌ Sync Error' : (LanguageService.instance.isKorean ? '❌ 동기화 오류' : '❌ सिङ्क त्रुटि'));
         statusColor = Colors.red;
         statusIcon = Icons.error_outline;
         break;
       case SyncState.offline:
-        statusText = '📡 अफलाइन मोड (इन्टरनेट उपलब्ध हुँदा सिङ्क हुनेछ)';
+        statusText = LanguageService.instance.isEnglish ? '📡 Offline Mode (Syncs when connected)' : (LanguageService.instance.isKorean ? '📡 오프라인 모드 (인터넷 연결 시 자동 동기화)' : '📡 अफलाइन मोड (इन्टरनेट उपलब्ध हुँदा सिङ्क हुनेछ)');
         statusColor = Colors.blueGrey;
         statusIcon = Icons.cloud_off;
         break;
       case SyncState.idle:
-      default:
-        statusText = '☁️ क्लाउड सिङ्क तयार (Ready to Sync)';
+        statusText = LanguageService.instance.isEnglish ? '☁️ Cloud Sync Ready' : (LanguageService.instance.isKorean ? '☁️ 클라우드 동기화 준비됨' : '☁️ क्लाउड सिङ्क तयार');
         statusColor = const Color(0xFF1E3A8A);
         statusIcon = Icons.cloud_done_outlined;
         break;
@@ -786,16 +759,16 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 6),
-          const Text(
-            'मोबाइल एप र डेस्कटप बीच डाटा सिङ्क (Mobile & Desktop Cross-Sync):',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+          Text(
+            LanguageService.instance.isEnglish ? 'Data Sync between App & PC:' : (LanguageService.instance.isKorean ? '앱과 PC 간 데이터 실시간 동기화:' : 'मोबाइल एप र कम्प्युटर बीच डाटा सिङ्क:'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
           ),
           const SizedBox(height: 10),
 
           // Live Sync Status Card
           Card(
-            color: statusColor.withOpacity(0.08),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: statusColor.withOpacity(0.3))),
+            color: statusColor.withValues(alpha: 0.08),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: statusColor.withValues(alpha: 0.3))),
             child: Padding(
               padding: const EdgeInsets.all(14),
               child: Row(
@@ -808,7 +781,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                       children: [
                         Text(statusText, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: statusColor)),
                         const SizedBox(height: 4),
-                        Text('अन्तिम सिङ्क: ', style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                        Text(LanguageService.instance.isEnglish ? 'Last Sync: $lastTime' : (LanguageService.instance.isKorean ? '최근 동기화: $lastTime' : 'अन्तिम सिङ्क: $lastTime'), style: const TextStyle(fontSize: 11, color: Colors.black54)),
                       ],
                     ),
                   ),
@@ -834,17 +807,17 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                       const Spacer(),
                       TextButton.icon(
                         icon: const Icon(Icons.help_outline, size: 16),
-                        label: const Text('गाइड (Help)', style: TextStyle(fontSize: 11)),
+                        label: Text(LanguageService.instance.isEnglish ? 'Guide / Help' : (LanguageService.instance.isKorean ? '도움말' : 'गाइड / मद्दत'), style: const TextStyle(fontSize: 11)),
                         onPressed: () {
                           showDialog(
                             context: context,
                             builder: (c) => AlertDialog(
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              title: const Row(
+                              title: Row(
                                 children: [
-                                  Icon(Icons.auto_awesome, color: Colors.deepOrange),
-                                  SizedBox(width: 8),
-                                  Text('नि:शुल्क Firebase बनाउने तरिका'),
+                                  const Icon(Icons.auto_awesome, color: Colors.deepOrange),
+                                  const SizedBox(width: 8),
+                                  Text(LanguageService.instance.trText(ne: 'नि:शुल्क Firebase बनाउने तरिका', en: 'How to create free Firebase', ko: '무료 Firebase 생성 가이드')),
                                 ],
                               ),
                               content: const SingleChildScrollView(
@@ -859,7 +832,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                                 ),
                               ),
                               actions: [
-                                ElevatedButton(onPressed: () => Navigator.pop(c), child: const Text('बुझेँ (Got it)')),
+                                ElevatedButton(onPressed: () => Navigator.pop(c), child: Text(LanguageService.instance.trText(ne: 'बुझेँ', en: 'Got it', ko: '확인'))),
                               ],
                             ),
                           );
@@ -889,7 +862,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                           visualDensity: VisualDensity.compact,
                         ),
                         icon: const Icon(Icons.save_rounded, size: 15),
-                        label: const Text('URL सेभ गर्नुहोस्', style: TextStyle(fontSize: 11)),
+                        label: Text(LanguageService.instance.isEnglish ? 'Save URL' : (LanguageService.instance.isKorean ? 'URL 저장' : 'URL सेभ गर्नुहोस्'), style: const TextStyle(fontSize: 11)),
                         onPressed: () {
                           final textVal = _firebaseUrlCtrl.text.trim();
                           if (textVal.isNotEmpty) {
@@ -897,7 +870,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                             _firebaseUrlCtrl.text = sync.cloudEndpoint;
                             setState(() {
                               _isSuccess = true;
-                              _statusMessage = '✅ Firebase URL सुरक्षित भयो!';
+                              _statusMessage = LanguageService.instance.trText(ne: '✅ Firebase URL सुरक्षित भयो!', en: '✅ Firebase URL saved successfully!', ko: '✅ Firebase URL이 저장되었습니다!');
                             });
                           }
                         },
@@ -906,14 +879,14 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(visualDensity: VisualDensity.compact),
                         icon: const Icon(Icons.network_check_rounded, size: 15),
-                        label: const Text('कनेक्सन जाँच्नुहोस् (Test)', style: TextStyle(fontSize: 11)),
+                        label: Text(LanguageService.instance.isEnglish ? 'Test Connection' : (LanguageService.instance.isKorean ? '연결 테스트' : 'कनेक्सन जाँच्नुहोस्'), style: const TextStyle(fontSize: 11)),
                         onPressed: () async {
                           final ok = await sync.testConnection();
                           setState(() {
                             _isSuccess = ok;
                             _statusMessage = ok
-                                ? '✅ Firebase सँग सफलतापूर्वक कनेक्सन भयो!'
-                                : '❌ Firebase कनेक्सन असफल: ${sync.lastError ?? ""}';
+                                ? LanguageService.instance.trText(ne: '✅ Firebase सँग सफलतापूर्वक कनेक्सन भयो!', en: '✅ Connected to Firebase successfully!', ko: '✅ Firebase에 성공적으로 연결되었습니다!')
+                                : (LanguageService.instance.trText(ne: '❌ Firebase कनेक्सन असफल: ', en: '❌ Firebase connection failed: ', ko: '❌ Firebase 연결 실패: ') + (sync.lastError ?? ""));
                           });
                         },
                       ),
@@ -936,14 +909,14 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   icon: const Icon(Icons.cloud_upload_rounded, size: 18),
-                  label: const Text('क्लाउडमा पठाउनुहोस् (Upload)', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  label: Text(LanguageService.instance.isEnglish ? 'Upload to Cloud' : (LanguageService.instance.isKorean ? '클라우드로 올리기' : 'क्लाउडमा पठाउनुहोस्'), textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                   onPressed: () async {
                     final ok = await sync.pushToCloud();
                     setState(() {
                       _isSuccess = ok;
                       _statusMessage = ok
-                          ? '✅ प्रश्नहरू र विवरणहरू क्लाउडमा सफलतापूर्वक पठाइयो!'
-                          : '❌ क्लाउडमा पठाउन सकिएन: ${sync.lastError ?? ""}';
+                          ? LanguageService.instance.trText(ne: '✅ प्रश्नहरू र विवरणहरू क्लाउडमा सफलतापूर्वक पठाइयो!', en: '✅ Questions & data uploaded to cloud successfully!', ko: '✅ 문항 및 데이터가 클라우드에 성공적으로 업로드되었습니다!')
+                          : (LanguageService.instance.trText(ne: '❌ क्लाउडमा पठाउन सकिएन: ', en: '❌ Cloud upload failed: ', ko: '❌ 클라우드 업로드 실패: ') + (sync.lastError ?? ""));
                     });
                   },
                 ),
@@ -958,14 +931,14 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                   icon: const Icon(Icons.cloud_download_rounded, size: 18),
-                  label: const Text('क्लाउडबाट ल्याउनुहोस् (Download)', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                  label: Text(LanguageService.instance.isEnglish ? 'Download from Cloud' : (LanguageService.instance.isKorean ? '클라우드에서 받기' : 'क्लाउडबाट ल्याउनुहोस्'), textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                   onPressed: () async {
                     final ok = await sync.pullFromCloud();
                     setState(() {
                       _isSuccess = ok;
                       _statusMessage = ok
-                          ? '✅ नयाँ प्रश्न र अपडेटहरू मोबाइल/डेस्कटपमा सिङ्क भयो!'
-                          : '❌ अपडेट ल्याउन सकिएन: ${sync.lastError ?? ""}';
+                          ? LanguageService.instance.trText(ne: '✅ नयाँ प्रश्न र अपडेटहरू मोबाइल/डेस्कटपमा सिङ्क भयो!', en: '✅ New questions and updates synced to device!', ko: '✅ 새 문항 및 업데이트가 기기에 동기화되었습니다!')
+                          : (LanguageService.instance.trText(ne: '❌ अपडेट ल्याउन सकिएन: ', en: '❌ Sync download failed: ', ko: '❌ 동기화 다운로드 실패: ') + (sync.lastError ?? ""));
                     });
                   },
                 ),
@@ -982,16 +955,16 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.qr_code_2_rounded, size: 18, color: Color(0xFF1E3A8A)),
-                      SizedBox(width: 8),
-                      Text('प्रत्यक्ष सिङ्क ब्याकअप (Instant Backup & Restore)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      const Icon(Icons.qr_code_2_rounded, size: 18, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 8),
+                      Text(LanguageService.instance.isEnglish ? 'Direct Backup & Restore' : (LanguageService.instance.isKorean ? '직접 백업 및 복원' : 'प्रत्यक्ष ब्याकअप तथा पुनर्स्थापना'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'यदि इन्टरनेट कमजोर भएमा कम्प्युटरबाट सबै प्रश्नहरूको ब्याकअप निकालेर मोबाइलमा १ सेकेन्डमै सिङ्क गर्न सकिन्छ।',
+                  Text(
+                    LanguageService.instance.trText(ne: 'यदि इन्टरनेट कमजोर भएमा कम्प्युटरबाट सबै प्रश्नहरूको ब्याकअप निकालेर मोबाइलमा १ सेकेन्डमै सिङ्क गर्न सकिन्छ।', en: 'If internet is slow, export questions backup from PC and sync to mobile instantly.', ko: '인터넷이 불안정한 경우 PC에서 백업을 생성하여 모바일로 즉시 동기화할 수 있습니다.'),
                     style: TextStyle(fontSize: 11, color: Colors.black54, height: 1.4),
                   ),
                   const SizedBox(height: 12),
@@ -999,13 +972,13 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                     children: [
                       OutlinedButton.icon(
                         icon: const Icon(Icons.copy_all, size: 16),
-                        label: const Text('ब्याकअप कोड बनाउनुहोस् (Export)'),
+                        label: Text(LanguageService.instance.isEnglish ? 'Generate Backup Code' : (LanguageService.instance.isKorean ? '백업 코드 생성' : 'ब्याकअप कोड बनाउनुहोस्')),
                         onPressed: () {
                           final jsonStr = sync.exportBackupJson();
                           showDialog(
                             context: context,
                             builder: (c) => AlertDialog(
-                              title: const Text('सिङ्क ब्याकअप डाटा'),
+                              title: Text(LanguageService.instance.trText(ne: 'सिङ्क ब्याकअप डाटा', en: 'Sync Backup Data', ko: '동기화 백업 데이터')),
                               content: SizedBox(
                                 width: 500,
                                 height: 250,
@@ -1014,7 +987,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                                 ),
                               ),
                               actions: [
-                                TextButton(onPressed: () => Navigator.pop(c), child: const Text('बन्द गर्नुहोस्')),
+                                TextButton(onPressed: () => Navigator.pop(c), child: Text(LanguageService.instance.trText(ne: 'बन्द गर्नुहोस्', en: 'Close', ko: '닫기'))),
                               ],
                             ),
                           );
@@ -1024,30 +997,30 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                       ElevatedButton.icon(
                         style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo, foregroundColor: Colors.white),
                         icon: const Icon(Icons.file_download_outlined, size: 16),
-                        label: const Text('इम्पोर्ट (Import)'),
+                        label: Text(LanguageService.instance.isEnglish ? 'Import' : (LanguageService.instance.isKorean ? '가져오기' : 'इम्पोर्ट गर्नुहोस्')),
                         onPressed: () {
                           final textCtrl = TextEditingController();
                           showDialog(
                             context: context,
                             builder: (c) => AlertDialog(
-                              title: const Text('ब्याकअप डाटा पेस्ट गर्नुहोस्'),
+                              title: Text(LanguageService.instance.trText(ne: 'ब्याकअप डाटा पेस्ट गर्नुहोस्', en: 'Paste Backup Data', ko: '백업 데이터 붙여넣기')),
                               content: TextField(
                                 controller: textCtrl,
                                 maxLines: 5,
-                                decoration: const InputDecoration(hintText: 'यहाँ ब्याकअप JSON पेस्ट गर्नुहोस्...', border: OutlineInputBorder()),
+                                decoration: InputDecoration(hintText: LanguageService.instance.trText(ne: 'यहाँ ब्याकअप JSON पेस्ट गर्नुहोस्...', en: 'Paste backup JSON here...', ko: '여기에 백업 JSON 붙여넣기...'), border: const OutlineInputBorder()),
                               ),
                               actions: [
-                                TextButton(onPressed: () => Navigator.pop(c), child: const Text('रद्द गर्नुहोस्')),
+                                TextButton(onPressed: () => Navigator.pop(c), child: Text(LanguageService.instance.trText(ne: 'रद्द गर्नुहोस्', en: 'Cancel', ko: '취소'))),
                                 ElevatedButton(
                                   onPressed: () {
                                     final ok = sync.importBackupJson(textCtrl.text.trim());
                                     Navigator.pop(c);
                                     setState(() {
                                       _isSuccess = ok;
-                                      _statusMessage = ok ? '✅ सबै प्रश्न र डेटा मोबाइलमा सिङ्क भयो!' : '❌ अमान्य डेटा!';
+                                      _statusMessage = ok ? LanguageService.instance.trText(ne: '✅ सबै प्रश्न र डेटा मोबाइलमा सिङ्क भयो!', en: '✅ All questions and data synced to mobile!', ko: '✅ 모든 문항과 데이터가 기기에 동기화되었습니다!') : LanguageService.instance.trText(ne: '❌ अमान्य डेटा!', en: '❌ Invalid backup data!', ko: '❌ 유효하지 않은 데이터입니다!');
                                     });
                                   },
-                                  child: const Text('सिङ्क गर्नुहोस्'),
+                                  child: Text(LanguageService.instance.trText(ne: 'सिङ्क गर्नुहोस्', en: 'Sync Now', ko: '동기화 실행')),
                                 ),
                               ],
                             ),
@@ -1072,9 +1045,9 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 6),
-          const Text(
-            'भण्डारण, क्यास र प्रणाली विवरण (Storage & System Information):',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+          Text(
+            LanguageService.instance.isEnglish ? 'Storage, Cache & System Info:' : (LanguageService.instance.isKorean ? '저장소, 캐시 및 시스템 정보:' : 'भण्डारण, क्यास र प्रणाली विवरण:'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
           ),
           const SizedBox(height: 12),
 
@@ -1083,17 +1056,17 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.grey.shade200)),
             child: ListTile(
               leading: const Icon(Icons.cleaning_services, color: Colors.teal),
-              title: const Text('अस्थायी क्यास खाली गर्नुहोस् (Clear Cache)', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-              subtitle: const Text('एपको गति र स्थानीय भण्डारण सफा गर्दछ।', style: TextStyle(fontSize: 11)),
+              title: Text(LanguageService.instance.isEnglish ? 'Clear Temporary Cache' : (LanguageService.instance.isKorean ? '임시 캐시 삭제' : 'अस्थायी क्यास खाली गर्नुहोस्'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+              subtitle: Text(LanguageService.instance.isEnglish ? 'Improves app speed and cleans local storage.' : (LanguageService.instance.isKorean ? '앱 속도를 개선하고 로컬 저장공간을 정리합니다.' : 'एपको गति र स्थानीय भण्डारण सफा गर्दछ।'), style: const TextStyle(fontSize: 11)),
               trailing: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, visualDensity: VisualDensity.compact),
                 onPressed: () {
                   setState(() {
                     _isSuccess = true;
-                    _statusMessage = '✅ अस्थायी क्यास सफलतापूर्वक खाली गरियो!';
+                    _statusMessage = LanguageService.instance.trText(ne: '✅ अस्थायी क्यास सफलतापूर्वक खाली गरियो!', en: '✅ Temporary cache cleared successfully!', ko: '✅ 임시 캐시가 성공적으로 삭제되었습니다!');
                   });
                 },
-                child: const Text('खाली गर्नुहोस्'),
+                child: Text(LanguageService.instance.tr('clear')),
               ),
             ),
           ),
@@ -1116,13 +1089,13 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                     ],
                   ),
                   const Divider(height: 16),
-                  const Text('• संस्करण: v2.4.0 (2026 Production Edition)', style: TextStyle(fontSize: 12)),
+                  Text(LanguageService.instance.trText(ne: '• संस्करण: v2.4.0 (2026 Production Edition)', en: '• Version: v2.4.0 (2026 Production Edition)', ko: '• 버전: v2.4.0 (2026 Production Edition)'), style: const TextStyle(fontSize: 12)),
                   const SizedBox(height: 4),
-                  const Text('• UBT परीक्षा इन्जिन: HRD Korea मानक ४० प्रश्न ढाँचा', style: TextStyle(fontSize: 12)),
+                  Text(LanguageService.instance.trText(ne: '• UBT परीक्षा इन्जिन: HRD Korea मानक ४० प्रश्न ढाँचा', en: '• UBT Exam Engine: HRD Korea Standard 40 Questions', ko: '• UBT 시험 엔진: HRD Korea 표준 40문항 규격'), style: const TextStyle(fontSize: 12)),
                   const SizedBox(height: 4),
-                  const Text('• बहु-भाषा इन्जिन: नेपाली, 한국어, English समर्थित', style: TextStyle(fontSize: 12)),
+                  Text(LanguageService.instance.trText(ne: '• बहु-भाषा इन्जिन: नेपाली, 한국어, English समर्थित', en: '• Multi-language Engine: Nepali, Korean, English Supported', ko: '• 다국어 엔진: 한국어, 영어, 네팔어 완벽 지원'), style: const TextStyle(fontSize: 12)),
                   const SizedBox(height: 4),
-                  const Text('• डेटा इन्क्रिप्सन: स्थानीय AES र सुरक्षित SharedPreferences भण्डारण', style: TextStyle(fontSize: 12)),
+                  Text(LanguageService.instance.trText(ne: '• डेटा इन्क्रिप्सन: स्थानीय AES र सुरक्षित SharedPreferences भण्डारण', en: '• Data Encryption: Local AES & Secure Storage', ko: '• 데이터 암호화: 로컬 AES 및 보안 스토리지 적용'), style: const TextStyle(fontSize: 12)),
                 ],
               ),
             ),

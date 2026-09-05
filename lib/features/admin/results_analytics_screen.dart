@@ -3,6 +3,7 @@ import '../../core/services/exam_service.dart';
 import '../../core/services/question_bank_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/csv_export_service.dart';
+import '../../core/services/language_service.dart';
 
 class ResultsAnalyticsScreen extends StatefulWidget {
   const ResultsAnalyticsScreen({super.key});
@@ -19,11 +20,18 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.file_download, color: Color(0xFF15803D), size: 26),
-            SizedBox(width: 10),
-            Text('Excel / CSV नतिजा डाउनलोड', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Icon(Icons.file_download, color: Color(0xFF15803D), size: 26),
+            const SizedBox(width: 10),
+            Text(
+              LanguageService.instance.trText(
+                ne: 'Excel / CSV नतिजा डाउनलोड',
+                en: 'Excel / CSV Results Download',
+                ko: 'Excel / CSV 시험 결과 다운로드',
+              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
           ],
         ),
         content: SizedBox(
@@ -41,7 +49,11 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'कुल ${records.length} जना विद्यार्थीका परीक्षा नतिजा निर्यातका लागि तयार छन्।',
+                        LanguageService.instance.trText(
+                          ne: 'कुल ${records.length} जना विद्यार्थीका परीक्षा नतिजा निर्यातका लागि तयार छन्।',
+                          en: 'Total ${records.length} student exam results ready for export.',
+                          ko: '총 ${records.length}건의 시험 결과 데이터가 내보내기 준비되었습니다.',
+                        ),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF15803D)),
                       ),
                     ),
@@ -49,9 +61,23 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-              const Text('स्तम्भहरू (Columns in Excel):', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.blueGrey)),
+              Text(
+                LanguageService.instance.trText(
+                  ne: 'स्तम्भहरू (Columns):',
+                  en: 'Columns:',
+                  ko: '항목 (Columns):',
+                ),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.blueGrey),
+              ),
               const SizedBox(height: 4),
-              const Text('क्र.सं. • नाम • दर्ता नं • ब्याच • क्षेत्र • परीक्षा सेट • रिडिङ अङ्क • लिसनिङ अङ्क • कुल प्राप्ताङ्क • नतिजा (PASS/FAIL) • समय • मिति', style: TextStyle(fontSize: 11, color: Colors.black87)),
+              Text(
+                LanguageService.instance.trText(
+                  ne: 'क्र.सं. • नाम • दर्ता नं • ब्याच • क्षेत्र • परीक्षा सेट • रिडिङ अङ्क • लिसनिङ अङ्क • कुल प्राप्ताङ्क • नतिजा • समय • मिति',
+                  en: 'S.N. • Name • Reg No • Batch • Sector • Test Set • Reading • Listening • Total Score • Result • Time • Date',
+                  ko: '연번 • 성명 • 수험번호 • 반 • 업종 • 시험세트 • 읽기 • 듣기 • 총점 • 합격여부 • 소요시간 • 응시일자',
+                ),
+                style: const TextStyle(fontSize: 11, color: Colors.black87),
+              ),
               const SizedBox(height: 14),
               Container(
                 height: 120,
@@ -66,19 +92,29 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('बन्द गर्नुहोस्')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(LanguageService.instance.trText(ne: 'बन्द गर्नुहोस्', en: 'Close', ko: '닫기')),
+          ),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F766E), foregroundColor: Colors.white),
             onPressed: () async {
               await CsvExportService.instance.copyToClipboard(csvData);
               if (mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('✅ CSV डाटा क्लिपबोर्डमा कपी भयो! Excel वा Google Sheets मा Ctrl+V गरी पेस्ट गर्न सक्नुहुन्छ।'), backgroundColor: Colors.green),
+                  SnackBar(
+                    content: Text(LanguageService.instance.trText(
+                      ne: '✅ CSV डाटा क्लिपबोर्डमा कपी भयो! Excel वा Google Sheets मा Ctrl+V गरी पेस्ट गर्न सक्नुहुन्छ।',
+                      en: '✅ CSV data copied to clipboard! You can paste into Excel or Google Sheets (Ctrl+V).',
+                      ko: '✅ CSV 데이터가 클립보드에 복사되었습니다! Excel 또는 스프레드시트에 붙여넣으세요.',
+                    )),
+                    backgroundColor: Colors.green,
+                  ),
                 );
               }
             },
             icon: const Icon(Icons.copy, size: 16),
-            label: const Text('📋 क्लिपबोर्डमा कपी गर्नुहोस्'),
+            label: Text(LanguageService.instance.trText(ne: '📋 क्लिपबोर्डमा कपी गर्नुहोस्', en: '📋 Copy to Clipboard', ko: '📋 클립보드 복사')),
           ),
         ],
       ),
@@ -117,15 +153,19 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                          color: const Color(0xFF1E3A8A).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Icon(Icons.verified, color: Color(0xFF1E3A8A), size: 24),
                       ),
                       const SizedBox(width: 10),
-                      const Text(
-                        "आधिकारिक स्कोरकार्ड (Scorecard)",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: "आधिकारिक स्कोरकार्ड",
+                          en: "Official Scorecard",
+                          ko: "공식 시험 성적표",
+                        ),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                       ),
                     ],
                   ),
@@ -162,8 +202,14 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                         children: [
                           Text(record.studentName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                           const SizedBox(height: 4),
-                          Text("दर्ता नम्बर (Reg No): ${record.registrationNo}  •  ID: ${record.studentId}",
-                              style: const TextStyle(color: Colors.black54, fontSize: 12)),
+                          Text(
+                            LanguageService.instance.trText(
+                              ne: "दर्ता नम्बर: ${record.registrationNo}  •  ID: ${record.studentId}",
+                              en: "Reg No: ${record.registrationNo}  •  ID: ${record.studentId}",
+                              ko: "수험번호: ${record.registrationNo}  •  아이디: ${record.studentId}",
+                            ),
+                            style: const TextStyle(color: Colors.black54, fontSize: 12),
+                          ),
                         ],
                       ),
                     ),
@@ -175,7 +221,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                         border: Border.all(color: record.isPassed ? Colors.green : Colors.red),
                       ),
                       child: Text(
-                        record.isPassed ? "합격 (Pass)" : "불합격 (Fail)",
+                        LanguageService.instance.trExamResult(record.isPassed),
                         style: TextStyle(
                           color: record.isPassed ? Colors.green.shade900 : Colors.red.shade900,
                           fontWeight: FontWeight.bold,
@@ -190,10 +236,21 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
               const SizedBox(height: 20),
 
               // Exam Set info
-              Text("परीक्षा सेट: ${record.setTitle}", style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+              Text(
+                LanguageService.instance.trText(
+                  ne: "परीक्षा सेट: ${record.setTitle}",
+                  en: "Test Set: ${record.setTitle}",
+                  ko: "시험 세트: ${record.setTitle}",
+                ),
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
               const SizedBox(height: 4),
               Text(
-                "सबमिट समय: ${record.completedAt.year}/${record.completedAt.month.toString().padLeft(2, '0')}/${record.completedAt.day.toString().padLeft(2, '0')} ${record.completedAt.hour.toString().padLeft(2, '0')}:${record.completedAt.minute.toString().padLeft(2, '0')} (${record.timeSpentSeconds ~/ 60} मिनेट)",
+                LanguageService.instance.trText(
+                  ne: "सबमिट समय: ${record.completedAt.year}/${record.completedAt.month.toString().padLeft(2, '0')}/${record.completedAt.day.toString().padLeft(2, '0')} ${record.completedAt.hour.toString().padLeft(2, '0')}:${record.completedAt.minute.toString().padLeft(2, '0')} (${record.timeSpentSeconds ~/ 60} मिनेट)",
+                  en: "Submission Time: ${record.completedAt.year}/${record.completedAt.month.toString().padLeft(2, '0')}/${record.completedAt.day.toString().padLeft(2, '0')} ${record.completedAt.hour.toString().padLeft(2, '0')}:${record.completedAt.minute.toString().padLeft(2, '0')} (${record.timeSpentSeconds ~/ 60} mins)",
+                  ko: "제출 일시: ${record.completedAt.year}/${record.completedAt.month.toString().padLeft(2, '0')}/${record.completedAt.day.toString().padLeft(2, '0')} ${record.completedAt.hour.toString().padLeft(2, '0')}:${record.completedAt.minute.toString().padLeft(2, '0')} (${record.timeSpentSeconds ~/ 60}분 소요)",
+                ),
                 style: const TextStyle(color: Colors.black54, fontSize: 12),
               ),
 
@@ -209,18 +266,36 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                 ),
                 child: Column(
                   children: [
-                    _buildScoreRow("읽기 (Reading) अङ्क", "${record.readingScore.toStringAsFixed(1)} / ५०.०", Colors.blue),
+                    _buildScoreRow(
+                      LanguageService.instance.readingSectionText() + ' ' + LanguageService.instance.trText(ne: 'अङ्क', en: 'Score', ko: '점수'),
+                      "${record.readingScore.toStringAsFixed(1)} / 50.0",
+                      Colors.blue,
+                    ),
                     const Divider(height: 16),
-                    _buildScoreRow("듣기 (Listening) अङ्क", "${record.listeningScore.toStringAsFixed(1)} / ५०.०", Colors.orange),
+                    _buildScoreRow(
+                      LanguageService.instance.listeningSectionText() + ' ' + LanguageService.instance.trText(ne: 'अङ्क', en: 'Score', ko: '점수'),
+                      "${record.listeningScore.toStringAsFixed(1)} / 50.0",
+                      Colors.orange,
+                    ),
                     const Divider(height: 16),
-                    _buildScoreRow("कुल प्राप्ताङ्क (Total Marks)", "${record.score.toStringAsFixed(1)} / १००.०",
-                        record.isPassed ? Colors.green : Colors.red, isBold: true),
+                    _buildScoreRow(
+                      LanguageService.instance.trText(ne: "कुल प्राप्ताङ्क", en: "Total Score", ko: "총점"),
+                      "${record.score.toStringAsFixed(1)} / 100.0",
+                      record.isPassed ? Colors.green : Colors.red,
+                      isBold: true,
+                    ),
                     const SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text("उत्तीर्णाङ्क मापदण्ड (Pass Standard)", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                        Text("५०.० अङ्क (५०%)", style: TextStyle(color: Colors.grey.shade700, fontSize: 12, fontWeight: FontWeight.w600)),
+                        Text(
+                          LanguageService.instance.trText(ne: "उत्तीर्णाङ्क मापदण्ड", en: "Passing Standard", ko: "합격 기준"),
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        Text(
+                          LanguageService.instance.trText(ne: "५०.० अङ्क (५०%)", en: "50.0 Points (50%)", ko: "50.0 점 (50%)"),
+                          style: TextStyle(color: Colors.grey.shade700, fontSize: 12, fontWeight: FontWeight.w600),
+                        ),
                       ],
                     ),
                   ],
@@ -237,11 +312,17 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                     onPressed: () {
                       Navigator.pop(ctx);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("📄 स्कोरकार्ड प्रिन्टरमा पठाइयो (Sent to Printer).")),
+                        SnackBar(
+                          content: Text(LanguageService.instance.trText(
+                            ne: "📄 स्कोरकार्ड प्रिन्टरमा पठाइयो।",
+                            en: "📄 Scorecard sent to printer.",
+                            ko: "📄 성적표 출력이 요청되었습니다.",
+                          )),
+                        ),
                       );
                     },
                     icon: const Icon(Icons.print, size: 18),
-                    label: const Text("प्रिन्ट रिपोर्ट"),
+                    label: Text(LanguageService.instance.trText(ne: "प्रिन्ट रिपोर्ट", en: "Print Report", ko: "성적표 인쇄")),
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton(
@@ -250,7 +331,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                       foregroundColor: Colors.white,
                     ),
                     onPressed: () => Navigator.pop(ctx),
-                    child: const Text("बन्द गर्नुहोस् (Close)"),
+                    child: Text(LanguageService.instance.trText(ne: "बन्द गर्नुहोस्", en: "Close", ko: "닫기")),
                   ),
                 ],
               )
@@ -276,41 +357,45 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final allAttempts = ExamHistoryService.instance.getAllAttempts();
-    final allMockSets = QuestionBankService.instance.getAllMockSets();
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) {
+        final lang = LanguageService.instance;
+        final allAttempts = ExamHistoryService.instance.getAllAttempts();
+        final allMockSets = QuestionBankService.instance.getAllMockSets();
 
-    // Filter logic including Batch
-    final filteredAttempts = allAttempts.where((attempt) {
-      final matchesSet = _selectedSetFilter == 'all' || attempt.setId == _selectedSetFilter;
-      final matchesStatus = _selectedStatusFilter == 'all' ||
-          (_selectedStatusFilter == 'pass' && attempt.isPassed) ||
-          (_selectedStatusFilter == 'fail' && !attempt.isPassed);
-      final student = AuthService.instance.getStudentById(attempt.studentId);
-      final studentBatch = student?.batch ?? '2026 Batch A (बिहानी सत्र)';
-      final matchesBatch = _selectedBatchFilter == 'all' || studentBatch == _selectedBatchFilter;
-      final query = _searchController.text.trim().toLowerCase();
-      final matchesQuery = query.isEmpty ||
-          attempt.studentName.toLowerCase().contains(query) ||
-          attempt.registrationNo.toLowerCase().contains(query) ||
-          attempt.studentId.toLowerCase().contains(query);
-      return matchesSet && matchesStatus && matchesBatch && matchesQuery;
-    }).toList();
+        // Filter logic including Batch
+        final filteredAttempts = allAttempts.where((attempt) {
+          final matchesSet = _selectedSetFilter == 'all' || attempt.setId == _selectedSetFilter;
+          final matchesStatus = _selectedStatusFilter == 'all' ||
+              (_selectedStatusFilter == 'pass' && attempt.isPassed) ||
+              (_selectedStatusFilter == 'fail' && !attempt.isPassed);
+          final student = AuthService.instance.getStudentById(attempt.studentId);
+          final studentBatch = student?.batch ?? '2026 Batch A (बिहानी सत्र)';
+          final matchesBatch = _selectedBatchFilter == 'all' || studentBatch == _selectedBatchFilter;
+          final query = _searchController.text.trim().toLowerCase();
+          final matchesQuery = query.isEmpty ||
+              attempt.studentName.toLowerCase().contains(query) ||
+              attempt.registrationNo.toLowerCase().contains(query) ||
+              attempt.studentId.toLowerCase().contains(query);
+          return matchesSet && matchesStatus && matchesBatch && matchesQuery;
+        }).toList();
 
-    // Analytics calculations
-    final totalAttempts = allAttempts.length;
-    final totalPassed = allAttempts.where((a) => a.isPassed).length;
-    final passRate = totalAttempts > 0 ? (totalPassed / totalAttempts * 100) : 0.0;
-    final avgScore = totalAttempts > 0
-        ? allAttempts.map((a) => a.score).reduce((a, b) => a + b) / totalAttempts
-        : 0.0;
-    final highestScore = totalAttempts > 0
-        ? allAttempts.map((a) => a.score).reduce((a, b) => a > b ? a : b)
-        : 0.0;
+        // Analytics calculations
+        final totalAttempts = allAttempts.length;
+        final totalPassed = allAttempts.where((a) => a.isPassed).length;
+        final passRate = totalAttempts > 0 ? (totalPassed / totalAttempts * 100) : 0.0;
+        final avgScore = totalAttempts > 0
+            ? allAttempts.map((a) => a.score).reduce((a, b) => a + b) / totalAttempts
+            : 0.0;
+        final highestScore = totalAttempts > 0
+            ? allAttempts.map((a) => a.score).reduce((a, b) => a > b ? a : b)
+            : 0.0;
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
           // Header Card
           Container(
             padding: const EdgeInsets.all(22),
@@ -330,18 +415,26 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                   child: Icon(Icons.analytics, color: Colors.white, size: 36),
                 ),
                 const SizedBox(width: 18),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "विद्यार्थी परीक्षा नतिजा तथा एनालिटिक्स (Results & Analytics)",
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                        LanguageService.instance.trText(
+                          ne: "विद्यार्थी परीक्षा नतिजा तथा एनालिटिक्स",
+                          en: "Student Exam Results & Analytics",
+                          ko: "수험생 시험 결과 및 분석 통계",
+                        ),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       Text(
-                        "सबै विद्यार्थीहरूले दिएका UBT परीक्षाहरूको वास्तविक नतिजा, स्कोरकार्ड र समग्र प्रगति विवरण।",
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                        LanguageService.instance.trText(
+                          ne: "सबै विद्यार्थीहरूले दिएका UBT परीक्षाहरूको वास्तविक नतिजा, स्कोरकार्ड र समग्र प्रगति विवरण।",
+                          en: "Real-time results, scorecards, and overall performance metrics for all candidate attempts.",
+                          ko: "모든 수험생의 UBT 실전 모의고사 채점 결과, 성적표 및 종합 성취도 분석.",
+                        ),
+                        style: const TextStyle(color: Colors.white70, fontSize: 13),
                       ),
                     ],
                   ),
@@ -349,7 +442,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                 ElevatedButton.icon(
                   onPressed: () => setState(() {}),
                   icon: const Icon(Icons.refresh, size: 18),
-                  label: const Text("रिफ्रेस (Refresh)"),
+                  label: Text(LanguageService.instance.trText(ne: "रिफ्रेस", en: "Refresh", ko: "새로고침")),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF1E3A8A),
@@ -368,30 +461,30 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
             runSpacing: 16,
             children: [
               _buildKpiCard(
-                "कुल परीक्षार्थी (Total Submissions)",
-                "$totalAttempts पटक",
-                "प्रणालीमा रेकर्ड भएका परीक्षाहरू",
+                LanguageService.instance.trText(ne: "कुल परीक्षार्थी संख्या", en: "Total Exam Attempts", ko: "총 응시 횟수"),
+                "$totalAttempts " + LanguageService.instance.trText(ne: "पटक", en: "times", ko: "회"),
+                LanguageService.instance.trText(ne: "प्रणालीमा रेकर्ड भएका परीक्षाहरू", en: "Recorded in system", ko: "시스템에 기록된 응시 기록"),
                 Icons.how_to_reg,
                 Colors.blue,
               ),
               _buildKpiCard(
-                "उत्तीर्ण दर (Pass Rate %)",
+                LanguageService.instance.trText(ne: "उत्तीर्ण दर (%)", en: "Pass Rate (%)", ko: "합격률 (%)"),
                 "${passRate.toStringAsFixed(1)}%",
-                "$totalPassed जना विद्यार्थी सफल",
+                "$totalPassed " + LanguageService.instance.trText(ne: "जना विद्यार्थी सफल", en: "candidates passed", ko: "명 합격"),
                 Icons.emoji_events,
                 Colors.green,
               ),
               _buildKpiCard(
-                "औसत प्राप्ताङ्क (Average Score)",
-                "${avgScore.toStringAsFixed(1)} / १००",
-                "सबै परीक्षार्थीको औसत अङ्क",
+                LanguageService.instance.trText(ne: "औसत प्राप्ताङ्क", en: "Average Score", ko: "평균 점수"),
+                "${avgScore.toStringAsFixed(1)} / 100",
+                LanguageService.instance.trText(ne: "सबै परीक्षार्थीको औसत अङ्क", en: "Average score across all exams", ko: "전체 응시생 평균 득점"),
                 Icons.trending_up,
                 Colors.purple,
               ),
               _buildKpiCard(
-                "उच्चतम अङ्क (Highest Score)",
-                "${highestScore.toStringAsFixed(1)} / १००",
-                "हालसम्मको सर्वाधिक प्राप्ताङ्क",
+                LanguageService.instance.trText(ne: "उच्चतम अङ्क", en: "Highest Score", ko: "최고 득점"),
+                "${highestScore.toStringAsFixed(1)} / 100",
+                LanguageService.instance.trText(ne: "हालसम्मको सर्वाधिक प्राप्ताङ्क", en: "Highest recorded score", ko: "현재까지 최고 점수"),
                 Icons.military_tech,
                 Colors.amber.shade800,
               ),
@@ -409,13 +502,17 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.bar_chart, color: Color(0xFF1E3A8A)),
-                      SizedBox(width: 8),
+                      const Icon(Icons.bar_chart, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 8),
                       Text(
-                        "सेट अनुसारको परीक्षा सहभागिता र उत्तीर्ण अवस्था (Set Breakdown)",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                        LanguageService.instance.trText(
+                          ne: "सेट अनुसारको परीक्षा सहभागिता र उत्तीर्ण अवस्था",
+                          en: "Test Set Performance & Pass Distribution",
+                          ko: "세트별 응시 현황 및 합격 분석",
+                        ),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                       ),
                     ],
                   ),
@@ -445,23 +542,41 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                             const SizedBox(height: 4),
-                            Text(set.sector, style: const TextStyle(color: Colors.black54, fontSize: 11)),
+                            Text(LanguageService.instance.sectorText(set.sector), style: const TextStyle(color: Colors.black54, fontSize: 11)),
                             const Divider(height: 16),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text("सहभागी: ${setAttempts.length} जना", style: const TextStyle(fontSize: 12)),
-                                Text("उत्तीर्ण: $setPassed जना",
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green)),
+                                Text(
+                                  LanguageService.instance.trText(
+                                    ne: "सहभागी: ${setAttempts.length} जना",
+                                    en: "Candidates: ${setAttempts.length}",
+                                    ko: "응시: ${setAttempts.length}명",
+                                  ),
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                Text(
+                                  LanguageService.instance.trText(
+                                    ne: "उत्तीर्ण: $setPassed जना",
+                                    en: "Pass: $setPassed",
+                                    ko: "합격: $setPassed명",
+                                  ),
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green),
+                                ),
                               ],
                             ),
                             const SizedBox(height: 4),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text("औसत अङ्क:", style: TextStyle(fontSize: 12)),
-                                Text("${setAvg.toStringAsFixed(1)} / १००",
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+                                Text(
+                                  LanguageService.instance.trText(ne: "औसत अङ्क:", en: "Avg Score:", ko: "평균 점수:"),
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                Text(
+                                  "${setAvg.toStringAsFixed(1)} / 100",
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                ),
                               ],
                             ),
                           ],
@@ -491,12 +606,12 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                   DropdownButton<String>(
                     value: _selectedBatchFilter,
                     underline: const SizedBox(),
-                    items: const [
-                      DropdownMenuItem(value: 'all', child: Text("सबै ब्याचहरू (All Batches)")),
-                      DropdownMenuItem(value: '2026 Batch A (बिहानी सत्र)', child: Text("2026 Batch A (बिहानी)")),
-                      DropdownMenuItem(value: '2026 Batch B (दिवा सत्र)', child: Text("2026 Batch B (दिवा)")),
-                      DropdownMenuItem(value: '2026 Batch C (साँझ सत्र)', child: Text("2026 Batch C (साँझ)")),
-                      DropdownMenuItem(value: 'विशेष UBT बुटक्याम्प', child: Text("विशेष UBT बुटक्याम्प")),
+                    items: [
+                      DropdownMenuItem(value: 'all', child: Text(LanguageService.instance.batchText('सबै ब्याचहरू'))),
+                      DropdownMenuItem(value: '2026 Batch A (बिहानी सत्र)', child: Text(LanguageService.instance.batchText('2026 Batch A (बिहानी सत्र)'))),
+                      DropdownMenuItem(value: '2026 Batch B (दिवा सत्र)', child: Text(LanguageService.instance.batchText('2026 Batch B (दिवा सत्र)'))),
+                      DropdownMenuItem(value: '2026 Batch C (साँझ सत्र)', child: Text(LanguageService.instance.batchText('2026 Batch C (साँझ सत्र)'))),
+                      DropdownMenuItem(value: 'विशेष UBT बुटक्याम्प', child: Text(LanguageService.instance.batchText('विशेष UBT बुटक्याम्प'))),
                     ],
                     onChanged: (val) {
                       if (val != null) setState(() => _selectedBatchFilter = val);
@@ -508,7 +623,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                     value: _selectedSetFilter,
                     underline: const SizedBox(),
                     items: [
-                      const DropdownMenuItem(value: 'all', child: Text("सबै सेटहरू (All Sets)")),
+                      DropdownMenuItem(value: 'all', child: Text(LanguageService.instance.trText(ne: "सबै सेटहरू", en: "All Sets", ko: "전체 세트"))),
                       ...allMockSets.map((s) => DropdownMenuItem(value: s.id, child: Text(s.title))),
                     ],
                     onChanged: (val) {
@@ -520,10 +635,10 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                   DropdownButton<String>(
                     value: _selectedStatusFilter,
                     underline: const SizedBox(),
-                    items: const [
-                      DropdownMenuItem(value: 'all', child: Text("सबै नतिजा (All Status)")),
-                      DropdownMenuItem(value: 'pass', child: Text("उत्तीर्ण मात्र (Pass >= 50)")),
-                      DropdownMenuItem(value: 'fail', child: Text("अनुत्तीर्ण मात्र (Fail < 50)")),
+                    items: [
+                      DropdownMenuItem(value: 'all', child: Text(LanguageService.instance.trText(ne: "सबै नतिजा", en: "All Results", ko: "전체 결과"))),
+                      DropdownMenuItem(value: 'pass', child: Text(LanguageService.instance.trText(ne: "उत्तीर्ण मात्र (>= ५०)", en: "Passed Only (>= 50)", ko: "합격만 (>= 50점)"))),
+                      DropdownMenuItem(value: 'fail', child: Text(LanguageService.instance.trText(ne: "अनुत्तीर्ण मात्र (< ५०)", en: "Failed Only (< 50)", ko: "불합격만 (< 50점)"))),
                     ],
                     onChanged: (val) {
                       if (val != null) setState(() => _selectedStatusFilter = val);
@@ -537,7 +652,11 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                     child: TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
-                        hintText: "विद्यार्थीको नाम वा दर्ता नं...",
+                        hintText: LanguageService.instance.trText(
+                          ne: "विद्यार्थीको नाम वा दर्ता नं...",
+                          en: "Search candidate name or reg no...",
+                          ko: "수험생 성명 또는 수험번호 검색...",
+                        ),
                         prefixIcon: const Icon(Icons.search, size: 18),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -556,7 +675,11 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                     ),
                     onPressed: filteredAttempts.isEmpty ? null : () => _openExportDialog(filteredAttempts),
                     icon: const Icon(Icons.file_download, size: 18),
-                    label: Text("Excel / CSV डाउनलोड (${filteredAttempts.length})"),
+                    label: Text(LanguageService.instance.trText(
+                      ne: "Excel / CSV डाउनलोड (${filteredAttempts.length})",
+                      en: "Excel / CSV Export (${filteredAttempts.length})",
+                      ko: "Excel / CSV 다운로드 (${filteredAttempts.length})",
+                    )),
                   ),
 
                   // Reset Filters
@@ -569,7 +692,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                       });
                     },
                     icon: const Icon(Icons.clear_all, size: 16),
-                    label: const Text("फिल्टर रिसेट"),
+                    label: Text(LanguageService.instance.trText(ne: "फिल्टर रिसेट", en: "Reset Filters", ko: "필터 초기화")),
                   ),
                 ],
               ),
@@ -583,7 +706,11 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "विद्यार्थी परीक्षा विवरण तालिका (${filteredAttempts.length} वटा रेकर्ड):",
+                LanguageService.instance.trText(
+                  ne: "विद्यार्थी परीक्षा विवरण तालिका (${filteredAttempts.length} वटा रेकर्ड):",
+                  en: "Exam Results Roster (${filteredAttempts.length} records):",
+                  ko: "수험생 시험 결과 명단 (${filteredAttempts.length}건):",
+                ),
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
               ),
             ],
@@ -604,9 +731,23 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                 children: [
                   Icon(Icons.folder_open, size: 48, color: Colors.grey.shade400),
                   const SizedBox(height: 12),
-                  const Text("कुनै नतिजा फेला परेन (No results found)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(
+                    LanguageService.instance.trText(
+                      ne: "कुनै नतिजा फेला परेन",
+                      en: "No Results Found",
+                      ko: "조회된 시험 결과가 없습니다",
+                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                   const SizedBox(height: 4),
-                  const Text("फिल्टर परिवर्तन गर्नुहोस् वा विद्यार्थीहरूले परीक्षा दिएपछि यहाँ देखा पर्नेछ।", style: TextStyle(color: Colors.black54)),
+                  Text(
+                    LanguageService.instance.trText(
+                      ne: "फिल्टर परिवर्तन गर्नुहोस् वा विद्यार्थीहरूले परीक्षा दिएपछि यहाँ देखा पर्नेछ।",
+                      en: "Change filters or check back once candidates complete exams.",
+                      ko: "검색 필터를 변경하거나 수험생이 시험을 완료하면 이곳에 표시됩니다.",
+                    ),
+                    style: const TextStyle(color: Colors.black54),
+                  ),
                 ],
               ),
             )
@@ -652,13 +793,19 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                           children: [
                             Text(a.studentName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
                             const SizedBox(height: 2),
-                            Text("दर्ता नं: ${a.registrationNo}  •  ID: ${a.studentId}",
-                                style: const TextStyle(color: Colors.black54, fontSize: 12)),
+                            Text(
+                              LanguageService.instance.trText(
+                                ne: "दर्ता नं: ${a.registrationNo}  •  ID: ${a.studentId}",
+                                en: "Reg: ${a.registrationNo}  •  ID: ${a.studentId}",
+                                ko: "수험번호: ${a.registrationNo}  •  아이디: ${a.studentId}",
+                              ),
+                              style: const TextStyle(color: Colors.black54, fontSize: 12),
+                            ),
                             const SizedBox(height: 6),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF1E3A8A).withOpacity(0.08),
+                                color: const Color(0xFF1E3A8A).withValues(alpha: 0.08),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -681,7 +828,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "${a.score.toStringAsFixed(1)} / १००.०",
+                              "${a.score.toStringAsFixed(1)} / 100.0",
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -690,7 +837,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              "읽기 ${a.readingScore.toStringAsFixed(1)}  •  듣기 ${a.listeningScore.toStringAsFixed(1)}",
+                              "${LanguageService.instance.readingSectionText()} ${a.readingScore.toStringAsFixed(1)}  •  ${LanguageService.instance.listeningSectionText()} ${a.listeningScore.toStringAsFixed(1)}",
                               style: const TextStyle(color: Colors.black54, fontSize: 12),
                             ),
                           ],
@@ -711,7 +858,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              "${a.completedAt.hour.toString().padLeft(2, '0')}:${a.completedAt.minute.toString().padLeft(2, '0')} (${a.timeSpentSeconds ~/ 60} मिनेट)",
+                              "${a.completedAt.hour.toString().padLeft(2, '0')}:${a.completedAt.minute.toString().padLeft(2, '0')} (${a.timeSpentSeconds ~/ 60} " + LanguageService.instance.trText(ne: "मिनेट", en: "mins", ko: "분") + ")",
                               style: const TextStyle(color: Colors.black54, fontSize: 11),
                             ),
                           ],
@@ -729,7 +876,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                           border: Border.all(color: a.isPassed ? Colors.green : Colors.red),
                         ),
                         child: Text(
-                          a.isPassed ? "합격 (Pass)" : "불합격 (Fail)",
+                          LanguageService.instance.trExamResult(a.isPassed),
                           style: TextStyle(
                             color: a.isPassed ? Colors.green.shade900 : Colors.red.shade900,
                             fontWeight: FontWeight.bold,
@@ -744,7 +891,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
                       OutlinedButton.icon(
                         onPressed: () => _showScorecardModal(a),
                         icon: const Icon(Icons.receipt_long, size: 16),
-                        label: const Text("स्कोरकार्ड"),
+                        label: Text(LanguageService.instance.trText(ne: "स्कोरकार्ड", en: "Scorecard", ko: "성적표")),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFF1E3A8A),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -759,6 +906,8 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
           const SizedBox(height: 30),
         ],
       ),
+    );
+      },
     );
   }
 
@@ -776,7 +925,7 @@ class _ResultsAnalyticsScreenState extends State<ResultsAnalyticsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
-            backgroundColor: color.withOpacity(0.15),
+            backgroundColor: color.withValues(alpha: 0.15),
             radius: 20,
             child: Icon(icon, color: color, size: 22),
           ),

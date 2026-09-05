@@ -1,3 +1,4 @@
+import '../../core/services/language_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/exam_service.dart';
@@ -37,16 +38,26 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
         ? allAttempts.map((a) => a.score).reduce((a, b) => a > b ? a : b)
         : 0.0;
 
-    return Scaffold(
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) => Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        title: const Text(
-          "मेरो परीक्षा इतिहास तथा कमजोरी समीक्षा (My Exam History)",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        title: Text(
+          LanguageService.instance.trText(
+            ne: "मेरो परीक्षा इतिहास तथा कमजोरी समीक्षा",
+            en: "My Exam History & Mistake Review",
+            ko: "시험 기록 및 오답 복습",
+          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
         elevation: 2,
+        actions: [
+          LanguageService.instance.buildLanguageSwitcherWidget(),
+          const SizedBox(width: 8),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -83,7 +94,7 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
                         const SizedBox(height: 4),
                         Text(
-                          "दर्ता नम्बर: ${widget.student.registrationNo ?? '2026-001'}  •  ID: ${widget.student.username}",
+                          LanguageService.instance.trText(ne: "दर्ता नं: ${widget.student.registrationNo ?? '2026-001'}  •  ID: ${widget.student.username}", en: "Reg No: ${widget.student.registrationNo ?? '2026-001'}  •  ID: ${widget.student.username}", ko: "수험번호: ${widget.student.registrationNo ?? '2026-001'}  •  ID: ${widget.student.username}"),
                           style: const TextStyle(color: Colors.white70, fontSize: 13),
                         ),
                       ],
@@ -95,9 +106,9 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                       color: Colors.white24,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      "EPS-TOPIK परीक्षार्थी",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                    child: Text(
+                      LanguageService.instance.trText(ne: "EPS-TOPIK परीक्षार्थी", en: "EPS-TOPIK Candidate", ko: "EPS-TOPIK 수험생"),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                   )
                 ],
@@ -111,10 +122,10 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
               spacing: 14,
               runSpacing: 14,
               children: [
-                _buildStatPill("कुल परीक्षाहरू", "$totalTaken पटक", Icons.assignment_turned_in, Colors.blue),
-                _buildStatPill("उत्तीर्ण परीक्षाहरू", "$totalPassed पटक", Icons.verified, Colors.green),
-                _buildStatPill("औसत प्राप्ताङ्क", "${avgScore.toStringAsFixed(1)} / १००", Icons.analytics, Colors.purple),
-                _buildStatPill("उत्कृष्ट नतिजा", "${bestScore.toStringAsFixed(1)} / १००", Icons.emoji_events, Colors.amber.shade800),
+                _buildStatPill(LanguageService.instance.trText(ne: "कुल परीक्षाहरू", en: "Total Exams", ko: "총 응시"), LanguageService.instance.trText(ne: "$totalTaken पटक", en: "$totalTaken Times", ko: "$totalTaken회"), Icons.assignment_turned_in, Colors.blue),
+                _buildStatPill(LanguageService.instance.trText(ne: "उत्तीर्ण परीक्षाहरू", en: "Passed Exams", ko: "합격 시험"), LanguageService.instance.trText(ne: "$totalPassed पटक", en: "$totalPassed Times", ko: "$totalPassed회"), Icons.verified, Colors.green),
+                _buildStatPill(LanguageService.instance.trText(ne: "औसत प्राप्ताङ्क", en: "Average Score", ko: "평균 점수"), "${avgScore.toStringAsFixed(1)} / 100", Icons.analytics, Colors.purple),
+                _buildStatPill(LanguageService.instance.trText(ne: "उत्कृष्ट नतिजा", en: "Best Score", ko: "최고 점수"), "${bestScore.toStringAsFixed(1)} / 100", Icons.emoji_events, Colors.amber.shade800),
               ],
             ),
 
@@ -124,7 +135,7 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
             Row(
               children: [
                 ChoiceChip(
-                  label: Text("सबै परीक्षाहरू ($totalTaken)"),
+                  label: Text(LanguageService.instance.trText(ne: "सबै परीक्षाहरू ($totalTaken)", en: "All Exams ($totalTaken)", ko: "전체 ($totalTaken)")),
                   selected: _filter == 'all',
                   selectedColor: const Color(0xFF1E3A8A),
                   labelStyle: TextStyle(
@@ -135,7 +146,7 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                 ),
                 const SizedBox(width: 10),
                 ChoiceChip(
-                  label: Text("उत्तीर्ण ($totalPassed)"),
+                  label: Text(LanguageService.instance.trText(ne: "उत्तीर्ण ($totalPassed)", en: "Passed ($totalPassed)", ko: "합격 ($totalPassed)")),
                   selected: _filter == 'passed',
                   selectedColor: Colors.green.shade700,
                   labelStyle: TextStyle(
@@ -146,7 +157,7 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                 ),
                 const SizedBox(width: 10),
                 ChoiceChip(
-                  label: Text("सुधार आवश्यक (${totalTaken - totalPassed})"),
+                  label: Text(LanguageService.instance.trText(ne: "सुधार आवश्यक (${totalTaken - totalPassed})", en: "Needs Review (${totalTaken - totalPassed})", ko: "재도전 필요 (${totalTaken - totalPassed})")),
                   selected: _filter == 'failed',
                   selectedColor: Colors.red.shade700,
                   labelStyle: TextStyle(
@@ -174,13 +185,13 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                   children: [
                     Icon(Icons.history, size: 50, color: Colors.grey.shade400),
                     const SizedBox(height: 14),
-                    const Text("कुनै परीक्षा रेकर्ड फेला परेन",
+                    Text(LanguageService.instance.trText(ne: "कुनै परीक्षा रेकर्ड फेला परेन", en: "No Exam Records Found", ko: "시험 기록이 없습니다"),
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 6),
-                    const Text(
-                      "तपाईंले अहिलेसम्म परीक्षा दिनुभएको छैन। ड्यासबोर्डमा गएर कुनै पनि सेटबाट परीक्षा सुरु गर्नुहोस्!",
+                    Text(
+                      LanguageService.instance.trText(ne: "तपाईंले अहिलेसम्म परीक्षा दिनुभएको छैन। कुनै पनि सेटबाट परीक्षा सुरु गर्नुहोस्!", en: "You have not taken any exams yet. Start an exam from any set!", ko: "아직 응시한 시험이 없습니다. 모의고사를 시작해 보세요!"),
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.black54),
+                      style: const TextStyle(color: Colors.black54),
                     ),
                   ],
                 ),
@@ -263,7 +274,7 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    attempt.isPassed ? "합격 (Pass)" : "불합격 (Fail)",
+                                    LanguageService.instance.trText(ne: attempt.isPassed ? "उत्तीर्ण" : "अनुत्तीर्ण", en: attempt.isPassed ? "Passed" : "Failed", ko: attempt.isPassed ? "합격" : "불합격"),
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12,
@@ -285,7 +296,11 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          "परीक्षा मिति: ${attempt.completedAt.year}/${attempt.completedAt.month.toString().padLeft(2, '0')}/${attempt.completedAt.day.toString().padLeft(2, '0')} ${attempt.completedAt.hour.toString().padLeft(2, '0')}:${attempt.completedAt.minute.toString().padLeft(2, '0')}  •  समय: ${attempt.timeSpentSeconds ~/ 60} मिनेट",
+                          LanguageService.instance.trText(
+                            ne: "परीक्षा मिति: ${attempt.completedAt.year}/${attempt.completedAt.month.toString().padLeft(2, '0')}/${attempt.completedAt.day.toString().padLeft(2, '0')} ${attempt.completedAt.hour.toString().padLeft(2, '0')}:${attempt.completedAt.minute.toString().padLeft(2, '0')}  •  समय: ${attempt.timeSpentSeconds ~/ 60} मिनेट",
+                            en: "Date: ${attempt.completedAt.year}/${attempt.completedAt.month.toString().padLeft(2, '0')}/${attempt.completedAt.day.toString().padLeft(2, '0')} ${attempt.completedAt.hour.toString().padLeft(2, '0')}:${attempt.completedAt.minute.toString().padLeft(2, '0')}  •  Time: ${attempt.timeSpentSeconds ~/ 60} mins",
+                            ko: "응시일시: ${attempt.completedAt.year}/${attempt.completedAt.month.toString().padLeft(2, '0')}/${attempt.completedAt.day.toString().padLeft(2, '0')} ${attempt.completedAt.hour.toString().padLeft(2, '0')}:${attempt.completedAt.minute.toString().padLeft(2, '0')}  •  소요시간: ${attempt.timeSpentSeconds ~/ 60}분",
+                          ),
                           style: const TextStyle(color: Colors.black54, fontSize: 12),
                         ),
 
@@ -303,9 +318,9 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                                 ),
                                 child: Column(
                                   children: [
-                                    const Text("읽기 (Reading)", style: TextStyle(fontSize: 11, color: Colors.black54)),
+                                    Text(LanguageService.instance.readingSectionText(), style: const TextStyle(fontSize: 11, color: Colors.black54)),
                                     const SizedBox(height: 2),
-                                    Text("${attempt.readingScore.toStringAsFixed(1)} / ५०",
+                                    Text("${attempt.readingScore.toStringAsFixed(1)} / 50",
                                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blue)),
                                   ],
                                 ),
@@ -321,9 +336,9 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                                 ),
                                 child: Column(
                                   children: [
-                                    const Text("듣기 (Listening)", style: TextStyle(fontSize: 11, color: Colors.black54)),
+                                    Text(LanguageService.instance.listeningSectionText(), style: const TextStyle(fontSize: 11, color: Colors.black54)),
                                     const SizedBox(height: 2),
-                                    Text("${attempt.listeningScore.toStringAsFixed(1)} / ५०",
+                                    Text("${attempt.listeningScore.toStringAsFixed(1)} / 50",
                                         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.orange)),
                                   ],
                                 ),
@@ -339,10 +354,10 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                                 ),
                                 child: Column(
                                   children: [
-                                    const Text("कुल प्राप्ताङ्क", style: TextStyle(fontSize: 11, color: Colors.black54)),
+                                    Text(LanguageService.instance.trText(ne: "कुल प्राप्ताङ्क", en: "Total Score", ko: "총점"), style: const TextStyle(fontSize: 11, color: Colors.black54)),
                                     const SizedBox(height: 2),
                                     Text(
-                                      "${attempt.score.toStringAsFixed(1)} / १००",
+                                      "${attempt.score.toStringAsFixed(1)} / 100",
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -378,8 +393,8 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                                   );
                                 },
                                 icon: const Icon(Icons.fact_check, size: 16),
-                                label: const Text("🔍 कमजोरी समीक्षा (Review Mistakes)",
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                label: Text(LanguageService.instance.trText(ne: "🔍 कमजोरी समीक्षा", en: "🔍 Review Mistakes", ko: "🔍 오답 복습"),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF0F766E),
                                   foregroundColor: Colors.white,
@@ -402,7 +417,7 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                                 ).then((_) => setState(() {}));
                               },
                               icon: const Icon(Icons.refresh, size: 16),
-                              label: const Text("पुनः परीक्षा (Retake)"),
+                              label: Text(LanguageService.instance.trText(ne: "पुनः परीक्षा", en: "Retake Exam", ko: "재응시")),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: const Color(0xFF1E3A8A),
                                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
@@ -421,7 +436,8 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _buildStatPill(String title, String value, IconData icon, Color color) {

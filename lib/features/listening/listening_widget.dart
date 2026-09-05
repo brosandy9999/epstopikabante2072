@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../question_engine/question_template.dart';
 import '../../core/models/exam_session_model.dart';
 import '../../core/services/audio_playback_service.dart';
+import '../../core/widgets/smart_image_widget.dart';
+import '../../core/services/language_service.dart';
 
 /// Authentic HRDK EPS-TOPIK UBT Listening Question Widget
 /// Single Click Continuous Playback Engine: Plays Round 1 -> Brief Intermission -> Auto Repeats Round 2 -> Locks!
@@ -163,9 +165,9 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                           color: const Color(0xFFD97706),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text(
-                          "?? (Listening)",
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                        child: Text(
+                          LanguageService.instance.listeningSectionText(),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -176,12 +178,19 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                             color: const Color(0xFFC2410C),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.audiotrack, color: Colors.white, size: 12),
-                              SizedBox(width: 4),
-                              Text('केबल अडियो ट्र्याक (Pure Audio)', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                              const Icon(Icons.audiotrack, color: Colors.white, size: 12),
+                              const SizedBox(width: 4),
+                              Text(
+                                LanguageService.instance.trText(
+                                  ne: 'केवल अडियो ट्र्याक',
+                                  en: 'Strict Audio Only',
+                                  ko: '오디오 전용 문항',
+                                ),
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                         ),
@@ -200,8 +209,10 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                   Center(
                     child: Tooltip(
                       message: isLocked
-                          ? "재생 완료 (Audio Locked)"
-                          : (isPlaying ? "오디오 재생 중..." : "오디오 듣기 (Click to Play Audio)"),
+                          ? LanguageService.instance.trText(ne: "अडियो समाप्त (लक भयो)", en: "Audio Completed (Locked)", ko: "재생 완료 (오디오 잠김)")
+                          : (isPlaying
+                              ? LanguageService.instance.trText(ne: "अडियो बजिरहेको छ...", en: "Audio playing...", ko: "오디오 재생 중...")
+                              : LanguageService.instance.trText(ne: "अडियो सुन्नुहोस् (यहाँ थिच्नुहोस्)", en: "Listen to Audio (Click to Play)", ko: "오디오 듣기 (클릭하여 재생)")),
                       child: Material(
                         color: isLocked
                             ? Colors.grey.shade200
@@ -254,14 +265,34 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                   Center(
                     child: Text(
                       isLocked
-                          ? "재생 완료 (Audio Locked - २ पटक बजिसक्यो)"
+                          ? LanguageService.instance.trText(
+                              ne: "अडियो समाप्त (२ पटक बजिसक्यो)",
+                              en: "Audio Played 2 Times (Completed)",
+                              ko: "재생 완료 (2회 청취 완료)",
+                            )
                           : (isPlaying
                               ? (_audioState == AudioState.playingFirst
-                                  ? "🔊 1회차 오디오 재생 중... (Playing Round 1)"
-                                  : "🔊 2회차 오디오 반복 중... (Playing Round 2)")
+                                  ? LanguageService.instance.trText(
+                                      ne: "🔊 पहिलो पटक अडियो बज्दैछ... (Round 1)",
+                                      en: "🔊 Playing Round 1 Audio...",
+                                      ko: "🔊 1회차 오디오 재생 중...",
+                                    )
+                                  : LanguageService.instance.trText(
+                                      ne: "🔊 दोस्रो पटक अडियो दोहोरिँदै... (Round 2)",
+                                      en: "🔊 Repeating Round 2 Audio...",
+                                      ko: "🔊 2회차 오디오 반복 중...",
+                                    ))
                               : (isIntermission
-                                  ? "⏳ 잠시 후 2회차가 자동 재생됩니다..."
-                                  : "🔊 오디오 듣기 (यहाँ थिचेपछि कोरियाली आवाज २ पटक बज्नेछ)")),
+                                  ? LanguageService.instance.trText(
+                                      ne: "⏳ केही क्षणमा दोस्रो पटक स्वतः बज्नेछ...",
+                                      en: "⏳ Round 2 will auto-play in a moment...",
+                                      ko: "⏳ 잠시 후 2회차가 자동 재생됩니다...",
+                                    )
+                                  : LanguageService.instance.trText(
+                                      ne: "🔊 अडियो सुन्नुहोस् (यहाँ थिचेपछि २ पटक बज्नेछ)",
+                                      en: "🔊 Play Audio (Korean voice will play 2 times)",
+                                      ko: "🔊 오디오 듣기 (클릭 시 2회 연속 재생)",
+                                    ))),
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.bold,
@@ -299,7 +330,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      "[???] ?? ?? ?????",
+                      "[선택지] 맞는 것을 고르십시오",
                       style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFFD97706)),
                     ),
                     if (widget.selectedOptionIndex != null)
@@ -307,7 +338,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
                         child: Text(
-                          "??: ?",
+                          "선택: ${widget.selectedOptionIndex! + 1}번",
                           style: const TextStyle(color: Color(0xFF92400E), fontWeight: FontWeight.bold, fontSize: 12),
                         ),
                       )
@@ -318,8 +349,8 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                 // 4 Options Stacked Vertically
                 ...List.generate(options.length, (index) {
                   final isSelected = widget.selectedOptionIndex == index;
-                  final circledNumbers = ["?", "?", "?", "?"];
-                  final numLabel = index < circledNumbers.length ? circledNumbers[index] : "";
+                  const circledNumbers = ["\u2460", "\u2461", "\u2462", "\u2463"];
+                  final numLabel = index < circledNumbers.length ? circledNumbers[index] : "${index + 1}";
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 14),
@@ -364,15 +395,73 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                               ),
                               const SizedBox(width: 14),
 
-                              // Option Text
+                              // Option Text & Media
                               Expanded(
-                                child: Text(
-                                  options[index],
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                    color: isSelected ? const Color(0xFF92400E) : Colors.black87,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (options[index].isNotEmpty)
+                                      Text(
+                                        options[index],
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                          color: isSelected ? const Color(0xFF92400E) : Colors.black87,
+                                        ),
+                                      ),
+                                    if (widget.question is UniversalQuestion) ...[
+                                      if (index < (widget.question as UniversalQuestion).imageOptions.length &&
+                                          (widget.question as UniversalQuestion).imageOptions[index] != null &&
+                                          (widget.question as UniversalQuestion).imageOptions[index]!.trim().isNotEmpty) ...[
+                                        const SizedBox(height: 8),
+                                        Container(
+                                          constraints: const BoxConstraints(maxHeight: 120),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(6),
+                                            border: Border.all(color: Colors.grey.shade300),
+                                          ),
+                                          clipBehavior: Clip.antiAlias,
+                                          child: SmartImageWidget(
+                                            imageSource: (widget.question as UniversalQuestion).imageOptions[index]!.trim(),
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                      ],
+                                      if (index < (widget.question as UniversalQuestion).audioOptions.length &&
+                                          (widget.question as UniversalQuestion).audioOptions[index] != null &&
+                                          (widget.question as UniversalQuestion).audioOptions[index]!.trim().isNotEmpty) ...[
+                                        const SizedBox(height: 6),
+                                        InkWell(
+                                          onTap: () => AudioPlaybackService.instance.playAudioUrl(
+                                              (widget.question as UniversalQuestion).audioOptions[index]!.trim()),
+                                          borderRadius: BorderRadius.circular(20),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: Colors.amber.shade50,
+                                              borderRadius: BorderRadius.circular(20),
+                                              border: Border.all(color: Colors.amber.shade300),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(Icons.play_circle_fill, size: 16, color: Color(0xFFD97706)),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  LanguageService.instance.trText(
+                                                    ne: 'अडियो सुन्नुहोस्',
+                                                    en: 'Play Audio',
+                                                    ko: '오디오 듣기',
+                                                  ),
+                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ],
                                 ),
                               ),
 

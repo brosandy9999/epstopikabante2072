@@ -6,8 +6,10 @@ import 'question_bank_service.dart';
 import 'auth_service.dart';
 import 'exam_service.dart';
 import 'study_material_service.dart';
+import 'institute_service.dart';
 import '../models/mock_test_model.dart';
 import '../models/study_material_model.dart';
+import '../models/institute_model.dart';
 
 enum SyncState { idle, syncing, synced, error, offline }
 
@@ -32,13 +34,13 @@ class CloudSyncService extends ChangeNotifier {
     var trimmed = raw.trim();
     if (trimmed.isEmpty) return '';
     if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
-      trimmed = 'https://';
+      trimmed = 'https://$trimmed';
     }
     if (!trimmed.endsWith('.json')) {
       if (trimmed.endsWith('/')) {
-        trimmed = '\eps_topik_sync.json';
+        trimmed = '${trimmed}eps_topik_sync.json';
       } else {
-        trimmed = '\/eps_topik_sync.json';
+        trimmed = '$trimmed/eps_topik_sync.json';
       }
     }
     return trimmed;
@@ -54,8 +56,7 @@ class CloudSyncService extends ChangeNotifier {
   }
 
   bool get hasConfiguredCloud {
-    final saved = StorageService.instance.getString('eps_cloud_endpoint');
-    return saved != null && saved.isNotEmpty;
+    return _cloudEndpoint.isNotEmpty;
   }
 
   Future<bool> testConnection() async {
@@ -71,7 +72,7 @@ class CloudSyncService extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        _lastError = 'Firebase सर्भर स्थिति: ';
+        _lastError = 'Firebase सर्भर स्थिति: ${response.statusCode}';
         _state = SyncState.error;
         notifyListeners();
         return false;
@@ -102,6 +103,11 @@ class CloudSyncService extends ChangeNotifier {
     final allAttempts = ExamHistoryService.instance.getAllAttempts();
     final allCards = StudyMaterialService.instance.getAllVisualFlashcards();
     final allBooks = StudyMaterialService.instance.getAllBooks();
+    final allVideos = StudyMaterialService.instance.getAllVideos();
+    final allGrammar = StudyMaterialService.instance.getAllGrammar();
+    final allDict = StudyMaterialService.instance.getAllDictionaryWords();
+    final allNotices = StudyMaterialService.instance.getAllNotices();
+    final allInstitutes = InstituteService.instance.getAllInstitutes();
 
     return {
       'version': '2.0',
@@ -113,6 +119,11 @@ class CloudSyncService extends ChangeNotifier {
       'attempts': allAttempts.map((a) => a.toJson()).toList(),
       'flashcards': allCards.map((c) => c.toJson()).toList(),
       'books': allBooks.map((b) => b.toJson()).toList(),
+      'videos': allVideos.map((v) => v.toJson()).toList(),
+      'grammar': allGrammar.map((g) => g.toJson()).toList(),
+      'dictionary': allDict.map((d) => d.toJson()).toList(),
+      'notices': allNotices.map((n) => n.toJson()).toList(),
+      'institutes': allInstitutes.map((i) => i.toJson()).toList(),
     };
   }
 
@@ -162,10 +173,107 @@ class CloudSyncService extends ChangeNotifier {
       // 4. Ingest Flashcards
       if (payload['flashcards'] is List) {
         final List rawCards = payload['flashcards'];
+        final existingCards = StudyMaterialService.instance.getAllVisualFlashcards();
         for (final item in rawCards) {
           if (item is Map) {
             final card = VisualFlashcard.fromJson(Map<String, dynamic>.from(item));
-            StudyMaterialService.instance.addVisualFlashcard(card);
+            if (!existingCards.any((c) => c.id == card.id)) {
+              StudyMaterialService.instance.addVisualFlashcard(card);
+            }
+          }
+        }
+      }
+
+      // 5. Ingest Books
+      if (payload['books'] is List) {
+        final List rawBooks = payload['books'];
+        final existingBooks = StudyMaterialService.instance.getAllBooks();
+        for (final item in rawBooks) {
+          if (item is Map) {
+            final book = StudyBook.fromJson(Map<String, dynamic>.from(item));
+            if (!existingBooks.any((b) => b.id == book.id)) {
+              StudyMaterialService.instance.addBook(book);
+            }
+          }
+        }
+      }
+
+      // 6. Ingest Videos
+      if (payload['videos'] is List) {
+        final List rawVideos = payload['videos'];
+        final existingVideos = StudyMaterialService.instance.getAllVideos();
+        for (final item in rawVideos) {
+          if (item is Map) {
+            final vid = VideoCourse.fromJson(Map<String, dynamic>.from(item));
+            if (!existingVideos.any((v) => v.id == vid.id)) {
+              StudyMaterialService.instance.addVideo(vid);
+            }
+          }
+        }
+      }
+
+      // 7. Ingest Grammar
+      if (payload['grammar'] is List) {
+        final List rawGrammar = payload['grammar'];
+        final existingGrammar = StudyMaterialService.instance.getAllGrammar();
+        for (final item in rawGrammar) {
+          if (item is Map) {
+            final g = GrammarTopic.fromJson(Map<String, dynamic>.from(item));
+            if (!existingGrammar.any((t) => t.id == g.id)) {
+              StudyMaterialService.instance.addGrammar(g);
+            }
+          }
+        }
+      }
+
+      // 8. Ingest Dictionary
+      if (payload['dictionary'] is List) {
+        final List rawDict = payload['dictionary'];
+        final existingDict = StudyMaterialService.instance.getAllDictionaryWords();
+        for (final item in rawDict) {
+          if (item is Map) {
+            final d = DictionaryWord.fromJson(Map<String, dynamic>.from(item));
+            if (!existingDict.any((w) => w.id == d.id)) {
+              StudyMaterialService.instance.addDictionaryWord(d);
+            }
+          }
+        }
+      }
+
+      // 9. Ingest Notices
+      if (payload['notices'] is List) {
+        final List rawNotices = payload['notices'];
+        final existingNotices = StudyMaterialService.instance.getAllNotices();
+        for (final item in rawNotices) {
+          if (item is Map) {
+            final n = InstituteNotice.fromJson(Map<String, dynamic>.from(item));
+            if (!existingNotices.any((x) => x.id == n.id)) {
+              StudyMaterialService.instance.addNotice(n);
+            }
+          }
+        }
+      }
+
+      // 10. Ingest Institutes
+      if (payload['institutes'] is List) {
+        final List rawInsts = payload['institutes'];
+        final existingInsts = InstituteService.instance.getAllInstitutes();
+        for (final item in rawInsts) {
+          if (item is Map) {
+            final inst = InstituteProfile.fromJson(Map<String, dynamic>.from(item));
+            if (!existingInsts.any((x) => x.id == inst.id)) {
+              InstituteService.instance.createInstitute(
+                name: inst.name,
+                code: inst.code,
+                phone: inst.phone,
+                email: inst.email,
+                address: inst.address,
+                aboutUs: inst.aboutUs,
+                allowedSetsQuota: inst.allowedSetsQuota,
+                validityExpiry: inst.validityExpiry,
+                maxStudentsQuota: inst.maxStudentsQuota,
+              );
+            }
           }
         }
       }

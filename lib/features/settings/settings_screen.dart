@@ -36,7 +36,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_currentPwController.text.trim() != currentUser.password) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('❌ हालको पासवर्ड मिलेन! कृपया सही पासवर्ड हाल्नुहोस्।'),
+          content: Text(LanguageService.instance.trText(ne: '❌ हालको पासवर्ड मिलेन! कृपया सही पासवर्ड हाल्नुहोस्।', en: '❌ Incorrect current password! Please enter the correct password.', ko: '❌ 현재 비밀번호가 일치하지 않습니다! 다시 입력해주세요.')),
           backgroundColor: Colors.red,
         ),
       );
@@ -46,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (_newPwController.text.trim() != _confirmPwController.text.trim()) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('❌ नयाँ पासवर्ड र पुष्टि पासवर्ड समान हुनुपर्छ!'),
+          content: Text(LanguageService.instance.trText(ne: '❌ नयाँ पासवर्ड र पुष्टि पासवर्ड समान हुनुपर्छ!', en: '❌ New password and confirmation must match!', ko: '❌ 새 비밀번호와 확인 비밀번호가 일치해야 합니다!')),
           backgroundColor: Colors.red,
         ),
       );
@@ -64,7 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _confirmPwController.clear();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('✅ पासवर्ड सफलतापूर्वक परिवर्तन गरियो र सुरक्षित भयो!'),
+          content: Text(LanguageService.instance.trText(ne: '✅ पासवर्ड सफलतापूर्वक परिवर्तन गरियो र सुरक्षित भयो!', en: '✅ Password changed and saved successfully!', ko: '✅ 비밀번호가 성공적으로 변경 및 저장되었습니다!')),
           backgroundColor: Colors.green,
         ),
       );
@@ -113,8 +113,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     _buildLanguageTile(
                       lang: AppLanguage.nepali,
-                      title: '🇳🇵 नेपाली (Nepali)',
-                      subtitle: 'सबै निर्देशन, बटन र व्याख्या नेपाली भाषामा',
+                      title: '🇳🇵 नेपाली',
+                      subtitle: 'सबै निर्देशन, बटन र व्याख्या शुद्ध नेपाली भाषामा',
                       isSelected: currentLang == AppLanguage.nepali,
                       onTap: () {
                         setState(() {
@@ -126,7 +126,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     _buildLanguageTile(
                       lang: AppLanguage.english,
                       title: '🇬🇧 English',
-                      subtitle: 'All interface elements and explanations in English',
+                      subtitle: 'All interface elements and explanations in pure English',
                       isSelected: currentLang == AppLanguage.english,
                       onTap: () {
                         setState(() {
@@ -137,8 +137,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const Divider(height: 1),
                     _buildLanguageTile(
                       lang: AppLanguage.korean,
-                      title: '🇰🇷 한국어 (Korean)',
-                      subtitle: '한국어 원문 및 공식 UBT 시험 인터페이스',
+                      title: '🇰🇷 한국어',
+                      subtitle: '한국어 원문 및 공식 UBT 시험 전용 인터페이스',
                       isSelected: currentLang == AppLanguage.korean,
                       onTap: () {
                         setState(() {
@@ -176,7 +176,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           langService.setModePreference(ExamModePreference.strictExam);
                         });
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('🎯 कडा परीक्षा मोड (Strict Real Exam Mode) चयन गरियो।')),
+                          SnackBar(content: Text(langService.isEnglish ? '🎯 Strict Real Exam Mode selected.' : (langService.isKorean ? '🎯 실전 UBT 모드가 선택되었습니다.' : '🎯 कडा UBT परीक्षा मोड चयन गरियो।'))),
                         );
                       },
                     ),
@@ -192,7 +192,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           langService.setModePreference(ExamModePreference.studyPractice);
                         });
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('📖 अध्ययन तथा अभ्यास मोड (Study & Practice Mode) चयन गरियो।')),
+                          SnackBar(content: Text(langService.isEnglish ? '📖 Study & Practice Mode selected.' : (langService.isKorean ? '📖 자율 학습 모드가 선택되었습니다.' : '📖 अध्ययन तथा अभ्यास मोड चयन गरियो।'))),
                         );
                       },
                     ),
@@ -231,7 +231,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         ),
-                        validator: (v) => (v == null || v.trim().isEmpty) ? 'हालको पासवर्ड हाल्नुहोस्' : null,
+                        validator: (v) => (v == null || v.trim().isEmpty) ? LanguageService.instance.trText(ne: 'हालको पासवर्ड हाल्नुहोस्', en: 'Enter current password', ko: '현재 비밀번호를 입력하세요') : null,
                       ),
                       const SizedBox(height: 14),
                       TextFormField(
@@ -247,7 +247,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         ),
-                        validator: (v) => (v == null || v.trim().length < 4) ? 'कम्तिमा ४ अक्षरको नयाँ पासवर्ड हाल्नुहोस्' : null,
+                        validator: (v) => (v == null || v.trim().length < 4) ? LanguageService.instance.trText(ne: 'कम्तिमा ४ अक्षरको नयाँ पासवर्ड हाल्नुहोस्', en: 'Enter at least 4 characters for new password', ko: '새 비밀번호는 최소 4자 이상 입력하세요') : null,
                       ),
                       const SizedBox(height: 14),
                       TextFormField(
@@ -263,7 +263,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         ),
-                        validator: (v) => (v == null || v.trim().isEmpty) ? 'नयाँ पासवर्ड पुनः पुष्टि गर्नुहोस्' : null,
+                        validator: (v) => (v == null || v.trim().isEmpty) ? LanguageService.instance.trText(ne: 'नयाँ पासवर्ड पुनः पुष्टि गर्नुहोस्', en: 'Confirm new password', ko: '새 비밀번호를 다시 확인하세요') : null,
                       ),
                       const SizedBox(height: 18),
                       SizedBox(
@@ -301,9 +301,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '듣기 (Listening) प्रश्नहरूको अडियो उच्चारण गति:',
-                      style: TextStyle(fontSize: 13, color: Colors.blueGrey, fontWeight: FontWeight.w500),
+                    Text(
+                      langService.isEnglish ? 'Listening Audio Speed:' : (langService.isKorean ? '듣기 문항 오디오 배속:' : 'लिसनिङ अडियो उच्चारण गति:'),
+                      style: const TextStyle(fontSize: 13, color: Colors.blueGrey, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 14),
                     Row(
@@ -324,7 +324,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // -----------------------------------------------------------
             // 5. CACHE & RESET (डाटा व्यवस्थापन)
             // -----------------------------------------------------------
-            _buildSectionHeader(Icons.storage, 'अफलाइन भण्डारण तथा क्यास (Offline Storage & Data)'),
+            _buildSectionHeader(Icons.storage, langService.tr('offline_storage')),
             const SizedBox(height: 12),
             Card(
               elevation: 2,
@@ -336,14 +336,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'स्थानीय मेमोरीमा सुरक्षित परीक्षा नतिजा वा क्यास हटाउन:',
+                      LanguageService.instance.trText(ne: 'स्थानीय मेमोरीमा सुरक्षित परीक्षा नतिजा वा क्यास हटाउन:', en: 'To clear saved exam attempts or cache in local memory:', ko: '로컬 메모리에 저장된 시험 결과 또는 캐시 정리:'),
                       style: TextStyle(fontSize: 13, color: Colors.blueGrey),
                     ),
                     const SizedBox(height: 14),
                     OutlinedButton.icon(
                       onPressed: () => _confirmClearData(context),
                       icon: const Icon(Icons.delete_sweep, color: Colors.red),
-                      label: const Text('सबै परीक्षा इतिहास रिसेट गर्नुहोस् (Reset All Attempts)',
+                      label: Text(langService.isEnglish ? 'Reset All Attempts' : (langService.isKorean ? '모든 시험 기록 초기화' : 'सबै परीक्षा इतिहास रिसेट गर्नुहोस्'),
                           style: TextStyle(color: Colors.red)),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.red),
@@ -367,36 +367,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   elevation: 2,
                 ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      title: const Row(
-                        children: [
-                          Icon(Icons.logout, color: Colors.red, size: 26),
-                          SizedBox(width: 10),
-                          Text('लगआउट पुष्टि गर्नुहोस्'),
-                        ],
-                      ),
-                      content: const Text('के तपाईं आफ्नो खाताबाट लगआउट गर्न निश्चित हुनुहुन्छ?'),
-                      actions: [
-                        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('रद्द गर्नुहोस्')),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                          onPressed: () {
-                            Navigator.pop(ctx);
-                            AuthService.instance.logout();
-                            Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-                          },
-                          child: const Text('हो, लगआउट गर्नुहोस्'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                onPressed: () => AuthService.confirmAndLogout(context),
                 icon: const Icon(Icons.logout, size: 20),
-                label: const Text('खाता लगआउट गर्नुहोस् (Logout)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                label: Text(langService.tr('logout'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
               ),
             ),
             const SizedBox(height: 30),
@@ -515,12 +488,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('डाटा रिसेट पुष्टि (Confirm Reset)'),
+        title: Text(LanguageService.instance.tr('confirm_reset')),
         content: const Text('के तपाईं सबै पुराना परीक्षा नतिजाहरू हटाउन चाहनुहुन्छ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('रद्द (Cancel)'),
+            child: Text(LanguageService.instance.tr('cancel')),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
@@ -532,7 +505,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SnackBar(content: Text('✅ सबै डाटा सफलतापूर्वक रिसेट गरियो।'), backgroundColor: Colors.green),
               );
             },
-            child: const Text('हटाउनुहोस् (Clear)'),
+            child: Text(LanguageService.instance.tr('clear')),
           ),
         ],
       ),

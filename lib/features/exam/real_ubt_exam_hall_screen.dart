@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import '../../core/services/language_service.dart';
 import '../../core/models/mock_test_model.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/question_bank_service.dart';
@@ -35,7 +36,8 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
   final Set<int> _flaggedQuestions = {};
 
   // Timer: 50 minutes = 3000 seconds
-  int _remainingSeconds = 3000;
+  late final ValueNotifier<int> _remainingSecondsNotifier;
+  int get _remainingSeconds => _remainingSecondsNotifier.value;
   Timer? _timer;
   bool _fiveMinuteWarningShown = false;
 
@@ -48,6 +50,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
   @override
   void initState() {
     super.initState();
+    _remainingSecondsNotifier = ValueNotifier<int>(3000);
     WidgetsBinding.instance.addObserver(this);
     _questions = widget.mockSet?.questions ?? QuestionBankService.instance.getFull40ExamQuestions();
     _startCountdownTimer();
@@ -57,6 +60,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    _remainingSecondsNotifier.dispose();
     super.dispose();
   }
 
@@ -86,7 +90,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
             const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
             const SizedBox(width: 10),
             Text(
-              '🚨 부정행위 방지 경고 (' + _cheatWarnings.toString() + '/' + _maxCheatWarnings.toString() + ')',
+              LanguageService.instance.trText(ne: '🚨 परीक्षा नियम उल्लंघन चेतावनी (${_cheatWarnings}/${_maxCheatWarnings})', en: '🚨 Anti-Cheat Warning (${_cheatWarnings}/${_maxCheatWarnings})', ko: '🚨 부정행위 방지 경고 (${_cheatWarnings}/${_maxCheatWarnings})'),
               style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 18),
             ),
           ],
@@ -95,14 +99,22 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              '시험 중 브라우저 창이나 탭을 벗어나는 행위는 엄격히 금지됩니다!',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            Text(
+              LanguageService.instance.trText(
+                ne: 'परीक्षा हल विन्डो छाड्न सख्त निषेध गरिएको छ!',
+                en: 'Leaving the exam window is strictly prohibited!',
+                ko: '시험 중 창이나 탭을 벗어나는 행위는 엄격히 금지됩니다!',
+              ),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'परीक्षा हलबाट बाहिर अन्य विन्डो वा ट्याबमा जान सख्त निषेध गरिएको छ। ३ पटक उल्लंघन भएमा परीक्षा स्वतः सबमिट हुनेछ।',
-              style: TextStyle(color: Colors.black87, fontSize: 13),
+            Text(
+              LanguageService.instance.trText(
+                ne: 'परीक्षा हलबाट बाहिर अन्य विन्डो वा ट्याबमा जान सख्त निषेध छ। ३ पटक उल्लंघन भएमा परीक्षा स्वतः सबमिट हुनेछ।',
+                en: 'Leaving the exam window is strictly prohibited. If violated 3 times, your exam will be automatically submitted.',
+                ko: '시험 중 다른 창이나 탭으로 전환하면 안 됩니다. 3회 위반 시 자동 제출됩니다.',
+              ),
+              style: const TextStyle(color: Colors.black87, fontSize: 13),
             ),
             const SizedBox(height: 12),
             Container(
@@ -112,7 +124,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'बाँकी मौका: ' + (_maxCheatWarnings - _cheatWarnings).toString() + ' पटक',
+                LanguageService.instance.trText(ne: 'बाँकी मौका: ${(_maxCheatWarnings - _cheatWarnings)} पटक', en: 'Remaining chances: ${(_maxCheatWarnings - _cheatWarnings)}', ko: '남은 기회: ${(_maxCheatWarnings - _cheatWarnings)}회'),
                 style: TextStyle(color: Colors.red.shade900, fontWeight: FontWeight.bold),
               ),
             ),
@@ -122,7 +134,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('परीक्षामा फर्कनुहोस् (Continue Exam)'),
+            child: Text(LanguageService.instance.trText(ne: 'परीक्षामा फर्कनुहोस्', en: 'Return to Exam', ko: '시험으로 돌아가기')),
           ),
         ],
       ),
@@ -132,10 +144,9 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
   void _startCountdownTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) return;
-      if (_remainingSeconds > 0) {
-        setState(() => _remainingSeconds--);
-
-        if (_remainingSeconds == 300 && !_fiveMinuteWarningShown) {
+      if (_remainingSecondsNotifier.value > 0) {
+        _remainingSecondsNotifier.value--;
+        if (_remainingSecondsNotifier.value == 300 && !_fiveMinuteWarningShown) {
           _fiveMinuteWarningShown = true;
           _showFiveMinuteWarning();
         }
@@ -149,13 +160,13 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
   void _showFiveMinuteWarning() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(
+        content: Row(
           children: [
-            Icon(Icons.timer, color: Colors.white, size: 24),
-            SizedBox(width: 10),
+            const Icon(Icons.timer, color: Colors.white, size: 24),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
-                '⏰ 시험 종료 5분 전입니다! (५ मिनेट बाँकी छ, कृपया उत्तरहरू रुजु गर्नुहोस्!)',
+                LanguageService.instance.trText(ne: '⏰ परीक्षा समाप्त हुन ५ मिनेट बाँकी छ, कृपया उत्तरहरू रुजु गर्नुहोस्!', en: '⏰ 5 minutes remaining! Please review your answers.', ko: '⏰ 시험 종료 5분 전입니다! 답안을 검토해 주세요.'),
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -193,20 +204,23 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('시험 중단 및 퇴실 확인 (Exit Confirmation)'),
-        content: const Text(
-          '지금 퇴실하시면 현재까지 작성한 답안만 채점되거나 시험이 무효 처리될 수 있습니다. 정말 퇴실하시겠습니까?\n\n'
-          '(के तपाईं परीक्षा समाप्त नगरी बाहिरिन निश्चित हुनुहुन्छ?)',
+        title: Text(LanguageService.instance.trText(ne: 'परीक्षाबाट बाहिरिन चाहनुहुन्छ?', en: 'Exit Exam Confirmation', ko: '시험 중단 및 퇴실 확인')),
+        content: Text(
+          LanguageService.instance.trText(
+            ne: 'यदि तपाईं अहिले बाहिरिनुभयो भने परीक्षा बीचमै रोकिनेछ। के तपाईं निश्चित हुनुहुन्छ?',
+            en: 'Leaving now will terminate your ongoing exam progress. Are you sure you want to exit?',
+            ko: '지금 퇴실하시면 시험이 중단됩니다. 정말 퇴실하시겠습니까?',
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('취소 (रद्द)')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(LanguageService.instance.tr('cancel'))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () {
               Navigator.pop(ctx);
               Navigator.pop(context);
             },
-            child: const Text('퇴실 (Exit Exam)'),
+            child: Text(LanguageService.instance.tr('exit_exam')),
           ),
         ],
       ),
@@ -223,40 +237,44 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.check_circle_outline, color: Color(0xFF1E3A8A), size: 28),
-            SizedBox(width: 10),
-            Text('최종 답안 제출 (Submit Exam)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            const Icon(Icons.check_circle_outline, color: Color(0xFF1E3A8A), size: 28),
+            const SizedBox(width: 10),
+            Text(LanguageService.instance.trText(ne: 'अन्तिम उत्तर सबमिट', en: 'Submit Final Answers', ko: '최종 답안 제출'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('수험자: ' + (widget.student?.name ?? 'विद्यार्थी'), style: const TextStyle(fontWeight: FontWeight.bold)),
-            Text('수험번호: ' + (widget.student?.registrationNo ?? '2026-001')),
+            Text(LanguageService.instance.trText(ne: 'विद्यार्थी: ${widget.student?.name ?? "परीक्षार्थी"}', en: 'Candidate: ${widget.student?.name ?? "Student"}', ko: '수험자: ${widget.student?.name ?? "수험생"}'), style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(LanguageService.instance.trText(ne: 'दर्ता नं: ${widget.student?.registrationNo ?? "2026-001"}', en: 'Reg No: ${widget.student?.registrationNo ?? "2026-001"}', ko: '수험번호: ${widget.student?.registrationNo ?? "2026-001"}')),
             const Divider(height: 20),
-            _buildStatRow('총 문항수 (Total Questions):', total.toString(), Colors.black87),
-            _buildStatRow('답안 작성 (Answered):', answered.toString(), Colors.green),
-            _buildStatRow('미작성 문항 (Unanswered):', unanswered.toString(), unanswered > 0 ? Colors.red : Colors.grey),
-            _buildStatRow('검토 요청 (Marked for Review):', flagged.toString(), Colors.amber.shade900),
+            _buildStatRow(LanguageService.instance.trText(ne: 'कुल प्रश्न:', en: 'Total Questions:', ko: '총 문항수:'), total.toString(), Colors.black87),
+            _buildStatRow(LanguageService.instance.trText(ne: 'हल गरिएका प्रश्न:', en: 'Answered:', ko: '답안 작성:'), answered.toString(), Colors.green),
+            _buildStatRow(LanguageService.instance.trText(ne: 'नछोएका प्रश्न:', en: 'Unanswered:', ko: '미작성 문항:'), unanswered.toString(), unanswered > 0 ? Colors.red : Colors.grey),
+            _buildStatRow(LanguageService.instance.trText(ne: 'समीक्षाका लागि चिन्हित:', en: 'Marked for Review:', ko: '검토 요청:'), flagged.toString(), Colors.amber.shade900),
             const SizedBox(height: 14),
-            const Text(
-              '제출 후에는 답안을 수정할 수 없습니다. 답안을 최종 제출하시겠습니까?',
-              style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E3A8A)),
+            Text(
+              LanguageService.instance.trText(
+                ne: 'सबमिट गरेपछि उत्तर परिवर्तन गर्न सकिने छैन। के तपाईं सबमिट गर्न निश्चित हुनुहुन्छ?',
+                en: 'You cannot modify answers after submission. Are you sure you want to submit?',
+                ko: '제출 후에는 답안을 수정할 수 없습니다. 답안을 최종 제출하시겠습니까?',
+              ),
+              style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF1E3A8A)),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('계속 풀기 (रद्द)')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(LanguageService.instance.trText(ne: 'परीक्षा जारी राख्नुहोस्', en: 'Continue Exam', ko: '계속 풀기'))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
             onPressed: () {
               Navigator.pop(ctx);
               _submitExamDirectly();
             },
-            child: const Text('제출하기 (Submit)'),
+            child: Text(LanguageService.instance.tr('submit_exam')),
           ),
         ],
       ),
@@ -338,13 +356,17 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.grid_view, color: Color(0xFF1E3A8A), size: 24),
-                          SizedBox(width: 10),
+                          const Icon(Icons.grid_view, color: Color(0xFF1E3A8A), size: 24),
+                          const SizedBox(width: 10),
                           Text(
-                            '전체문항 (४० प्रश्नहरूको दुई खण्ड ग्रिड)',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF1E3A8A)),
+                            LanguageService.instance.trText(
+                              ne: 'सबै प्रश्नहरूको स्थिति (४० प्रश्न ग्रिड)',
+                              en: 'All Questions Overview (40 Questions Grid)',
+                              ko: '전체문항 (40문항 현황표)',
+                            ),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF1E3A8A)),
                           ),
                         ],
                       ),
@@ -354,14 +376,18 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                             decoration: BoxDecoration(color: const Color(0xFF1E3A8A), borderRadius: BorderRadius.circular(6)),
                             child: Text(
-                              'कुल हल: ' + _selectedAnswers.length.toString() + '/40',
+                              LanguageService.instance.trText(
+                                ne: 'कुल हल: ${_selectedAnswers.length}/40',
+                                en: 'Answered: ${_selectedAnswers.length}/40',
+                                ko: '작성 완료: ${_selectedAnswers.length}/40',
+                              ),
                               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                           ),
                           const SizedBox(width: 8),
                           IconButton(
                             icon: const Icon(Icons.close),
-                            tooltip: 'बन्द गर्नुहोस्',
+                            tooltip: LanguageService.instance.trText(ne: 'बन्द गर्नुहोस्', en: 'Close', ko: '닫기'),
                             onPressed: () => Navigator.pop(ctx),
                           ),
                         ],
@@ -382,7 +408,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                           // LEFT SIDE: READING (01 - 20)
                           Expanded(
                             child: _buildSectionGridCard(
-                              title: '📖 읽기 (Reading 01 - 20)',
+                              title: LanguageService.instance.trText(ne: '📖 रिडिङ (०१ - २०)', en: '📖 Reading (01 - 20)', ko: '📖 읽기 (01 - 20)'),
                               color: const Color(0xFF1E3A8A),
                               answeredCount: readingAnswered,
                               startIdx: 0,
@@ -395,7 +421,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                           // RIGHT SIDE: LISTENING (21 - 40)
                           Expanded(
                             child: _buildSectionGridCard(
-                              title: '🎧 듣기 (Listening 21 - 40)',
+                              title: LanguageService.instance.trText(ne: '🎧 लिसनिङ (२१ - ४०)', en: '🎧 Listening (21 - 40)', ko: '🎧 듣기 (21 - 40)'),
                               color: const Color(0xFFEA580C),
                               answeredCount: listeningAnswered,
                               startIdx: 20,
@@ -419,10 +445,10 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildLegend(const Color(0xFF1E3A8A), 'हल भएको (' + _selectedAnswers.length.toString() + ')'),
-                      _buildLegend(Colors.white, 'नछोएको (' + (40 - _selectedAnswers.length).toString() + ')', border: true),
-                      _buildLegend(Colors.amber, 'हालको प्रश्न', border: true),
-                      _buildLegend(Colors.red, 'समीक्षा (' + _flaggedQuestions.length.toString() + ')', isFlag: true),
+                      _buildLegend(const Color(0xFF1E3A8A), LanguageService.instance.trText(ne: 'हल भएको (${_selectedAnswers.length})', en: 'Answered (${_selectedAnswers.length})', ko: '답안 작성 (${_selectedAnswers.length})')),
+                      _buildLegend(Colors.white, LanguageService.instance.trText(ne: 'नछोएको (${40 - _selectedAnswers.length})', en: 'Unanswered (${40 - _selectedAnswers.length})', ko: '미작성 (${40 - _selectedAnswers.length})'), border: true),
+                      _buildLegend(Colors.amber, LanguageService.instance.trText(ne: 'हालको प्रश्न', en: 'Current Question', ko: '현재 문항'), border: true),
+                      _buildLegend(Colors.red, LanguageService.instance.trText(ne: 'समीक्षा (${_flaggedQuestions.length})', en: 'Review (${_flaggedQuestions.length})', ko: '검토 (${_flaggedQuestions.length})'), isFlag: true),
                     ],
                   ),
                 ),
@@ -472,7 +498,11 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  'हल: ' + answeredCount.toString() + '/20',
+                  LanguageService.instance.trText(
+                    ne: 'हल: $answeredCount/20',
+                    en: 'Done: $answeredCount/20',
+                    ko: '완료: $answeredCount/20',
+                  ),
                   style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
                 ),
               ),
@@ -575,7 +605,9 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     final currentQ = _questions[_currentQuestionIndex];
     final isReading = _currentQuestionIndex < 20;
 
-    return Scaffold(
+    return ListenableBuilder(
+      listenable: LanguageService.instance,
+      builder: (context, _) => Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       // 1. TOP OFFICIAL HEADER BAR
       appBar: PreferredSize(
@@ -593,7 +625,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                     OutlinedButton.icon(
                       onPressed: _confirmExit,
                       icon: const Icon(Icons.exit_to_app, size: 16, color: Colors.white),
-                      label: const Text('퇴실 (Exit)', style: TextStyle(color: Colors.white, fontSize: 12)),
+                      label: Text(LanguageService.instance.trText(ne: 'बाहिरिनुहोस्', en: 'Exit', ko: '퇴실'), style: const TextStyle(color: Colors.white, fontSize: 12)),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Colors.white38),
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -614,11 +646,11 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          '수험번호: ' + (widget.student?.registrationNo ?? '2026-001') + '  |  좌석: 12번',
+                          LanguageService.instance.trText(ne: 'दर्ता नं: ${widget.student?.registrationNo ?? "2026-001"} | सिट: १२', en: 'Reg No: ${widget.student?.registrationNo ?? "2026-001"} | Seat: 12', ko: '수험번호: ${widget.student?.registrationNo ?? "2026-001"} | 좌석: 12번'),
                           style: const TextStyle(color: Colors.white70, fontSize: 11),
                         ),
                         Text(
-                          '성명: ' + (widget.student?.name ?? 'विद्यार्थी'),
+                          LanguageService.instance.trText(ne: 'नाम: ${widget.student?.name ?? "परीक्षार्थी"}', en: 'Name: ${widget.student?.name ?? "Candidate"}', ko: '성명: ${widget.student?.name ?? "수험생"}'),
                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ],
@@ -636,7 +668,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        isReading ? '📖 읽기 (Reading 1-20)' : '🎧 듣기 (Listening 21-40)',
+                        isReading ? LanguageService.instance.trText(ne: '📖 रिडिङ (१-२०)', en: '📖 Reading (1-20)', ko: '📖 읽기 (1-20)') : LanguageService.instance.trText(ne: '🎧 लिसनिङ (२१-४०)', en: '🎧 Listening (21-40)', ko: '🎧 듣기 (21-40)'),
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                       ),
                     ),
@@ -648,7 +680,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        '문항 ' + (_currentQuestionIndex + 1).toString() + ' / ' + _questions.length.toString(),
+                        LanguageService.instance.trText(ne: 'प्रश्न ${_currentQuestionIndex + 1} / ${_questions.length}', en: 'Question ${_currentQuestionIndex + 1} / ${_questions.length}', ko: '문항 ${_currentQuestionIndex + 1} / ${_questions.length}'),
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                       ),
                     ),
@@ -682,31 +714,37 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                     ),
                     const SizedBox(width: 10),
 
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: _remainingSeconds < 300 ? Colors.red.shade700 : const Color(0xFF1E293B),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: _remainingSeconds < 300 ? Colors.redAccent : Colors.white30,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.timer, color: _remainingSeconds < 300 ? Colors.yellowAccent : Colors.white, size: 18),
-                          const SizedBox(width: 6),
-                          Text(
-                            _formatTimer(_remainingSeconds),
-                            style: TextStyle(
-                              color: _remainingSeconds < 300 ? Colors.yellowAccent : Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              letterSpacing: 1.2,
+                    ValueListenableBuilder<int>(
+                      valueListenable: _remainingSecondsNotifier,
+                      builder: (context, remainingSecs, _) {
+                        final isLowTime = remainingSecs < 300;
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isLowTime ? Colors.red.shade700 : const Color(0xFF1E293B),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isLowTime ? Colors.redAccent : Colors.white30,
+                              width: 1.5,
                             ),
                           ),
-                        ],
-                      ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.timer, color: isLowTime ? Colors.yellowAccent : Colors.white, size: 18),
+                              const SizedBox(width: 6),
+                              Text(
+                                _formatTimer(remainingSecs),
+                                style: TextStyle(
+                                  color: isLowTime ? Colors.yellowAccent : Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -746,20 +784,16 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           _buildBottomControlBar(),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCurrentQuestion(QuestionTemplate currentQ) {
-    if (currentQ is ReadingTextQuestion) {
-      return ReadingQuestionWidget(
-        key: ValueKey(currentQ.questionId),
-        question: currentQ,
-        selectedOptionIndex: _selectedAnswers[_currentQuestionIndex],
-        onOptionSelected: (idx) {
-          setState(() => _selectedAnswers[_currentQuestionIndex] = idx);
-        },
-      );
-    } else if (currentQ is ListeningAudioQuestion) {
+    final bool isListening = (currentQ is ListeningAudioQuestion) ||
+        (currentQ is UniversalQuestion && currentQ.isListening) ||
+        (_currentQuestionIndex >= 20);
+
+    if (isListening) {
       return ListeningQuestionWidget(
         key: ValueKey(currentQ.questionId),
         question: currentQ,
@@ -768,8 +802,16 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           setState(() => _selectedAnswers[_currentQuestionIndex] = idx);
         },
       );
+    } else {
+      return ReadingQuestionWidget(
+        key: ValueKey(currentQ.questionId),
+        question: currentQ,
+        selectedOptionIndex: _selectedAnswers[_currentQuestionIndex],
+        onOptionSelected: (idx) {
+          setState(() => _selectedAnswers[_currentQuestionIndex] = idx);
+        },
+      );
     }
-    return const SizedBox.shrink();
   }
 
   // 4. BOTTOM NAVIGATION CONTROLS
@@ -790,7 +832,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           ElevatedButton.icon(
             onPressed: _currentQuestionIndex > 0 ? () => _jumpToQuestion(_currentQuestionIndex - 1) : null,
             icon: const Icon(Icons.arrow_back, size: 18),
-            label: const Text('이전 (Previous)', style: TextStyle(fontWeight: FontWeight.bold)),
+            label: Text(LanguageService.instance.tr('prev_btn'), style: const TextStyle(fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white24,
               foregroundColor: Colors.white,
@@ -821,9 +863,9 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                       children: [
                         const Icon(Icons.keyboard_arrow_up, color: Colors.amber, size: 24),
                         const SizedBox(width: 8),
-                        const Text(
-                          '전체문항 (दुई खण्ड ग्रिड)',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                        Text(
+                          LanguageService.instance.trText(ne: 'सबै प्रश्नहरू (दुई खण्ड)', en: 'All Questions', ko: '전체문항'),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                         const SizedBox(width: 10),
                         Container(
@@ -833,7 +875,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            'हल: ' + _selectedAnswers.length.toString() + '/40',
+                            LanguageService.instance.trText(ne: 'हल: ${_selectedAnswers.length}/४०', en: 'Answered: ${_selectedAnswers.length}/40', ko: '작성: ${_selectedAnswers.length}/40'),
                             style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                         ),
@@ -845,7 +887,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            '문항 ' + (_currentQuestionIndex + 1).toString() + ' / 40',
+                            LanguageService.instance.trText(ne: 'प्रश्न ${_currentQuestionIndex + 1} / ४०', en: 'Question ${_currentQuestionIndex + 1} / 40', ko: '문항 ${_currentQuestionIndex + 1} / 40'),
                             style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold, fontSize: 12),
                           ),
                         ),
@@ -875,7 +917,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '검토 (Review 🚩)',
+                        LanguageService.instance.trText(ne: 'समीक्षा 🚩', en: 'Review 🚩', ko: '검토 🚩'),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -896,7 +938,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                 ElevatedButton.icon(
                   onPressed: () => _jumpToQuestion(_currentQuestionIndex + 1),
                   icon: const Icon(Icons.arrow_forward, size: 18),
-                  label: const Text('다음 (Next)', style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: Text(LanguageService.instance.tr('next_btn'), style: const TextStyle(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF1E3A8A),
@@ -907,7 +949,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
               ElevatedButton.icon(
                 onPressed: _confirmSubmit,
                 icon: const Icon(Icons.check_circle, size: 18),
-                label: const Text('최종 제출 (Submit)', style: TextStyle(fontWeight: FontWeight.bold)),
+                label: Text(LanguageService.instance.tr('submit_exam'), style: const TextStyle(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFF59E0B),
                   foregroundColor: Colors.black87,
