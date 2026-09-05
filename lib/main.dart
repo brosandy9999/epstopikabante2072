@@ -28,6 +28,8 @@ import 'features/exam/official_scorecard_screen.dart';
 import 'features/study/student_study_hub_screen.dart';
 import 'core/services/study_material_service.dart';
 import 'features/super_admin/super_admin_dashboard.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'features/security/android_web_gatekeeper_screen.dart';
 
 import 'core/services/cloud_sync_service.dart';
 
@@ -84,7 +86,9 @@ class EpsTopikApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color(0xFFF3F4F6),
             useMaterial3: true,
           ),
-          home: const LoginScreen(),
+          home: (kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+              ? const AndroidWebGatekeeperScreen()
+              : const LoginScreen(),
         );
       },
     );
