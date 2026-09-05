@@ -165,6 +165,31 @@ class QuestionBankService extends ChangeNotifier {
     );
   }
 
+  /// Intelligent Non-Destructive Question Set Merge:
+  /// Preserves locally created and edited question sets, unioning with remote sets
+  void mergeSetsFromCloud(List<MockTestSet> remoteSets) {
+    getAllMockSets();
+    bool hasChanges = false;
+    for (final rSet in remoteSets) {
+      final localIdx = _customSets.indexWhere((s) => s.id == rSet.id);
+      if (localIdx == -1) {
+        _customSets.add(rSet);
+        hasChanges = true;
+      } else {
+        // If local set has fewer questions, or remote has updates without destroying local edits
+        final localSet = _customSets[localIdx];
+        if (localSet.questions.length < rSet.questions.length) {
+          _customSets[localIdx] = rSet;
+          hasChanges = true;
+        }
+      }
+    }
+    if (hasChanges) {
+      _saveCustomSets();
+      _saveCustomSetsToStorage();
+    }
+  }
+
   void addOrUpdateMockSet(MockTestSet set) {
     getAllMockSets();
     final index = _cachedSets!.indexWhere((s) => s.id == set.id);

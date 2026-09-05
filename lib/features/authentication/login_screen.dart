@@ -961,8 +961,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-                      CloudSyncService.instance.buildSyncAction(context, iconColor: Colors.amber),
-                      ...AppLanguage.values.map((lang) {
+                                            ...AppLanguage.values.map((lang) {
                         final isSel = LanguageService.instance.currentLanguage == lang;
                         return InkWell(
                           onTap: () => LanguageService.instance.setLanguage(lang),

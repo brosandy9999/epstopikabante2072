@@ -163,14 +163,17 @@ class CloudSyncService extends ChangeNotifier {
   /// Ingests a received Sync Payload into all local stores
   bool ingestSyncPayload(Map<String, dynamic> payload) {
     try {
-      // 1. Ingest Question Sets
+      // 1. Ingest Question Sets (Non-Destructive Merge)
       if (payload['sets'] is List) {
         final List rawSets = payload['sets'];
+        final List<MockTestSet> remoteSets = [];
         for (final item in rawSets) {
           if (item is Map) {
-            final setObj = MockTestSet.fromJson(Map<String, dynamic>.from(item));
-            QuestionBankService.instance.addOrUpdateMockSet(setObj);
+            remoteSets.add(MockTestSet.fromJson(Map<String, dynamic>.from(item)));
           }
+        }
+        if (remoteSets.isNotEmpty) {
+          QuestionBankService.instance.mergeSetsFromCloud(remoteSets);
         }
       }
 
@@ -188,7 +191,7 @@ class CloudSyncService extends ChangeNotifier {
         }
       }
 
-      // 3. Ingest Attempts
+      // 3. Ingest Attempts (Non-Destructive Merge)
       if (payload['attempts'] is List) {
         final List rawAttempts = payload['attempts'];
         final List<ExamAttemptRecord> attempts = [];
@@ -198,7 +201,7 @@ class CloudSyncService extends ChangeNotifier {
           }
         }
         if (attempts.isNotEmpty) {
-          ExamHistoryService.instance.loadFromStorage(attempts);
+          ExamHistoryService.instance.mergeAttemptsFromCloud(attempts);
         }
       }
 
@@ -325,7 +328,7 @@ class CloudSyncService extends ChangeNotifier {
   }
 
   /// Push local updates to Cloud endpoint or prepare sync payload
-  Future<bool> pushToCloud({bool silent = false}) async {
+  Future<bool> pushToCloud({bool silent = true}) async {
     if (!silent) {
       _state = SyncState.syncing;
       _lastError = null;
@@ -374,7 +377,7 @@ class CloudSyncService extends ChangeNotifier {
   }
 
   /// Pull latest updates from Cloud endpoints into local app (with zero-cache headers)
-  Future<bool> pullFromCloud({bool silent = false}) async {
+  Future<bool> pullFromCloud({bool silent = true}) async {
     if (!silent) {
       _state = SyncState.syncing;
       _lastError = null;
@@ -500,35 +503,8 @@ class CloudSyncService extends ChangeNotifier {
     }
   }
 
-  /// Reusable Cloud Sync Action Button with visual state & feedback
+  /// Reusable Cloud Sync Action Button (Clean minimal mode: Silent background sync)
   Widget buildSyncAction(BuildContext context, {Color? iconColor}) {
-    return ListenableBuilder(
-      listenable: this,
-      builder: (context, _) {
-        final isSyncing = _state == SyncState.syncing;
-        return IconButton(
-          icon: isSyncing
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
-                  ),
-                )
-              : Icon(
-                  _state == SyncState.synced ? Icons.cloud_done : Icons.cloud_sync,
-                  color: iconColor ?? Colors.amber,
-                  size: 22,
-                ),
-          tooltip: LanguageService.instance.trText(
-            ne: 'क्लाउड सिङ्क (Sync Now)',
-            en: 'Cloud Sync (Sync Now)',
-            ko: '클라우드 동기화 (Sync Now)',
-          ),
-          onPressed: isSyncing ? null : () => syncNow(context: context),
-        );
-      },
-    );
+    return const SizedBox.shrink();
   }
 }

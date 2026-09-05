@@ -1,3 +1,4 @@
+import 'cloud_sync_service.dart';
 import '../models/exam_session_model.dart';
 import 'storage_service.dart';
 
@@ -87,12 +88,26 @@ class ExamHistoryService {
     _seedInitialAttempts();
   }
 
-  /// Initialize and load saved attempts from persistent offline storage
+  /// Initialize and load saved attempts from persistent offline storage (Non-Destructive)
   void loadFromStorage(List<ExamAttemptRecord> savedAttempts) {
     if (savedAttempts.isNotEmpty) {
-      _attempts.clear();
-      _attempts.addAll(savedAttempts);
+      mergeAttemptsFromCloud(savedAttempts);
     }
+  }
+
+  /// Intelligent Non-Destructive Attempt Merge:
+  /// Preserves all local test results and unions with remote/cloud attempts
+  void mergeAttemptsFromCloud(List<ExamAttemptRecord> remoteAttempts) {
+    for (final r in remoteAttempts) {
+      final exists = _attempts.any((a) =>
+          a.studentId == r.studentId &&
+          a.setId == r.setId &&
+          a.completedAt.difference(r.completedAt).inSeconds.abs() < 5);
+      if (!exists) {
+        _attempts.add(r);
+      }
+    }
+    StorageService.instance.saveExamAttempts(_attempts);
   }
 
   void _seedInitialAttempts() {
@@ -169,6 +184,7 @@ class ExamHistoryService {
   void saveAttempt(ExamAttemptRecord record) {
     _attempts.insert(0, record); // Most recent first
     StorageService.instance.saveExamAttempts(_attempts);
+    CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
   }
 
   List<ExamAttemptRecord> getAllAttempts() => List.unmodifiable(_attempts);

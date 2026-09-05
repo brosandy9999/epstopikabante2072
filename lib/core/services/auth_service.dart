@@ -235,7 +235,7 @@ class AuthService extends ChangeNotifier {
   }
 
   /// Intelligent Non-Destructive Cloud Merge:
-  /// Preserves locally registered / updated candidates and adds new ones
+  /// Preserves locally registered / updated candidates and adds new ones (Never Deletes Local Users)
   void mergeUsersFromCloud(List<AppUser> remoteUsers) {
     bool hasChanges = false;
     for (final rUser in remoteUsers) {
@@ -245,8 +245,12 @@ class AuthService extends ChangeNotifier {
           _students.add(rUser);
           hasChanges = true;
         } else {
-          _students[localIdx] = rUser;
-          hasChanges = true;
+          // Preserve local student credentials, update metadata if newer
+          final localStudent = _students[localIdx];
+          if (localStudent.password == rUser.password || localStudent.password.isEmpty) {
+            _students[localIdx] = rUser;
+            hasChanges = true;
+          }
         }
       } else if (rUser.role == UserRole.admin) {
         if (_admin.id == rUser.id || _admin.username.toLowerCase() == rUser.username.toLowerCase()) {

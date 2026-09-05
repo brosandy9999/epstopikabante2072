@@ -230,697 +230,787 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
     final explCtrl = TextEditingController(text: ansInfo.explanation);
     int selectedCorrectIndex = ansInfo.correctIndex;
 
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 650, maxHeight: 700),
-            padding: const EdgeInsets.all(22),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Dialog Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: isReading ? const Color(0xFF1E3A8A) : const Color(0xFFEA580C),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              '${LanguageService.instance.trText(ne: "प्रश्न", en: "Q", ko: "문항")} $questionNo (${isReading ? "READING" : "LISTENING"})',
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            '${LanguageService.instance.trText(ne: "सेट:", en: "Set:", ko: "세트:")} ${set.title.split(' ')[0]}',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey),
-                          ),
-                        ],
-                      ),
-                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
-                    ],
-                  ),
-                  const Divider(height: 20),
+    // Snapshot initial values to detect unsaved changes accurately
+    final initialQuestionText = q.questionText;
+    final initialImgUrl = imgUrl ?? '';
+    final initialAudioUrl = audioUrl ?? '';
+    final initialScript = script ?? '';
+    final initialScriptNep = scriptNep ?? '';
+    final initialAudioOnly = isAudioOnly;
+    final initialOptionTexts = List<String>.from(rawTexts);
+    final initialOptionImgs = List.generate(4, (i) => (q is UniversalQuestion && i < q.imageOptions.length) ? (q.imageOptions[i] ?? '') : '');
+    final initialOptionAudios = List.generate(4, (i) => (q is UniversalQuestion && i < q.audioOptions.length) ? (q.audioOptions[i] ?? '') : '');
+    final initialExpl = ansInfo.explanation;
+    final initialCorrectIndex = ansInfo.correctIndex;
 
-                  // 1. Question Text
-                  Text(
+    bool hasUnsavedChanges() {
+      if (textCtrl.text.trim() != initialQuestionText.trim()) return true;
+      if (imgCtrl.text.trim() != initialImgUrl.trim()) return true;
+      if (audioCtrl.text.trim() != initialAudioUrl.trim()) return true;
+      if (scriptCtrl.text.trim() != initialScript.trim()) return true;
+      if (scriptNepCtrl.text.trim() != initialScriptNep.trim()) return true;
+      if (isAudioOnly != initialAudioOnly) return true;
+      if (explCtrl.text.trim() != initialExpl.trim()) return true;
+      if (selectedCorrectIndex != initialCorrectIndex) return true;
+      for (int i = 0; i < 4; i++) {
+        if (optionTextCtrls[i].text.trim() != (i < initialOptionTexts.length ? initialOptionTexts[i].trim() : '')) return true;
+        if (optionImgCtrls[i].text.trim() != (i < initialOptionImgs.length ? initialOptionImgs[i].trim() : '')) return true;
+        if (optionAudioCtrls[i].text.trim() != (i < initialOptionAudios.length ? initialOptionAudios[i].trim() : '')) return true;
+      }
+      return false;
+    }
+
+    Future<void> performSaveAndSync(BuildContext dialogCtx) async {
+      final updatedText = textCtrl.text.trim().isEmpty ? q.questionText : textCtrl.text.trim();
+      final finalOptions = optionTextCtrls.map((c) => c.text.trim()).toList();
+      final finalImageOptions = optionImgCtrls.map((c) => c.text.trim().isEmpty ? null : c.text.trim()).toList();
+      final finalAudioOptions = optionAudioCtrls.map((c) => c.text.trim().isEmpty ? null : c.text.trim()).toList();
+      final finalExpl = explCtrl.text.trim().isEmpty ? 'सही उत्तर' : explCtrl.text.trim();
+
+      final updatedAns = QuestionAnswerInfo(
+        correctIndex: selectedCorrectIndex,
+        explanation: finalExpl,
+      );
+
+      final updatedQ = UniversalQuestion(
+        questionId: qId,
+        questionNumber: questionNo,
+        questionText: updatedText,
+        questionImageUrl: imgCtrl.text.trim().isEmpty ? null : imgCtrl.text.trim(),
+        questionAudioUrl: audioCtrl.text.trim().isEmpty ? null : audioCtrl.text.trim(),
+        audioScript: scriptCtrl.text.trim().isEmpty ? null : scriptCtrl.text.trim(),
+        audioScriptNepali: scriptNepCtrl.text.trim().isEmpty ? null : scriptNepCtrl.text.trim(),
+        isListening: !isReading,
+        isAudioOnly: isAudioOnly,
+        textOptions: finalOptions,
+        imageOptions: finalImageOptions,
+        audioOptions: finalAudioOptions,
+      );
+
+      // १. लोकल डेटाबेसमा सेभ
+      QuestionBankService.instance.updateQuestionInSet(
+        setId: set.id,
+        questionIndex: qIndex,
+        updatedQuestion: updatedQ,
+        updatedAnswer: updatedAns,
+      );
+
+      if (mounted) {
+        setState(() {
+          _selectedSet = QuestionBankService.instance.getMockSetById(set.id);
+        });
+      }
+
+      // २. पृष्ठभूमिमा स्वतः क्लाउड सिङ्क (Silent Background Auto-Sync)
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+
+      // ३. सम्पादन मोडल बन्द गर्ने
+      if (dialogCtx.mounted) {
+        Navigator.pop(dialogCtx);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
                     LanguageService.instance.trText(
-                      ne: '१. प्रश्न वाक्य / निर्देशन:*',
-                      en: '1. Question Text / Instruction:*',
-                      ko: '1. 지문 / 발문 내용:*',
+                      ne: '✅ प्रश्न $questionNo सेभ भयो र ब्याकग्राउन्डमा स्वतः सिङ्क भयो!',
+                      en: '✅ Question $questionNo saved and auto-synced!',
+                      ko: '✅ 문항 $questionNo 저장 및 자동 동기화 완료!',
                     ),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                   ),
-                  const SizedBox(height: 6),
-                  TextField(
-                    controller: textCtrl,
-                    maxLines: 2,
-                    decoration: const InputDecoration(
-                      hintText: 'e.g. 다음 그림을 보고 맞는 단어를 고르십시오.',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF0F766E),
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
 
-                  // 2. Question Image / Graph (Optional)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        LanguageService.instance.trText(
-                          ne: '२. प्रश्नको तस्बिर / ग्राफ:',
-                          en: '2. Question Image / Graph:',
-                          ko: '2. 문제 이미지 / 그림 자료:',
-                        ),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1E3A8A),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+    Future<void> handleExitAttempt(BuildContext dialogCtx) async {
+      if (!hasUnsavedChanges()) {
+        Navigator.pop(dialogCtx);
+        return;
+      }
+
+      // परिवर्तनहरू सुरक्षित गर्ने कि नगर्ने कन्फर्मेसन डाइलग
+      final result = await showDialog<String>(
+        context: context,
+        builder: (confirmCtx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.save_as_rounded, color: Color(0xFFEA580C)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  LanguageService.instance.trText(
+                    ne: 'परिवर्तनहरू सुरक्षित गर्नुहुन्छ? (Save Changes?)',
+                    en: 'Save Changes Before Leaving?',
+                    ko: '변경 사항을 저장하시겠습니까?',
+                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            LanguageService.instance.trText(
+              ne: 'तपाईंले प्रश्न $questionNo मा परिमार्जन गर्नुभएको छ। बन्द गर्नु अगाडि यसलाई सेभ तथा स्वतः क्लाउडमा सिङ्क गर्न चाहनुहुन्छ?',
+              en: 'You have unsaved changes on Question $questionNo. Would you like to save and auto-sync before closing?',
+              ko: '문항 $questionNo에 저장되지 않은 변경 사항이 있습니다. 닫기 전에 저장하고 자동 동기화하시겠습니까?',
+            ),
+            style: const TextStyle(fontSize: 13, height: 1.4),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(confirmCtx, 'cancel'),
+              child: Text(LanguageService.instance.tr('cancel')),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () => Navigator.pop(confirmCtx, 'discard'),
+              child: Text(
+                LanguageService.instance.trText(
+                  ne: 'छोड्नुहोस् (Discard)',
+                  en: 'Discard',
+                  ko: '저장 안 함',
+                ),
+              ),
+            ),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F766E),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              ),
+              icon: const Icon(Icons.save, size: 16),
+              label: Text(
+                LanguageService.instance.trText(
+                  ne: 'सेभ गरी बन्द गर्नुहोस् (Save & Exit)',
+                  en: 'Save & Exit',
+                  ko: '저장 후 닫기',
+                ),
+              ),
+              onPressed: () => Navigator.pop(confirmCtx, 'save'),
+            ),
+          ],
+        ),
+      );
+
+      if (result == 'save') {
+        await performSaveAndSync(dialogCtx);
+      } else if (result == 'discard') {
+        if (dialogCtx.mounted) {
+          Navigator.pop(dialogCtx);
+        }
+      }
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            handleExitAttempt(ctx);
+          },
+          child: Dialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 650, maxHeight: 700),
+              padding: const EdgeInsets.all(22),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Dialog Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: isReading ? const Color(0xFF1E3A8A) : const Color(0xFFEA580C),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '${LanguageService.instance.trText(ne: "प्रश्न", en: "Q", ko: "문항")} $questionNo (${isReading ? "READING" : "LISTENING"})',
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
                             ),
-                            onPressed: () async {
-                              final file = await FileUploadService.instance.pickImageFile();
-                              if (file != null) {
-                                setDialogState(() {
-                                  imgCtrl.text = file.bestUrl;
-                                });
-                              }
-                            },
-                            icon: const Icon(Icons.add_photo_alternate, size: 18),
-                            label: Text(imgCtrl.text.isEmpty
-                                ? LanguageService.instance.trText(ne: '📁 डिभाइसबाट तस्बिर अपलोड गर्नुहोस्', en: '📁 Upload Image from Device', ko: '📁 기기에서 이미지 업로드')
-                                : (imgCtrl.text.startsWith('https://firebasestorage')
-                                    ? '☁️ Firebase ✅'
-                                    : LanguageService.instance.trText(ne: 'तस्बिर लोड भयो ✅', en: 'Image Loaded ✅', ko: '이미지 로드됨 ✅'))),
-                          ),
-                          if (imgCtrl.text.isNotEmpty) ...[
-                            const SizedBox(width: 8),
-                            IconButton(
-                              icon: const Icon(Icons.delete_outline, color: Colors.red),
-                              tooltip: LanguageService.instance.trText(ne: 'तस्बिर हटाउनुहोस्', en: 'Remove image', ko: '이미지 제거'),
-                              onPressed: () => setDialogState(() => imgCtrl.clear()),
+                            const SizedBox(width: 10),
+                            Text(
+                              '${LanguageService.instance.trText(ne: "सेट:", en: "Set:", ko: "세트:")} ${set.title.split(' ')[0]}',
+                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey),
                             ),
                           ],
-                        ],
-                      ),
-                      if (imgCtrl.text.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Container(
-                          height: 90,
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.blue.shade200),
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey.shade50,
-                          ),
-                          child: SmartImageWidget(imageSource: imgCtrl.text, height: 80, fit: BoxFit.contain),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          tooltip: LanguageService.instance.tr('close'),
+                          onPressed: () => handleExitAttempt(ctx),
                         ),
                       ],
-                      const SizedBox(height: 6),
-                      TextField(
-                        controller: imgCtrl,
-                        decoration: InputDecoration(
-                          hintText: LanguageService.instance.trText(ne: 'वा तस्बिरको वेब लिङ्क', en: 'Or Image Web URL', ko: '또는 이미지 웹 링크 URL'),
-                          border: const OutlineInputBorder(),
-                          isDense: true,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                          suffixIcon: imgCtrl.text.isNotEmpty
-                              ? const Icon(Icons.image, color: Colors.blue, size: 18)
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
+                    ),
+                    const Divider(height: 20),
 
-                  // 3. Question Audio & Script (For Listening questions)
-                  if (!isReading) ...[
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade50,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.orange.shade200),
+                    // 1. Question Text
+                    Text(
+                      LanguageService.instance.trText(
+                        ne: '१. प्रश्न वाक्य / निर्देशन:*',
+                        en: '1. Question Text / Instruction:*',
+                        ko: '1. 지문 / 발문 내용:*',
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Audio Mode Choice: Pure Uploaded Audio vs TTS
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.orange.shade300),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.tune, size: 16, color: Color(0xFFEA580C)),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      LanguageService.instance.trText(ne: 'अडियो प्रकार छनोट:', en: 'Audio Type Selection:', ko: '오디오 유형 선택:'),
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF9A3412)),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Radio<bool>(
-                                      value: true,
-                                      groupValue: isAudioOnly,
-                                      activeColor: const Color(0xFFEA580C),
-                                      onChanged: (v) => setDialogState(() => isAudioOnly = v!),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        LanguageService.instance.trText(ne: 'केवल अडियो फाइल मात्र', en: 'Audio File Only (Strict Audio)', ko: '오디오 전용 문항'),
-                                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEA580C)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Radio<bool>(
-                                      value: false,
-                                      groupValue: isAudioOnly,
-                                      activeColor: const Color(0xFFEA580C),
-                                      onChanged: (v) => setDialogState(() => isAudioOnly = v!),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        LanguageService.instance.trText(ne: 'स्वचालित अडियो वा दुवै', en: 'Auto Speech / Dual Audio', ko: '음성 합성(TTS) 또는 겸용'),
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: textCtrl,
+                      maxLines: 2,
+                      decoration: const InputDecoration(
+                        hintText: 'e.g. 다음 그림을 보고 맞는 단어를 고르십시오.',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // 2. Question Image / Graph (Optional)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          LanguageService.instance.trText(
+                            ne: '२. प्रश्नको तस्बिर / ग्राफ:',
+                            en: '2. Question Image / Graph:',
+                            ko: '2. 문제 이미지 / 그림 자료:',
                           ),
-                          const SizedBox(height: 10),
-
-                          if (isAudioOnly && audioCtrl.text.isEmpty)
-                            Container(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: Colors.red.shade300),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blueGrey.shade800,
+                                foregroundColor: Colors.white,
                               ),
-                              child: Row(
+                              onPressed: () async {
+                                final uploaded = await FileUploadService.instance.pickImageFile();
+                                if (uploaded != null) {
+                                  setDialogState(() {
+                                    imgCtrl.text = uploaded.bestUrl;
+                                  });
+                                }
+                              },
+                              icon: const Icon(Icons.cloud_upload, size: 16),
+                              label: Text(LanguageService.instance.trText(ne: 'तस्बिर अपलोड गर्नुहोस्', en: 'Upload Image', ko: '이미지 업로드')),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                imgCtrl.text.isEmpty
+                                    ? LanguageService.instance.trText(ne: '(कुनै तस्बिर छैन)', en: '(No image selected)', ko: '(이미지 없음)')
+                                    : (imgCtrl.text.startsWith('data:image')
+                                        ? '🖼️ Base64 Image (${(imgCtrl.text.length / 1024).toStringAsFixed(1)} KB)'
+                                        : (imgCtrl.text.startsWith('https://firebasestorage')
+                                            ? '☁️ Firebase ✅'
+                                            : LanguageService.instance.trText(ne: 'तस्बिर लोड भयो ✅', en: 'Image Loaded ✅', ko: '이미지 로드됨 ✅'))),
+                              ),
+                            ),
+                            if (imgCtrl.text.isNotEmpty) ...[
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                tooltip: LanguageService.instance.trText(ne: 'तस्बिर हटाउनुहोस्', en: 'Remove image', ko: '이미지 제거'),
+                                onPressed: () => setDialogState(() => imgCtrl.clear()),
+                              ),
+                            ],
+                          ],
+                        ),
+                        if (imgCtrl.text.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 90,
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.blue.shade200),
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey.shade50,
+                            ),
+                            child: SmartImageWidget(imageSource: imgCtrl.text, height: 80, fit: BoxFit.contain),
+                          ),
+                        ],
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: imgCtrl,
+                          decoration: InputDecoration(
+                            hintText: LanguageService.instance.trText(ne: 'वा तस्बिरको वेब लिङ्क', en: 'Or Image Web URL', ko: '또는 이미지 웹 링크 URL'),
+                            border: const OutlineInputBorder(),
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            suffixIcon: imgCtrl.text.isNotEmpty
+                                ? const Icon(Icons.image, color: Colors.blue, size: 18)
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    // 3. Question Audio & Script (For Listening questions)
+                    if (!isReading) ...[
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.orange.shade200),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Audio Mode Choice: Pure Uploaded Audio vs TTS
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.orange.shade300),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Icon(Icons.warning_amber, color: Colors.red, size: 18),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      LanguageService.instance.trText(
-                                        ne: '⚠️ ध्यान दिनुहोस्: यो "केवल अडियो" प्रश्न हो। तलको बटनबाट आफ्नो डिभाइसको वास्तविक MP3 अडियो अपलोड गर्नुहोस्!',
-                                        en: '⚠️ Note: This is an "Audio-Only" question. Please upload your MP3 file below!',
-                                        ko: '⚠️ 주의: 이 문제는 "오디오 전용" 문제입니다. 아래 버튼에서 실제 MP3 파일을 업로드해 주세요!',
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.tune, size: 16, color: Color(0xFFEA580C)),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        LanguageService.instance.trText(ne: 'अडियो प्रकार छनोट:', en: 'Audio Type Selection:', ko: '오디오 유형 선택:'),
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF9A3412)),
                                       ),
-                                      style: const TextStyle(fontSize: 11, color: Colors.red, fontWeight: FontWeight.bold),
-                                    ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Radio<bool>(
+                                        value: true,
+                                        groupValue: isAudioOnly,
+                                        activeColor: const Color(0xFFEA580C),
+                                        onChanged: (v) => setDialogState(() => isAudioOnly = v!),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          LanguageService.instance.trText(ne: 'केवल अडियो फाइल मात्र', en: 'Audio File Only (Strict Audio)', ko: '오디오 전용 문항'),
+                                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFEA580C)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Radio<bool>(
+                                        value: false,
+                                        groupValue: isAudioOnly,
+                                        activeColor: const Color(0xFFEA580C),
+                                        onChanged: (v) => setDialogState(() => isAudioOnly = v!),
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          LanguageService.instance.trText(ne: 'स्वचालित अडियो वा दुवै', en: 'Auto Speech / Dual Audio', ko: '음성 합성(TTS) 또는 겸용'),
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 10),
 
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                isAudioOnly
-                                    ? LanguageService.instance.trText(ne: '🎧 वास्तविक अडियो फाइल:*', en: '🎧 Audio File:*', ko: '🎧 실제 오디오 파일:*')
-                                    : LanguageService.instance.trText(ne: '🎧 लिसनिङ अडियो:', en: '🎧 Listening Audio:', ko: '🎧 듣기 오디오:'),
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF9A3412)),
+                            if (isAudioOnly && audioCtrl.text.isEmpty)
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: Colors.red.shade300),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 18),
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        LanguageService.instance.trText(
+                                          ne: '⚠️ अडियो फाइल अपलोड गर्न बाँकी छ!',
+                                          en: '⚠️ Audio file upload required for Audio-Only mode!',
+                                          ko: '⚠️ 오디오 전용 모드는 오디오 파일 업로드가 필수입니다!',
+                                        ),
+                                        style: const TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              if (!isAudioOnly)
+
+                            Text(
+                              LanguageService.instance.trText(
+                                ne: '३.१ अडियो फाइल (MP3 / WAV):',
+                                en: '3.1 Question Audio File:',
+                                ko: '3.1 문제 오디오 파일:',
+                              ),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
                                 ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEA580C), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6)),
+                                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEA580C), foregroundColor: Colors.white),
+                                  onPressed: () async {
+                                    final uploaded = await FileUploadService.instance.pickAudioFile();
+                                    if (uploaded != null) {
+                                      setDialogState(() {
+                                        audioCtrl.text = uploaded.bestUrl;
+                                      });
+                                    }
+                                  },
+                                  icon: const Icon(Icons.upload_file, size: 16),
+                                  label: Text(LanguageService.instance.trText(ne: 'अडियो अपलोड गर्नुहोस्', en: 'Upload Audio', ko: '오디오 업로드')),
+                                ),
+                                if (audioCtrl.text.isNotEmpty) ...[
+                                  const SizedBox(width: 8),
+                                  IconButton(
+                                    icon: const Icon(Icons.play_circle_fill, color: Colors.green),
+                                    tooltip: LanguageService.instance.trText(ne: 'अडियो सुन्नुहोस्', en: 'Play Audio', ko: '오디오 재생'),
+                                    onPressed: () {
+                                      AudioPlaybackService.instance.playAudioUrl(audioCtrl.text);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                    tooltip: LanguageService.instance.trText(ne: 'अडियो हटाउनुहोस्', en: 'Remove Audio', ko: '오디오 제거'),
+                                    onPressed: () => setDialogState(() => audioCtrl.clear()),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            TextField(
+                              controller: audioCtrl,
+                              decoration: InputDecoration(
+                                hintText: LanguageService.instance.trText(ne: 'वा अडियो वेब लिङ्क URL', en: 'Or Audio Web URL', ko: '또는 오디오 웹 URL'),
+                                border: const OutlineInputBorder(),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+
+                            // 3.2 Korean Script for TTS
+                            Text(
+                              LanguageService.instance.trText(
+                                ne: '३.२ अडियो स्क्रिप्ट (कोरियाली भाषामा):',
+                                en: '3.2 Audio Script (Korean text for Speech/Review):',
+                                ko: '3.2 듣기 대본 (한국어 스크립트):',
+                              ),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                            const SizedBox(height: 4),
+                            TextField(
+                              controller: scriptCtrl,
+                              maxLines: 2,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. 남: 어디에 가요? \n여: 시장에 가요.',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                OutlinedButton.icon(
                                   onPressed: () {
-                                    final textToSpeak = scriptCtrl.text.isNotEmpty ? scriptCtrl.text : textCtrl.text;
-                                    if (textToSpeak.isNotEmpty) {
-                                      KoreanTtsService.instance.speakKorean(textToSpeak);
+                                    if (scriptCtrl.text.trim().isNotEmpty) {
+                                      KoreanTtsService.instance.speakKorean(scriptCtrl.text.trim());
                                     }
                                   },
                                   icon: const Icon(Icons.volume_up, size: 16),
-                                  label: Text(LanguageService.instance.trText(ne: 'TTS सुन्नुहोस्', en: 'Play TTS', ko: 'TTS 듣기'), style: const TextStyle(fontSize: 11)),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFEA580C),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                ),
-                                onPressed: () async {
-                                  final file = await FileUploadService.instance.pickAudioFile();
-                                  if (file != null) {
-                                    setDialogState(() {
-                                      audioCtrl.text = file.bestUrl;
-                                    });
-                                  }
-                                },
-                                icon: const Icon(Icons.audio_file, size: 18),
-                                label: Text(audioCtrl.text.isEmpty
-                                    ? LanguageService.instance.trText(ne: '🎵 डिभाइसबाट MP3 अडियो अपलोड गर्नुहोस्', en: '🎵 Upload MP3 from Device', ko: '🎵 기기에서 MP3 오디오 업로드')
-                                    : (audioCtrl.text.startsWith('https://firebasestorage')
-                                        ? '☁️ Firebase ✅'
-                                        : LanguageService.instance.trText(ne: 'अडियो लोड भयो ✅', en: 'Audio Loaded ✅', ko: '오디오 로드됨 ✅'))),
-                              ),
-                              if (audioCtrl.text.isNotEmpty) ...[
-                                const SizedBox(width: 8),
-                                TextButton.icon(
-                                  onPressed: () => AudioPlaybackService.instance.playAudioUrl(audioCtrl.text),
-                                  icon: const Icon(Icons.play_circle_filled, size: 18, color: Colors.green),
-                                  label: Text(LanguageService.instance.trText(ne: 'प्ले', en: 'Play', ko: '재생'), style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                  tooltip: LanguageService.instance.trText(ne: 'अडियो हटाउनुहोस्', en: 'Remove audio', ko: '오디오 제거'),
-                                  onPressed: () => setDialogState(() => audioCtrl.clear()),
+                                  label: Text(LanguageService.instance.trText(ne: 'कोरियाली आवाज सुन्नुहोस् (TTS)', en: 'Test TTS Voice', ko: '음성 듣기 테스트')),
                                 ),
                               ],
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          TextField(
-                            controller: audioCtrl,
-                            decoration: InputDecoration(
-                              hintText: LanguageService.instance.trText(ne: 'वा अडियोको वेब लिङ्क', en: 'Or Audio Web URL', ko: '또는 오디오 웹 링크 URL'),
-                              border: const OutlineInputBorder(),
-                              fillColor: Colors.white,
-                              filled: true,
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  controller: scriptCtrl,
-                                  decoration: InputDecoration(
-                                    labelText: LanguageService.instance.trText(ne: 'अडियो कोरियन संवाद', en: 'Korean Audio Script', ko: '한국어 대화 스크립트'),
-                                    border: const OutlineInputBorder(),
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: TextField(
-                                  controller: scriptNepCtrl,
-                                  decoration: InputDecoration(
-                                    labelText: LanguageService.instance.trText(ne: 'नेपाली/अंग्रेजी अनुवाद', en: 'Translation', ko: '번역 내용'),
-                                    border: const OutlineInputBorder(),
-                                    fillColor: Colors.white,
-                                    filled: true,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                            const SizedBox(height: 8),
 
-                  // 4. Options 1 to 4 (Support Text, Image, Audio)
-                  Text(
-                    LanguageService.instance.trText(ne: '४. चारवटा विकल्पहरू:', en: '4. Four Options:', ko: '4. 4가지 선택지:'),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E3A8A)),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    LanguageService.instance.trText(
-                      ne: 'प्रत्येक विकल्पमा टेक्स्ट, तस्बिर (URL) वा अडियो राख्न सक्नुहुन्छ:',
-                      en: 'Add text, image (URL), or audio for each option:',
-                      ko: '각 선택지에 텍스트, 이미지(URL) 또는 오디오를 설정할 수 있습니다:',
-                    ),
-                    style: const TextStyle(fontSize: 11, color: Colors.black54),
-                  ),
-                  const SizedBox(height: 10),
-
-                  ...List.generate(4, (i) {
-                    final isCorrect = selectedCorrectIndex == i;
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: isCorrect ? const Color(0xFFF0FDF4) : Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: isCorrect ? Colors.green : Colors.grey.shade300, width: isCorrect ? 2 : 1),
+                            // 3.3 Nepali Translation for Review
+                            Text(
+                              LanguageService.instance.trText(
+                                ne: '३.३ अडियोको नेपाली अनुवाद (समीक्षाको लागि):',
+                                en: '3.3 Audio Script Nepali Translation:',
+                                ko: '3.3 오디오 스크립트 네팔어 번역:',
+                              ),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
+                            const SizedBox(height: 4),
+                            TextField(
+                              controller: scriptNepCtrl,
+                              maxLines: 2,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. केटा: कहाँ जाँदै हुनुहुन्छ? \nकेटी: बजार जाँदै छु।',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Radio<int>(
-                                value: i,
-                                groupValue: selectedCorrectIndex,
-                                activeColor: Colors.green,
-                                onChanged: (val) => setDialogState(() => selectedCorrectIndex = val!),
-                              ),
-                              Text(
-                                '${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} ${i + 1} ${isCorrect ? "✓ (" + LanguageService.instance.trText(ne: "सही उत्तर", en: "Correct", ko: "정답") + ")" : ""}',
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: isCorrect ? Colors.green.shade800 : Colors.black87),
-                              ),
-                              const Spacer(),
-                              if (optionAudioCtrls[i].text.isNotEmpty)
-                                IconButton(
-                                  icon: const Icon(Icons.volume_up, size: 18, color: Colors.orange),
-                                  onPressed: () => KoreanTtsService.instance.speakKorean(optionTextCtrls[i].text.isNotEmpty ? optionTextCtrls[i].text : optionAudioCtrls[i].text),
-                                ),
-                            ],
+                      const SizedBox(height: 14),
+                    ],
+
+                    // 4. Options 1 to 4 with Text / Image / Audio
+                    Text(
+                      LanguageService.instance.trText(
+                        ne: '४. विकल्पहरू (४ वटा विकल्प र सही उत्तर छनोट):*',
+                        en: '4. Options (4 Choices & Select Correct Answer):*',
+                        ko: '4. 보기 항목 (4개 보기 및 정답 선택):*',
+                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const SizedBox(height: 8),
+
+                    ...List.generate(4, (index) {
+                      final isCorrect = selectedCorrectIndex == index;
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isCorrect ? Colors.green.shade50 : Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isCorrect ? Colors.green.shade600 : Colors.grey.shade300,
+                            width: isCorrect ? 2 : 1,
                           ),
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 3,
-                                child: TextField(
-                                  controller: optionTextCtrls[i],
-                                  decoration: InputDecoration(
-                                    labelText: '${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} ${i + 1} ${LanguageService.instance.trText(ne: "टेक्स्ट", en: "Text", ko: "텍스트")}',
-                                    border: const OutlineInputBorder(),
-                                    isDense: true,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                flex: 2,
-                                child: TextField(
-                                  controller: optionImgCtrls[i],
-                                  decoration: InputDecoration(
-                                    labelText: LanguageService.instance.trText(ne: 'तस्बिर URL / अपलोड', en: 'Image URL / Upload', ko: '이미지 URL/업로드'),
-                                    border: const OutlineInputBorder(),
-                                    isDense: true,
-                                    prefixIcon: const Icon(Icons.image, size: 16),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        optionImgCtrls[i].text.isNotEmpty ? Icons.check_circle : Icons.add_photo_alternate,
-                                        size: 18,
-                                        color: optionImgCtrls[i].text.startsWith('https://firebasestorage')
-                                            ? Colors.green
-                                            : const Color(0xFF1E3A8A),
-                                      ),
-                                      tooltip: LanguageService.instance.trText(ne: 'डिभाइसबाट तस्बिर रोज्नुहोस्', en: 'Pick image from device', ko: '기기에서 이미지 선택'),
-                                      onPressed: () async {
-                                        final file = await FileUploadService.instance.pickImageFile();
-                                        if (file != null) {
-                                          setDialogState(() {
-                                            optionImgCtrls[i].text = file.bestUrl;
-                                          });
-                                        }
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              IconButton(
-                                icon: Icon(
-                                  optionAudioCtrls[i].text.isNotEmpty ? Icons.audio_file : Icons.upload_file,
-                                  size: 20,
-                                  color: optionAudioCtrls[i].text.startsWith('https://firebasestorage')
-                                      ? Colors.green
-                                      : Colors.deepOrange,
-                                ),
-                                tooltip: LanguageService.instance.trText(ne: 'डिभाइसबाट विकल्पको अडियो रोज्नुहोस्', en: 'Pick audio from device', ko: '기기에서 오디오 선택'),
-                                onPressed: () async {
-                                  final file = await FileUploadService.instance.pickAudioFile();
-                                  if (file != null) {
-                                    setDialogState(() {
-                                      optionAudioCtrls[i].text = file.bestUrl;
-                                    });
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                          if (optionImgCtrls[i].text.isNotEmpty || optionAudioCtrls[i].text.isNotEmpty) ...[
-                            const SizedBox(height: 6),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Row(
                               children: [
-                                if (optionImgCtrls[i].text.isNotEmpty) ...[
-                                  Container(
-                                    height: 40,
-                                    width: 40,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(color: Colors.grey.shade300),
-                                    ),
-                                    clipBehavior: Clip.antiAlias,
-                                    child: SmartImageWidget(imageSource: optionImgCtrls[i].text, fit: BoxFit.cover),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Expanded(
-                                    child: Text(
-                                      optionImgCtrls[i].text.startsWith('https://firebasestorage')
-                                          ? '☁️ Firebase'
-                                          : LanguageService.instance.trText(ne: '🖼️ तस्बिर लोड भयो', en: '🖼️ Image loaded', ko: '🖼️ 이미지 로드됨'),
-                                      style: TextStyle(fontSize: 10, color: Colors.grey.shade700),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.close, size: 14, color: Colors.red),
-                                    tooltip: LanguageService.instance.trText(ne: 'तस्बिर हटाउनुहोस्', en: 'Remove image', ko: '이미지 제거'),
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                    onPressed: () => setDialogState(() => optionImgCtrls[i].clear()),
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                                if (optionAudioCtrls[i].text.isNotEmpty) ...[
-                                  TextButton.icon(
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      minimumSize: Size.zero,
-                                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                    icon: const Icon(Icons.play_circle_fill, size: 14, color: Colors.green),
-                                    label: Text(
-                                      optionAudioCtrls[i].text.startsWith('https://firebasestorage')
-                                          ? '☁️ Audio'
-                                          : '🎵 Audio',
-                                      style: const TextStyle(fontSize: 10, color: Colors.green),
-                                    ),
-                                    onPressed: () => AudioPlaybackService.instance.playAudioUrl(optionAudioCtrls[i].text),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.close, size: 14, color: Colors.red),
-                                    tooltip: LanguageService.instance.trText(ne: 'अडियो हटाउनुहोस्', en: 'Remove audio', ko: '오디오 제거'),
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                    onPressed: () => setDialogState(() => optionAudioCtrls[i].clear()),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ],
-                        ],
-                      ),
-                    );
-                  }),
-                  const SizedBox(height: 14),
-
-                  // 5. Correct Answer & Explanation
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: DropdownButtonFormField<int>(
-                          value: selectedCorrectIndex,
-                          decoration: InputDecoration(
-                            labelText: LanguageService.instance.trText(ne: 'सही उत्तर छान्नुहोस्*', en: 'Correct Answer*', ko: '정답 선택*'),
-                            border: const OutlineInputBorder(),
-                          ),
-                          items: [
-                            DropdownMenuItem(value: 0, child: Text('${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} 1')),
-                            DropdownMenuItem(value: 1, child: Text('${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} 2')),
-                            DropdownMenuItem(value: 2, child: Text('${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} 3')),
-                            DropdownMenuItem(value: 3, child: Text('${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "선택지")} 4')),
-                          ],
-                          onChanged: (val) => setDialogState(() => selectedCorrectIndex = val!),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        flex: 3,
-                        child: TextField(
-                          controller: explCtrl,
-                          decoration: InputDecoration(
-                            labelText: LanguageService.instance.trText(ne: 'नेपाली/अंग्रेजी व्याख्या*', en: 'Explanation*', ko: '정답 해설*'),
-                            border: const OutlineInputBorder(),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Actions
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        child: Text(LanguageService.instance.tr('cancel')),
-                      ),
-                      const SizedBox(width: 12),
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
-                        onPressed: () {
-                          final updatedQ = UniversalQuestion(
-                            questionId: qId,
-                            questionText: textCtrl.text.trim(),
-                            questionNumber: questionNo,
-                            isListening: !isReading,
-                            questionImageUrl: imgCtrl.text.trim().isNotEmpty ? imgCtrl.text.trim() : null,
-                            questionAudioUrl: audioCtrl.text.trim().isNotEmpty ? audioCtrl.text.trim() : null,
-                            audioScript: scriptCtrl.text.trim().isNotEmpty ? scriptCtrl.text.trim() : null,
-                            audioScriptNepali: scriptNepCtrl.text.trim().isNotEmpty ? scriptNepCtrl.text.trim() : null,
-                            isAudioOnly: isAudioOnly,
-                            textOptions: optionTextCtrls.map((c) => c.text.trim()).toList(),
-                            imageOptions: optionImgCtrls.map((c) => c.text.trim().isNotEmpty ? c.text.trim() : null).toList(),
-                            audioOptions: optionAudioCtrls.map((c) => c.text.trim().isNotEmpty ? c.text.trim() : null).toList(),
-                          );
-
-                          final updatedAns = QuestionAnswerInfo(
-                            correctIndex: selectedCorrectIndex,
-                            explanation: explCtrl.text.trim().isNotEmpty ? explCtrl.text.trim() : 'Official explanation.',
-                          );
-
-                          // १. कन्फर्मेसन डायलग (Confirmation Dialog)
-                          showDialog(
-                            context: context,
-                            builder: (confirmCtx) => AlertDialog(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                              title: Row(
-                                children: [
-                                  const Icon(Icons.cloud_upload_rounded, color: Color(0xFF1E3A8A)),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    LanguageService.instance.trText(
-                                      ne: 'प्रश्न $questionNo सुरक्षित तथा सिङ्क गर्ने?',
-                                      en: 'Save & Sync Question $questionNo?',
-                                      ko: '문항 $questionNo 저장 및 동기화하시겠습니까?',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              content: Text(
-                                LanguageService.instance.trText(
-                                  ne: 'तपाईंले गर्नुभएको यो अपडेट सुरक्षित भई स्वतः क्लाउडमा सिङ्क हुनेछ। यसपछि सबै विद्यार्थी तथा अन्य डिभाइसहरूले नयाँ प्रश्न हेर्न सक्नेछन्। के तपाईं निश्चित हुनुहुन्छ?',
-                                  en: 'This update will be saved and auto-synced to cloud. All students will immediately receive this update. Are you sure?',
-                                  ko: '저장된 내용은 클라우드에 자동 동기화되며 모든 학생에게 즉시 반영됩니다. 계속하시겠습니까?',
-                                ),
-                                style: const TextStyle(fontSize: 13, height: 1.4),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(confirmCtx),
-                                  child: Text(LanguageService.instance.tr('cancel')),
-                                ),
-                                ElevatedButton.icon(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF1E3A8A),
-                                    foregroundColor: Colors.white,
-                                  ),
-                                  icon: const Icon(Icons.check_circle, size: 16),
-                                  label: Text(LanguageService.instance.trText(ne: 'हुन्छ, सेभ र सिङ्क गर्नुहोस्', en: 'Save & Sync', ko: '저장 및 동기화')),
-                                  onPressed: () async {
-                                    Navigator.pop(confirmCtx); // Close confirm
-                                    Navigator.pop(ctx); // Close editor dialog
-
-                                    // २. लोकल डेटाबेसमा अपडेट
-                                    QuestionBankService.instance.updateQuestionInSet(
-                                      setId: set.id,
-                                      questionIndex: qIndex,
-                                      updatedQuestion: updatedQ,
-                                      updatedAnswer: updatedAns,
-                                    );
-
-                                    setState(() {
-                                      _selectedSet = QuestionBankService.instance.getMockSetById(set.id);
-                                    });
-
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          LanguageService.instance.trText(
-                                            ne: '✅ प्रश्न $questionNo सेभ भयो। क्लाउडमा स्वतः सिङ्क हुँदैछ... ⏳',
-                                            en: '✅ Question $questionNo saved. Syncing to cloud... ⏳',
-                                            ko: '✅ 문항 $questionNo 저장 완료. 클라우드 동기화 중... ⏳',
-                                          ),
-                                        ),
-                                        backgroundColor: const Color(0xFF1E3A8A),
-                                        duration: const Duration(seconds: 2),
-                                      ),
-                                    );
-
-                                    // ३. स्वतः क्लाउडमा पठाउने (Automatic Cloud Sync)
-                                    final synced = await CloudSyncService.instance.pushToCloud();
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(synced
-                                              ? LanguageService.instance.trText(
-                                                  ne: '☁️ प्रश्न $questionNo क्लाउडमा सफलतापूर्वक सिङ्क भयो!',
-                                                  en: '☁️ Question $questionNo successfully synced to cloud!',
-                                                  ko: '☁️ 문항 $questionNo 클라우드 동기화 성공!',
-                                                )
-                                              : LanguageService.instance.trText(
-                                                  ne: '⚠️ लोकल सेभ भयो, तर क्लाउड सिङ्क असफल।',
-                                                  en: '⚠️ Saved locally, cloud sync pending.',
-                                                  ko: '⚠️ 로컬 저장 완료, 클라우드 동기화 대기 중.',
-                                                )),
-                                          backgroundColor: synced ? Colors.teal : Colors.orange.shade800,
-                                        ),
-                                      );
+                                Radio<int>(
+                                  value: index,
+                                  groupValue: selectedCorrectIndex,
+                                  activeColor: Colors.green.shade700,
+                                  onChanged: (val) {
+                                    if (val != null) {
+                                      setDialogState(() => selectedCorrectIndex = val);
                                     }
                                   },
                                 ),
+                                Text(
+                                  '${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "보기")} ${index + 1}${isCorrect ? " (✅ " + LanguageService.instance.trText(ne: "सही उत्तर", en: "Correct Answer", ko: "정답") + ")" : ""}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: isCorrect ? Colors.green.shade800 : Colors.black87,
+                                  ),
+                                ),
+                                const Spacer(),
+                                // Quick TTS for option
+                                if (optionTextCtrls[index].text.isNotEmpty)
+                                  IconButton(
+                                    icon: const Icon(Icons.volume_up, size: 18),
+                                    tooltip: 'TTS',
+                                    onPressed: () => KoreanTtsService.instance.speakKorean(optionTextCtrls[index].text),
+                                  ),
                               ],
                             ),
-                          );
-                        },
-                        icon: const Icon(Icons.save, size: 18),
-                        label: Text(LanguageService.instance.trText(ne: 'प्रश्न सुरक्षित गर्नुहोस्', en: 'Save Question', ko: '문제 저장')),
+                            TextField(
+                              controller: optionTextCtrls[index],
+                              decoration: InputDecoration(
+                                labelText: '${LanguageService.instance.trText(ne: "विकल्प", en: "Option", ko: "보기")} ${index + 1} ${LanguageService.instance.trText(ne: "पाठ", en: "Text", ko: "텍스트")}',
+                                border: const OutlineInputBorder(),
+                                isDense: true,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                OutlinedButton.icon(
+                                  onPressed: () async {
+                                    final uploaded = await FileUploadService.instance.pickImageFile();
+                                    if (uploaded != null) {
+                                      setDialogState(() {
+                                        optionImgCtrls[index].text = uploaded.bestUrl;
+                                      });
+                                    }
+                                  },
+                                  icon: const Icon(Icons.image, size: 14),
+                                  label: Text(LanguageService.instance.trText(ne: 'तस्बिर', en: 'Image', ko: '그림'), style: const TextStyle(fontSize: 11)),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: TextField(
+                                    controller: optionImgCtrls[index],
+                                    decoration: InputDecoration(
+                                      hintText: LanguageService.instance.trText(ne: 'तस्बिर URL / Base64', en: 'Image URL / Base64', ko: '이미지 URL'),
+                                      border: const OutlineInputBorder(),
+                                      isDense: true,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                    ),
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                                if (optionImgCtrls[index].text.isNotEmpty) ...[
+                                  const SizedBox(width: 4),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline, color: Colors.red, size: 18),
+                                    onPressed: () => setDialogState(() => optionImgCtrls[index].clear()),
+                                  ),
+                                ],
+                              ],
+                            ),
+                            if (optionImgCtrls[index].text.isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Container(
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: SmartImageWidget(imageSource: optionImgCtrls[index].text, height: 45, fit: BoxFit.contain),
+                              ),
+                            ],
+                          ],
+                        ),
+                      );
+                    }),
+                    const SizedBox(height: 14),
+
+                    // 5. Answer Explanation (Nepali & Korean)
+                    Text(
+                      LanguageService.instance.trText(
+                        ne: '५. उत्तरको व्याख्या / कारण (विद्यार्थीको समीक्षाको लागि):',
+                        en: '5. Answer Explanation / Rationale:',
+                        ko: '5. 정답 해설 및 오답 피드백:',
                       ),
-                    ],
-                  ),
-                ],
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: explCtrl,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        hintText: LanguageService.instance.trText(
+                          ne: 'e.g. १ नम्बर विकल्प सही हो किनभने...',
+                          en: 'e.g. Option 1 is correct because...',
+                          ko: 'e.g. 1번이 정답인 이유는...',
+                        ),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Action Buttons (Cancel / Discard / Save Changes)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () => handleExitAttempt(ctx),
+                          child: Text(LanguageService.instance.tr('cancel')),
+                        ),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0F766E),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () async {
+                            // "Save Changes?" Confirmation Dialog
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (confirmCtx) => AlertDialog(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                title: Row(
+                                  children: [
+                                    const Icon(Icons.check_circle_outline, color: Color(0xFF0F766E)),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        LanguageService.instance.trText(
+                                          ne: 'परिवर्तनहरू सुरक्षित गर्ने? (Save Changes?)',
+                                          en: 'Save Changes for Question $questionNo?',
+                                          ko: '문항 $questionNo 변경 사항을 저장하시겠습니까?',
+                                        ),
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                content: Text(
+                                  LanguageService.instance.trText(
+                                    ne: 'यो प्रश्न सुरक्षित भई स्वतः क्लाउडमा सिङ्क हुनेछ। सबै विद्यार्थीहरू तथा डिभाइसहरूले नयाँ अपडेट तुरुन्तै प्राप्त गर्नेछन्। के तपाईं सुरक्षित गर्न निश्चित हुनुहुन्छ?',
+                                    en: 'This question will be saved and auto-synced to the cloud in real-time. Do you want to proceed?',
+                                    ko: '저장된 문항은 클라우드에 자동 동기화되어 즉시 반영됩니다. 계속하시겠습니까?',
+                                  ),
+                                  style: const TextStyle(fontSize: 13, height: 1.4),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(confirmCtx, false),
+                                    child: Text(LanguageService.instance.tr('cancel')),
+                                  ),
+                                  ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF0F766E),
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    icon: const Icon(Icons.save, size: 16),
+                                    label: Text(
+                                      LanguageService.instance.trText(
+                                        ne: 'हुन्छ, सेभ गर्नुहोस् (Save Changes)',
+                                        en: 'Save Changes',
+                                        ko: '저장하기',
+                                      ),
+                                    ),
+                                    onPressed: () => Navigator.pop(confirmCtx, true),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirm == true) {
+                              await performSaveAndSync(ctx);
+                            }
+                          },
+                          icon: const Icon(Icons.save, size: 18),
+                          label: Text(
+                            LanguageService.instance.trText(
+                              ne: 'परिवर्तन सुरक्षित गर्नुहोस् (Save Changes)',
+                              en: 'Save Changes',
+                              ko: '변경 사항 저장',
+                            ),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -928,7 +1018,6 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(

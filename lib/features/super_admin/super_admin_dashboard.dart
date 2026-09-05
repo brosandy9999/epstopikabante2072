@@ -104,8 +104,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
                   ],
                 ),
               ),
-              CloudSyncService.instance.buildSyncAction(context),
-              IconButton(
+                            IconButton(
                 icon: const Icon(Icons.settings),
                 tooltip: LanguageService.instance.trText(ne: 'सेटिङ', en: 'Settings', ko: '설정'),
                 onPressed: () => showUniversalSettingsDialog(context),

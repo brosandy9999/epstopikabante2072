@@ -1,3 +1,4 @@
+import '../../core/services/cloud_sync_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/question_bank_service.dart';
 import '../question_engine/question_template.dart';
@@ -27,8 +28,62 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
   String? _imagePath;
   String? _audioPath;
 
-  void _saveQuestion() {
+  Future<void> _saveQuestion() async {
     if (_formKey.currentState!.validate()) {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.check_circle_outline, color: Color(0xFF0F766E)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  LanguageService.instance.trText(
+                    ne: 'परिवर्तनहरू सुरक्षित गर्ने? (Save Changes?)',
+                    en: 'Save Question Changes?',
+                    ko: '문항 변경 사항을 저장하시겠습니까?',
+                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            LanguageService.instance.trText(
+              ne: 'यो प्रश्न सुरक्षित भई स्वतः क्लाउड तथा सबै डिभाइसहरूमा पृष्ठभूमिमा सिङ्क हुनेछ। के तपाईं सुरक्षित गर्न निश्चित हुनुहुन्छ?',
+              en: 'This question will be saved and automatically synced to the cloud in the background. Do you wish to proceed?',
+              ko: '저장된 문항은 배경에서 클라우드로 자동 동기화됩니다. 계속하시겠습니까?',
+            ),
+            style: const TextStyle(fontSize: 13, height: 1.4),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(LanguageService.instance.tr('cancel')),
+            ),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F766E),
+                foregroundColor: Colors.white,
+              ),
+              icon: const Icon(Icons.save, size: 16),
+              label: Text(
+                LanguageService.instance.trText(
+                  ne: 'हुन्छ, सेभ गर्नुहोस् (Save Changes)',
+                  en: 'Save Changes',
+                  ko: '저장하기',
+                ),
+              ),
+              onPressed: () => Navigator.pop(ctx, true),
+            ),
+          ],
+        ),
+      );
+
+      if (confirm != true) return;
+
       final qId = "Q_CUSTOM_${DateTime.now().millisecondsSinceEpoch}";
       final qText = _questionTextController.text.trim();
       final options = _optionControllers.map((c) => c.text.trim()).toList();
@@ -65,17 +120,34 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
       );
 
       QuestionBankService.instance.addCustomQuestion(newQ, ans);
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(LanguageService.instance.trText(
-            ne: "✅ प्रश्न सफलतापूर्वक स्थानीय डाटाबेसमा सुरक्षित भयो!",
-            en: "✅ Question saved successfully to local database!",
-            ko: "✅ 문항이 로컬 데이터베이스에 저장되었습니다!",
-          )),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    LanguageService.instance.trText(
+                      ne: "✅ प्रश्न सफलतापूर्वक सुरक्षित भयो र क्लाउडमा स्वतः सिङ्क भयो!",
+                      en: "✅ Question saved and auto-synced to cloud in background!",
+                      ko: "✅ 문항이 저장되었으며 클라우드에 자동 동기화되었습니다!",
+                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF0F766E),
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+
       // फारम खाली गर्ने (Reset)
       _questionTextController.clear();
       for (var controller in _optionControllers) {

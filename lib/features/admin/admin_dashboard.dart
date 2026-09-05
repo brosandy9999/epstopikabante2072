@@ -80,8 +80,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             foregroundColor: Colors.white,
             actions: [
               
-              CloudSyncService.instance.buildSyncAction(context),
-              const SizedBox(width: 4),
+                            const SizedBox(width: 4),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber.shade800,
