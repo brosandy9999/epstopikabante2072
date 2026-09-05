@@ -1,7 +1,7 @@
 import 'dart:html' as html;
 
 /// APK is hosted on GitHub Releases (Firebase Spark plan doesn't allow .apk files)
-const _apkUrl = 'https://github.com/brosandy9999/epstopikabante2072/raw/main/apk/eps_topik_ubt_2026.apk';
+const _apkUrl = 'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/apk/eps_topik_ubt_2026.apk';
 
 void triggerApkDownload() {
   final anchor = html.AnchorElement(href: _apkUrl)
