@@ -82,16 +82,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         title: Row(
           children: [
-            const Icon(Icons.settings, color: Colors.white, size: 22),
+            const Icon(Icons.settings, color: Color(0xFF1E3A8A), size: 22),
             const SizedBox(width: 10),
             Text(
               langService.tr('settings'),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF0F172A)),
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF1E3A8A),
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0F172A),
+        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+        elevation: 1,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),

@@ -28,7 +28,7 @@ class ReadingQuestionWidget extends StatelessWidget {
                 ? (question as ReadingImageQuestion).textOptions
                 : <String>[]));
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // ==========================================
         // LEFT PANE: Question Prompt & Material Box
@@ -36,94 +36,69 @@ class ReadingQuestionWidget extends StatelessWidget {
         Expanded(
           flex: 6,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade300, width: 1.5),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey.shade300, width: 1.2),
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
             ),
             child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Section Tag
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E3A8A),
-                          borderRadius: BorderRadius.circular(4),
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Section Tag
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E3A8A),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            LanguageService.instance.readingSectionText(),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                          ),
                         ),
-                        child: Text(
-                          LanguageService.instance.readingSectionText(),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                        const SizedBox(width: 8),
+                        Text(
+                          LanguageService.instance.trText(ne: "प्रश्न प्रकार: ", en: "Question Type: ", ko: "문제 유형: "),
+                          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey.shade600, fontSize: 12),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        LanguageService.instance.trText(ne: "प्रश्न प्रकार: ", en: "Question Type: ", ko: "문제 유형: "),
-                        style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey.shade600, fontSize: 13),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
 
-                  // Main Question Instruction Text
-                  Text(
-                    question.questionText,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, height: 1.4),
-                  ),
-                  const SizedBox(height: 20),
+                    // Main Question Instruction Text
+                    Text(
+                      question.questionText,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, height: 1.35),
+                    ),
+                    const SizedBox(height: 12),
 
-                  // Visual Illustration / Passage Box (Pinch-to-Zoom Enabled)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        LanguageService.instance.trText(
-                          ne: "📌 प्रश्न विवरण तथा सामग्री:",
-                          en: "📌 Question Material & Passage:",
-                          ko: "📌 지문 및 문제 자료:",
-                        ),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
+                    // Visual Illustration / Passage Box
+                    Text(
+                      LanguageService.instance.trText(
+                        ne: "📌 प्रश्न विवरण तथा सामग्री:",
+                        en: "📌 Question Material & Passage:",
+                        ko: "📌 지문 및 문제 자료:",
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.pinch, size: 12, color: Color(0xFF1E3A8A)),
-                            const SizedBox(width: 4),
-                            Text(
-                              LanguageService.instance.trText(
-                                ne: 'पिन्च गरी जुम गर्नुहोस्',
-                                en: 'Pinch / Scroll to zoom',
-                                ko: '확대/축소 가능',
-                              ),
-                              style: const TextStyle(fontSize: 10, color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  InteractiveViewer(
-                    minScale: 0.85,
-                    maxScale: 3.5,
-                    clipBehavior: Clip.none,
-                    child: _buildQuestionMaterial(question.questionId, question.questionText),
-                  ),
-                ],
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E3A8A)),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildQuestionMaterial(question.questionId, question.questionText),
+                  ],
+                ),
               ),
             ),
           ),
         ),
 
-        const SizedBox(width: 25),
+        const SizedBox(width: 12),
 
         // ==========================================
         // RIGHT PANE: 4 Multiple-Choice Options
@@ -131,165 +106,171 @@ class ReadingQuestionWidget extends StatelessWidget {
         Expanded(
           flex: 5,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade300, width: 1.5),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey.shade300, width: 1.2),
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "[선택지] 맞는 것을 고르십시오",
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
-                    ),
-                    if (selectedOptionIndex != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(color: Colors.blue.shade100, borderRadius: BorderRadius.circular(4)),
-                        child: Text(
-                          "선택: ${selectedOptionIndex! + 1}번",
-                          style: const TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "[선택지] 맞는 것을 고르십시오",
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
                         ),
-                      )
-                  ],
-                ),
-                const Divider(height: 24),
+                        if (selectedOptionIndex != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(color: Colors.blue.shade100, borderRadius: BorderRadius.circular(4)),
+                            child: Text(
+                              "선택: ${selectedOptionIndex! + 1}번",
+                              style: const TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: 11),
+                            ),
+                          )
+                      ],
+                    ),
+                    const Divider(height: 14),
 
-                // 4 Options Stacked Vertically
-                ...List.generate(options.length, (index) {
-                  final isSelected = selectedOptionIndex == index;
-                  const circledNumbers = ["\u2460", "\u2461", "\u2462", "\u2463"];
-                  final numLabel = index < circledNumbers.length ? circledNumbers[index] : "${index + 1}";
+                    // 4 Options Stacked Vertically
+                    ...List.generate(options.length, (index) {
+                      final isSelected = selectedOptionIndex == index;
+                      const circledNumbers = ["\u2460", "\u2461", "\u2462", "\u2463"];
+                      final numLabel = index < circledNumbers.length ? circledNumbers[index] : "${index + 1}";
 
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 14),
-                    child: Material(
-                      color: isSelected ? const Color(0xFFEFF6FF) : Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      child: InkWell(
-                        onTap: () => onOptionSelected(index),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          decoration: BoxDecoration(
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        child: Material(
+                          color: isSelected ? const Color(0xFFEFF6FF) : Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          child: InkWell(
+                            onTap: () => onOptionSelected(index),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isSelected ? const Color(0xFF2563EB) : Colors.grey.shade300,
-                              width: isSelected ? 2.5 : 1.2,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isSelected ? const Color(0xFF2563EB) : Colors.grey.shade300,
+                                  width: isSelected ? 2.2 : 1.1,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  // Circled Number or Radio
+                                  Container(
+                                    width: 30,
+                                    height: 30,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: isSelected ? const Color(0xFF1E3A8A) : Colors.white,
+                                      border: Border.all(
+                                        color: isSelected ? const Color(0xFF1E3A8A) : Colors.grey.shade400,
+                                        width: 1.4,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      numLabel,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: isSelected ? Colors.white : Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+
+                                  // Option Text & Media
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        if (options[index].isNotEmpty)
+                                          Text(
+                                            options[index],
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                              color: isSelected ? const Color(0xFF1E3A8A) : Colors.black87,
+                                            ),
+                                          ),
+                                        if (question is UniversalQuestion) ...[
+                                          if (index < (question as UniversalQuestion).imageOptions.length &&
+                                              (question as UniversalQuestion).imageOptions[index] != null &&
+                                              (question as UniversalQuestion).imageOptions[index]!.trim().isNotEmpty) ...[
+                                            const SizedBox(height: 6),
+                                            Container(
+                                              constraints: const BoxConstraints(maxHeight: 110),
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(6),
+                                                border: Border.all(color: Colors.grey.shade300),
+                                              ),
+                                              clipBehavior: Clip.antiAlias,
+                                              child: SmartImageWidget(
+                                                imageSource: (question as UniversalQuestion).imageOptions[index]!.trim(),
+                                                fit: BoxFit.contain,
+                                              ),
+                                            ),
+                                          ],
+                                          if (index < (question as UniversalQuestion).audioOptions.length &&
+                                              (question as UniversalQuestion).audioOptions[index] != null &&
+                                              (question as UniversalQuestion).audioOptions[index]!.trim().isNotEmpty) ...[
+                                            const SizedBox(height: 6),
+                                            InkWell(
+                                              onTap: () => AudioPlaybackService.instance.playAudioUrl(
+                                                  (question as UniversalQuestion).audioOptions[index]!.trim()),
+                                              borderRadius: BorderRadius.circular(20),
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.blue.shade50,
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  border: Border.all(color: Colors.blue.shade200),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    const Icon(Icons.play_circle_fill, size: 16, color: Color(0xFF1E3A8A)),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      LanguageService.instance.trText(
+                                                        ne: 'अडियो सुन्नुहोस्',
+                                                        en: 'Play Audio',
+                                                        ko: '오디오 듣기',
+                                                      ),
+                                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+
+                                  if (isSelected)
+                                    const Icon(Icons.check_circle, color: Color(0xFF2563EB), size: 22),
+                                ],
+                              ),
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              // Circled Number or Radio
-                              Container(
-                                width: 34,
-                                height: 34,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isSelected ? const Color(0xFF1E3A8A) : Colors.white,
-                                  border: Border.all(
-                                    color: isSelected ? const Color(0xFF1E3A8A) : Colors.grey.shade400,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: Text(
-                                  numLabel,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: isSelected ? Colors.white : Colors.black87,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-
-                              // Option Text & Media
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (options[index].isNotEmpty)
-                                      Text(
-                                        options[index],
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                          color: isSelected ? const Color(0xFF1E3A8A) : Colors.black87,
-                                        ),
-                                      ),
-                                    if (question is UniversalQuestion) ...[
-                                      if (index < (question as UniversalQuestion).imageOptions.length &&
-                                          (question as UniversalQuestion).imageOptions[index] != null &&
-                                          (question as UniversalQuestion).imageOptions[index]!.trim().isNotEmpty) ...[
-                                        const SizedBox(height: 8),
-                                        Container(
-                                          constraints: const BoxConstraints(maxHeight: 120),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(6),
-                                            border: Border.all(color: Colors.grey.shade300),
-                                          ),
-                                          clipBehavior: Clip.antiAlias,
-                                          child: SmartImageWidget(
-                                            imageSource: (question as UniversalQuestion).imageOptions[index]!.trim(),
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
-                                      ],
-                                      if (index < (question as UniversalQuestion).audioOptions.length &&
-                                          (question as UniversalQuestion).audioOptions[index] != null &&
-                                          (question as UniversalQuestion).audioOptions[index]!.trim().isNotEmpty) ...[
-                                        const SizedBox(height: 6),
-                                        InkWell(
-                                          onTap: () => AudioPlaybackService.instance.playAudioUrl(
-                                              (question as UniversalQuestion).audioOptions[index]!.trim()),
-                                          borderRadius: BorderRadius.circular(20),
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue.shade50,
-                                              borderRadius: BorderRadius.circular(20),
-                                              border: Border.all(color: Colors.blue.shade200),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(Icons.play_circle_fill, size: 16, color: Color(0xFF1E3A8A)),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  LanguageService.instance.trText(
-                                                    ne: 'अडियो सुन्नुहोस्',
-                                                    en: 'Play Audio',
-                                                    ko: '오디오 듣기',
-                                                  ),
-                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ],
-                                ),
-                              ),
-
-                              if (isSelected)
-                                const Icon(Icons.check_circle, color: Color(0xFF2563EB), size: 24),
-                            ],
-                          ),
                         ),
-                      ),
-                    ),
-                  );
-                }),
-              ],
+                      );
+                    }),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

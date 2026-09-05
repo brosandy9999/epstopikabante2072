@@ -103,13 +103,14 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
               widget.setTitle != null
                   ? "${widget.setTitle} (${lang.trText(ne: 'समीक्षा तथा व्याख्या', en: 'Review & Explanations', ko: '오답 및 해설')})"
                   : lang.trText(ne: "EPS-TOPIK परीक्षा प्रश्न-उत्तर समीक्षा", en: "EPS-TOPIK Answer Review", ko: "EPS-TOPIK 오답노트"),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A)),
             ),
-            backgroundColor: const Color(0xFF1E3A8A),
-            foregroundColor: Colors.white,
-            elevation: 2,
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFF0F172A),
+            iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+            elevation: 1,
             actions: [
-                            const SizedBox(width: 8),
+              const SizedBox(width: 8),
             ],
           ),
           body: Column(

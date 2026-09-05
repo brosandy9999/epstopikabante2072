@@ -126,10 +126,12 @@ class OfficialScorecardScreen extends StatelessWidget {
               en: 'Official Scorecard',
               ko: '성적확인서 (공식 시험 성적표)',
             ),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF0F172A)),
           ),
-          backgroundColor: const Color(0xFF1E3A8A),
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF0F172A),
+          iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+          elevation: 1,
           actions: [
                         const SizedBox(width: 8),
             ElevatedButton.icon(

@@ -90,7 +90,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                 en: "EPS-TOPIK Mock Test Portal",
                 ko: "EPS-TOPIK 실전 모의고사 포털",
               ),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF0F172A)),
             ),
             Text(
               lang.trText(
@@ -98,15 +98,16 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                 en: "50 Mins • 40 Questions • 100 Marks (Pass: 50)",
                 ko: "50분 • 40문항 • 100점 만점 (합격선 50점)",
               ),
-              style: const TextStyle(fontSize: 12, color: Colors.white70),
+              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF1E3A8A),
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0F172A),
+        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
         elevation: 1,
         actions: [
-                    const SizedBox(width: 8),
+          const SizedBox(width: 8),
         ],
       ),
       body: RefreshIndicator(

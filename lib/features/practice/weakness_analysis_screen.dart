@@ -40,7 +40,7 @@ class _WeaknessAnalysisScreenState extends State<WeaknessAnalysisScreen> {
           appBar: AppBar(
             title: Row(
               children: [
-                const Icon(Icons.psychology, color: Colors.white, size: 24),
+                const Icon(Icons.psychology, color: Color(0xFF1E3A8A), size: 24),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -49,16 +49,18 @@ class _WeaknessAnalysisScreenState extends State<WeaknessAnalysisScreen> {
                       en: 'Weakness Analysis & Smart Practice',
                       ko: '취약점 분석 및 맞춤 학습',
                     ),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF0F172A)),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
-            backgroundColor: const Color(0xFF1E3A8A),
-            foregroundColor: Colors.white,
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFF0F172A),
+            iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+            elevation: 1,
             actions: [
-                            const SizedBox(width: 8),
+              const SizedBox(width: 8),
             ],
           ),
           body: SingleChildScrollView(

@@ -137,7 +137,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
     final isIntermission = _audioState == AudioState.firstComplete;
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         // ==========================================
         // LEFT PANE: Listening Audio Player & Prompt
@@ -145,170 +145,161 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
         Expanded(
           flex: 6,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade300, width: 1.5),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey.shade300, width: 1.2),
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
             ),
             child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Section Badge
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFD97706),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          LanguageService.instance.listeningSectionText(),
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      if (widget.question is UniversalQuestion && (widget.question as UniversalQuestion).isAudioOnly)
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Section Badge
+                    Row(
+                      children: [
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFC2410C),
+                            color: const Color(0xFFD97706),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.audiotrack, color: Colors.white, size: 12),
-                              const SizedBox(width: 4),
-                              Text(
-                                LanguageService.instance.trText(
-                                  ne: 'केवल अडियो ट्र्याक',
-                                  en: 'Strict Audio Only',
-                                  ko: '오디오 전용 문항',
-                                ),
-                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                              ),
-                            ],
+                          child: Text(
+                            LanguageService.instance.listeningSectionText(),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
                           ),
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Question Instruction Text
-                  Text(
-                    widget.question.questionText,
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, height: 1.4),
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Speaker Icon centered below the question
-                  Center(
-                    child: Tooltip(
-                      message: isLocked
-                          ? LanguageService.instance.trText(ne: "अडियो समाप्त (लक भयो)", en: "Audio Completed (Locked)", ko: "재생 완료 (오디오 잠김)")
-                          : (isPlaying
-                              ? LanguageService.instance.trText(ne: "अडियो बजिरहेको छ...", en: "Audio playing...", ko: "오디오 재생 중...")
-                              : LanguageService.instance.trText(ne: "अडियो सुन्नुहोस् (यहाँ थिच्नुहोस्)", en: "Listen to Audio (Click to Play)", ko: "오디오 듣기 (클릭하여 재생)")),
-                      child: Material(
-                        color: isLocked
-                            ? Colors.grey.shade200
-                            : (isPlaying ? const Color(0xFFFEF3C7) : const Color(0xFFEFF6FF)),
-                        shape: const CircleBorder(),
-                        child: InkWell(
-                          customBorder: const CircleBorder(),
-                          onTap: (isLocked || isPlaying || isIntermission) ? null : _startContinuousAudioLoop,
-                          child: Container(
-                            padding: const EdgeInsets.all(16),
+                        const SizedBox(width: 8),
+                        if (widget.question is UniversalQuestion && (widget.question as UniversalQuestion).isAudioOnly)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isLocked
-                                    ? Colors.grey.shade400
-                                    : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF2563EB)),
-                                width: isPlaying ? 2.5 : 1.5,
-                              ),
+                              color: const Color(0xFFC2410C),
+                              borderRadius: BorderRadius.circular(4),
                             ),
-                            child: Stack(
-                              alignment: Alignment.center,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  isLocked
-                                      ? Icons.volume_off
-                                      : (isPlaying ? Icons.volume_up : Icons.volume_up_outlined),
-                                  size: 34,
-                                  color: isLocked
-                                      ? Colors.grey.shade500
-                                      : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF1E3A8A)),
-                                ),
-                                if (isPlaying)
-                                  SizedBox(
-                                    width: 46,
-                                    height: 46,
-                                    child: CircularProgressIndicator(
-                                      value: _playbackProgress,
-                                      strokeWidth: 2.5,
-                                      color: const Color(0xFFD97706),
-                                    ),
+                                const Icon(Icons.audiotrack, color: Colors.white, size: 12),
+                                const SizedBox(width: 4),
+                                Text(
+                                  LanguageService.instance.trText(
+                                    ne: 'केवल अडियो ट्र्याक',
+                                    en: 'Strict Audio Only',
+                                    ko: '오디오 전용 문항',
                                   ),
+                                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
                               ],
                             ),
                           ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Question Instruction Text
+                    Text(
+                      widget.question.questionText,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, height: 1.35),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Speaker Icon centered below the question
+                    Center(
+                      child: Tooltip(
+                        message: isLocked
+                            ? LanguageService.instance.trText(ne: "अडियो समाप्त (लक भयो)", en: "Audio Completed (Locked)", ko: "재생 완료 (오디오 잠김)")
+                            : (isPlaying
+                                ? LanguageService.instance.trText(ne: "अडियो बजिरहेको छ...", en: "Audio playing...", ko: "오디오 재생 중...")
+                                : LanguageService.instance.trText(ne: "अडियो सुन्नुहोस् (यहाँ थिच्नुहोस्)", en: "Listen to Audio (Click to Play)", ko: "오디오 듣기 (클릭하여 재생)")),
+                        child: Material(
+                          color: isLocked
+                              ? Colors.grey.shade200
+                              : (isPlaying ? const Color(0xFFFEF3C7) : const Color(0xFFEFF6FF)),
+                          shape: const CircleBorder(),
+                          child: InkWell(
+                            customBorder: const CircleBorder(),
+                            onTap: isLocked ? null : _startContinuousAudioLoop,
+                            child: Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isLocked
+                                      ? Colors.grey.shade400
+                                      : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF3B82F6)),
+                                  width: 2.2,
+                                ),
+                              ),
+                              child: Icon(
+                                isLocked
+                                    ? Icons.lock_rounded
+                                    : (isPlaying ? Icons.volume_up_rounded : Icons.play_arrow_rounded),
+                                size: 36,
+                                color: isLocked
+                                    ? Colors.grey.shade500
+                                    : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF1E3A8A)),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  Center(
-                    child: Text(
-                      isLocked
-                          ? LanguageService.instance.trText(
-                              ne: "अडियो समाप्त (२ पटक बजिसक्यो)",
-                              en: "Audio Played 2 Times (Completed)",
-                              ko: "재생 완료 (2회 청취 완료)",
-                            )
-                          : (isPlaying
-                              ? (_audioState == AudioState.playingFirst
-                                  ? LanguageService.instance.trText(
-                                      ne: "🔊 पहिलो पटक अडियो बज्दैछ... (Round 1)",
-                                      en: "🔊 Playing Round 1 Audio...",
-                                      ko: "🔊 1회차 오디오 재생 중...",
-                                    )
-                                  : LanguageService.instance.trText(
-                                      ne: "🔊 दोस्रो पटक अडियो दोहोरिँदै... (Round 2)",
-                                      en: "🔊 Repeating Round 2 Audio...",
-                                      ko: "🔊 2회차 오디오 반복 중...",
-                                    ))
-                              : (isIntermission
-                                  ? LanguageService.instance.trText(
-                                      ne: "⏳ केही क्षणमा दोस्रो पटक स्वतः बज्नेछ...",
-                                      en: "⏳ Round 2 will auto-play in a moment...",
-                                      ko: "⏳ 잠시 후 2회차가 자동 재생됩니다...",
-                                    )
-                                  : LanguageService.instance.trText(
-                                      ne: "🔊 अडियो सुन्नुहोस् (यहाँ थिचेपछि २ पटक बज्नेछ)",
-                                      en: "🔊 Play Audio (Korean voice will play 2 times)",
-                                      ko: "🔊 오디오 듣기 (클릭 시 2회 연속 재생)",
-                                    ))),
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: isLocked
-                            ? Colors.grey.shade600
-                            : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF1E3A8A)),
+                    const SizedBox(height: 8),
+
+                    // Playback status text
+                    Center(
+                      child: Text(
+                        isLocked
+                            ? LanguageService.instance.trText(
+                                ne: "अडियो २ पटक बजिसक्यो (सम्पन्न)",
+                                en: "Audio Played 2 Times (Completed)",
+                                ko: "재생 완료 (2회 청취 완료)",
+                              )
+                            : (isPlaying
+                                ? (_audioState == AudioState.playingFirst
+                                    ? LanguageService.instance.trText(
+                                        ne: "🔊 पहिलो पटक अडियो बज्दैछ... (Round 1)",
+                                        en: "🔊 Playing Round 1 Audio...",
+                                        ko: "🔊 1회차 오디오 재생 중...",
+                                      )
+                                    : LanguageService.instance.trText(
+                                        ne: "🔊 दोस्रो पटक अडियो दोहोरिँदै... (Round 2)",
+                                        en: "🔊 Repeating Round 2 Audio...",
+                                        ko: "🔊 2회차 오디오 반복 중...",
+                                      ))
+                                : (isIntermission
+                                    ? LanguageService.instance.trText(
+                                        ne: "⏳ केही क्षणमा दोस्रो पटक स्वतः बज्नेछ...",
+                                        en: "⏳ Round 2 will auto-play in a moment...",
+                                        ko: "⏳ 잠시 후 2회차가 자동 재생됩니다...",
+                                      )
+                                    : LanguageService.instance.trText(
+                                        ne: "🔊 अडियो सुन्नुहोस् (यहाँ थिचेपछि २ पटक बज्नेछ)",
+                                        en: "🔊 Play Audio (Korean voice will play 2 times)",
+                                        ko: "🔊 오디오 듣기 (클릭 시 2회 연속 재생)",
+                                      ))),
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: isLocked
+                              ? Colors.grey.shade600
+                              : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF1E3A8A)),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
 
-        const SizedBox(width: 25),
+        const SizedBox(width: 12),
 
         // ==========================================
         // RIGHT PANE: 4 Multiple-Choice Options
@@ -316,165 +307,171 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
         Expanded(
           flex: 5,
           child: Container(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade300, width: 1.5),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey.shade300, width: 1.2),
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "[선택지] 맞는 것을 고르십시오",
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFFD97706)),
-                    ),
-                    if (widget.selectedOptionIndex != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
-                        child: Text(
-                          "선택: ${widget.selectedOptionIndex! + 1}번",
-                          style: const TextStyle(color: Color(0xFF92400E), fontWeight: FontWeight.bold, fontSize: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "[선택지] 맞는 것을 고르십시오",
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFFD97706)),
                         ),
-                      )
-                  ],
-                ),
-                const Divider(height: 24),
+                        if (widget.selectedOptionIndex != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
+                            child: Text(
+                              "선택: ${widget.selectedOptionIndex! + 1}번",
+                              style: const TextStyle(color: Color(0xFF92400E), fontWeight: FontWeight.bold, fontSize: 11),
+                            ),
+                          )
+                      ],
+                    ),
+                    const Divider(height: 14),
 
-                // 4 Options Stacked Vertically
-                ...List.generate(options.length, (index) {
-                  final isSelected = widget.selectedOptionIndex == index;
-                  const circledNumbers = ["\u2460", "\u2461", "\u2462", "\u2463"];
-                  final numLabel = index < circledNumbers.length ? circledNumbers[index] : "${index + 1}";
+                    // 4 Options Stacked Vertically
+                    ...List.generate(options.length, (index) {
+                      final isSelected = widget.selectedOptionIndex == index;
+                      const circledNumbers = ["\u2460", "\u2461", "\u2462", "\u2463"];
+                      final numLabel = index < circledNumbers.length ? circledNumbers[index] : "${index + 1}";
 
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 14),
-                    child: Material(
-                      color: isSelected ? const Color(0xFFFFFBEB) : Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      child: InkWell(
-                        onTap: () => widget.onOptionSelected(index),
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          decoration: BoxDecoration(
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        child: Material(
+                          color: isSelected ? const Color(0xFFFFFBEB) : Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          child: InkWell(
+                            onTap: () => widget.onOptionSelected(index),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isSelected ? const Color(0xFFD97706) : Colors.grey.shade300,
-                              width: isSelected ? 2.5 : 1.2,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: isSelected ? const Color(0xFFD97706) : Colors.grey.shade300,
+                                  width: isSelected ? 2.2 : 1.1,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  // Circled Number or Radio
+                                  Container(
+                                    width: 30,
+                                    height: 30,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: isSelected ? const Color(0xFFD97706) : Colors.white,
+                                      border: Border.all(
+                                        color: isSelected ? const Color(0xFFD97706) : Colors.grey.shade400,
+                                        width: 1.4,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      numLabel,
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: isSelected ? Colors.white : Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+
+                                  // Option Text & Media
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        if (options[index].isNotEmpty)
+                                          Text(
+                                            options[index],
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                              color: isSelected ? const Color(0xFF92400E) : Colors.black87,
+                                            ),
+                                          ),
+                                        if (widget.question is UniversalQuestion) ...[
+                                          if (index < (widget.question as UniversalQuestion).imageOptions.length &&
+                                              (widget.question as UniversalQuestion).imageOptions[index] != null &&
+                                              (widget.question as UniversalQuestion).imageOptions[index]!.trim().isNotEmpty) ...[
+                                            const SizedBox(height: 6),
+                                            Container(
+                                              constraints: const BoxConstraints(maxHeight: 110),
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(6),
+                                                border: Border.all(color: Colors.grey.shade300),
+                                              ),
+                                              clipBehavior: Clip.antiAlias,
+                                              child: SmartImageWidget(
+                                                imageSource: (widget.question as UniversalQuestion).imageOptions[index]!.trim(),
+                                                fit: BoxFit.contain,
+                                              ),
+                                            ),
+                                          ],
+                                          if (index < (widget.question as UniversalQuestion).audioOptions.length &&
+                                              (widget.question as UniversalQuestion).audioOptions[index] != null &&
+                                              (widget.question as UniversalQuestion).audioOptions[index]!.trim().isNotEmpty) ...[
+                                            const SizedBox(height: 6),
+                                            InkWell(
+                                              onTap: () => AudioPlaybackService.instance.playAudioUrl(
+                                                  (widget.question as UniversalQuestion).audioOptions[index]!.trim()),
+                                              borderRadius: BorderRadius.circular(20),
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.amber.shade50,
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  border: Border.all(color: Colors.amber.shade300),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    const Icon(Icons.play_circle_fill, size: 16, color: Color(0xFFD97706)),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      LanguageService.instance.trText(
+                                                        ne: 'अडियो सुन्नुहोस्',
+                                                        en: 'Play Audio',
+                                                        ko: '오디오 듣기',
+                                                      ),
+                                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+
+                                  if (isSelected)
+                                    const Icon(Icons.check_circle, color: Color(0xFFD97706), size: 22),
+                                ],
+                              ),
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              // Circled Number or Radio
-                              Container(
-                                width: 34,
-                                height: 34,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: isSelected ? const Color(0xFFD97706) : Colors.white,
-                                  border: Border.all(
-                                    color: isSelected ? const Color(0xFFD97706) : Colors.grey.shade400,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: Text(
-                                  numLabel,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: isSelected ? Colors.white : Colors.black87,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-
-                              // Option Text & Media
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (options[index].isNotEmpty)
-                                      Text(
-                                        options[index],
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                          color: isSelected ? const Color(0xFF92400E) : Colors.black87,
-                                        ),
-                                      ),
-                                    if (widget.question is UniversalQuestion) ...[
-                                      if (index < (widget.question as UniversalQuestion).imageOptions.length &&
-                                          (widget.question as UniversalQuestion).imageOptions[index] != null &&
-                                          (widget.question as UniversalQuestion).imageOptions[index]!.trim().isNotEmpty) ...[
-                                        const SizedBox(height: 8),
-                                        Container(
-                                          constraints: const BoxConstraints(maxHeight: 120),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(6),
-                                            border: Border.all(color: Colors.grey.shade300),
-                                          ),
-                                          clipBehavior: Clip.antiAlias,
-                                          child: SmartImageWidget(
-                                            imageSource: (widget.question as UniversalQuestion).imageOptions[index]!.trim(),
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
-                                      ],
-                                      if (index < (widget.question as UniversalQuestion).audioOptions.length &&
-                                          (widget.question as UniversalQuestion).audioOptions[index] != null &&
-                                          (widget.question as UniversalQuestion).audioOptions[index]!.trim().isNotEmpty) ...[
-                                        const SizedBox(height: 6),
-                                        InkWell(
-                                          onTap: () => AudioPlaybackService.instance.playAudioUrl(
-                                              (widget.question as UniversalQuestion).audioOptions[index]!.trim()),
-                                          borderRadius: BorderRadius.circular(20),
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                            decoration: BoxDecoration(
-                                              color: Colors.amber.shade50,
-                                              borderRadius: BorderRadius.circular(20),
-                                              border: Border.all(color: Colors.amber.shade300),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                const Icon(Icons.play_circle_fill, size: 16, color: Color(0xFFD97706)),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  LanguageService.instance.trText(
-                                                    ne: 'अडियो सुन्नुहोस्',
-                                                    en: 'Play Audio',
-                                                    ko: '오디오 듣기',
-                                                  ),
-                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ],
-                                ),
-                              ),
-
-                              if (isSelected)
-                                const Icon(Icons.check_circle, color: Color(0xFFD97706), size: 24),
-                            ],
-                          ),
                         ),
-                      ),
-                    ),
-                  );
-                }),
-              ],
+                      );
+                    }),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

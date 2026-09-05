@@ -422,16 +422,17 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
         return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E3A8A),
-        foregroundColor: Colors.white,
-        elevation: 2,
+        backgroundColor: Colors.white,
+        foregroundColor: const Color(0xFF0F172A),
+        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+        elevation: 1,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_currentBook.localizedTitle(), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+            Text(_currentBook.localizedTitle(), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
             Text(
               '${_currentBook.editionType} • ' + LanguageService.instance.trText(ne: 'अध्याय $_selectedChapter (${chapterTracks.length} वटा अडियो बटन)', en: 'Chapter $_selectedChapter (${chapterTracks.length} Audio Buttons)', ko: '제$_selectedChapter과 (${chapterTracks.length}개 오디오 버튼)'),
-              style: const TextStyle(fontSize: 11, color: Colors.white70),
+              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
             ),
           ],
         ),

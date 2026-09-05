@@ -90,13 +90,14 @@ class ExamResultScreen extends StatelessWidget {
               en: 'Exam Results & Scorecard',
               ko: '시험 결과 및 성적표',
             ),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Color(0xFF0F172A)),
           ),
-          backgroundColor: const Color(0xFF1E3A8A),
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFF0F172A),
+          elevation: 1,
           automaticallyImplyLeading: false,
           actions: [
-                        const SizedBox(width: 10),
+            const SizedBox(width: 10),
           ],
         ),
         body: SingleChildScrollView(
