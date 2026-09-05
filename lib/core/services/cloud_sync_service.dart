@@ -158,8 +158,7 @@ class CloudSyncService extends ChangeNotifier {
           }
         }
         if (users.isNotEmpty) {
-          AuthService.instance.loadFromStorage(users);
-          StorageService.instance.saveUsers(AuthService.instance.students);
+          AuthService.instance.mergeUsersFromCloud(users);
         }
       }
 

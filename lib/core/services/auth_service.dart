@@ -172,19 +172,14 @@ class AuthService extends ChangeNotifier {
     ),
   ];
 
+  AppUser get superAdmin => _superAdmin;
   AppUser get admin => _admin;
+  List<AppUser> get instituteAdmins => List.unmodifiable(_instituteAdmins);
   List<AppUser> get students => List.unmodifiable(_students);
 
   bool get isAuthenticated => _currentUser != null;
   bool get isAdmin => _currentUser?.role == UserRole.admin;
-
-  void loadFromStorage(List<AppUser> users) {
-    if (users.isNotEmpty) {
-      _students.clear();
-      _students.addAll(users);
-      notifyListeners();
-    }
-  }
+  bool get isSuperAdmin => _currentUser?.role == UserRole.superAdmin;
 
   void init() {
     _loadCustomUsers();
@@ -199,10 +194,17 @@ class AuthService extends ChangeNotifier {
         _superAdmin.password = parsed.password;
         _superAdmin.name = parsed.name;
         _superAdmin.mobileNumber = parsed.mobileNumber;
+        if (parsed.profilePhoto != null) _superAdmin.profilePhoto = parsed.profilePhoto;
       }
       final adminJson = StorageService.instance.getString('auth_admin_user');
       if (adminJson != null && adminJson.isNotEmpty) {
         _admin = AppUser.fromJson(jsonDecode(adminJson));
+      }
+      final instAdminsJson = StorageService.instance.getString('auth_institute_admins_list');
+      if (instAdminsJson != null && instAdminsJson.isNotEmpty) {
+        final List list = jsonDecode(instAdminsJson);
+        _instituteAdmins.clear();
+        _instituteAdmins.addAll(list.map((e) => AppUser.fromJson(Map<String, dynamic>.from(e))));
       }
       final studentsJson = StorageService.instance.getString('auth_students_list');
       if (studentsJson != null && studentsJson.isNotEmpty) {
@@ -217,9 +219,47 @@ class AuthService extends ChangeNotifier {
     try {
       StorageService.instance.setString('auth_super_admin_user', jsonEncode(_superAdmin.toJson()));
       StorageService.instance.setString('auth_admin_user', jsonEncode(_admin.toJson()));
+      StorageService.instance.setString('auth_institute_admins_list', jsonEncode(_instituteAdmins.map((e) => e.toJson()).toList()));
       final list = _students.map((e) => e.toJson()).toList();
       StorageService.instance.setString('auth_students_list', jsonEncode(list));
+      StorageService.instance.saveUsers(_students);
     } catch (_) {}
+  }
+
+  void loadFromStorage(List<AppUser> users) {
+    if (users.isNotEmpty) {
+      mergeUsersFromCloud(users);
+    }
+  }
+
+  /// Intelligent Non-Destructive Cloud Merge:
+  /// Preserves locally registered / updated candidates and adds new ones
+  void mergeUsersFromCloud(List<AppUser> remoteUsers) {
+    bool hasChanges = false;
+    for (final rUser in remoteUsers) {
+      if (rUser.role == UserRole.student) {
+        final localIdx = _students.indexWhere((s) => s.id == rUser.id || s.username.toLowerCase() == rUser.username.toLowerCase());
+        if (localIdx == -1) {
+          _students.add(rUser);
+          hasChanges = true;
+        }
+      } else if (rUser.role == UserRole.admin) {
+        if (_admin.id == rUser.id || _admin.username.toLowerCase() == rUser.username.toLowerCase()) {
+          // already default admin
+        } else {
+          final instIdx = _instituteAdmins.indexWhere((a) => a.id == rUser.id || a.username.toLowerCase() == rUser.username.toLowerCase());
+          if (instIdx == -1) {
+            _instituteAdmins.add(rUser);
+            hasChanges = true;
+          }
+        }
+      }
+    }
+
+    if (hasChanges) {
+      _saveCustomUsers();
+      notifyListeners();
+    }
   }
 
   AppUser? getStudentById(String id) {
@@ -239,43 +279,49 @@ class AuthService extends ChangeNotifier {
 
   /// Unified Auto-Detecting Login:
   /// Authenticates using Username, Registration Number, or Mobile Number!
-  /// Automatically detects whether the user is Admin or Student.
+  /// Case-insensitive username check, exact trimmed password match.
   AppUser? login(String identifier, String password) {
     final cleanId = identifier.trim().toLowerCase();
     final cleanPass = password.trim();
 
+    if (cleanId.isEmpty || cleanPass.isEmpty) return null;
+
     // 1. Check Platform Super Admin
-    if ((_superAdmin.username.toLowerCase() == cleanId || (_superAdmin.mobileNumber != null && _superAdmin.mobileNumber == cleanId)) &&
-        _superAdmin.password == cleanPass) {
+    final superUserMatch = _superAdmin.username.trim().toLowerCase() == cleanId;
+    final superMobileMatch = _superAdmin.mobileNumber != null && _superAdmin.mobileNumber!.trim() == cleanId;
+    if ((superUserMatch || superMobileMatch) && _superAdmin.password.trim() == cleanPass) {
       _currentUser = _superAdmin;
       notifyListeners();
       return _superAdmin;
     }
 
-    // 2. Check Institute Admin
-    if ((_admin.username.toLowerCase() == cleanId || (_admin.mobileNumber != null && _admin.mobileNumber == cleanId)) &&
-        _admin.password == cleanPass) {
+    // 2. Check Default Institute Admin
+    final adminUserMatch = _admin.username.trim().toLowerCase() == cleanId;
+    final adminMobileMatch = _admin.mobileNumber != null && _admin.mobileNumber!.trim() == cleanId;
+    if ((adminUserMatch || adminMobileMatch) && _admin.password.trim() == cleanPass) {
       _currentUser = _admin;
       notifyListeners();
       return _admin;
     }
 
-    // Check additional registered institute admins
-    final instAdminIdx = _instituteAdmins.indexWhere((u) =>
-        (u.username.toLowerCase() == cleanId || (u.mobileNumber != null && u.mobileNumber == cleanId)) &&
-        u.password == cleanPass);
+    // 3. Check Additional Registered Institute Admins
+    final instAdminIdx = _instituteAdmins.indexWhere((u) {
+      final uMatch = u.username.trim().toLowerCase() == cleanId;
+      final mMatch = u.mobileNumber != null && u.mobileNumber!.trim() == cleanId;
+      return (uMatch || mMatch) && u.password.trim() == cleanPass;
+    });
     if (instAdminIdx != -1) {
       _currentUser = _instituteAdmins[instAdminIdx];
       notifyListeners();
       return _currentUser;
     }
 
-    // 2. Check Students by Username, Registration No, or Mobile Number
+    // 4. Check Registered Students
     final studentIndex = _students.indexWhere((u) {
-      final matchesUser = u.username.toLowerCase() == cleanId;
-      final matchesReg = u.registrationNo?.toLowerCase() == cleanId;
-      final matchesMobile = u.mobileNumber != null && u.mobileNumber == cleanId;
-      return (matchesUser || matchesReg || matchesMobile) && u.password == cleanPass;
+      final matchesUser = u.username.trim().toLowerCase() == cleanId;
+      final matchesReg = u.registrationNo != null && u.registrationNo!.trim().toLowerCase() == cleanId;
+      final matchesMobile = u.mobileNumber != null && u.mobileNumber!.trim() == cleanId;
+      return (matchesUser || matchesReg || matchesMobile) && u.password.trim() == cleanPass;
     });
 
     if (studentIndex != -1) {
@@ -287,7 +333,6 @@ class AuthService extends ChangeNotifier {
     return null;
   }
 
-
   void registerInstituteAdmin({
     required String username,
     required String password,
@@ -296,17 +341,31 @@ class AuthService extends ChangeNotifier {
     required String instituteId,
     required String instituteName,
   }) {
-    final newAdmin = AppUser(
-      id: 'ADMIN_${DateTime.now().millisecondsSinceEpoch}',
-      username: username,
-      password: password,
-      name: name,
-      mobileNumber: mobileNumber,
-      role: UserRole.admin,
-      instituteId: instituteId,
-      instituteName: instituteName,
-    );
-    _instituteAdmins.add(newAdmin);
+    final cleanUser = username.trim();
+    final cleanPass = password.trim();
+    final cleanMob = mobileNumber.trim();
+
+    // Update if already exists or create new
+    final idx = _instituteAdmins.indexWhere((a) => a.username.toLowerCase() == cleanUser.toLowerCase() || a.instituteId == instituteId);
+    if (idx != -1) {
+      _instituteAdmins[idx].username = cleanUser;
+      _instituteAdmins[idx].password = cleanPass;
+      _instituteAdmins[idx].name = name.trim();
+      _instituteAdmins[idx].mobileNumber = cleanMob;
+      _instituteAdmins[idx].instituteName = instituteName.trim();
+    } else {
+      final newAdmin = AppUser(
+        id: 'ADMIN_',
+        username: cleanUser,
+        password: cleanPass,
+        name: name.trim(),
+        mobileNumber: cleanMob,
+        role: UserRole.admin,
+        instituteId: instituteId,
+        instituteName: instituteName.trim(),
+      );
+      _instituteAdmins.add(newAdmin);
+    }
     _saveCustomUsers();
     notifyListeners();
   }
@@ -340,7 +399,7 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Reset password for the Super Admin (manual admin‑only UI)
+  /// Reset password for the Super Admin
   bool resetSuperAdminPassword(String newPassword) {
     final cleanPass = newPassword.trim();
     if (cleanPass.isEmpty) return false;
@@ -356,7 +415,7 @@ class AuthService extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Universal Logout Confirmation Dialog for ALL User Roles (Student, Admin, Super Admin)
+  /// Universal Logout Confirmation Dialog for ALL User Roles
   static void confirmAndLogout(BuildContext context, {VoidCallback? onAfterLogout}) {
     showDialog(
       context: context,
@@ -423,8 +482,6 @@ class AuthService extends ChangeNotifier {
     );
   }
 
-
-
   /// Direct 1-Click Google Sign-In
   AppUser loginWithGoogle({required String email, required String displayName}) {
     final cleanEmail = email.trim().toLowerCase();
@@ -438,14 +495,14 @@ class AuthService extends ChangeNotifier {
     if (idx != -1) {
       _currentUser = _students[idx];
     } else {
-      final newId = 'STU_${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+      final newId = 'STU_';
       final newStudent = AppUser(
         id: newId,
         username: cleanUser,
         password: 'google_oauth_user',
         name: displayName.isNotEmpty ? displayName : 'Google परीक्षार्थी',
-        registrationNo: 'REG-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-        mobileNumber: '98${(DateTime.now().millisecondsSinceEpoch % 100000000).toString().padLeft(8, '0')}',
+        registrationNo: 'REG-',
+        mobileNumber: '98',
         batch: '2026 Batch A (बिहानी सत्र)',
         sector: '제조업 (Manufacturing)',
         status: 'सक्रिय (Active)',
@@ -469,13 +526,13 @@ class AuthService extends ChangeNotifier {
     if (idx != -1) {
       _currentUser = _students[idx];
     } else {
-      final newId = 'STU_${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+      final newId = 'STU_';
       final newStudent = AppUser(
         id: newId,
-        username: 'user_${cleanMobile.substring(cleanMobile.length - 4)}',
+        username: 'user_',
         password: 'mobile_otp_user',
-        name: 'मोबाइल परीक्षार्थी ($cleanMobile)',
-        registrationNo: 'REG-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+        name: 'मोबाइल परीक्षार्थी ()',
+        registrationNo: 'REG-',
         mobileNumber: cleanMobile,
         batch: '2026 Batch A (बिहानी सत्र)',
         sector: '제조업 (Manufacturing)',
@@ -501,19 +558,26 @@ class AuthService extends ChangeNotifier {
     String batch = '2026 Batch A (बिहानी सत्र)',
     String sector = '제조업 (Manufacturing)',
   }) {
-    final cleanUser = username.trim().toLowerCase();
+    final cleanUser = username.trim();
+    final cleanPass = password.trim();
     final cleanMobile = mobileNumber.trim();
 
-    final exists = _students.any((s) =>
-      s.username.toLowerCase() == cleanUser ||
-      (s.mobileNumber != null && s.mobileNumber == cleanMobile)
-    );
-    if (exists) return false;
+    if (cleanUser.isEmpty || cleanPass.isEmpty) return false;
 
-    final newId = 'STU_${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+    final existsInStudents = _students.any((s) =>
+      s.username.toLowerCase() == cleanUser.toLowerCase() ||
+      (cleanMobile.isNotEmpty && s.mobileNumber == cleanMobile)
+    );
+    final existsInAdmins = _admin.username.toLowerCase() == cleanUser.toLowerCase() ||
+      _superAdmin.username.toLowerCase() == cleanUser.toLowerCase() ||
+      _instituteAdmins.any((a) => a.username.toLowerCase() == cleanUser.toLowerCase());
+
+    if (existsInStudents || existsInAdmins) return false;
+
+    final newId = 'STU_';
     final regNo = registrationNo != null && registrationNo.trim().isNotEmpty
         ? registrationNo.trim()
-        : 'REG-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+        : 'REG-';
 
     final instId = _currentUser?.instituteId ?? 'inst_01';
     final instName = _currentUser?.instituteName ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट';
@@ -521,8 +585,8 @@ class AuthService extends ChangeNotifier {
 
     final newStudent = AppUser(
       id: newId,
-      username: username.trim(),
-      password: password.trim(),
+      username: cleanUser,
+      password: cleanPass,
       name: name.trim(),
       registrationNo: regNo,
       mobileNumber: cleanMobile,
@@ -554,13 +618,21 @@ class AuthService extends ChangeNotifier {
     // Super Admin reset
     if (_superAdmin.username.toLowerCase() == cleanId || (_superAdmin.mobileNumber != null && _superAdmin.mobileNumber == cleanId)) {
       _superAdmin.password = cleanPass;
-      _saveCustomUsers(); // though super admin not saved in storage, keep for consistency
+      _saveCustomUsers();
       notifyListeners();
       return true;
     }
     // Admin reset
     if (_admin.username.toLowerCase() == cleanId || _admin.mobileNumber == cleanId) {
       _admin.password = cleanPass;
+      _saveCustomUsers();
+      notifyListeners();
+      return true;
+    }
+    // Institute Admins reset
+    final aIdx = _instituteAdmins.indexWhere((u) => u.username.toLowerCase() == cleanId || (u.mobileNumber != null && u.mobileNumber == cleanId));
+    if (aIdx != -1) {
+      _instituteAdmins[aIdx].password = cleanPass;
       _saveCustomUsers();
       notifyListeners();
       return true;
@@ -588,7 +660,7 @@ class AuthService extends ChangeNotifier {
     required String newUsername,
     required String newPassword,
   }) {
-    if (_admin.password != oldPassword) {
+    if (_admin.password != oldPassword.trim()) {
       return false;
     }
     _admin.username = newUsername.trim();
@@ -608,11 +680,14 @@ class AuthService extends ChangeNotifier {
     String sector = '제조업 (Manufacturing)',
     String status = 'सक्रिय (Active)',
   }) {
-    final cleanUser = username.trim().toLowerCase();
+    final cleanUser = username.trim();
+    final cleanPass = password.trim();
     final cleanMobile = mobileNumber?.trim();
 
+    if (cleanUser.isEmpty || cleanPass.isEmpty) return false;
+
     final exists = _students.any((s) =>
-      s.username.toLowerCase() == cleanUser ||
+      s.username.toLowerCase() == cleanUser.toLowerCase() ||
       (cleanMobile != null && cleanMobile.isNotEmpty && s.mobileNumber == cleanMobile)
     );
     if (exists) return false;
@@ -621,11 +696,11 @@ class AuthService extends ChangeNotifier {
     final instName = _currentUser?.instituteName ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट';
     final instLogo = _currentUser?.instituteLogo ?? 'assets/images/institute_logo_default.png';
 
-    final newId = 'STU_${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+    final newId = 'STU_';
     _students.add(AppUser(
       id: newId,
-      username: username.trim(),
-      password: password.trim(),
+      username: cleanUser,
+      password: cleanPass,
       name: name.trim(),
       registrationNo: registrationNo?.trim(),
       mobileNumber: cleanMobile,
@@ -644,6 +719,7 @@ class AuthService extends ChangeNotifier {
 
   bool updateUserCredentials({
     required String userId,
+    String? newUsername,
     String? newPassword,
     String? newName,
     String? newMobile,
@@ -651,8 +727,11 @@ class AuthService extends ChangeNotifier {
   }) {
     bool updated = false;
 
-    // Super Admin check
-    if (_superAdmin.id == userId || (_currentUser != null && _currentUser!.role == UserRole.superAdmin)) {
+    // 1. Super Admin target
+    if (_superAdmin.id == userId || _superAdmin.username.toLowerCase() == userId.toLowerCase()) {
+      if (newUsername != null && newUsername.trim().isNotEmpty) {
+        _superAdmin.username = newUsername.trim();
+      }
       if (newPassword != null && newPassword.trim().isNotEmpty) {
         _superAdmin.password = newPassword.trim();
       }
@@ -668,8 +747,11 @@ class AuthService extends ChangeNotifier {
       updated = true;
     }
 
-    // Institute Admin check
-    if (_admin.id == userId || (_currentUser != null && _currentUser!.role == UserRole.admin && _currentUser!.id == _admin.id)) {
+    // 2. Default Institute Admin target
+    if (_admin.id == userId || _admin.username.toLowerCase() == userId.toLowerCase()) {
+      if (newUsername != null && newUsername.trim().isNotEmpty) {
+        _admin.username = newUsername.trim();
+      }
       if (newPassword != null && newPassword.trim().isNotEmpty) {
         _admin.password = newPassword.trim();
       }
@@ -685,26 +767,53 @@ class AuthService extends ChangeNotifier {
       updated = true;
     }
 
-    // Students list check
-    final idx = _students.indexWhere((s) => s.id == userId);
-    if (idx != -1) {
+    // 3. Institute Admins list target
+    final aIdx = _instituteAdmins.indexWhere((a) => a.id == userId || a.username.toLowerCase() == userId.toLowerCase());
+    if (aIdx != -1) {
+      if (newUsername != null && newUsername.trim().isNotEmpty) {
+        _instituteAdmins[aIdx].username = newUsername.trim();
+      }
       if (newPassword != null && newPassword.trim().isNotEmpty) {
-        _students[idx].password = newPassword.trim();
+        _instituteAdmins[aIdx].password = newPassword.trim();
       }
       if (newName != null && newName.trim().isNotEmpty) {
-        _students[idx].name = newName.trim();
+        _instituteAdmins[aIdx].name = newName.trim();
       }
       if (newMobile != null && newMobile.trim().isNotEmpty) {
-        _students[idx].mobileNumber = newMobile.trim();
+        _instituteAdmins[aIdx].mobileNumber = newMobile.trim();
       }
       if (profilePhoto != null) {
-        _students[idx].profilePhoto = profilePhoto;
+        _instituteAdmins[aIdx].profilePhoto = profilePhoto;
       }
       updated = true;
     }
 
-    // Keep _currentUser synchronized
-    if (_currentUser != null) {
+    // 4. Students list target
+    final stuIdx = _students.indexWhere((s) => s.id == userId || s.username.toLowerCase() == userId.toLowerCase());
+    if (stuIdx != -1) {
+      if (newUsername != null && newUsername.trim().isNotEmpty) {
+        _students[stuIdx].username = newUsername.trim();
+      }
+      if (newPassword != null && newPassword.trim().isNotEmpty) {
+        _students[stuIdx].password = newPassword.trim();
+      }
+      if (newName != null && newName.trim().isNotEmpty) {
+        _students[stuIdx].name = newName.trim();
+      }
+      if (newMobile != null && newMobile.trim().isNotEmpty) {
+        _students[stuIdx].mobileNumber = newMobile.trim();
+      }
+      if (profilePhoto != null) {
+        _students[stuIdx].profilePhoto = profilePhoto;
+      }
+      updated = true;
+    }
+
+    // 5. Keep current user session synchronized if matching target
+    if (_currentUser != null && (_currentUser!.id == userId || _currentUser!.username.toLowerCase() == userId.toLowerCase())) {
+      if (newUsername != null && newUsername.trim().isNotEmpty) {
+        _currentUser!.username = newUsername.trim();
+      }
       if (newPassword != null && newPassword.trim().isNotEmpty) {
         _currentUser!.password = newPassword.trim();
       }
@@ -737,7 +846,7 @@ class AuthService extends ChangeNotifier {
     String? newSector,
     String? newStatus,
   }) {
-    final idx = _students.indexWhere((s) => s.id == studentId);
+    final idx = _students.indexWhere((s) => s.id == studentId || s.username.toLowerCase() == studentId.toLowerCase());
     if (idx == -1) return false;
 
     if (newName != null && newName.trim().isNotEmpty) {
@@ -760,6 +869,16 @@ class AuthService extends ChangeNotifier {
     }
     if (newStatus != null && newStatus.trim().isNotEmpty) {
       _students[idx].status = newStatus.trim();
+    }
+
+    if (_currentUser != null && (_currentUser!.id == studentId || _currentUser!.username.toLowerCase() == studentId.toLowerCase())) {
+      if (newName != null && newName.trim().isNotEmpty) _currentUser!.name = newName.trim();
+      if (newUsername != null && newUsername.trim().isNotEmpty) _currentUser!.username = newUsername.trim();
+      if (newPassword != null && newPassword.trim().isNotEmpty) _currentUser!.password = newPassword.trim();
+      if (newMobile != null && newMobile.trim().isNotEmpty) _currentUser!.mobileNumber = newMobile.trim();
+      if (newBatch != null && newBatch.trim().isNotEmpty) _currentUser!.batch = newBatch.trim();
+      if (newSector != null && newSector.trim().isNotEmpty) _currentUser!.sector = newSector.trim();
+      if (newStatus != null && newStatus.trim().isNotEmpty) _currentUser!.status = newStatus.trim();
     }
 
     _saveCustomUsers();

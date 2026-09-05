@@ -40,7 +40,8 @@ Future<void> main() async {
   // 2. Initialize Language and Exam Mode preferences
   LanguageService.instance.init();
 
-  // 3. Restore saved users / credentials
+  // 3. Initialize & Restore saved users and credentials (Super Admin, Admins, Students)
+  AuthService.instance.init();
   final savedUsers = StorageService.instance.loadUsers();
   if (savedUsers != null && savedUsers.isNotEmpty) {
     AuthService.instance.loadFromStorage(savedUsers);
