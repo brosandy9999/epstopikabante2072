@@ -87,9 +87,7 @@ class EpsTopikApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color(0xFFF3F4F6),
             useMaterial3: true,
           ),
-          home: (isAndroidWeb || isMobileWeb)
-              ? const AndroidWebGatekeeperScreen()
-              : const LoginScreen(),
+          home: const LoginScreen(),
         );
       },
     );
@@ -2936,9 +2934,6 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (isAndroidWeb) {
-      return const AndroidWebGatekeeperScreen();
-    }
     final filteredList = _filteredQuestions;
     if (_currentIndex >= filteredList.length) {
       _currentIndex = 0;

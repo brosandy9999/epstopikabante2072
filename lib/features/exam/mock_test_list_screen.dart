@@ -244,10 +244,6 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                       ElevatedButton.icon(
                         onPressed: () {
                           final randomSet = QuestionBankService.instance.generateRandomBlueprintExam();
-                          if (isAndroidWeb) {
-                            Navigator.push(context, MaterialPageRoute(builder: (_) => const AndroidWebGatekeeperScreen()));
-                            return;
-                          }
                           final mode = LanguageService.instance.modePreference;
                           if (mode == ExamModePreference.strictExam) {
                             Navigator.push(
@@ -455,10 +451,6 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
             child: ElevatedButton.icon(
               onPressed: () {
                 final isStrict = lang.modePreference == ExamModePreference.strictExam;
-                if (isAndroidWeb) {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AndroidWebGatekeeperScreen()));
-                  return;
-                }
                 if (isStrict) {
                   Navigator.push(
                     context,

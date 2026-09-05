@@ -917,9 +917,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (kIsWeb && (isAndroidWeb || isMobileWeb)) {
-      return const AndroidWebGatekeeperScreen();
-    }
     return ListenableBuilder(
       listenable: LanguageService.instance,
       builder: (context, _) => Scaffold(
