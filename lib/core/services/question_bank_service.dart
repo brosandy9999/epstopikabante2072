@@ -1,3 +1,4 @@
+import 'cloud_sync_service.dart';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
@@ -55,6 +56,7 @@ class QuestionBankService extends ChangeNotifier {
       final list = _customSets.map((s) => s.toJson()).toList();
       StorageService.instance.setString('custom_mock_sets', jsonEncode(list));
       StorageService.instance.saveCustomQuestions(list);
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
     } catch (_) {}
     _cachedSets = null; // Invalidate cache so getAllMockSets() rebuilds freshly
     notifyListeners();

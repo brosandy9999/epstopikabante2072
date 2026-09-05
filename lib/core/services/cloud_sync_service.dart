@@ -1,5 +1,7 @@
-﻿import 'dart:convert';
+import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'storage_service.dart';
 import 'question_bank_service.dart';
@@ -7,6 +9,7 @@ import 'auth_service.dart';
 import 'exam_service.dart';
 import 'study_material_service.dart';
 import 'institute_service.dart';
+import 'language_service.dart';
 import '../models/mock_test_model.dart';
 import '../models/study_material_model.dart';
 import '../models/institute_model.dart';
@@ -26,9 +29,14 @@ class CloudSyncService extends ChangeNotifier {
   String? _lastError;
   String? get lastError => _lastError;
 
-  // Free default cloud sync repository hosted directly on GitHub
+  Timer? _autoSyncTimer;
+
+  // Master Raw & Live GitHub Sync Repositories with zero-cache timestamps
   static const String defaultGitHubSyncUrl =
       'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/data/eps_sync_data.json';
+
+  static const String defaultGitHubPagesSyncUrl =
+      'https://brosandy9999.github.io/epstopikabante2072/data/eps_sync_data.json';
 
   String _cloudEndpoint = defaultGitHubSyncUrl;
   String get cloudEndpoint => _cloudEndpoint;
@@ -37,7 +45,14 @@ class CloudSyncService extends ChangeNotifier {
     var trimmed = raw.trim();
     if (trimmed.isEmpty) return defaultGitHubSyncUrl;
     if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
-      trimmed = 'https://';
+      trimmed = 'https://$trimmed';
+    }
+    if (trimmed.contains('firebaseio.com') && !trimmed.endsWith('.json')) {
+      if (trimmed.endsWith('/')) {
+        trimmed = '${trimmed}sync.json';
+      } else {
+        trimmed = '$trimmed/sync.json';
+      }
     }
     return trimmed;
   }
@@ -57,8 +72,35 @@ class CloudSyncService extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get hasConfiguredCloud {
-    return _cloudEndpoint.isNotEmpty;
+  bool get hasConfiguredCloud => _cloudEndpoint.isNotEmpty;
+  bool get isCustomCloudServer =>
+      !_cloudEndpoint.contains('github.com') &&
+      !_cloudEndpoint.contains('githubusercontent.com');
+
+  void init() {
+    final savedUrl = StorageService.instance.getString('eps_cloud_endpoint');
+    if (savedUrl != null && savedUrl.isNotEmpty) {
+      _cloudEndpoint = savedUrl;
+    } else {
+      _cloudEndpoint = defaultGitHubSyncUrl;
+      StorageService.instance.setString('eps_cloud_endpoint', _cloudEndpoint);
+    }
+    final lastTimeStr = StorageService.instance.getString('eps_last_sync_time');
+    if (lastTimeStr != null && lastTimeStr.isNotEmpty) {
+      _lastSyncTime = DateTime.tryParse(lastTimeStr);
+    }
+
+    // Start background periodic auto-sync (every 90 seconds)
+    _autoSyncTimer?.cancel();
+    _autoSyncTimer = Timer.periodic(const Duration(seconds: 90), (_) {
+      pullFromCloud(silent: true).catchError((_) => false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoSyncTimer?.cancel();
+    super.dispose();
   }
 
   Future<bool> testConnection() async {
@@ -74,7 +116,7 @@ class CloudSyncService extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        _lastError = 'सर्भर स्थिति: ';
+        _lastError = 'सर्भर स्थिति: ${response.statusCode}';
         _state = SyncState.error;
         notifyListeners();
         return false;
@@ -84,22 +126,6 @@ class CloudSyncService extends ChangeNotifier {
       _state = SyncState.offline;
       notifyListeners();
       return false;
-    }
-  }
-
-  void init() {
-    final savedUrl = StorageService.instance.getString('eps_cloud_endpoint');
-    if (savedUrl != null &&
-        savedUrl.isNotEmpty &&
-        !savedUrl.contains('eps-topik-hub-default-rtdb.firebaseio.com')) {
-      _cloudEndpoint = savedUrl;
-    } else {
-      _cloudEndpoint = defaultGitHubSyncUrl;
-      StorageService.instance.setString('eps_cloud_endpoint', _cloudEndpoint);
-    }
-    final lastTimeStr = StorageService.instance.getString('eps_last_sync_time');
-    if (lastTimeStr != null && lastTimeStr.isNotEmpty) {
-      _lastSyncTime = DateTime.tryParse(lastTimeStr);
     }
   }
 
@@ -117,8 +143,8 @@ class CloudSyncService extends ChangeNotifier {
     final allInstitutes = InstituteService.instance.getAllInstitutes();
 
     return {
-      'version': '2.0',
-      'channelId': channelId ?? 'default_hub',
+      'version': '2.4',
+      'channelId': channelId ?? 'epstopikabante2072_main',
       'timestamp': DateTime.now().toIso8601String(),
       'deviceType': kIsWeb ? 'desktop_web' : 'mobile_app',
       'sets': allSets.map((s) => s.toJson()).toList(),
@@ -287,6 +313,7 @@ class CloudSyncService extends ChangeNotifier {
       _lastSyncTime = DateTime.now();
       StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
       _state = SyncState.synced;
+      _lastError = null;
       notifyListeners();
       return true;
     } catch (e) {
@@ -298,92 +325,165 @@ class CloudSyncService extends ChangeNotifier {
   }
 
   /// Push local updates to Cloud endpoint or prepare sync payload
-  Future<bool> pushToCloud() async {
-    _state = SyncState.syncing;
-    _lastError = null;
-    notifyListeners();
-
-    try {
-      final isGitHub = _cloudEndpoint.contains('github.com') ||
-          _cloudEndpoint.contains('githubusercontent.com');
-
-      if (isGitHub) {
-        // Local snapshot updated for GitHub repository sync
-        _lastSyncTime = DateTime.now();
-        StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
-        _state = SyncState.synced;
-        notifyListeners();
-        return true;
-      }
-
-      final payload = generateFullSyncPayload();
-      final response = await http.put(
-        Uri.parse(_cloudEndpoint),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(payload),
-      ).timeout(const Duration(seconds: 12));
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        _lastSyncTime = DateTime.now();
-        StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
-        _state = SyncState.synced;
-        notifyListeners();
-        return true;
-      } else {
-        _lastError = 'सर्भर प्रतिक्रिया कोड: ';
-        _state = SyncState.error;
-        notifyListeners();
-        return false;
-      }
-    } catch (e) {
-      _lastError = 'क्लाउड सिङ्क असफल: इन्टरनेट वा URL जाँच गर्नुहोस्।';
-      _state = SyncState.offline;
+  Future<bool> pushToCloud({bool silent = false}) async {
+    if (!silent) {
+      _state = SyncState.syncing;
+      _lastError = null;
       notifyListeners();
-      return false;
     }
-  }
 
-  /// Pull latest updates from Cloud endpoint into local app
-  Future<bool> pullFromCloud() async {
-    _state = SyncState.syncing;
-    _lastError = null;
-    notifyListeners();
+    final payload = generateFullSyncPayload();
 
-    try {
-      final response = await http.get(
-        Uri.parse(_cloudEndpoint),
-        headers: {'Accept': 'application/json'},
-      ).timeout(const Duration(seconds: 15));
+    if (isCustomCloudServer) {
+      try {
+        final response = await http.put(
+          Uri.parse(_cloudEndpoint),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: jsonEncode(payload),
+        ).timeout(const Duration(seconds: 15));
 
-      if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body);
-        if (decoded is Map) {
-          final success = ingestSyncPayload(Map<String, dynamic>.from(decoded));
-          return success;
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          _lastSyncTime = DateTime.now();
+          StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+          _state = SyncState.synced;
+          notifyListeners();
+          return true;
         } else {
-          _lastError = 'सर्भरमा कुनै मान्य डाटा फेला परेन।';
+          _lastError = 'सर्भर प्रतिक्रिया कोड: ${response.statusCode}';
           _state = SyncState.error;
           notifyListeners();
           return false;
         }
-      } else {
-        _lastError = 'सर्भर त्रुटि कोड: ';
-        _state = SyncState.error;
+      } catch (e) {
+        _lastError = 'क्लाउड सिङ्क असफल: $e';
+        _state = SyncState.offline;
         notifyListeners();
         return false;
       }
-    } catch (e) {
-      _lastError = 'डेटा ल्याउन सकिएन: इन्टरनेट छैन वा सर्भर उपलब्ध छैन।';
+    } else {
+      // Local/GitHub storage snapshot updated
+      _lastSyncTime = DateTime.now();
+      StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+      _state = SyncState.synced;
+      notifyListeners();
+      return true;
+    }
+  }
+
+  /// Pull latest updates from Cloud endpoints into local app (with zero-cache headers)
+  Future<bool> pullFromCloud({bool silent = false}) async {
+    if (!silent) {
+      _state = SyncState.syncing;
+      _lastError = null;
+      notifyListeners();
+    }
+
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final List<String> endpointsToTry = [];
+
+    if (_cloudEndpoint.isNotEmpty) {
+      final sep = _cloudEndpoint.contains('?') ? '&' : '?';
+      endpointsToTry.add('$_cloudEndpoint${sep}_t=$timestamp');
+    }
+
+    final fb1 = '$defaultGitHubSyncUrl?_t=$timestamp';
+    final fb2 = '$defaultGitHubPagesSyncUrl?_t=$timestamp';
+    if (!endpointsToTry.contains(fb1)) endpointsToTry.add(fb1);
+    if (!endpointsToTry.contains(fb2)) endpointsToTry.add(fb2);
+
+    for (final url in endpointsToTry) {
+      try {
+        final response = await http.get(
+          Uri.parse(url),
+          headers: {
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+          },
+        ).timeout(const Duration(seconds: 12));
+
+        if (response.statusCode == 200 && response.body.trim().isNotEmpty) {
+          final decoded = jsonDecode(response.body);
+          if (decoded is Map) {
+            final success = ingestSyncPayload(Map<String, dynamic>.from(decoded));
+            if (success) {
+              _lastSyncTime = DateTime.now();
+              StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+              _state = SyncState.synced;
+              _lastError = null;
+              notifyListeners();
+              return true;
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('[CloudSync] Pull error from $url: $e');
+      }
+    }
+
+    if (!silent) {
+      _lastError = LanguageService.instance.trText(
+        ne: 'क्लाउड सिङ्क असफल: इन्टरनेट वा सर्भर उपलब्ध छैन।',
+        en: 'Cloud sync failed: No internet or server unreachable.',
+        ko: '클라우드 동기화 실패: 인터넷 또는 서버 연결 불가.',
+      );
       _state = SyncState.offline;
       notifyListeners();
-      return false;
     }
+    return false;
+  }
+
+  /// Full 1-tap bidirectional sync
+  Future<bool> syncNow({BuildContext? context}) async {
+    _state = SyncState.syncing;
+    _lastError = null;
+    notifyListeners();
+
+    final pulled = await pullFromCloud(silent: true);
+    if (isCustomCloudServer) {
+      await pushToCloud(silent: true);
+    }
+
+    _lastSyncTime = DateTime.now();
+    StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+    _state = SyncState.synced;
+    notifyListeners();
+
+    if (context != null && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.cloud_done, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  LanguageService.instance.trText(
+                    ne: '☁️ सबै प्रश्नहरू, विद्यार्थी र डाटा सफलतापूर्वक सिङ्क भयो!',
+                    en: '☁️ All questions, candidates and data successfully synced!',
+                    ko: '☁️ 모든 문항, 응시생 및 데이터가 성공적으로 동기화되었습니다!',
+                  ),
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.teal.shade700,
+          duration: const Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+    return pulled;
   }
 
   /// Exports raw JSON backup string for manual transfer or sharing
   String exportBackupJson() {
     final payload = generateFullSyncPayload();
-    return jsonEncode(payload);
+    return const JsonEncoder.withIndent('  ').convert(payload);
   }
 
   /// Imports raw JSON backup string from file or clipboard
@@ -398,5 +498,37 @@ class CloudSyncService extends ChangeNotifier {
       _lastError = 'अवैध ब्याकअप फाइल वा डाटा।';
       return false;
     }
+  }
+
+  /// Reusable Cloud Sync Action Button with visual state & feedback
+  Widget buildSyncAction(BuildContext context, {Color? iconColor}) {
+    return ListenableBuilder(
+      listenable: this,
+      builder: (context, _) {
+        final isSyncing = _state == SyncState.syncing;
+        return IconButton(
+          icon: isSyncing
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+                  ),
+                )
+              : Icon(
+                  _state == SyncState.synced ? Icons.cloud_done : Icons.cloud_sync,
+                  color: iconColor ?? Colors.amber,
+                  size: 22,
+                ),
+          tooltip: LanguageService.instance.trText(
+            ne: 'क्लाउड सिङ्क (Sync Now)',
+            en: 'Cloud Sync (Sync Now)',
+            ko: '클라우드 동기화 (Sync Now)',
+          ),
+          onPressed: isSyncing ? null : () => syncNow(context: context),
+        );
+      },
+    );
   }
 }

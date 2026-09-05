@@ -26,6 +26,9 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      CloudSyncService.instance.pullFromCloud(silent: true).catchError((_) => false);
+    });
   }
 
   @override
@@ -101,6 +104,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
                   ],
                 ),
               ),
+              CloudSyncService.instance.buildSyncAction(context),
               IconButton(
                 icon: const Icon(Icons.settings),
                 tooltip: LanguageService.instance.trText(ne: 'सेटिङ', en: 'Settings', ko: '설정'),

@@ -204,7 +204,8 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
           ],
         ),
         actions: [
-                    const SizedBox(width: 8),
+          CloudSyncService.instance.buildSyncAction(context),
+          const SizedBox(width: 8),
         ],
         backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,

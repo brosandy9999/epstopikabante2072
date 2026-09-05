@@ -1,3 +1,4 @@
+import 'cloud_sync_service.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../models/study_material_model.dart';
@@ -59,6 +60,7 @@ class StudyMaterialService extends ChangeNotifier {
     try {
       final list = _booksList!.map((b) => b.toJson()).toList();
       StorageService.instance.setString(_keyBooks, jsonEncode(list));
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save books: $e');
@@ -172,6 +174,7 @@ class StudyMaterialService extends ChangeNotifier {
     try {
       final list = _dictionaryList!.map((w) => w.toJson()).toList();
       StorageService.instance.setString(_keyDict, jsonEncode(list));
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save dictionary: $e');
@@ -329,6 +332,7 @@ class StudyMaterialService extends ChangeNotifier {
     try {
       final list = _visualCardsList!.map((c) => c.toJson()).toList();
       StorageService.instance.setString(_keyVisualCards, jsonEncode(list));
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save visual flashcards: $e');
@@ -621,6 +625,7 @@ class StudyMaterialService extends ChangeNotifier {
     try {
       final list = _notices!.map((n) => n.toJson()).toList();
       StorageService.instance.setString(_keyNotices, jsonEncode(list));
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save notices: $e');
@@ -675,6 +680,7 @@ class StudyMaterialService extends ChangeNotifier {
     try {
       final list = _grammarList!.map((g) => g.toJson()).toList();
       StorageService.instance.setString(_keyGrammar, jsonEncode(list));
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save grammar: $e');
@@ -743,6 +749,7 @@ class StudyMaterialService extends ChangeNotifier {
     try {
       final list = _videoList!.map((v) => v.toJson()).toList();
       StorageService.instance.setString(_keyVideos, jsonEncode(list));
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save videos: $e');

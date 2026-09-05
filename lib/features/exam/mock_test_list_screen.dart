@@ -104,10 +104,13 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
         foregroundColor: Colors.white,
         elevation: 1,
         actions: [
-                    const SizedBox(width: 8),
+          CloudSyncService.instance.buildSyncAction(context),
+          const SizedBox(width: 8),
         ],
       ),
-      body: LayoutBuilder(
+      body: RefreshIndicator(
+        onRefresh: () => CloudSyncService.instance.syncNow(context: context),
+        child: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth > 850;
 
@@ -299,6 +302,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
             ),
           );
         },
+      ),
       ),
     );
   }

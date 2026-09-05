@@ -1,3 +1,4 @@
+import '../../core/services/cloud_sync_service.dart';
 import '../../core/services/language_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../core/services/download_helper.dart';
@@ -21,13 +22,14 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    if (kIsWeb) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      CloudSyncService.instance.pullFromCloud(silent: true).catchError((_) => false);
+      if (kIsWeb) {
         Future.delayed(const Duration(milliseconds: 1400), () {
           if (mounted) _showAppDownloadPopup();
         });
-      });
-    }
+      }
+    });
   }
 
 
@@ -959,6 +961,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
+                      CloudSyncService.instance.buildSyncAction(context, iconColor: Colors.amber),
                       ...AppLanguage.values.map((lang) {
                         final isSel = LanguageService.instance.currentLanguage == lang;
                         return InkWell(

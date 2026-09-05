@@ -897,6 +897,47 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
             ),
           ),
           const SizedBox(height: 14),
+          // 1-Tap Instant Sync Button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber.shade800,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                elevation: 2,
+              ),
+              icon: const Icon(Icons.sync, size: 20),
+              label: Text(
+                LanguageService.instance.trText(
+                  ne: '⚡ अहिले नै सिङ्क गर्नुहोस् (Instant Sync Now)',
+                  en: '⚡ Instant Sync Now (Web & Mobile)',
+                  ko: '⚡ 지금 동기화 실행 (Web & Mobile)',
+                ),
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+              onPressed: () async {
+                final ok = await sync.syncNow(context: context);
+                setState(() {
+                  _isSuccess = ok;
+                  _statusMessage = ok
+                      ? LanguageService.instance.trText(
+                          ne: '✅ सबै डाटा सफलतापूर्वक सिङ्क भयो!',
+                          en: '✅ All data synced successfully across devices!',
+                          ko: '✅ 모든 데이터가 성공적으로 동기화되었습니다!',
+                        )
+                      : (LanguageService.instance.trText(
+                          ne: '⚠️ सिङ्क हुन सकेन: ',
+                          en: '⚠️ Sync failed: ',
+                          ko: '⚠️ 동기화 실패: ',
+                        ) + (sync.lastError ?? ''));
+                });
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+
           // Action Buttons: Push & Pull
           Row(
             children: [

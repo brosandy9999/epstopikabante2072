@@ -1,3 +1,4 @@
+import '../../core/services/cloud_sync_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/language_service.dart';
 import '../settings/universal_settings_dialog.dart';
@@ -20,6 +21,14 @@ class AdminDashboardScreen extends StatefulWidget {
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      CloudSyncService.instance.pullFromCloud(silent: true).catchError((_) => false);
+    });
+  }
 
   List<String> get _menuItems => [
     LanguageService.instance.trText(ne: 'ड्यासबोर्ड', en: 'Dashboard', ko: '대시보드'),
@@ -71,6 +80,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             foregroundColor: Colors.white,
             actions: [
               
+              CloudSyncService.instance.buildSyncAction(context),
+              const SizedBox(width: 4),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber.shade800,

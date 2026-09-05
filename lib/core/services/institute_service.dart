@@ -1,3 +1,4 @@
+import 'cloud_sync_service.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../models/institute_model.dart';
@@ -242,6 +243,7 @@ class InstituteService extends ChangeNotifier {
     try {
       final list = _institutes!.map((e) => e.toJson()).toList();
       StorageService.instance.setString(_keyInstitutes, jsonEncode(list));
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
     } catch (e) {
       debugPrint('[InstituteService] Failed to save institutes: $e');
     }

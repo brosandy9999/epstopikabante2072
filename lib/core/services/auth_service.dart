@@ -1,3 +1,4 @@
+import 'cloud_sync_service.dart';
 import 'language_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -90,7 +91,7 @@ class AuthService extends ChangeNotifier {
   AppUser? get currentUser => _currentUser;
 
   // Platform Super Admin
-  final AppUser _superAdmin = AppUser(
+  AppUser _superAdmin = AppUser(
     id: 'SUPER_ADMIN_001',
     username: 'superadmin',
     password: 'admin123',
@@ -223,6 +224,7 @@ class AuthService extends ChangeNotifier {
       final list = _students.map((e) => e.toJson()).toList();
       StorageService.instance.setString('auth_students_list', jsonEncode(list));
       StorageService.instance.saveUsers(_students);
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
     } catch (_) {}
   }
 
@@ -242,22 +244,41 @@ class AuthService extends ChangeNotifier {
         if (localIdx == -1) {
           _students.add(rUser);
           hasChanges = true;
+        } else {
+          _students[localIdx] = rUser;
+          hasChanges = true;
         }
       } else if (rUser.role == UserRole.admin) {
         if (_admin.id == rUser.id || _admin.username.toLowerCase() == rUser.username.toLowerCase()) {
-          // already default admin
+          _admin = rUser;
+          hasChanges = true;
         } else {
           final instIdx = _instituteAdmins.indexWhere((a) => a.id == rUser.id || a.username.toLowerCase() == rUser.username.toLowerCase());
           if (instIdx == -1) {
             _instituteAdmins.add(rUser);
             hasChanges = true;
+          } else {
+            _instituteAdmins[instIdx] = rUser;
+            hasChanges = true;
           }
+        }
+      } else if (rUser.role == UserRole.superAdmin) {
+        if (_superAdmin.id == rUser.id || _superAdmin.username.toLowerCase() == rUser.username.toLowerCase()) {
+          _superAdmin = rUser;
+          hasChanges = true;
         }
       }
     }
 
     if (hasChanges) {
-      _saveCustomUsers();
+      try {
+        StorageService.instance.setString('auth_super_admin_user', jsonEncode(_superAdmin.toJson()));
+        StorageService.instance.setString('auth_admin_user', jsonEncode(_admin.toJson()));
+        StorageService.instance.setString('auth_institute_admins_list', jsonEncode(_instituteAdmins.map((e) => e.toJson()).toList()));
+        final list = _students.map((e) => e.toJson()).toList();
+        StorageService.instance.setString('auth_students_list', jsonEncode(list));
+        StorageService.instance.saveUsers(_students);
+      } catch (_) {}
       notifyListeners();
     }
   }
