@@ -33161,7 +33161,7 @@ for(s=A.cN(a,a.r,A.r(a).c),r=s.$ti.c;s.A();){q=s.d
 if(q==null)q=r.a(q)
 if(b.$1(q))return q}return null},
 b9K(){var s,r=document,q=r.createElement("a")
-q.href="https://github.com/brosandy9999/epstopikabante2072/raw/main/apk/eps_topik_ubt_2026.apk"
+q.href="https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/apk/eps_topik_ubt_2026.apk"
 q.setAttribute("download","eps_topik_ubt_2026.apk")
 q.setAttribute("target","_blank")
 s=q.style
