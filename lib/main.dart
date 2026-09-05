@@ -87,7 +87,7 @@ class EpsTopikApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color(0xFFF3F4F6),
             useMaterial3: true,
           ),
-          home: isAndroidWeb
+          home: (isAndroidWeb || isMobileWeb)
               ? const AndroidWebGatekeeperScreen()
               : const LoginScreen(),
         );

@@ -2,6 +2,8 @@ import '../../core/services/cloud_sync_service.dart';
 import '../../core/services/language_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../core/services/download_helper.dart';
+import '../../core/services/platform_detector.dart';
+import '../security/android_web_gatekeeper_screen.dart';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../main.dart'; // To access StudentDashboard and AdminDashboard
@@ -915,6 +917,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb && (isAndroidWeb || isMobileWeb)) {
+      return const AndroidWebGatekeeperScreen();
+    }
     return ListenableBuilder(
       listenable: LanguageService.instance,
       builder: (context, _) => Scaffold(
