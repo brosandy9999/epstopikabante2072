@@ -1,5 +1,6 @@
 import 'cloud_sync_service.dart';
 import 'language_service.dart';
+import 'exam_service.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -22,6 +23,10 @@ class AppUser {
   String instituteName;
   String instituteLogo;
   String? profilePhoto;
+  int allowedSetsQuota; // -1 for unlimited, or 1, 5, 10, 20, 50 etc.
+  DateTime? validityExpiry; // Expiry date (Calendar-selectable)
+  List<String> unlockedSetIds;
+  int setsUsedCount;
 
   AppUser({
     required this.id,
@@ -38,7 +43,45 @@ class AppUser {
     this.instituteName = 'ग्लोबल कोरियन भाषा इन्स्टिच्युट',
     this.instituteLogo = 'assets/images/institute_logo_default.png',
     this.profilePhoto,
-  });
+    this.allowedSetsQuota = 10,
+    DateTime? validityExpiry,
+    List<String>? unlockedSetIds,
+    this.setsUsedCount = 0,
+  })  : validityExpiry = validityExpiry ?? DateTime.now().add(const Duration(days: 60)),
+        unlockedSetIds = unlockedSetIds ?? const [];
+
+  bool get isExpired {
+    if (role != UserRole.student) return false;
+    if (validityExpiry == null) return false;
+    return DateTime.now().isAfter(validityExpiry!);
+  }
+
+  int get daysRemaining {
+    if (validityExpiry == null) return 999;
+    final diff = validityExpiry!.difference(DateTime.now()).inDays;
+    return diff < 0 ? 0 : diff;
+  }
+
+  bool get isUnlimitedQuota => allowedSetsQuota <= 0 || allowedSetsQuota >= 999;
+
+  String get quotaSummaryText {
+    if (isUnlimitedQuota) {
+      return LanguageService.instance.trText(ne: 'असीमित सेट', en: 'Unlimited Sets', ko: '무제한 세트');
+    }
+    return '$allowedSetsQuota ' + LanguageService.instance.trText(ne: 'सेट', en: 'Sets', ko: '세트');
+  }
+
+  String get validitySummaryText {
+    if (validityExpiry == null) {
+      return LanguageService.instance.trText(ne: 'असीमित म्याद', en: 'No Expiry', ko: '무제한 기간');
+    }
+    final d = validityExpiry!;
+    final dateStr = "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
+    if (isExpired) {
+      return LanguageService.instance.trText(ne: '$dateStr (म्याद सकियो)', en: '$dateStr (Expired)', ko: '$dateStr (만료됨)');
+    }
+    return "$dateStr (${daysRemaining} " + LanguageService.instance.trText(ne: 'दिन बाँकी', en: 'days left', ko: '일 남음') + ")";
+  }
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -55,6 +98,10 @@ class AppUser {
     'instituteName': instituteName,
     'instituteLogo': instituteLogo,
     'profilePhoto': profilePhoto,
+    'allowedSetsQuota': allowedSetsQuota,
+    'validityExpiry': validityExpiry?.toIso8601String(),
+    'unlockedSetIds': unlockedSetIds,
+    'setsUsedCount': setsUsedCount,
   };
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
@@ -62,6 +109,12 @@ class AppUser {
     final role = rStr == 'superAdmin'
         ? UserRole.superAdmin
         : (rStr == 'admin' ? UserRole.admin : UserRole.student);
+
+    DateTime? validity;
+    if (json['validityExpiry'] != null) {
+      validity = DateTime.tryParse(json['validityExpiry'] as String);
+    }
+    validity ??= DateTime.now().add(const Duration(days: 60));
 
     return AppUser(
       id: json['id'] as String? ?? 'STU_001',
@@ -78,6 +131,10 @@ class AppUser {
       instituteName: json['instituteName'] as String? ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट',
       instituteLogo: json['instituteLogo'] as String? ?? 'assets/images/institute_logo_default.png',
       profilePhoto: json['profilePhoto'] as String?,
+      allowedSetsQuota: json['allowedSetsQuota'] as int? ?? 10,
+      validityExpiry: validity,
+      unlockedSetIds: (json['unlockedSetIds'] as List?)?.map((e) => e.toString()).toList() ?? [],
+      setsUsedCount: json['setsUsedCount'] as int? ?? 0,
     );
   }
 }
@@ -102,6 +159,7 @@ class AuthService extends ChangeNotifier {
     role: UserRole.superAdmin,
     instituteId: 'platform_master',
     instituteName: 'EPS-TOPIK Master Platform',
+    allowedSetsQuota: -1,
   );
 
   // Default Institute Admin User
@@ -116,12 +174,13 @@ class AuthService extends ChangeNotifier {
     role: UserRole.admin,
     instituteId: 'inst_01',
     instituteName: 'ग्लोबल कोरियन भाषा इन्स्टिच्युट',
+    allowedSetsQuota: -1,
   );
 
   // Dynamic Institute Admins List
   final List<AppUser> _instituteAdmins = [];
 
-  // Registered Students List with Batches, Sectors, and Mobile Numbers
+  // Registered Students List with Batches, Sectors, Quotas, and Calendar Expiry
   final List<AppUser> _students = [
     AppUser(
       id: 'STU_001',
@@ -134,6 +193,8 @@ class AuthService extends ChangeNotifier {
       sector: '제조업 (Manufacturing)',
       status: 'सक्रिय (Active)',
       role: UserRole.student,
+      allowedSetsQuota: 10,
+      validityExpiry: DateTime.now().add(const Duration(days: 45)),
     ),
     AppUser(
       id: 'STU_002',
@@ -146,6 +207,8 @@ class AuthService extends ChangeNotifier {
       sector: '농축산 (Agriculture)',
       status: 'सक्रिय (Active)',
       role: UserRole.student,
+      allowedSetsQuota: 15,
+      validityExpiry: DateTime.now().add(const Duration(days: 60)),
     ),
     AppUser(
       id: 'STU_003',
@@ -158,6 +221,8 @@ class AuthService extends ChangeNotifier {
       sector: '제조업 (Manufacturing)',
       status: 'सक्रिय (Active)',
       role: UserRole.student,
+      allowedSetsQuota: 5,
+      validityExpiry: DateTime.now().add(const Duration(days: 30)),
     ),
     AppUser(
       id: 'STU_004',
@@ -170,6 +235,8 @@ class AuthService extends ChangeNotifier {
       sector: '건설업 (Construction)',
       status: 'सक्रिय (Active)',
       role: UserRole.student,
+      allowedSetsQuota: -1, // Unlimited
+      validityExpiry: DateTime.now().add(const Duration(days: 90)),
     ),
   ];
 
@@ -300,6 +367,63 @@ class AuthService extends ChangeNotifier {
       return List.unmodifiable(_students);
     }
     return _students.where((s) => s.batch == batch).toList();
+  }
+
+  bool updateUserCredentials({
+    required String userId,
+    String? newName,
+    String? newPassword,
+    String? newMobile,
+    String? profilePhoto,
+  }) {
+    bool updated = false;
+
+    if (_superAdmin.id == userId) {
+      if (newName != null && newName.isNotEmpty) _superAdmin.name = newName;
+      if (newPassword != null && newPassword.isNotEmpty) _superAdmin.password = newPassword;
+      if (newMobile != null) _superAdmin.mobileNumber = newMobile;
+      if (profilePhoto != null) _superAdmin.profilePhoto = profilePhoto;
+      updated = true;
+    } else if (_admin.id == userId) {
+      if (newName != null && newName.isNotEmpty) _admin.name = newName;
+      if (newPassword != null && newPassword.isNotEmpty) _admin.password = newPassword;
+      if (newMobile != null) _admin.mobileNumber = newMobile;
+      if (profilePhoto != null) _admin.profilePhoto = profilePhoto;
+      updated = true;
+    } else {
+      final instIdx = _instituteAdmins.indexWhere((u) => u.id == userId);
+      if (instIdx != -1) {
+        final u = _instituteAdmins[instIdx];
+        if (newName != null && newName.isNotEmpty) u.name = newName;
+        if (newPassword != null && newPassword.isNotEmpty) u.password = newPassword;
+        if (newMobile != null) u.mobileNumber = newMobile;
+        if (profilePhoto != null) u.profilePhoto = profilePhoto;
+        updated = true;
+      } else {
+        final stuIdx = _students.indexWhere((u) => u.id == userId);
+        if (stuIdx != -1) {
+          final u = _students[stuIdx];
+          if (newName != null && newName.isNotEmpty) u.name = newName;
+          if (newPassword != null && newPassword.isNotEmpty) u.password = newPassword;
+          if (newMobile != null) u.mobileNumber = newMobile;
+          if (profilePhoto != null) u.profilePhoto = profilePhoto;
+          updated = true;
+        }
+      }
+    }
+
+    if (updated) {
+      if (_currentUser?.id == userId) {
+        if (newName != null && newName.isNotEmpty) _currentUser!.name = newName;
+        if (newPassword != null && newPassword.isNotEmpty) _currentUser!.password = newPassword;
+        if (newMobile != null) _currentUser!.mobileNumber = newMobile;
+        if (profilePhoto != null) _currentUser!.profilePhoto = profilePhoto;
+      }
+      _saveCustomUsers();
+      notifyListeners();
+    }
+
+    return updated;
   }
 
   /// Unified Auto-Detecting Login:
@@ -704,6 +828,8 @@ class AuthService extends ChangeNotifier {
     String batch = '2026 Batch A (बिहानी सत्र)',
     String sector = '제조업 (Manufacturing)',
     String status = 'सक्रिय (Active)',
+    int allowedSetsQuota = 10,
+    DateTime? validityExpiry,
   }) {
     final cleanUser = username.trim();
     final cleanPass = password.trim();
@@ -736,129 +862,13 @@ class AuthService extends ChangeNotifier {
       instituteId: instId,
       instituteName: instName,
       instituteLogo: instLogo,
+      allowedSetsQuota: allowedSetsQuota,
+      validityExpiry: validityExpiry ?? DateTime.now().add(const Duration(days: 60)),
     ));
     _saveCustomUsers();
+    CloudSyncService.instance.pushToCloud();
     notifyListeners();
     return true;
-  }
-
-  bool updateUserCredentials({
-    required String userId,
-    String? newUsername,
-    String? newPassword,
-    String? newName,
-    String? newMobile,
-    String? profilePhoto,
-  }) {
-    bool updated = false;
-
-    // 1. Super Admin target
-    if (_superAdmin.id == userId || _superAdmin.username.toLowerCase() == userId.toLowerCase()) {
-      if (newUsername != null && newUsername.trim().isNotEmpty) {
-        _superAdmin.username = newUsername.trim();
-      }
-      if (newPassword != null && newPassword.trim().isNotEmpty) {
-        _superAdmin.password = newPassword.trim();
-      }
-      if (newName != null && newName.trim().isNotEmpty) {
-        _superAdmin.name = newName.trim();
-      }
-      if (newMobile != null && newMobile.trim().isNotEmpty) {
-        _superAdmin.mobileNumber = newMobile.trim();
-      }
-      if (profilePhoto != null) {
-        _superAdmin.profilePhoto = profilePhoto;
-      }
-      updated = true;
-    }
-
-    // 2. Default Institute Admin target
-    if (_admin.id == userId || _admin.username.toLowerCase() == userId.toLowerCase()) {
-      if (newUsername != null && newUsername.trim().isNotEmpty) {
-        _admin.username = newUsername.trim();
-      }
-      if (newPassword != null && newPassword.trim().isNotEmpty) {
-        _admin.password = newPassword.trim();
-      }
-      if (newName != null && newName.trim().isNotEmpty) {
-        _admin.name = newName.trim();
-      }
-      if (newMobile != null && newMobile.trim().isNotEmpty) {
-        _admin.mobileNumber = newMobile.trim();
-      }
-      if (profilePhoto != null) {
-        _admin.profilePhoto = profilePhoto;
-      }
-      updated = true;
-    }
-
-    // 3. Institute Admins list target
-    final aIdx = _instituteAdmins.indexWhere((a) => a.id == userId || a.username.toLowerCase() == userId.toLowerCase());
-    if (aIdx != -1) {
-      if (newUsername != null && newUsername.trim().isNotEmpty) {
-        _instituteAdmins[aIdx].username = newUsername.trim();
-      }
-      if (newPassword != null && newPassword.trim().isNotEmpty) {
-        _instituteAdmins[aIdx].password = newPassword.trim();
-      }
-      if (newName != null && newName.trim().isNotEmpty) {
-        _instituteAdmins[aIdx].name = newName.trim();
-      }
-      if (newMobile != null && newMobile.trim().isNotEmpty) {
-        _instituteAdmins[aIdx].mobileNumber = newMobile.trim();
-      }
-      if (profilePhoto != null) {
-        _instituteAdmins[aIdx].profilePhoto = profilePhoto;
-      }
-      updated = true;
-    }
-
-    // 4. Students list target
-    final stuIdx = _students.indexWhere((s) => s.id == userId || s.username.toLowerCase() == userId.toLowerCase());
-    if (stuIdx != -1) {
-      if (newUsername != null && newUsername.trim().isNotEmpty) {
-        _students[stuIdx].username = newUsername.trim();
-      }
-      if (newPassword != null && newPassword.trim().isNotEmpty) {
-        _students[stuIdx].password = newPassword.trim();
-      }
-      if (newName != null && newName.trim().isNotEmpty) {
-        _students[stuIdx].name = newName.trim();
-      }
-      if (newMobile != null && newMobile.trim().isNotEmpty) {
-        _students[stuIdx].mobileNumber = newMobile.trim();
-      }
-      if (profilePhoto != null) {
-        _students[stuIdx].profilePhoto = profilePhoto;
-      }
-      updated = true;
-    }
-
-    // 5. Keep current user session synchronized if matching target
-    if (_currentUser != null && (_currentUser!.id == userId || _currentUser!.username.toLowerCase() == userId.toLowerCase())) {
-      if (newUsername != null && newUsername.trim().isNotEmpty) {
-        _currentUser!.username = newUsername.trim();
-      }
-      if (newPassword != null && newPassword.trim().isNotEmpty) {
-        _currentUser!.password = newPassword.trim();
-      }
-      if (newName != null && newName.trim().isNotEmpty) {
-        _currentUser!.name = newName.trim();
-      }
-      if (newMobile != null && newMobile.trim().isNotEmpty) {
-        _currentUser!.mobileNumber = newMobile.trim();
-      }
-      if (profilePhoto != null) {
-        _currentUser!.profilePhoto = profilePhoto;
-      }
-      updated = true;
-    }
-
-    if (updated) {
-      _saveCustomUsers();
-      notifyListeners();
-    }
-    return updated;
   }
 
   bool updateStudentCredentials({
@@ -870,6 +880,9 @@ class AuthService extends ChangeNotifier {
     String? newBatch,
     String? newSector,
     String? newStatus,
+    int? newAllowedSetsQuota,
+    DateTime? newValidityExpiry,
+    bool clearExpiry = false,
   }) {
     final idx = _students.indexWhere((s) => s.id == studentId || s.username.toLowerCase() == studentId.toLowerCase());
     if (idx == -1) return false;
@@ -895,6 +908,14 @@ class AuthService extends ChangeNotifier {
     if (newStatus != null && newStatus.trim().isNotEmpty) {
       _students[idx].status = newStatus.trim();
     }
+    if (newAllowedSetsQuota != null) {
+      _students[idx].allowedSetsQuota = newAllowedSetsQuota;
+    }
+    if (clearExpiry) {
+      _students[idx].validityExpiry = null;
+    } else if (newValidityExpiry != null) {
+      _students[idx].validityExpiry = newValidityExpiry;
+    }
 
     if (_currentUser != null && (_currentUser!.id == studentId || _currentUser!.username.toLowerCase() == studentId.toLowerCase())) {
       if (newName != null && newName.trim().isNotEmpty) _currentUser!.name = newName.trim();
@@ -904,16 +925,195 @@ class AuthService extends ChangeNotifier {
       if (newBatch != null && newBatch.trim().isNotEmpty) _currentUser!.batch = newBatch.trim();
       if (newSector != null && newSector.trim().isNotEmpty) _currentUser!.sector = newSector.trim();
       if (newStatus != null && newStatus.trim().isNotEmpty) _currentUser!.status = newStatus.trim();
+      if (newAllowedSetsQuota != null) _currentUser!.allowedSetsQuota = newAllowedSetsQuota;
+      if (clearExpiry) {
+        _currentUser!.validityExpiry = null;
+      } else if (newValidityExpiry != null) {
+        _currentUser!.validityExpiry = newValidityExpiry;
+      }
     }
 
     _saveCustomUsers();
+    CloudSyncService.instance.pushToCloud();
     notifyListeners();
+    return true;
+  }
+
+  bool updateStudentQuotaAndValidity({
+    required String studentId,
+    required int allowedSetsQuota,
+    required DateTime? validityExpiry,
+    List<String>? unlockedSetIds,
+  }) {
+    final idx = _students.indexWhere((s) => s.id == studentId || s.username.toLowerCase() == studentId.toLowerCase());
+    if (idx == -1) return false;
+
+    _students[idx].allowedSetsQuota = allowedSetsQuota;
+    _students[idx].validityExpiry = validityExpiry;
+    if (unlockedSetIds != null) {
+      _students[idx].unlockedSetIds = unlockedSetIds;
+    }
+
+    if (_currentUser != null && (_currentUser!.id == studentId || _currentUser!.username.toLowerCase() == studentId.toLowerCase())) {
+      _currentUser!.allowedSetsQuota = allowedSetsQuota;
+      _currentUser!.validityExpiry = validityExpiry;
+      if (unlockedSetIds != null) {
+        _currentUser!.unlockedSetIds = unlockedSetIds;
+      }
+    }
+
+    _saveCustomUsers();
+    CloudSyncService.instance.pushToCloud();
+    notifyListeners();
+    return true;
+  }
+
+  /// Universal Student Quota and Expiration Access Guard with alert dialog
+  static bool checkStudentAccessWithDialog(BuildContext context, {String? setId}) {
+    final u = AuthService.instance.currentUser;
+    if (u == null || u.role != UserRole.student) {
+      return true; // Admins & Super Admins have unrestricted preview & test access
+    }
+
+    // 1. Check validity expiry
+    if (u.isExpired) {
+      final expStr = u.validityExpiry != null
+          ? "${u.validityExpiry!.year}-${u.validityExpiry!.month.toString().padLeft(2, '0')}-${u.validityExpiry!.day.toString().padLeft(2, '0')}"
+          : LanguageService.instance.trText(ne: 'समाप्त', en: 'Expired', ko: '만료');
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.timer_off_rounded, color: Colors.red, size: 26),
+              const SizedBox(width: 8),
+              Text(
+                LanguageService.instance.trText(ne: "म्याद समाप्त भएको छ!", en: "Account Expired!", ko: "이용 기간 만료!"),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Text(
+                  LanguageService.instance.trText(
+                    ne: "⚠️ तपाईंको अध्ययन तथा परीक्षाको म्याद ($expStr) मा समाप्त भइसकेको छ।",
+                    en: "⚠️ Your study and exam access expired on $expStr.",
+                    ko: "⚠️ 학습 및 모의고사 이용 기간이 $expStr 일자로 만료되었습니다.",
+                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 13),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                LanguageService.instance.trText(
+                  ne: "नयाँ समय सीमा (Validity) थप गर्न वा नवीकरण गर्न कृपया आफ्नो इन्स्टिच्युट (${u.instituteName}) प्रशासनसँग सम्पर्क गर्नुहोस्।",
+                  en: "Please contact your Institute (${u.instituteName}) admin to extend or renew your validity.",
+                  ko: "기간 연장 및 갱신을 위해 소속 학원(${u.instituteName}) 관리자에게 문의해 주세요.",
+                ),
+                style: const TextStyle(fontSize: 13, height: 1.4),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E3A8A),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(LanguageService.instance.trText(ne: "बुझें (Understood)", en: "Understood", ko: "확인")),
+            ),
+          ],
+        ),
+      );
+      return false;
+    }
+
+    // 2. Check Set Quota
+    if (!u.isUnlimitedQuota) {
+      final completed = ExamHistoryService.instance.getCompletedSetsCountForStudent(u.username);
+      if (completed >= u.allowedSetsQuota) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Row(
+              children: [
+                const Icon(Icons.inventory_2_outlined, color: Colors.orange, size: 26),
+                const SizedBox(width: 8),
+                Text(
+                  LanguageService.instance.trText(ne: "सेट कोटा समाप्त भयो!", en: "Set Quota Exhausted!", ko: "세트 할당량 소진!"),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFFB45309)),
+                ),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.amber.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.amber.shade300),
+                  ),
+                  child: Text(
+                    LanguageService.instance.trText(
+                      ne: "📊 तपाईंलाई तोकिएको ${u.allowedSetsQuota} वटा सेटको कोटा प्रयोग भइसकेको छ (हालसम्म $completed सेट पूरा गरियो)।",
+                      en: "📊 You have used all ${u.allowedSetsQuota} allocated question sets ($completed sets completed).",
+                      ko: "📊 배정된 ${u.allowedSetsQuota}개 세트 할당량을 모두 사용하셨습니다(현재까지 $completed개 완료).",
+                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.amber.shade900, fontSize: 13),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  LanguageService.instance.trText(
+                    ne: "थप नयाँ प्रश्न सेटहरू खोल्न कृपया आफ्नो इन्स्टिच्युट (${u.instituteName}) मा सम्पर्क गरी कोटा वृद्धि गर्नुहोस्।",
+                    en: "Please contact your Institute (${u.instituteName}) to increase your question set quota.",
+                    ko: "추가 문제 세트를 응시하시려면 소속 학원(${u.instituteName})에 문의하여 할당량을 추가해 주세요.",
+                  ),
+                  style: const TextStyle(fontSize: 13, height: 1.4),
+                ),
+              ],
+            ),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E3A8A),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(LanguageService.instance.trText(ne: "बुझें (Understood)", en: "Understood", ko: "확인")),
+              ),
+            ],
+          ),
+        );
+        return false;
+      }
+    }
+
     return true;
   }
 
   void deleteStudent(String studentId) {
     _students.removeWhere((s) => s.id == studentId);
     _saveCustomUsers();
+    CloudSyncService.instance.pushToCloud();
     notifyListeners();
   }
 }

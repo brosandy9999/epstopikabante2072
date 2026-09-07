@@ -4,6 +4,7 @@ import '../../core/services/question_bank_service.dart';
 import '../../core/services/exam_service.dart';
 import '../../core/services/language_service.dart';
 import '../../core/services/cloud_sync_service.dart';
+import '../../core/services/auth_service.dart';
 import 'real_ubt_exam_hall_screen.dart';
 import '../../main.dart';
 
@@ -58,7 +59,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: Listenable.merge([QuestionBankService.instance, LanguageService.instance]),
+      listenable: Listenable.merge([QuestionBankService.instance, LanguageService.instance, AuthService.instance]),
       builder: (context, _) => _buildContent(context),
     );
   }
@@ -71,6 +72,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
         .toList();
     final completedCount = ExamHistoryService.instance.completedSetsCount;
     final lang = LanguageService.instance;
+    final currentUser = AuthService.instance.currentUser;
 
     final filteredSets = _selectedSector == 'all'
         ? allSets
@@ -104,8 +106,8 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
         foregroundColor: const Color(0xFF0F172A),
         iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
         elevation: 1,
-        actions: [
-          const SizedBox(width: 8),
+        actions: const [
+          SizedBox(width: 8),
         ],
       ),
       body: RefreshIndicator(
@@ -122,6 +124,61 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Student Quota & Validity Status Banner (if logged in as student)
+                if (currentUser != null && currentUser.role == 'student')
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: currentUser.isExpired ? const Color(0xFFFEF2F2) : const Color(0xFFF0FDFA),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: currentUser.isExpired ? Colors.red.shade300 : const Color(0xFF99F6E4),
+                      ),
+                      boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          currentUser.isExpired ? Icons.warning_amber_rounded : Icons.verified_user,
+                          color: currentUser.isExpired ? Colors.red.shade700 : const Color(0xFF0F766E),
+                          size: 26,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${currentUser.name} (${currentUser.username})',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F172A)),
+                              ),
+                              const SizedBox(height: 2),
+                              Wrap(
+                                spacing: 10,
+                                runSpacing: 4,
+                                children: [
+                                  Text(
+                                    '🎯 ${lang.trText(ne: "कोटा:", en: "Quota:", ko: "정원:")} ${currentUser.quotaSummaryText} (${currentUser.setsUsedCount} हल)',
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF1E3A8A)),
+                                  ),
+                                  Text(
+                                    '📅 ${lang.trText(ne: "म्याद:", en: "Validity:", ko: "유효기간:")} ${currentUser.validitySummaryText}',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: currentUser.isExpired ? Colors.red.shade800 : const Color(0xFF0F766E),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 // 1. Top Summary Banner
                 Container(
                   width: double.infinity,
@@ -241,6 +298,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
                       ),
                       ElevatedButton.icon(
                         onPressed: () {
+                          if (!AuthService.checkStudentAccessWithDialog(context)) return;
                           final randomSet = QuestionBankService.instance.generateRandomBlueprintExam();
                           final mode = LanguageService.instance.modePreference;
                           if (mode == ExamModePreference.strictExam) {
@@ -448,6 +506,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
+                if (!AuthService.checkStudentAccessWithDialog(context, setId: set.id)) return;
                 final isStrict = lang.modePreference == ExamModePreference.strictExam;
                 if (isStrict) {
                   Navigator.push(

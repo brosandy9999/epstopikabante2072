@@ -711,6 +711,71 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
               ),
             ),
           ),
+          const SizedBox(height: 10),
+
+          // 🔍 Text & Screen Scale Setting
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.grey.shade200)),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.format_size_rounded, size: 18, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 8),
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: 'स्क्रिन तथा फन्ट साइज (Font & Display Scale):',
+                          en: 'Font & Display Scale:',
+                          ko: '글꼴 및 화면 배율 설정:',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${(langService.textScale * 100).round()}%',
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      { 'label': LanguageService.instance.trText(ne: 'सानो (९०%)', en: 'Compact (90%)', ko: '작게 (90%)'), 'scale': 0.90 },
+                      { 'label': LanguageService.instance.trText(ne: 'सामान्य (१००%)', en: 'Normal (100%)', ko: '기본 (100%)'), 'scale': 1.0 },
+                      { 'label': LanguageService.instance.trText(ne: 'ठूलो (११५%)', en: 'Large (115%)', ko: '크게 (115%)'), 'scale': 1.15 },
+                      { 'label': LanguageService.instance.trText(ne: 'धेरै ठूलो (१३०%)', en: 'XL (130%)', ko: '아주 크게 (130%)'), 'scale': 1.30 },
+                    ].map((item) {
+                      final scale = (item['scale'] as num).toDouble();
+                      final label = item['label'] as String;
+                      final isSel = (langService.textScale - scale).abs() < 0.04;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          label: Text(label, style: TextStyle(fontSize: 10.5, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
+                          selected: isSel,
+                          selectedColor: const Color(0xFF1E3A8A),
+                          onSelected: (_) {
+                            setState(() {
+                              langService.setTextScale(scale);
+                              _isSuccess = true;
+                              _statusMessage = LanguageService.instance.trText(
+                                ne: '✅ फन्ट साइज सेट गरियो: ${(scale * 100).round()}%',
+                                en: '✅ Font scale set to: ${(scale * 100).round()}%',
+                                ko: '✅ 화면 배율 설정 완료: ${(scale * 100).round()}%',
+                              );
+                            });
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -142,6 +142,13 @@ class StorageService {
     return await _prefs?.setString(key, value) ?? false;
   }
 
+  double? getDouble(String key) => _prefs?.getDouble(key);
+
+  Future<bool> setDouble(String key, double value) async {
+    if (_prefs == null) await init();
+    return await _prefs?.setDouble(key, value) ?? false;
+  }
+
   // -------------------------------------------------------------
   // RESET / CLEAR ALL
   // -------------------------------------------------------------

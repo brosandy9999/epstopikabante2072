@@ -59,8 +59,17 @@ class LanguageService extends ChangeNotifier {
   double _audioSpeed = 1.0;
   double get audioSpeed => _audioSpeed;
 
+  double _textScale = 1.0;
+  double get textScale => _textScale;
+
   void setAudioSpeed(double speed) {
     _audioSpeed = speed;
+    notifyListeners();
+  }
+
+  void setTextScale(double scale) {
+    _textScale = scale.clamp(0.8, 1.8);
+    StorageService.instance.setDouble('eps_text_scale', _textScale);
     notifyListeners();
   }
 
@@ -77,6 +86,11 @@ class LanguageService extends ChangeNotifier {
       _currentLanguage = AppLanguage.korean;
     } else {
       _currentLanguage = AppLanguage.english;
+    }
+
+    final savedScale = StorageService.instance.getDouble('eps_text_scale');
+    if (savedScale != null && savedScale > 0) {
+      _textScale = savedScale;
     }
   }
 

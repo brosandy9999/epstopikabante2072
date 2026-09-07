@@ -204,6 +204,12 @@ class ExamHistoryService {
   List<ExamAttemptRecord> getAttemptsForStudent(String studentId) {
     return _attempts.where((a) => a.studentId == studentId).toList();
   }
+
+  int getCompletedSetsCountForStudent(String studentId) {
+    final userAttempts = _attempts.where((a) => a.studentId.toLowerCase() == studentId.toLowerCase()).toList();
+    final uniqueSetIds = userAttempts.map((a) => a.setId).toSet();
+    return uniqueSetIds.length;
+  }
 }
 
 class ExamService {

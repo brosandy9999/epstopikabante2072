@@ -121,6 +121,12 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   bool _directScrollZoomEnabled = false;
 
   @override
+  void initState() {
+    super.initState();
+    _uiScale = LanguageService.instance.textScale;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: LanguageService.instance,
@@ -229,60 +235,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               ],
             ),
             actions: [
-              // Global Visible Zoom Pill
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white38),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove, size: 14, color: Colors.white),
-                      tooltip: LanguageService.instance.trText(ne: 'जुम घटाउनुहोस्', en: 'Zoom Out', ko: '축소'),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
-                      onPressed: () {
-                        setState(() {
-                          _uiScale = (_uiScale - 0.15).clamp(0.8, 1.8);
-                          if (_uiScale < 1.15) _gridColumnsOverride = 0;
-                        });
-                      },
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          _uiScale = 1.0;
-                          _gridColumnsOverride = 0;
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Text(
-                          '🔍 ${(_uiScale * 100).round()}%',
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add, size: 14, color: Colors.white),
-                      tooltip: LanguageService.instance.trText(ne: 'जुम बढाउनुहोस्', en: 'Zoom In', ko: '확대'),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 26, minHeight: 26),
-                      onPressed: () {
-                        setState(() {
-                          _uiScale = (_uiScale + 0.15).clamp(0.8, 1.8);
-                          if (_uiScale >= 1.2) _gridColumnsOverride = 1;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
               if (s.role == UserRole.superAdmin)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
@@ -331,28 +283,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                   }
                   return const SizedBox.shrink();
                 },
-              ),
-              IconButton(
-                icon: ListenableBuilder(
-                  listenable: UpdateService.instance,
-                  builder: (context, _) {
-                    if (UpdateService.instance.hasUpdateAvailable) {
-                      return const Badge(
-                        backgroundColor: Colors.amber,
-                        label: Text('1', style: TextStyle(fontSize: 9, color: Colors.black, fontWeight: FontWeight.bold)),
-                        child: Icon(Icons.settings),
-                      );
-                    }
-                    return const Icon(Icons.settings);
-                  },
-                ),
-                tooltip: LanguageService.instance.tr('settings'),
-                onPressed: () => showUniversalSettingsDialog(context),
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout),
-                tooltip: LanguageService.instance.tr('logout'),
-                onPressed: () => AuthService.confirmAndLogout(context),
               ),
               const SizedBox(width: 8),
             ],
@@ -1061,6 +991,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           foregroundColor: Colors.white,
                         ),
                         onPressed: () {
+                          if (!AuthService.checkStudentAccessWithDialog(context, setId: set.id)) return;
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -1310,65 +1241,362 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   }
 
   Widget _buildProfileTab(AppUser s, bool isMobile) {
+    final langService = LanguageService.instance;
+    final updateSvc = UpdateService.instance;
+    final sync = CloudSyncService.instance;
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 960),
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24, vertical: 25),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Profile Card with clickable photo & name
-          _buildProfileCard(s, isMobile),
-          const SizedBox(height: 16),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 1. Profile Hero Card
+              _buildProfileCard(s, isMobile),
+              const SizedBox(height: 20),
 
-          // 2. Quick Account & Settings Banner Button
-          InkWell(
-            onTap: () => showUniversalSettingsDialog(context),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue.shade100),
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 2)),
-                ],
-              ),
-              child: Row(
+              // 2. Profile & App Settings Header
+              Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(8)),
-                    child: const Icon(Icons.manage_accounts, color: Color(0xFF1E3A8A), size: 22),
-                  ),
-                  const SizedBox(width: 14),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('खाता विवरण, भाषा, पासवर्ड तथा लगआउट', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F172A))),
-                        SizedBox(height: 2),
-                        Text('तपाईंको फोटो वा यहाँ क्लिक गरेर सेटिङहरू व्यवस्थापन गर्नुहोस्', style: TextStyle(fontSize: 12, color: Colors.black54)),
-                      ],
+                    width: 4,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E3A8A),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const Icon(Icons.chevron_right, color: Color(0xFF1E3A8A)),
+                  const SizedBox(width: 8),
+                  Text(
+                    LanguageService.instance.trText(
+                      ne: '⚙️ एप तथा खाता सेटिङहरू (Settings & Preferences)',
+                      en: '⚙️ App & Account Settings',
+                      ko: '⚙️ 앱 및 계정 설정',
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ),
-          const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
-          // 3. Clean Exam History & Scorecard Archive Section
-          _buildHistoryTab(s, isMobile),
-          const SizedBox(height: 30),
-        ],
+              // Setting Card 1: 🌐 Language Selector
+              Card(
+                elevation: 1.5,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.language, color: Color(0xFF1E3A8A), size: 18),
+                          const SizedBox(width: 8),
+                          Text(langService.tr('language'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          const Spacer(),
+                          Text(
+                            langService.currentLanguage.displayName,
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          _buildLangChoiceChip(AppLanguage.nepali, '🇳🇵 नेपाली'),
+                          const SizedBox(width: 8),
+                          _buildLangChoiceChip(AppLanguage.english, '🇬🇧 English'),
+                          const SizedBox(width: 8),
+                          _buildLangChoiceChip(AppLanguage.korean, '🇰🇷 한국어'),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Setting Card 2: ⚙️ Exam & Audio Preferences (Speed, Mode, Display Scale)
+              Card(
+                elevation: 1.5,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.tune, color: Color(0xFF1E3A8A), size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            LanguageService.instance.trText(
+                              ne: 'परीक्षा तथा अडियो प्राथमिकता (Preferences):',
+                              en: 'Exam & Audio Preferences:',
+                              ko: '시험 및 오디오 환경설정:',
+                            ),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Audio Speed Row
+                      Row(
+                        children: [
+                          const Icon(Icons.speed, size: 16, color: Colors.blueGrey),
+                          const SizedBox(width: 6),
+                          Text(LanguageService.instance.tr('audio_speed'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                          const Spacer(),
+                          Row(
+                            children: [0.8, 1.0, 1.2].map((sp) {
+                              final isSel = (langService.audioSpeed - sp).abs() < 0.05;
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 6),
+                                child: ChoiceChip(
+                                  label: Text('${sp}x', style: TextStyle(fontSize: 11, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
+                                  selected: isSel,
+                                  selectedColor: const Color(0xFF1E3A8A),
+                                  onSelected: (_) {
+                                    setState(() {
+                                      langService.setAudioSpeed(sp);
+                                    });
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 18),
+
+                      // Display Scale Row
+                      Row(
+                        children: [
+                          const Icon(Icons.format_size_rounded, size: 16, color: Colors.blueGrey),
+                          const SizedBox(width: 6),
+                          Text(
+                            LanguageService.instance.trText(ne: 'फन्ट तथा जुम', en: 'Font Scale', ko: '화면 배율'),
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                          ),
+                          const Spacer(),
+                          Row(
+                            children: [
+                              { 'l': '९०%', 's': 0.90 },
+                              { 'l': '१००%', 's': 1.0 },
+                              { 'l': '११५%', 's': 1.15 },
+                              { 'l': '१३०%', 's': 1.30 },
+                            ].map((item) {
+                              final scale = (item['s'] as num).toDouble();
+                              final isSel = (langService.textScale - scale).abs() < 0.04;
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 6),
+                                child: ChoiceChip(
+                                  label: Text(item['l'] as String, style: TextStyle(fontSize: 10.5, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
+                                  selected: isSel,
+                                  selectedColor: const Color(0xFF1E3A8A),
+                                  onSelected: (_) {
+                                    setState(() {
+                                      langService.setTextScale(scale);
+                                      _uiScale = scale;
+                                    });
+                                  },
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Setting Card 3: 🔄 Cloud Sync & Update Center
+              Card(
+                elevation: 1.5,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    children: [
+                      // Cloud Sync Row
+                      Row(
+                        children: [
+                          const Icon(Icons.cloud_sync, color: Color(0xFF0F766E), size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(langService.tr('cloud_sync'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                                Text(
+                                  LanguageService.instance.trText(ne: 'सबै प्रश्न र नतिजा सुरक्षित', en: 'All questions & results synced', ko: '문항 및 성적 동기화 완료'),
+                                  style: const TextStyle(fontSize: 11, color: Colors.black54),
+                                ),
+                              ],
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0F766E),
+                              foregroundColor: Colors.white,
+                              visualDensity: VisualDensity.compact,
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            ),
+                            icon: const Icon(Icons.sync, size: 14),
+                            label: Text(LanguageService.instance.trText(ne: 'सिङ्क', en: 'Sync', ko: '동기화'), style: const TextStyle(fontSize: 11)),
+                            onPressed: () async {
+                              final ok = await sync.syncNow(context: context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(ok
+                                      ? LanguageService.instance.trText(ne: '✅ सबै डाटा सफलतापूर्वक सिङ्क भयो!', en: '✅ All data synced!', ko: '✅ 모든 데이터가 동기화되었습니다!')
+                                      : LanguageService.instance.trText(ne: '⚠️ सिङ्क हुन सकेन', en: '⚠️ Sync failed', ko: '⚠️ 동기화 실패')),
+                                  backgroundColor: ok ? const Color(0xFF0F766E) : Colors.red,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const Divider(height: 18),
+
+                      // Version & Update Row
+                      Row(
+                        children: [
+                          const Icon(Icons.verified_rounded, color: Color(0xFF1E3A8A), size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'EPS-TOPIK UBT (v${UpdateService.currentVersion})',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                                Text(
+                                  updateSvc.hasUpdateAvailable
+                                      ? LanguageService.instance.trText(ne: '🚀 नयाँ अपडेट उपलब्ध छ!', en: '🚀 New update available!', ko: '🚀 새 업데이트 가능!')
+                                      : LanguageService.instance.trText(ne: '✅ तपाईंको एप नवीनतम संस्करणमा छ', en: '✅ App is up to date', ko: '✅ 최신 버전 사용 중'),
+                                  style: TextStyle(fontSize: 11, color: updateSvc.hasUpdateAvailable ? Colors.green.shade800 : Colors.black54, fontWeight: updateSvc.hasUpdateAvailable ? FontWeight.bold : FontWeight.normal),
+                                ),
+                              ],
+                            ),
+                          ),
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(visualDensity: VisualDensity.compact, padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)),
+                            icon: const Icon(Icons.sync_rounded, size: 14),
+                            label: Text(
+                              LanguageService.instance.trText(ne: 'अपडेट जाँच्नुहोस्', en: 'Check', ko: '업데이트 확인'),
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                            onPressed: () => updateSvc.checkForUpdates(silent: false, context: context),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Setting Card 4: More Settings Modal Launcher & Logout Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFF1E3A8A),
+                        side: const BorderSide(color: Color(0xFF1E3A8A), width: 1.2),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.tune_rounded, size: 16),
+                      label: Text(
+                        LanguageService.instance.trText(ne: 'विस्तृत सेटिङहरू (More Settings)', en: 'More Settings', ko: '고급 설정'),
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () => showUniversalSettingsDialog(context),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade700,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                      icon: const Icon(Icons.logout_rounded, size: 16),
+                      label: Text(
+                        LanguageService.instance.trText(ne: 'लगआउट (Logout)', en: 'Logout', ko: '로그아웃'),
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                      onPressed: () => AuthService.confirmAndLogout(context),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 28),
+
+              // 3. Clean Exam History & Scorecard Archive Section Header
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade700,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    LanguageService.instance.trText(
+                      ne: '📊 विगत परीक्षा नतिजा तथा स्कोरकार्डहरू (Exam Records)',
+                      en: '📊 Past Exam Results & Scorecards',
+                      ko: '📊 과거 시험 성적 및 공식 성적표',
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF0F172A),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              _buildHistoryTab(s, isMobile),
+              const SizedBox(height: 30),
+            ],
+          ),
+        ),
       ),
-    ),
-  ),
-);
+    );
+  }
+
+  Widget _buildLangChoiceChip(AppLanguage lang, String label) {
+    final isSel = LanguageService.instance.currentLanguage == lang;
+    return ChoiceChip(
+      label: Text(label, style: TextStyle(fontSize: 11, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
+      selected: isSel,
+      selectedColor: const Color(0xFF1E3A8A),
+      onSelected: (_) {
+        setState(() {
+          LanguageService.instance.setLanguage(lang);
+        });
+      },
+    );
   }
 
 
@@ -1471,15 +1699,63 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                           style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
                         ),
                       ),
+                      // Quota badge
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.green.shade600,
+                          color: const Color(0xFFEFF6FF),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFF93C5FD)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.assignment_turned_in, size: 14, color: Color(0xFF1E3A8A)),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${LanguageService.instance.trText(ne: "कोटा:", en: "Quota:", ko: "정원:")} ${s.quotaSummaryText} (${s.setsUsedCount} हल)',
+                              style: const TextStyle(color: Color(0xFF1E3A8A), fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Expiry / Calendar validity badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: s.isExpired ? const Color(0xFFFEE2E2) : const Color(0xFFCCFBF1),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: s.isExpired ? Colors.red : const Color(0xFF0D9488)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              s.isExpired ? Icons.event_busy : Icons.calendar_today,
+                              size: 14,
+                              color: s.isExpired ? Colors.red.shade900 : const Color(0xFF0F766E),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${LanguageService.instance.trText(ne: "म्याद:", en: "Validity:", ko: "유효기간:")} ${s.validitySummaryText}',
+                              style: TextStyle(
+                                color: s.isExpired ? Colors.red.shade900 : const Color(0xFF0F766E),
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: s.isExpired ? Colors.red.shade600 : Colors.green.shade600,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Text(
-                          "상태: 응시 가능 (Active)",
-                          style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                        child: Text(
+                          s.isExpired ? "상태: 만료됨 (Expired)" : "상태: 응시 가능 (Active)",
+                          style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                         ),
                       ),
                       InkWell(
@@ -1856,6 +2132,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () {
+                if (!AuthService.checkStudentAccessWithDialog(context)) return;
                 final randomSet = QuestionBankService.instance.generateRandomBlueprintExam();
                 final mode = LanguageService.instance.modePreference;
                 if (mode == ExamModePreference.strictExam) {
@@ -2025,6 +2302,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
+                          if (!AuthService.checkStudentAccessWithDialog(context, setId: set.id)) return;
                           final isStrict = LanguageService.instance.modePreference == ExamModePreference.strictExam;
                           if (isStrict) {
                             Navigator.push(

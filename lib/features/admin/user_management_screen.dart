@@ -113,6 +113,470 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     });
   }
 
+  void _showStudentQuotaDialog(AppUser student) {
+    int currentQuota = student.allowedSetsQuota;
+    final quotaCtrl = TextEditingController(text: currentQuota == -1 ? '' : currentQuota.toString());
+    DateTime? selectedExpiry = student.validityExpiry;
+    bool isUnlimitedExpiry = selectedExpiry == null;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          final isUnlimitedQuota = currentQuota == -1;
+          final lang = LanguageService.instance;
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F766E).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.calendar_month_rounded, color: Color(0xFF0F766E), size: 24),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${student.name} - ${lang.trText(ne: "कोटा तथा क्यालेन्डर म्याद निर्धारण", en: "Quota & Validity Calendar", ko: "세트 정원 및 유효기간 설정")}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      Text(
+                        lang.trText(
+                          ne: 'दर्ता नं: ${student.registrationNo ?? "N/A"} • प्रयोगकर्ता: ${student.username}',
+                          en: 'Reg: ${student.registrationNo ?? "N/A"} • User: ${student.username}',
+                          ko: '수험번호: ${student.registrationNo ?? "N/A"} • 아이디: ${student.username}',
+                        ),
+                        style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: SizedBox(
+                width: 520,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Usage stats header card
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFCBD5E1)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.analytics_outlined, color: Color(0xFF1E3A8A), size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              lang.trText(
+                                ne: 'हालसम्म हल गरिएका सेट: ${student.setsUsedCount} वटा  |  हालको कोटा: ${student.quotaSummaryText}',
+                                en: 'Completed Sets: ${student.setsUsedCount}  |  Current Quota: ${student.quotaSummaryText}',
+                                ko: '완료한 세트: ${student.setsUsedCount}개  |  현재 정원: ${student.quotaSummaryText}',
+                              ),
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+
+                    // 1. QUESTION SET QUOTA SECTION (1 to Unlimited)
+                    Row(
+                      children: [
+                        const Icon(Icons.assignment_turned_in, size: 18, color: Color(0xFF1E3A8A)),
+                        const SizedBox(width: 8),
+                        Text(
+                          lang.trText(
+                            ne: '१. मोडल सेट कोटा निर्धारण (१ देखि असीमित)',
+                            en: '1. Question Sets Quota (1 to Unlimited)',
+                            ko: '1. 모의고사 세트 정원 (1개 ~ 무제한)',
+                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F172A)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      lang.trText(
+                        ne: 'विद्यार्थीलाई कति सेट प्रश्न हल गर्न दिने छान्नुहोस्:',
+                        en: 'Select how many question sets this student can attempt:',
+                        ko: '학생이 응시할 수 있는 모의고사 세트 수를 선택하세요:',
+                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Quick Quota Presets
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _buildQuotaChip(1, '१ सेट (1 Set)', currentQuota, (val) {
+                          setDialogState(() {
+                            currentQuota = val;
+                            quotaCtrl.text = '1';
+                          });
+                        }),
+                        _buildQuotaChip(3, '३ सेट (3 Sets)', currentQuota, (val) {
+                          setDialogState(() {
+                            currentQuota = val;
+                            quotaCtrl.text = '3';
+                          });
+                        }),
+                        _buildQuotaChip(5, '५ सेट (5 Sets)', currentQuota, (val) {
+                          setDialogState(() {
+                            currentQuota = val;
+                            quotaCtrl.text = '5';
+                          });
+                        }),
+                        _buildQuotaChip(10, '१० सेट (10 Sets)', currentQuota, (val) {
+                          setDialogState(() {
+                            currentQuota = val;
+                            quotaCtrl.text = '10';
+                          });
+                        }),
+                        _buildQuotaChip(20, '२० सेट (20 Sets)', currentQuota, (val) {
+                          setDialogState(() {
+                            currentQuota = val;
+                            quotaCtrl.text = '20';
+                          });
+                        }),
+                        _buildQuotaChip(30, '३० सेट (30 Sets)', currentQuota, (val) {
+                          setDialogState(() {
+                            currentQuota = val;
+                            quotaCtrl.text = '30';
+                          });
+                        }),
+                        _buildQuotaChip(50, '५० सेट (50 Sets)', currentQuota, (val) {
+                          setDialogState(() {
+                            currentQuota = val;
+                            quotaCtrl.text = '50';
+                          });
+                        }),
+                        _buildQuotaChip(-1, '∞ असीमित (Unlimited)', currentQuota, (val) {
+                          setDialogState(() {
+                            currentQuota = -1;
+                            quotaCtrl.clear();
+                          });
+                        }),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Custom Quota Number Input Field
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: quotaCtrl,
+                            keyboardType: TextInputType.number,
+                            enabled: !isUnlimitedQuota,
+                            decoration: InputDecoration(
+                              labelText: isUnlimitedQuota
+                                  ? lang.trText(ne: 'असीमित कोटा सक्रिय छ', en: 'Unlimited Quota Active', ko: '무제한 정원 활성화됨')
+                                  : lang.trText(ne: 'वा इच्छा अनुसार सेट सङ्ख्या हाल्नुहोस् (e.g. 15, 25, 100)', en: 'Or Enter Custom Sets Count (e.g. 15, 25, 100)', ko: '또는 원하는 세트 수 직접 입력 (예: 15, 25, 100)'),
+                              border: const OutlineInputBorder(),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              suffixText: isUnlimitedQuota ? '' : lang.trText(ne: 'सेट', en: 'Sets', ko: '세트'),
+                            ),
+                            onChanged: (val) {
+                              final parsed = int.tryParse(val.trim());
+                              if (parsed != null && parsed > 0) {
+                                setDialogState(() => currentQuota = parsed);
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        TextButton.icon(
+                          onPressed: () {
+                            setDialogState(() {
+                              currentQuota = -1;
+                              quotaCtrl.clear();
+                            });
+                          },
+                          icon: const Icon(Icons.all_inclusive, size: 18),
+                          label: Text(lang.trText(ne: 'असीमित', en: 'Unlimited', ko: '무제한')),
+                          style: TextButton.styleFrom(
+                            foregroundColor: isUnlimitedQuota ? const Color(0xFF0F766E) : Colors.grey.shade700,
+                            backgroundColor: isUnlimitedQuota ? const Color(0xFFCCFBF1) : Colors.transparent,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const Divider(height: 32),
+
+                    // 2. VALIDITY DURATION & CALENDAR EXPIRY (1 Day to Unlimited / Months / Calendar)
+                    Row(
+                      children: [
+                        const Icon(Icons.date_range, size: 18, color: Color(0xFF0F766E)),
+                        const SizedBox(width: 8),
+                        Text(
+                          lang.trText(
+                            ne: '२. क्यालेन्डर म्याद निर्धारण (१ दिन देखि असीमित)',
+                            en: '2. Validity Calendar (1 Day to Unlimited)',
+                            ko: '2. 캘린더 유효기간 설정 (1일 ~ 무제한)',
+                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F172A)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      lang.trText(
+                        ne: 'क्यालेन्डर खोलेर अन्तिम म्याद (Expiry Date) छान्नुहोस् वा तलका द्रुत बटन थिच्नुहोस्:',
+                        en: 'Pick an exact expiry date via calendar or select a quick duration preset below:',
+                        ko: '캘린더에서 만료 날짜를 선택하거나 아래 단축 버튼을 누르세요:',
+                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Calendar Display Card with picker launcher
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: isUnlimitedExpiry
+                              ? [const Color(0xFFF0FDF4), const Color(0xFFDCFCE7)]
+                              : (selectedExpiry!.isBefore(DateTime.now())
+                                  ? [const Color(0xFFFEF2F2), const Color(0xFFFEE2E2)]
+                                  : [const Color(0xFFF0FDFA), const Color(0xFFCCFBF1)]),
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isUnlimitedExpiry
+                              ? Colors.green.shade300
+                              : (selectedExpiry!.isBefore(DateTime.now()) ? Colors.red.shade300 : const Color(0xFF0D9488)),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                            ),
+                            child: Icon(
+                              Icons.event_available,
+                              color: isUnlimitedExpiry
+                                  ? Colors.green.shade700
+                                  : (selectedExpiry!.isBefore(DateTime.now()) ? Colors.red.shade700 : const Color(0xFF0F766E)),
+                              size: 28,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  lang.trText(ne: 'छानिएको म्याद (Expiry Date):', en: 'Selected Expiry Date:', ko: '선택된 만료일:'),
+                                  style: TextStyle(fontSize: 11, color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  isUnlimitedExpiry
+                                      ? lang.trText(ne: '✨ असीमित म्याद (कुनै समय सीमा छैन)', en: '✨ Unlimited (No Expiration)', ko: '✨ 무제한 (만료일 없음)')
+                                      : '${selectedExpiry!.year}-${selectedExpiry!.month.toString().padLeft(2, '0')}-${selectedExpiry!.day.toString().padLeft(2, '0')}' +
+                                          (selectedExpiry!.isBefore(DateTime.now())
+                                              ? ' (⚠️ म्याद समाप्त)'
+                                              : ' (${selectedExpiry!.difference(DateTime.now()).inDays + 1} दिन बाँकी)'),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: isUnlimitedExpiry
+                                        ? Colors.green.shade900
+                                        : (selectedExpiry!.isBefore(DateTime.now()) ? Colors.red.shade900 : const Color(0xFF0F766E)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0F766E),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            icon: const Icon(Icons.edit_calendar, size: 18),
+                            label: Text(lang.trText(ne: 'क्यालेन्डर', en: 'Calendar', ko: '달력')),
+                            onPressed: () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: selectedExpiry ?? DateTime.now().add(const Duration(days: 30)),
+                                firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                                lastDate: DateTime.now().add(const Duration(days: 3650)),
+                                helpText: lang.trText(
+                                  ne: 'विद्यार्थीको म्याद समाप्त हुने मिति छान्नुहोस्',
+                                  en: 'Select Student Package Expiry Date',
+                                  ko: '수험생 패키지 만료 날짜 선택',
+                                ),
+                              );
+                              if (picked != null) {
+                                setDialogState(() {
+                                  selectedExpiry = DateTime(picked.year, picked.month, picked.day, 23, 59, 59);
+                                  isUnlimitedExpiry = false;
+                                });
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Quick duration preset buttons (+7d, +15d, +30d, +60d, +90d, +180d, +1y, Unlimited)
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _buildDurationChip('+७ दिन (+7d)', () {
+                          setDialogState(() {
+                            selectedExpiry = DateTime.now().add(const Duration(days: 7));
+                            isUnlimitedExpiry = false;
+                          });
+                        }),
+                        _buildDurationChip('+१५ दिन (+15d)', () {
+                          setDialogState(() {
+                            selectedExpiry = DateTime.now().add(const Duration(days: 15));
+                            isUnlimitedExpiry = false;
+                          });
+                        }),
+                        _buildDurationChip('+३० दिन / १ महिना (+1m)', () {
+                          setDialogState(() {
+                            selectedExpiry = DateTime.now().add(const Duration(days: 30));
+                            isUnlimitedExpiry = false;
+                          });
+                        }),
+                        _buildDurationChip('+६० दिन / २ महिना (+2m)', () {
+                          setDialogState(() {
+                            selectedExpiry = DateTime.now().add(const Duration(days: 60));
+                            isUnlimitedExpiry = false;
+                          });
+                        }),
+                        _buildDurationChip('+९० दिन / ३ महिना (+3m)', () {
+                          setDialogState(() {
+                            selectedExpiry = DateTime.now().add(const Duration(days: 90));
+                            isUnlimitedExpiry = false;
+                          });
+                        }),
+                        _buildDurationChip('+१८० दिन / ६ महिना (+6m)', () {
+                          setDialogState(() {
+                            selectedExpiry = DateTime.now().add(const Duration(days: 180));
+                            isUnlimitedExpiry = false;
+                          });
+                        }),
+                        _buildDurationChip('+१ वर्ष (+1 Year)', () {
+                          setDialogState(() {
+                            selectedExpiry = DateTime.now().add(const Duration(days: 365));
+                            isUnlimitedExpiry = false;
+                          });
+                        }),
+                        _buildDurationChip('∞ असीमित (Unlimited)', () {
+                          setDialogState(() {
+                            selectedExpiry = null;
+                            isUnlimitedExpiry = true;
+                          });
+                        }, isHighlight: isUnlimitedExpiry),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(lang.trText(ne: 'रद्द गर्नुहोस्', en: 'Cancel', ko: '취소')),
+              ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F766E),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                icon: const Icon(Icons.check, size: 18),
+                label: Text(lang.trText(ne: 'कोटा सेभ गर्नुहोस्', en: 'Save Quota', ko: '정원 설정 저장')),
+                onPressed: () {
+                  final finalQuota = isUnlimitedQuota ? -1 : (int.tryParse(quotaCtrl.text.trim()) ?? currentQuota);
+                  AuthService.instance.updateStudentQuotaAndValidity(
+                    studentId: student.id,
+                    allowedSetsQuota: finalQuota,
+                    validityExpiry: isUnlimitedExpiry ? null : selectedExpiry,
+                  );
+                  setState(() {});
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(lang.trText(
+                        ne: 'विद्यार्थीको सेट कोटा र क्यालेन्डर म्याद सफलतापूर्वक अद्यावधिक गरियो!',
+                        en: 'Student set quota and calendar validity updated successfully!',
+                        ko: '수험생 세트 정원 및 캘린더 유효기간이 설정되었습니다!',
+                      )),
+                      backgroundColor: const Color(0xFF0F766E),
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildQuotaChip(int quotaValue, String label, int currentSelectedQuota, ValueChanged<int> onSelect) {
+    final isSelected = currentSelectedQuota == quotaValue;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      selectedColor: const Color(0xFF1E3A8A),
+      backgroundColor: Colors.grey.shade100,
+      labelStyle: TextStyle(
+        fontSize: 11,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        color: isSelected ? Colors.white : Colors.black87,
+      ),
+      onSelected: (_) => onSelect(quotaValue),
+    );
+  }
+
+  Widget _buildDurationChip(String label, VoidCallback onTap, {bool isHighlight = false}) {
+    return ActionChip(
+      label: Text(label),
+      backgroundColor: isHighlight ? const Color(0xFFCCFBF1) : Colors.grey.shade100,
+      labelStyle: TextStyle(
+        fontSize: 11,
+        fontWeight: isHighlight ? FontWeight.bold : FontWeight.w500,
+        color: isHighlight ? const Color(0xFF0F766E) : Colors.black87,
+      ),
+      side: BorderSide(color: isHighlight ? const Color(0xFF0F766E) : Colors.grey.shade300),
+      onPressed: onTap,
+    );
+  }
+
   void _showAddStudentDialog() {
     final nameCtrl = TextEditingController();
     final regCtrl = TextEditingController();
@@ -121,6 +585,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     String selectedBatch = '2026 Batch A (बिहानी सत्र)';
     String selectedSector = '제조업 (Manufacturing)';
     String selectedStatus = 'सक्रिय';
+    int quota = 10;
+    DateTime? expiry = DateTime.now().add(const Duration(days: 30));
+    bool isUnlimitedExp = false;
     String error = '';
 
     showDialog(
@@ -144,9 +611,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           ),
           content: SingleChildScrollView(
             child: SizedBox(
-              width: 440,
+              width: 460,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (error.isNotEmpty)
                     Container(
@@ -275,6 +743,81 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 14),
+                  // Initial Quota & Expiry Row
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDFA),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFF99F6E4)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_month, color: Color(0xFF0F766E), size: 18),
+                            const SizedBox(width: 6),
+                            Text(
+                              LanguageService.instance.trText(
+                                ne: 'प्रारम्भिक कोटा तथा क्यालेन्डर म्याद:',
+                                en: 'Initial Quota & Calendar Validity:',
+                                ko: '초기 정원 및 유효기간:',
+                              ),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0F766E)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            _buildQuotaChip(5, '५ सेट', quota, (v) => setDialogState(() => quota = v)),
+                            _buildQuotaChip(10, '१० सेट', quota, (v) => setDialogState(() => quota = v)),
+                            _buildQuotaChip(20, '२० सेट', quota, (v) => setDialogState(() => quota = v)),
+                            _buildQuotaChip(-1, '∞ असीमित', quota, (v) => setDialogState(() => quota = v)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                isUnlimitedExp
+                                    ? LanguageService.instance.trText(ne: 'म्याद: असीमित', en: 'Validity: Unlimited', ko: '유효기간: 무제한')
+                                    : 'म्याद: ${expiry!.year}-${expiry!.month.toString().padLeft(2, '0')}-${expiry!.day.toString().padLeft(2, '0')} (${expiry!.difference(DateTime.now()).inDays + 1} दिन)',
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0F766E)),
+                              ),
+                            ),
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                side: const BorderSide(color: Color(0xFF0F766E)),
+                              ),
+                              icon: const Icon(Icons.edit_calendar, size: 14, color: Color(0xFF0F766E)),
+                              label: Text(LanguageService.instance.trText(ne: 'क्यालेन्डर', en: 'Calendar', ko: '달력'), style: const TextStyle(fontSize: 11, color: Color(0xFF0F766E))),
+                              onPressed: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: expiry ?? DateTime.now().add(const Duration(days: 30)),
+                                  firstDate: DateTime.now(),
+                                  lastDate: DateTime.now().add(const Duration(days: 3650)),
+                                );
+                                if (picked != null) {
+                                  setDialogState(() {
+                                    expiry = DateTime(picked.year, picked.month, picked.day, 23, 59, 59);
+                                    isUnlimitedExp = false;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -303,6 +846,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   batch: selectedBatch,
                   sector: selectedSector,
                   status: selectedStatus,
+                  allowedSetsQuota: quota,
+                  validityExpiry: isUnlimitedExp ? null : expiry,
                 );
                 if (ok) {
                   setState(() {});
@@ -340,6 +885,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     String selectedBatch = student.batch;
     String selectedSector = student.sector;
     String selectedStatus = student.status;
+    int quota = student.allowedSetsQuota;
+    DateTime? expiry = student.validityExpiry;
+    bool isUnlimitedExp = expiry == null;
 
     showDialog(
       context: context,
@@ -347,14 +895,15 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         builder: (context, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
-            '${student.name} - ' + LanguageService.instance.trText(ne: 'विवरण सम्पादन', en: 'Edit Credentials', ko: '정보 수정'),
+            '${student.name} - ${LanguageService.instance.trText(ne: "विवरण सम्पादन", en: "Edit Credentials", ko: "정보 수정")}',
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           content: SingleChildScrollView(
             child: SizedBox(
-              width: 420,
+              width: 440,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TextField(
                     controller: nameCtrl,
@@ -440,6 +989,81 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 14),
+                  // Quota & Validity quick box
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDFA),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFF99F6E4)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.calendar_month, color: Color(0xFF0F766E), size: 18),
+                            const SizedBox(width: 6),
+                            Text(
+                              LanguageService.instance.trText(
+                                ne: 'कोटा तथा क्यालेन्डर म्याद:',
+                                en: 'Quota & Calendar Validity:',
+                                ko: '정원 및 유효기간:',
+                              ),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0F766E)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            _buildQuotaChip(5, '५ सेट', quota, (v) => setDialogState(() => quota = v)),
+                            _buildQuotaChip(10, '१० सेट', quota, (v) => setDialogState(() => quota = v)),
+                            _buildQuotaChip(20, '२० सेट', quota, (v) => setDialogState(() => quota = v)),
+                            _buildQuotaChip(-1, '∞ असीमित', quota, (v) => setDialogState(() => quota = v)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                isUnlimitedExp
+                                    ? LanguageService.instance.trText(ne: 'म्याद: असीमित', en: 'Validity: Unlimited', ko: '유효기간: 무제한')
+                                    : 'म्याद: ${expiry!.year}-${expiry!.month.toString().padLeft(2, '0')}-${expiry!.day.toString().padLeft(2, '0')} (${expiry!.difference(DateTime.now()).inDays + 1} दिन)',
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0F766E)),
+                              ),
+                            ),
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                side: const BorderSide(color: Color(0xFF0F766E)),
+                              ),
+                              icon: const Icon(Icons.edit_calendar, size: 14, color: Color(0xFF0F766E)),
+                              label: Text(LanguageService.instance.trText(ne: 'क्यालेन्डर', en: 'Calendar', ko: '달력'), style: const TextStyle(fontSize: 11, color: Color(0xFF0F766E))),
+                              onPressed: () async {
+                                final picked = await showDatePicker(
+                                  context: context,
+                                  initialDate: expiry ?? DateTime.now().add(const Duration(days: 30)),
+                                  firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                                  lastDate: DateTime.now().add(const Duration(days: 3650)),
+                                );
+                                if (picked != null) {
+                                  setDialogState(() {
+                                    expiry = DateTime(picked.year, picked.month, picked.day, 23, 59, 59);
+                                    isUnlimitedExp = false;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -460,6 +1084,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                   newBatch: selectedBatch,
                   newSector: selectedSector,
                   newStatus: selectedStatus,
+                  newAllowedSetsQuota: quota,
+                  newValidityExpiry: isUnlimitedExp ? null : expiry,
+                  clearExpiry: isUnlimitedExp,
                 );
                 setState(() {});
                 Navigator.pop(ctx);
@@ -717,16 +1344,17 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
                             ),
                           ),
-                          title: Row(
+                          title: Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 6,
+                            runSpacing: 4,
                             children: [
                               Text(s.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                              const SizedBox(width: 8),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
                                 child: Text(LanguageService.instance.batchText(s.batch), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
                               ),
-                              const SizedBox(width: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
@@ -734,16 +1362,90 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               ),
                             ],
                           ),
-                          subtitle: Text(
-                            LanguageService.instance.trText(
-                              ne: 'दर्ता नं: ${s.registrationNo ?? "N/A"}  •  Username: ${s.username}  •  Password: ${s.password}',
-                              en: 'Reg: ${s.registrationNo ?? "N/A"}  •  User: ${s.username}  •  Pass: ${s.password}',
-                              ko: '수험번호: ${s.registrationNo ?? "N/A"}  •  아이디: ${s.username}  •  비밀번호: ${s.password}',
-                            ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 3),
+                              Text(
+                                LanguageService.instance.trText(
+                                  ne: 'दर्ता नं: ${s.registrationNo ?? "N/A"}  •  Username: ${s.username}  •  Password: ${s.password}',
+                                  en: 'Reg: ${s.registrationNo ?? "N/A"}  •  User: ${s.username}  •  Pass: ${s.password}',
+                                  ko: '수험번호: ${s.registrationNo ?? "N/A"}  •  아이디: ${s.username}  •  비밀번호: ${s.password}',
+                                ),
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              const SizedBox(height: 5),
+                              // Quota & Validity Badges Row
+                              Wrap(
+                                spacing: 6,
+                                runSpacing: 4,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  // Quota badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEFF6FF),
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.assignment_turned_in, size: 12, color: Color(0xFF1E3A8A)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${LanguageService.instance.trText(ne: "कोटा:", en: "Quota:", ko: "정원:")} ${s.quotaSummaryText} (${s.setsUsedCount} हल)',
+                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  // Validity / Expiry badge
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: s.isExpired ? Colors.red.shade50 : const Color(0xFFF0FDFA),
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(color: s.isExpired ? Colors.red.shade300 : const Color(0xFF99F6E4)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          s.isExpired ? Icons.event_busy : Icons.calendar_today,
+                                          size: 12,
+                                          color: s.isExpired ? Colors.red.shade700 : const Color(0xFF0F766E),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '${LanguageService.instance.trText(ne: "म्याद:", en: "Validity:", ko: "유효기간:")} ${s.validitySummaryText}',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: s.isExpired ? Colors.red.shade800 : const Color(0xFF0F766E),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              // Direct Quota & Calendar Button
+                              IconButton(
+                                icon: const Icon(Icons.calendar_month_rounded, color: Color(0xFF0F766E), size: 22),
+                                tooltip: LanguageService.instance.trText(
+                                  ne: 'सेट कोटा तथा क्यालेन्डर म्याद निर्धारण गर्नुहोस्',
+                                  en: 'Manage Set Quota & Calendar Validity',
+                                  ko: '세트 정원 및 캘린더 유효기간 설정',
+                                ),
+                                onPressed: () => _showStudentQuotaDialog(s),
+                              ),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(

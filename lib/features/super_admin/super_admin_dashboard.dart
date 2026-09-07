@@ -126,11 +126,6 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
                   tooltip: LanguageService.instance.trText(ne: 'सेटिङ', en: 'Settings', ko: '설정'),
                   onPressed: () => showUniversalSettingsDialog(context),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.logout),
-                  tooltip: LanguageService.instance.trText(ne: 'लगआउट', en: 'Logout', ko: '로그아웃'),
-                  onPressed: _handleLogout,
-                ),
                 const SizedBox(width: 8),
               ],
               bottom: TabBar(
