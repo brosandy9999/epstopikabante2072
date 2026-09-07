@@ -1620,68 +1620,28 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         ),
         child: Row(
           children: [
-            Tooltip(
-              message: "खाता विवरण, भाषा र सेटिङ हेर्न ट्याप गर्नुहोस्",
-              child: InkWell(
-                onTap: () => showUniversalSettingsDialog(context),
-                borderRadius: BorderRadius.circular(40),
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: isMobile ? 28 : 35,
-                      backgroundColor: Colors.white,
-                      child: Text(
-                        s.profilePhoto ?? (s.role == UserRole.superAdmin ? '👑' : (s.role == UserRole.admin ? '🏢' : '👨‍🎓')),
-                        style: TextStyle(fontSize: isMobile ? 26 : 34),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(color: Colors.amber, shape: BoxShape.circle),
-                        child: const Icon(Icons.settings, size: 12, color: Colors.black87),
-                      ),
-                    ),
-                  ],
-                ),
+            CircleAvatar(
+              radius: isMobile ? 28 : 35,
+              backgroundColor: Colors.white,
+              child: Text(
+                s.profilePhoto ?? (s.role == UserRole.superAdmin ? '👑' : (s.role == UserRole.admin ? '🏢' : '👨‍🎓')),
+                style: TextStyle(fontSize: isMobile ? 26 : 34),
               ),
             ),
             SizedBox(width: isMobile ? 14 : 20),
             Expanded(
-              child: InkWell(
-                onTap: () => showUniversalSettingsDialog(context),
-                borderRadius: BorderRadius.circular(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          LanguageService.instance.trText(ne: 'स्वागत छ!', en: 'Welcome!', ko: '환영합니다!'),
-                          style: const TextStyle(color: Colors.white70, fontSize: 13),
-                        ),
-                        const SizedBox(width: 6),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(4)),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.touch_app, size: 11, color: Colors.white70),
-                              SizedBox(width: 2),
-                              Text("सेटिङ हेर्नुहोस्", style: TextStyle(color: Colors.white70, fontSize: 10)),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      s.name,
-                      style: TextStyle(fontSize: isMobile ? 18 : 22, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    LanguageService.instance.trText(ne: 'स्वागत छ!', en: 'Welcome!', ko: '환영합니다!'),
+                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    s.name,
+                    style: TextStyle(fontSize: isMobile ? 18 : 22, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
                   const SizedBox(height: 6),
                   Wrap(
                     spacing: 10,
@@ -1786,8 +1746,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
     );
