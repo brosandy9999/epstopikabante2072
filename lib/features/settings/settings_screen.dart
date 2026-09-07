@@ -35,7 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (_currentPwController.text.trim() != currentUser.password) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(LanguageService.instance.trText(ne: '❌ हालको पासवर्ड मिलेन! कृपया सही पासवर्ड हाल्नुहोस्।', en: '❌ Incorrect current password! Please enter the correct password.', ko: '❌ 현재 비밀번호가 일치하지 않습니다! 다시 입력해주세요.')),
           backgroundColor: Colors.red,
         ),
@@ -45,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (_newPwController.text.trim() != _confirmPwController.text.trim()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(LanguageService.instance.trText(ne: '❌ नयाँ पासवर्ड र पुष्टि पासवर्ड समान हुनुपर्छ!', en: '❌ New password and confirmation must match!', ko: '❌ 새 비밀번호와 확인 비밀번호가 일치해야 합니다!')),
           backgroundColor: Colors.red,
         ),
@@ -63,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _newPwController.clear();
       _confirmPwController.clear();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(LanguageService.instance.trText(ne: '✅ पासवर्ड सफलतापूर्वक परिवर्तन गरियो र सुरक्षित भयो!', en: '✅ Password changed and saved successfully!', ko: '✅ 비밀번호가 성공적으로 변경 및 저장되었습니다!')),
           backgroundColor: Colors.green,
         ),
@@ -337,9 +337,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       LanguageService.instance.trText(ne: 'स्थानीय मेमोरीमा सुरक्षित परीक्षा नतिजा वा क्यास हटाउन:', en: 'To clear saved exam attempts or cache in local memory:', ko: '로컬 메모리에 저장된 시험 결과 또는 캐시 정리:'),
-                      style: TextStyle(fontSize: 13, color: Colors.blueGrey),
+                      style: const TextStyle(fontSize: 13, color: Colors.blueGrey),
                     ),
                     const SizedBox(height: 14),
                     OutlinedButton.icon(

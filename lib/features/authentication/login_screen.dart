@@ -838,10 +838,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: const TextStyle(fontSize: 12, height: 1.4, color: Color(0xFF1E293B)),
               ),
               const SizedBox(height: 12),
-              _buildFeatureBullet(Icons.wifi_off_rounded, LanguageService.instance.trText(ne: 'इन्टरनेट बिना पनि चल्ने अफलाइन परीक्षा प्रणाली', en: '100% Offline Exam Hall without Internet', ko: '인터넷 없이 작동하는 오프라인 시험 시스템')),
-              _buildFeatureBullet(Icons.headset_rounded, LanguageService.instance.trText(ne: 'किताबका सबै अडियो ट्र्याकहरू उच्च गुणस्तरमा उपलब्ध', en: 'All 60 textbook audio tracks in high fidelity', ko: '60과 표준교재 전 트랙 고음질 오디오')),
-              _buildFeatureBullet(Icons.quiz_rounded, LanguageService.instance.trText(ne: 'HRD Korea आधिकारिक ढाँचाको ४० प्रश्न UBT हल', en: 'HRD Korea Standard 40-Question UBT Hall', ko: '한국산업인력공단 표준 40문항 UBT 시험장')),
-              _buildFeatureBullet(Icons.cloud_sync_rounded, LanguageService.instance.trText(ne: 'कम्प्युटरसँग Firebase बाट सधैँ सिङ्क हुने', en: 'Instant Cloud Sync with Web & Institute Portal', ko: '웹 및 학원 서버와의 자동 클라우드 동기화')),
+              _buildFeatureBullet(Icons.wifi_off_rounded, LanguageService.instance.trText(ne: 'इन्टरनेट बिना पनि चल्ने १००% अफलाइन परीक्षा प्रणाली', en: '100% Offline Exam Hall without Internet', ko: '인터넷 없이 작동하는 오프라인 시험 시스템')),
+              _buildFeatureBullet(Icons.headset_rounded, LanguageService.instance.trText(ne: '६० वटै पाठ्यपुस्तकका अडियो ट्र्याकहरू उच्च गुणस्तरमा उपलब्ध', en: 'All 60 textbook audio tracks in high fidelity', ko: '60과 표준교재 전 트랙 고음질 오디오')),
+              _buildFeatureBullet(Icons.quiz_rounded, LanguageService.instance.trText(ne: 'HRD Korea आधिकारिक ढाँचाको ४० प्रश्न (२० R + २० L) UBT हल', en: 'HRD Korea Standard 40-Question UBT Hall', ko: '한국산업인력공단 표준 40문항 UBT 시험장')),
+              _buildFeatureBullet(Icons.insights_rounded, LanguageService.instance.trText(ne: 'कमजोरी विश्लेषण, तत्काल नतिजा र रिभ्यु नोट', en: 'Weakness Analysis, Instant Score & Review Note', ko: '취약점 분석, 즉시 성적표 및 오답노트')),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -856,9 +856,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: const Icon(Icons.download_for_offline_rounded, size: 22),
                   label: Text(
                     LanguageService.instance.trText(
-                      ne: 'APK सिधै डाउनलोड गर्नुहोस् (५४.९ MB)',
-                      en: 'Download APK Directly (54.9 MB)',
-                      ko: 'APK 직접 다운로드 (54.9 MB)',
+                      ne: 'APK सिधै डाउनलोड गर्नुहोस् (१९.५ MB)',
+                      en: 'Download APK Directly (19.5 MB)',
+                      ko: 'APK 직접 다운로드 (19.5 MB)',
                     ),
                     style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                   ),
@@ -877,6 +877,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         backgroundColor: Colors.green,
                         duration: const Duration(seconds: 4),
                       ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                height: 40,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF1E3A8A),
+                    side: const BorderSide(color: Color(0xFF1E3A8A)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  icon: const Icon(Icons.auto_awesome_rounded, size: 16),
+                  label: Text(
+                    LanguageService.instance.trText(
+                      ne: '✨ एपका सबै विशेषताहरू हेर्नुहोस्',
+                      en: '✨ Explore All App Features',
+                      ko: '✨ 앱 전체 기능 상세 보기',
+                    ),
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AndroidWebGatekeeperScreen(showBackButton: true)),
                     );
                   },
                 ),
@@ -1011,27 +1039,42 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                LanguageService.instance.trText(
-                                  ne: '📱 Android मोबाइल एप उपलब्ध छ!',
-                                  en: '📱 Android App Available!',
-                                  ko: '📱 Android 앱 다운로드 가능!',
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const AndroidWebGatekeeperScreen(showBackButton: true)),
+                              );
+                            },
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        LanguageService.instance.trText(
+                                          ne: '📱 Android मोबाइल एप उपलब्ध छ!',
+                                          en: '📱 Android App Available!',
+                                          ko: '📱 Android 앱 다운로드 가능!',
+                                        ),
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E3A8A)),
+                                      ),
+                                    ),
+                                    const Icon(Icons.arrow_forward_ios, size: 10, color: Color(0xFF1E3A8A)),
+                                  ],
                                 ),
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E3A8A)),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                LanguageService.instance.trText(
-                                  ne: 'अफलाइन परीक्षा र ६० च्याप्टर अब मोबाइलमै।',
-                                  en: 'Offline exam & 60 chapters on your mobile.',
-                                  ko: '오프라인 시험과 60과 학습을 모바일에서.',
+                                const SizedBox(height: 2),
+                                Text(
+                                  LanguageService.instance.trText(
+                                    ne: 'अफलाइन परीक्षा र ६० च्याप्टर अब मोबाइलमै (विवरण हेर्नुहोस्)',
+                                    en: 'Offline exam & 60 chapters on mobile (View details)',
+                                    ko: '오프라인 시험과 60과 학습을 모바일에서 (상세보기)',
+                                  ),
+                                  style: const TextStyle(fontSize: 10.5, color: Colors.black54),
                                 ),
-                                style: const TextStyle(fontSize: 10.5, color: Colors.black54),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -1257,6 +1300,37 @@ class _LoginScreenState extends State<LoginScreen> {
                         foregroundColor: const Color(0xFF0F766E),
                         side: const BorderSide(color: Color(0xFF0F766E), width: 1.5),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // Explore App Features Link
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AndroidWebGatekeeperScreen(showBackButton: true)),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.auto_awesome_rounded, size: 16, color: Color(0xFF1E3A8A)),
+                          const SizedBox(width: 6),
+                          Text(
+                            LanguageService.instance.trText(
+                              ne: 'एपका ६ मुख्य विशेषता तथा सुविधाहरू हेर्नुहोस् ➜',
+                              en: 'Explore 6 Key Features of the App ➜',
+                              ko: '앱의 6가지 핵심 기능 상세 보기 ➜',
+                            ),
+                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                          ),
+                        ],
                       ),
                     ),
                   ),

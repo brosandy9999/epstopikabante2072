@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'features/security/android_web_gatekeeper_screen.dart';
 import 'core/services/orientation_service.dart';
-import 'core/services/platform_detector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -30,7 +31,6 @@ import 'features/exam/official_scorecard_screen.dart';
 import 'features/study/student_study_hub_screen.dart';
 import 'core/services/study_material_service.dart';
 import 'features/super_admin/super_admin_dashboard.dart';
-import 'features/security/android_web_gatekeeper_screen.dart';
 
 import 'core/services/cloud_sync_service.dart';
 
@@ -87,7 +87,7 @@ class EpsTopikApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color(0xFFF3F4F6),
             useMaterial3: true,
           ),
-          home: const LoginScreen(),
+          home: kIsWeb ? const AndroidWebGatekeeperScreen() : const LoginScreen(),
         );
       },
     );
