@@ -10,6 +10,7 @@ import '../../core/models/mock_test_model.dart';
 import '../../core/services/language_service.dart';
 import '../question_engine/question_template.dart';
 import 'paper_exam_print_screen.dart';
+import 'import_workflow_screen.dart';
 
 /// Admin 40-Question Set Management & Multi-Modal Question Editor
 /// Manages strict 40-question sets (20 Reading + 20 Listening)
@@ -1174,16 +1175,54 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                     ],
                   ),
                 ),
-                ElevatedButton.icon(
-                  onPressed: _showCreateNewSetDialog,
-                  icon: const Icon(Icons.add, size: 18),
-                  label: Text(LanguageService.instance.trText(ne: 'नयाँ प्रश्न सेट बनाउनुहोस्', en: 'Create Question Set', ko: '새 문제 세트 만들기')),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF0F766E),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Scaffold(
+                              appBar: AppBar(
+                                title: const Text("🤖 AI PDF प्रश्न आयात पोर्टल"),
+                                backgroundColor: const Color(0xFF0F766E),
+                                foregroundColor: Colors.white,
+                              ),
+                              body: const Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: ImportWorkflowScreen(),
+                              ),
+                            ),
+                          ),
+                        ).then((_) => setState(() {}));
+                      },
+                      icon: const Icon(Icons.auto_awesome, size: 18),
+                      label: Text(LanguageService.instance.trText(
+                        ne: '🤖 AI PDF प्रश्न आयात',
+                        en: '🤖 AI PDF Import',
+                        ko: '🤖 AI PDF 문항 추출',
+                      )),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.amber.shade400,
+                        foregroundColor: Colors.brown.shade900,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: _showCreateNewSetDialog,
+                      icon: const Icon(Icons.add, size: 18),
+                      label: Text(LanguageService.instance.trText(ne: 'नयाँ प्रश्न सेट बनाउनुहोस्', en: 'Create Question Set', ko: '새 문제 세트 만들기')),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF0F766E),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
