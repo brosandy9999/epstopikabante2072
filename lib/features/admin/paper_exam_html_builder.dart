@@ -4,6 +4,17 @@ import '../question_engine/question_template.dart';
 
 class PaperExamHtmlBuilder {
   static bool isChartOrNoticeQuestion(int qNo, QuestionTemplate q) {
+    final imgUrl = (q is UniversalQuestion)
+        ? q.questionImageUrl
+        : (q is ReadingImageQuestion)
+            ? q.imageAssetPath
+            : null;
+
+    // A chart/notice MUST have an image to be enlarged full-width
+    if (imgUrl == null || imgUrl.isEmpty) {
+      return false;
+    }
+
     final text = q.questionText.toLowerCase();
     const chartKeywords = [
       '그래프', // graph
@@ -28,7 +39,8 @@ class PaperExamHtmlBuilder {
       if (text.contains(kw)) return true;
     }
 
-    if (qNo >= 5 && qNo <= 10) {
+    // In standard EPS-TOPIK, Q9 to Q12 with an image are charts, notices, signs, or tickets
+    if (qNo >= 9 && qNo <= 12) {
       return true;
     }
 
@@ -140,6 +152,11 @@ class PaperExamHtmlBuilder {
       position: relative;
       overflow: hidden;
     }
+    .page-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
 
     /* Running Header */
     .running-header {
@@ -211,7 +228,7 @@ class PaperExamHtmlBuilder {
     .questions-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       flex: 1;
     }
 
@@ -676,19 +693,32 @@ class PaperExamHtmlBuilder {
     }
 
     /* Print media rules */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
     @media print {
-      body { background: transparent; }
+      html, body {
+        width: 210mm;
+        height: auto;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+      }
       .print-bar { display: none !important; }
       .page-container { padding: 0 !important; gap: 0 !important; }
       .pbt-page {
-        width: 100% !important;
-        min-height: 100vh !important;
-        max-height: 100vh !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        min-height: 297mm !important;
+        max-height: 297mm !important;
         box-shadow: none !important;
         margin: 0 !important;
         padding: 12mm 14mm 10mm 14mm !important;
         page-break-after: always !important;
         break-after: page !important;
+        page-break-inside: avoid !important;
+        box-sizing: border-box !important;
       }
       .pbt-page:last-child {
         page-break-after: avoid !important;
@@ -888,7 +918,7 @@ class PaperExamHtmlBuilder {
 
     final sb = StringBuffer();
     sb.writeln('<div class="pbt-page">');
-    sb.writeln('<div>');
+    sb.writeln('<div class="page-body">');
 
     // Running Header
     sb.writeln('''
@@ -1188,6 +1218,9 @@ class PaperExamHtmlBuilder {
       customChartOverrides: customChartOverrides,
     )).toList();
 
+    const pageBudget = 940.0;
+    final targetCount = n / 7.0;
+
     double pageCost(int i, int j, int p) {
       if (j <= i) return 1e9;
       double h = 0;
@@ -1195,22 +1228,29 @@ class PaperExamHtmlBuilder {
         h += heights[k];
       }
       if (p == 0 && listeningStartIndex > 0) {
-        h += 65.0; // Reading banner
+        h += 50.0; // Reading banner
       }
       if (i <= listeningStartIndex && listeningStartIndex < j && listeningStartIndex > 0) {
-        h += (hasSectionQr ? 85.0 : 65.0);
+        h += (hasSectionQr ? 75.0 : 55.0);
       }
       if (p == 6) {
-        h += 45.0; // Exam end banner
+        h += 35.0; // Exam end banner
       }
 
-      const budget = 860.0;
-      final ratio = h / budget;
-      final diff = ratio - 0.82;
-      double penalty = diff * diff * 100.0;
-      if (ratio > 1.0) {
-        penalty += (ratio - 1.0) * 10000.0;
+      final count = j - i;
+      final countDiff = count - targetCount;
+      double penalty = countDiff * countDiff * 200.0;
+
+      if (h > pageBudget) {
+        final overflow = h - pageBudget;
+        penalty += 100000.0 + overflow * 5000.0;
+      } else {
+        // Smoothly penalize under-filling when count is below average
+        if (h < 600.0 && count < targetCount) {
+          penalty += (600.0 - h) * 0.5;
+        }
       }
+
       return penalty;
     }
 
@@ -1262,9 +1302,9 @@ class PaperExamHtmlBuilder {
     bool autoEnlargeCharts = true,
     Map<int, bool>? customChartOverrides,
   }) {
-    double h = 26.0;
+    double h = 22.0;
     final rawText = q.questionText.trim();
-    final (_, passage) = _splitQuestionPrompt(rawText);
+    final (qText, passage) = _splitQuestionPrompt(rawText);
 
     final imgUrl = (q is UniversalQuestion) ? q.questionImageUrl
         : (q is ReadingImageQuestion) ? q.imageAssetPath : null;
@@ -1287,37 +1327,41 @@ class PaperExamHtmlBuilder {
     final hasNewlines = cleaned.any((o) => o.contains('\n'));
     final maxLen = cleaned.fold<int>(0, (max, o) => o.length > max ? o.length : max);
 
+    if (qText.length > 50) {
+      h += 16.0;
+    }
+
     if (isSideBySide) {
-      double optionsH = (!hasNewlines && maxLen <= 8) ? 44.0 : 88.0;
+      final double optionsH = (!hasNewlines && maxLen <= 8) ? 38.0 : 76.0;
       final mediaH = 105.0 * imageScale;
-      h += (optionsH > mediaH ? optionsH : mediaH) + 6.0;
+      h += (optionsH > mediaH ? optionsH : mediaH) + 4.0;
     } else {
       final bool hasMaterial = (passage != null && passage.isNotEmpty) || (imgUrl != null && imgUrl.isNotEmpty);
       if (hasMaterial) {
-        h += 16.0;
+        h += 12.0;
         if (passage != null && passage.isNotEmpty) {
-          final lines = (passage.length / 45.0).ceil();
+          final lines = (passage.length / 48.0).ceil();
           h += lines * 16.0;
         }
         if (imgUrl != null && imgUrl.isNotEmpty) {
-          h += isChartNotice ? (145.0 * imageScale) : (95.0 * imageScale);
+          h += isChartNotice ? (140.0 * imageScale) : (90.0 * imageScale);
         }
       }
 
       if (hasImageOpts) {
-        h += 68.0 * imageScale;
+        h += 75.0 * imageScale;
       } else {
         if (!hasNewlines && maxLen <= 11) {
-          h += 20.0;
+          h += 18.0;
         } else if (!hasNewlines && maxLen <= 26) {
-          h += 40.0;
+          h += 36.0;
         } else {
-          h += 75.0;
+          h += 72.0;
         }
       }
     }
 
-    h += 12.0;
+    h += 8.0;
     return h;
   }
 
