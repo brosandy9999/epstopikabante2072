@@ -28,24 +28,28 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   void _handleOpenPaperExamPdf(MockTestSet set) {
-    final currentUser = AuthService.instance.currentUser;
-    final isSuperAdmin = currentUser?.role == UserRole.superAdmin;
-    final canDownloadPdf = isSuperAdmin || set.isApproved;
-
-    if (!canDownloadPdf) {
+    final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
+    if (!isSuperAdmin && !set.isApproved) {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Row(
             children: [
-              const Icon(Icons.lock_clock, color: Colors.amber, size: 28),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade100,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.lock_outline, color: Colors.amber.shade900, size: 24),
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   LanguageService.instance.trText(
-                    ne: 'सुपर एडमिनको स्वीकृति आवश्यक',
-                    en: 'Super Admin Approval Required',
+                    ne: 'सुपर एडमिनको अनुमति आवश्यक',
+                    en: 'Super Admin Permission Required',
                     ko: '최고관리자 승인 필요',
                   ),
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -53,53 +57,23 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
               ),
             ],
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                LanguageService.instance.trText(
-                  ne: 'यस प्रश्न सेटको आधिकारिक पेपर परीक्षा (PBT) बुकलेट तथा OMR पाना PDF डाउनलोड गर्न सुपर एडमिन (Super Admin) को स्वीकृति आवश्यक पर्दछ।',
-                  en: 'Official Super Admin approval is required before downloading the physical PBT exam booklet and OMR sheet.',
-                  ko: '본 세트의 지필시험(PBT) 문제지 및 OMR 답안지 PDF를 다운로드하려면 최고 관리자의 승인이 필요합니다.',
-                ),
-                style: const TextStyle(fontSize: 13, height: 1.4),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.amber.shade300),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.shield_outlined, color: Colors.orange, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        LanguageService.instance.trText(
-                          ne: '🔒 हाल यो सेट स्वीकृतिको पर्खाइमा छ। सुपर एडमिनले स्वीकृत गरेपछि मात्र भौतिक परीक्षा PDF डाउनलोड अनलक हुनेछ।',
-                          en: '🔒 Pending approval. Once approved by Super Admin, PDF download will unlock automatically.',
-                          ko: '🔒 현재 승인 대기 중입니다. 최고관리자 승인 후 지필시험 PDF 다운로드가 활성화됩니다.',
-                        ),
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF9A3412), fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          content: Text(
+            LanguageService.instance.trText(
+              ne: 'यो प्रश्नपत्र प्रिन्ट वा PDF डाउनलोड गर्नका लागि पहिले सुपर एडमिन (Super Admin) को स्वीकृति (Approval) आवश्यक पर्दछ।\n\nहाल यो सेट "स्वीकृतिको पर्खाइमा" (Pending Approval) छ। कृपया सुपर एडमिनसँग सम्पर्क गरी यो सेट स्वीकृत गराउनुहोस्।',
+              en: 'To download or print this question paper, it must first be approved by the Super Admin.\n\nCurrently, this set is pending approval. Please contact the Super Admin to get it approved.',
+              ko: '이 문제지를 인쇄하거나 PDF로 다운로드하려면 먼저 최고관리자의 승인이 필요합니다.\n\n현재 승인 대기 상태입니다. 최고관리자에게 승인을 요청하십시오.',
+            ),
+            style: const TextStyle(fontSize: 13, height: 1.5, color: Colors.black87),
           ),
           actions: [
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1E3A8A),
                 foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               onPressed: () => Navigator.pop(ctx),
-              child: Text(LanguageService.instance.tr('ok')),
+              child: Text(LanguageService.instance.trText(ne: 'बुझें (OK)', en: 'OK', ko: '확인')),
             ),
           ],
         ),
@@ -1241,6 +1215,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
             separatorBuilder: (_, __) => const SizedBox(height: 14),
             itemBuilder: (context, i) {
               final set = filteredSets[i];
+              final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
               return Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -1332,7 +1307,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                             children: [
                               ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
+                                  backgroundColor: (isSuperAdmin || set.isApproved)
                                       ? const Color(0xFF0F766E)
                                       : Colors.amber.shade800,
                                   foregroundColor: Colors.white,
@@ -1340,16 +1315,19 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                   visualDensity: VisualDensity.compact,
                                 ),
                                 onPressed: () => _handleOpenPaperExamPdf(set),
-                                icon: Icon(
-                                  (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
-                                      ? Icons.picture_as_pdf
-                                      : Icons.lock_clock,
-                                  size: 14,
-                                ),
+                                icon: Icon((isSuperAdmin || set.isApproved) ? Icons.picture_as_pdf : Icons.lock_outline, size: 14),
                                 label: Text(
-                                  (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
-                                      ? LanguageService.instance.trText(ne: '📄 पेपर परीक्षा PDF', en: '📄 Paper Exam PDF', ko: '📄 지필시험 PDF')
-                                      : LanguageService.instance.trText(ne: '🔒 PDF (स्वीकृति आवश्यक)', en: '🔒 PDF (Approval Req.)', ko: '🔒 PDF (승인 필요)'),
+                                  (isSuperAdmin || set.isApproved)
+                                      ? LanguageService.instance.trText(
+                                          ne: '📄 पेपर परीक्षा PDF / Print',
+                                          en: '📄 Paper Exam PDF / Print',
+                                          ko: '📄 지필시험 PDF / 인쇄',
+                                        )
+                                      : LanguageService.instance.trText(
+                                          ne: '🔒 पेपर परीक्षा (अनुमति आवश्यक)',
+                                          en: '🔒 Paper Exam (Permission Req.)',
+                                          ko: '🔒 지필시험 (승인 필요)',
+                                        ),
                                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -1395,6 +1373,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
 
   /// 2. Set Question Inspector View
   Widget _buildSetQuestionInspector(MockTestSet set) {
+    final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
     final questions = set.questions;
     final filteredQuestions = questions.asMap().entries.where((entry) {
       final idx = entry.key;
@@ -1436,6 +1415,41 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                             decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(4)),
                             child: Text(LanguageService.instance.trText(ne: 'कुल ४० प्रश्न', en: 'Total 40 Questions', ko: '총 40문항'), style: const TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold)),
                           ),
+                          const SizedBox(width: 8),
+                          InkWell(
+                            onTap: isSuperAdmin ? () {
+                              setState(() {
+                                if (set.isApproved) {
+                                  QuestionBankService.instance.rejectMockSet(set.id);
+                                  _selectedSet = _selectedSet?.copyWith(isApproved: false);
+                                } else {
+                                  QuestionBankService.instance.approveMockSet(set.id);
+                                  _selectedSet = _selectedSet?.copyWith(isApproved: true);
+                                }
+                              });
+                            } : null,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: set.isApproved ? Colors.green.shade50 : Colors.amber.shade50,
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: set.isApproved ? Colors.green : Colors.amber.shade700),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    set.isApproved ? LanguageService.instance.trText(ne: '🟢 स्वीकृत', en: '🟢 Approved', ko: '🟢 승인됨') : LanguageService.instance.trText(ne: '⏳ सुपर एडमिन स्वीकृति बाँकी', en: '⏳ Awaiting Super Admin', ko: '⏳ 최고관리자 대기중'),
+                                    style: TextStyle(color: set.isApproved ? Colors.green.shade900 : Colors.amber.shade900, fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                  if (isSuperAdmin) ...[
+                                    const SizedBox(width: 4),
+                                    Icon(set.isApproved ? Icons.check_circle : Icons.touch_app, size: 12, color: set.isApproved ? Colors.green.shade800 : Colors.amber.shade900),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 3),
@@ -1446,19 +1460,17 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                 ElevatedButton.icon(
                   onPressed: () => _handleOpenPaperExamPdf(set),
                   icon: Icon(
-                    (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
-                        ? Icons.picture_as_pdf
-                        : Icons.lock_clock,
+                    (isSuperAdmin || set.isApproved) ? Icons.picture_as_pdf : Icons.lock_outline,
                     size: 16,
                   ),
                   label: Text(
-                    (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
-                        ? LanguageService.instance.trText(ne: '📄 पेपर परीक्षा PDF (६-७ पृष्ठ)', en: '📄 Paper Exam PDF (6-7 Pages)', ko: '📄 지필시험 PDF (6~7p)')
-                        : LanguageService.instance.trText(ne: '🔒 PDF (स्वीकृति आवश्यक)', en: '🔒 PDF (Approval Req.)', ko: '🔒 PDF (승인 필요)'),
+                    (isSuperAdmin || set.isApproved)
+                        ? LanguageService.instance.trText(ne: '📄 पेपर परीक्षा PDF (८ पृष्ठ)', en: '📄 Paper Exam PDF (8 Pages)', ko: '📄 지필시험 PDF (8p)')
+                        : LanguageService.instance.trText(ne: '🔒 पेपर परीक्षा (अनुमति आवश्यक)', en: '🔒 Paper Exam (Permission Req.)', ko: '🔒 지필시험 (승인 필요)'),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
+                    backgroundColor: (isSuperAdmin || set.isApproved)
                         ? const Color(0xFF0F766E)
                         : Colors.amber.shade800,
                     foregroundColor: Colors.white,
