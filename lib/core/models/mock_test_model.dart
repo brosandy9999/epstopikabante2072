@@ -180,7 +180,15 @@ class MockTestSet {
     for (int i = 0; i < rawQ.length; i++) {
       final item = rawQ[i];
       if (item is Map) {
-        parsedQ.add(UniversalQuestion.fromJson(Map<String, dynamic>.from(item)));
+        final map = Map<String, dynamic>.from(item);
+        if (map['questionNumber'] == null) {
+          map['questionNumber'] = i + 1;
+        }
+        if (i >= 20) {
+          // Questions 21 to 40 in EPS-TOPIK are strictly Listening
+          map['isListening'] = true;
+        }
+        parsedQ.add(UniversalQuestion.fromJson(map));
       }
     }
 

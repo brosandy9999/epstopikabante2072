@@ -203,11 +203,11 @@ class UniversalQuestion extends QuestionTemplate {
     // 4. Determine Listening vs Reading modality
     final int qNum = json['questionNumber'] as int? ?? 1;
     final String typeStr = (json['type'] ?? '').toString().toLowerCase();
-    final bool isListening = json['isListening'] as bool? ??
+    final bool isListening = (qNum >= 21) ||
+        (json['isListening'] == true) ||
         (typeStr.contains('listen')) ||
         (json['questionAudioUrl'] != null && json['questionAudioUrl'].toString().trim().isNotEmpty) ||
-        (json['audioAssetPath'] != null && json['audioAssetPath'].toString().trim().isNotEmpty) ||
-        (qNum > 20);
+        (json['audioAssetPath'] != null && json['audioAssetPath'].toString().trim().isNotEmpty);
 
     return UniversalQuestion(
       questionId: json['questionId'] as String? ?? 'q_01',

@@ -261,10 +261,20 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
 
   void _showQuestionEditorDialog(MockTestSet set, int qIndex, QuestionTemplate q) {
     // Extract properties
-    final isReading = (q is UniversalQuestion)
-        ? !q.isListening
-        : (q is ReadingTextQuestion || q is ReadingImageQuestion || qIndex < 20);
     final questionNo = qIndex + 1;
+    bool isReading = questionNo <= 20;
+    if (q is UniversalQuestion) {
+      if (questionNo >= 21) {
+        isReading = false; // Questions 21-40 are strictly Listening in EPS-TOPIK
+      } else {
+        isReading = !q.isListening;
+      }
+    } else if (q is ListeningAudioQuestion || q is ListeningImageOptionsQuestion) {
+      isReading = false;
+    } else if (q is ReadingTextQuestion || q is ReadingImageQuestion) {
+      isReading = true;
+    }
+    final initialIsReading = isReading;
     final qId = q.questionId;
     final ansInfo = set.answerKeys[qId] ?? const QuestionAnswerInfo(correctIndex: 0, explanation: 'सही उत्तर');
 
@@ -325,6 +335,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
     final initialCorrectIndex = ansInfo.correctIndex;
 
     bool hasUnsavedChanges() {
+      if (isReading != initialIsReading) return true;
       if (textCtrl.text.trim() != initialQuestionText.trim()) return true;
       if (imgCtrl.text.trim() != initialImgUrl.trim()) return true;
       if (audioCtrl.text.trim() != initialAudioUrl.trim()) return true;
@@ -523,14 +534,25 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
                                 color: isReading ? const Color(0xFF1E3A8A) : const Color(0xFFEA580C),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: Text(
-                                '${LanguageService.instance.trText(ne: "प्रश्न", en: "Q", ko: "문항")} $questionNo (${isReading ? "READING" : "LISTENING"})',
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    isReading ? Icons.menu_book_rounded : Icons.headphones_rounded,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 5),
+                                  Text(
+                                    '${LanguageService.instance.trText(ne: "प्रश्न", en: "Q", ko: "문항")} $questionNo (${isReading ? "READING" : "LISTENING"})',
+                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                  ),
+                                ],
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -546,6 +568,103 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                           onPressed: () => handleExitAttempt(ctx),
                         ),
                       ],
+                    ),
+                    const SizedBox(height: 10),
+                    // Interactive Section Toggle (Reading vs Listening)
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () {
+                                setDialogState(() {
+                                  isReading = true;
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: isReading ? const Color(0xFF1E3A8A) : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.menu_book_rounded,
+                                      size: 16,
+                                      color: isReading ? Colors.white : Colors.grey.shade700,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      LanguageService.instance.trText(
+                                        ne: '📖 रिडिङ (Reading Q1~Q20)',
+                                        en: '📖 Reading (Q1~Q20)',
+                                        ko: '📖 읽기 (Q1~Q20)',
+                                      ),
+                                      style: TextStyle(
+                                        color: isReading ? Colors.white : Colors.grey.shade800,
+                                        fontWeight: isReading ? FontWeight.bold : FontWeight.w600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () {
+                                setDialogState(() {
+                                  isReading = false;
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: !isReading ? const Color(0xFFEA580C) : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.headphones_rounded,
+                                      size: 16,
+                                      color: !isReading ? Colors.white : Colors.grey.shade700,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      LanguageService.instance.trText(
+                                        ne: '🎧 लिसनिङ (Listening Q21~Q40)',
+                                        en: '🎧 Listening (Q21~Q40)',
+                                        ko: '🎧 듣기 (Q21~Q40)',
+                                      ),
+                                      style: TextStyle(
+                                        color: !isReading ? Colors.white : Colors.grey.shade800,
+                                        fontWeight: !isReading ? FontWeight.bold : FontWeight.w600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const Divider(height: 20),
 

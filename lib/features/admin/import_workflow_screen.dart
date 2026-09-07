@@ -359,7 +359,7 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
       final qId = "IMP_${qIndex < 10 ? '0' : ''}$qIndex";
       final options = [opt1, opt2, opt3, opt4];
 
-      if (type.contains('listen')) {
+      if (type.contains('listen') || qIndex >= 21) {
         _parsedQuestions.add(
           UniversalQuestion(
             questionId: qId,
@@ -433,7 +433,7 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
 
       final qId = "IMP_${qIndex < 10 ? '0' : ''}$qIndex";
 
-      if (type.contains('listen')) {
+      if (type.contains('listen') || qIndex >= 21) {
         _parsedQuestions.add(
           UniversalQuestion(
             questionId: qId,
