@@ -337,11 +337,11 @@ class PaperExamHtmlBuilder {
       flex: 1;
     }
 
-    /* Image options */
+    /* Image options - 4 columns in 1 single row */
     .img-opts-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
       border: 1px solid #cbd5e1;
       padding: 6px;
       border-radius: 4px;
@@ -355,10 +355,11 @@ class PaperExamHtmlBuilder {
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: 70px;
+      height: 82px;
+      background: #ffffff;
     }
     .img-opt-box img {
-      max-height: 48px;
+      max-height: 58px;
       max-width: 100%;
       object-fit: contain;
     }
@@ -1069,7 +1070,7 @@ class PaperExamHtmlBuilder {
       }
 
       if (hasImageOpts) {
-        h += 110.0;
+        h += 68.0;
       } else {
         if (!hasNewlines && maxLen <= 11) {
           h += 20.0;

@@ -1409,29 +1409,39 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
           if (hasImageOpts)
             Container(
               margin: const EdgeInsets.only(left: 36),
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.grey.shade400),
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2, crossAxisSpacing: 8, mainAxisSpacing: 8, childAspectRatio: 1.6),
-                itemCount: 4,
-                itemBuilder: (ctx, i) {
+              child: Row(
+                children: List.generate(4, (i) {
                   final img = i < imgOpts.length ? imgOpts[i] : null;
-                  return Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(4)),
-                    child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                      Text(nums[i], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      if (img != null && img.isNotEmpty)
-                        Expanded(child: SmartImageWidget(imageSource: img, fit: BoxFit.contain)),
-                    ]),
+                  return Expanded(
+                    child: Container(
+                      height: 85,
+                      margin: EdgeInsets.only(
+                        left: i == 0 ? 0 : 4,
+                        right: i == 3 ? 0 : 4,
+                      ),
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(4),
+                        color: Colors.white,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(nums[i], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                          const SizedBox(height: 2),
+                          if (img != null && img.isNotEmpty)
+                            Expanded(child: SmartImageWidget(imageSource: img, fit: BoxFit.contain)),
+                        ],
+                      ),
+                    ),
                   );
-                },
+                }),
               ),
             )
           else
