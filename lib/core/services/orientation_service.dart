@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 /// 🔄 Unified Native & Cross-Platform Orientation Controller
 /// Forces hardware screen rotation into Landscape for Authentic UBT Exam Hall terminals.
@@ -38,5 +39,24 @@ class OrientationService {
         DeviceOrientation.landscapeRight,
       ]);
     } catch (_) {}
+  }
+
+  /// 📱 Force hardware screen rotation into Portrait
+  static Future<void> forcePortrait() async {
+    try {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    } catch (_) {}
+  }
+
+  /// 🔄 Toggle between Portrait and Landscape
+  static Future<void> toggleOrientation(Orientation currentOrientation) async {
+    if (currentOrientation == Orientation.landscape) {
+      await forcePortrait();
+    } else {
+      await forceLandscape();
+    }
   }
 }

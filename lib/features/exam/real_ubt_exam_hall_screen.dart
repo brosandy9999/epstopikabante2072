@@ -53,8 +53,8 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     _questions = widget.mockSet?.questions ?? QuestionBankService.instance.getFull40ExamQuestions();
     _startCountdownTimer();
 
-    // 🔒 Force Hardware Landscape Orientation for Authentic UBT Exam Hall Terminal
-    OrientationService.forceLandscape();
+    // 🔄 Support both Portrait and Landscape hardware screen rotation for full mobile flexibility
+    OrientationService.unlockOrientation();
   }
 
   @override
@@ -406,34 +406,45 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
                   child: SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // LEFT SIDE: READING (01 - 20)
-                          Expanded(
-                            child: _buildSectionGridCard(
-                              title: LanguageService.instance.trText(ne: '📖 रिडिङ (०१ - २०)', en: '📖 Reading (01 - 20)', ko: '📖 읽기 (01 - 20)'),
-                              color: const Color(0xFF1E3A8A),
-                              answeredCount: readingAnswered,
-                              startIdx: 0,
-                              endIdx: 20,
-                              ctx: ctx,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
+                      child: LayoutBuilder(
+                        builder: (context, gridConstraints) {
+                          final bool isNarrow = gridConstraints.maxWidth < 600;
+                          final readingCard = _buildSectionGridCard(
+                            title: LanguageService.instance.trText(ne: '📖 रिडिङ (०१ - २०)', en: '📖 Reading (01 - 20)', ko: '📖 읽기 (01 - 20)'),
+                            color: const Color(0xFF1E3A8A),
+                            answeredCount: readingAnswered,
+                            startIdx: 0,
+                            endIdx: 20,
+                            ctx: ctx,
+                          );
+                          final listeningCard = _buildSectionGridCard(
+                            title: LanguageService.instance.trText(ne: '🎧 लिसनिङ (२१ - ४०)', en: '🎧 Listening (21 - 40)', ko: '🎧 듣기 (21 - 40)'),
+                            color: const Color(0xFFEA580C),
+                            answeredCount: listeningAnswered,
+                            startIdx: 20,
+                            endIdx: 40,
+                            ctx: ctx,
+                          );
 
-                          // RIGHT SIDE: LISTENING (21 - 40)
-                          Expanded(
-                            child: _buildSectionGridCard(
-                              title: LanguageService.instance.trText(ne: '🎧 लिसनिङ (२१ - ४०)', en: '🎧 Listening (21 - 40)', ko: '🎧 듣기 (21 - 40)'),
-                              color: const Color(0xFFEA580C),
-                              answeredCount: listeningAnswered,
-                              startIdx: 20,
-                              endIdx: 40,
-                              ctx: ctx,
-                            ),
-                          ),
-                        ],
+                          if (isNarrow) {
+                            return Column(
+                              children: [
+                                readingCard,
+                                const SizedBox(height: 12),
+                                listeningCard,
+                              ],
+                            );
+                          }
+
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(child: readingCard),
+                              const SizedBox(width: 12),
+                              Expanded(child: listeningCard),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -441,13 +452,15 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
 
                 // Legend
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border(top: BorderSide(color: Colors.grey.shade300)),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 12,
+                    runSpacing: 6,
                     children: [
                       _buildLegend(const Color(0xFF1E3A8A), LanguageService.instance.trText(ne: 'हल भएको (${_selectedAnswers.length})', en: 'Answered (${_selectedAnswers.length})', ko: '답안 작성 (${_selectedAnswers.length})')),
                       _buildLegend(Colors.white, LanguageService.instance.trText(ne: 'नछोएको (${40 - _selectedAnswers.length})', en: 'Unanswered (${40 - _selectedAnswers.length})', ko: '미작성 (${40 - _selectedAnswers.length})'), border: true),
@@ -605,164 +618,12 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
   }
 
 
-  Widget _buildRotateToLandscapePrompt(BuildContext context) {
-    final lang = LanguageService.instance;
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        _confirmExit();
-      },
-      child: Scaffold(
-        backgroundColor: const Color(0xFF0F172A),
-        body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // HRD Korea Official UBT Badge
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.amber.shade700, width: 1.5),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('🇰🇷', style: TextStyle(fontSize: 14)),
-                      const SizedBox(width: 8),
-                      Text(
-                        lang.trText(
-                          ne: 'आधिकारिक HRD Korea UBT परीक्षा मोड',
-                          en: 'Official HRD Korea UBT Mode',
-                          ko: '한국산업인력공단 공식 UBT 모드',
-                        ),
-                        style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 11),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
 
-                // Animated/Glow Rotating Icon
-                Container(
-                  width: 90,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.amber.shade400, width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.amber.withValues(alpha: 0.25),
-                        blurRadius: 20,
-                        spreadRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.screen_rotation_rounded, size: 48, color: Colors.amber),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Main Instruction
-                Text(
-                  lang.trText(
-                    ne: 'कृपया आफ्नो मोबाइललाई तेर्सो (Landscape) मोडमा घुमाउनुहोस्',
-                    en: 'Please Rotate Your Device to Landscape',
-                    ko: '기기를 가로(Landscape) 모드로 회전해 주세요',
-                  ),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    height: 1.3,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                // Explanation
-                Text(
-                  lang.trText(
-                    ne: 'EPS-TOPIK UBT परीक्षा वास्तविक परीक्षा हलमा झैँ कम्प्युटर/ट्याबलेट स्क्रिन (Landscape) मा दिनुपर्ने गरी तयार पारिएको छ। मोबाइल तेर्सो बनाउनासाथ परीक्षा स्वतः सुरु हुनेछ।',
-                    en: 'The EPS-TOPIK UBT exam layout requires landscape orientation for the authentic split-screen reading and listening experience.',
-                    ko: '실제 UBT 시험장 환경과 동일한 40문항 2분할 화면 구성을 위해 가로(Landscape) 화면이 필수입니다.',
-                  ),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.grey.shade300,
-                    fontSize: 13,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 28),
-
-                // Force Landscape & Exit Buttons
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 10,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.amber.shade700,
-                        foregroundColor: Colors.black87,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      onPressed: () {
-                        OrientationService.forceLandscape();
-                      },
-                      icon: const Icon(Icons.screen_lock_landscape, size: 18),
-                      label: Text(
-                        lang.trText(
-                          ne: 'Landscape Mode सक्रिय गर्नुहोस्',
-                          en: 'Enable Landscape',
-                          ko: '가로 모드 적용',
-                        ),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                      ),
-                    ),
-                    OutlinedButton.icon(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white70,
-                        side: const BorderSide(color: Colors.white38),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      onPressed: _confirmExit,
-                      icon: const Icon(Icons.close, size: 16),
-                      label: Text(
-                        lang.trText(ne: 'बाहिरिनुहोस्', en: 'Exit Exam', ko: '시험 나가기'),
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-}
 
   @override
   Widget build(BuildContext context) {
-    // In mobile portrait, enforce authentic landscape rotation prompt
     final mediaQuery = MediaQuery.of(context);
-    final isPortrait = mediaQuery.orientation == Orientation.portrait && mediaQuery.size.width < 600;
-    if (isPortrait) {
-      return _buildRotateToLandscapePrompt(context);
-    }
-
+    final isPortrait = mediaQuery.orientation == Orientation.portrait || mediaQuery.size.width < 600;
     final currentQ = _questions[_currentQuestionIndex];
     final isReading = _currentQuestionIndex < 20;
 
@@ -777,142 +638,311 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
         child: Scaffold(
           backgroundColor: const Color(0xFFF1F5F9),
           body: SafeArea(
-          child: Column(
-            children: [
-              // 1. ULTRA-SLEEK FLOATING HEADER (Zero bulky bar - Maximum vertical space)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 4, 10, 2),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Left: Exit Button & Compact Candidate Tag
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        OutlinedButton.icon(
-                          onPressed: _confirmExit,
-                          icon: const Icon(Icons.exit_to_app, size: 13, color: Colors.red),
-                          label: Text(
-                            LanguageService.instance.trText(ne: 'बाहिरिनुहोस्', en: 'Exit', ko: '퇴실'),
-                            style: const TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            side: BorderSide(color: Colors.red.shade300, width: 1.0),
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                            elevation: 1,
-                            shadowColor: Colors.black12,
-                            minimumSize: Size.zero,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.grey.shade300),
-                            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              CircleAvatar(
-                                radius: 8,
-                                backgroundColor: const Color(0xFF1E3A8A),
-                                child: Text(
-                                  (widget.student?.name.isNotEmpty == true) ? widget.student!.name[0] : 'S',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 9, color: Colors.white),
+            child: Column(
+              children: [
+                // 1. ULTRA-RESPONSIVE FLOATING HEADER (Adapts to Portrait & Landscape)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 2),
+                  child: isPortrait
+                      // 📱 PORTRAIT HEADER (2 COMPACT ROWS: Zero Horizontal Overflow)
+                      ? Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                // Exit Button
+                                OutlinedButton.icon(
+                                  onPressed: _confirmExit,
+                                  icon: const Icon(Icons.exit_to_app, size: 12, color: Colors.red),
+                                  label: Text(
+                                    LanguageService.instance.trText(ne: 'बाहिरिने', en: 'Exit', ko: '퇴실'),
+                                    style: const TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    side: BorderSide(color: Colors.red.shade300, width: 1.0),
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    elevation: 1,
+                                    minimumSize: Size.zero,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '${widget.student?.name ?? "수험생"} | ${widget.student?.registrationNo ?? "2026-001"}',
-                                style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 11),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                                const SizedBox(width: 6),
 
-                    // Center: Ultra-Compact Section & Question Badge
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isReading ? const Color(0xFF2563EB) : const Color(0xFFEA580C),
-                        borderRadius: BorderRadius.circular(6),
-                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
-                      ),
-                      child: Text(
-                        isReading
-                            ? '📖 읽기 (문항 ${_currentQuestionIndex + 1}/40)'
-                            : '🎧 듣기 (문항 ${_currentQuestionIndex + 1}/40)',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                      ),
-                    ),
+                                // Candidate Tag (Compact Name Only)
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: Colors.grey.shade300),
+                                      boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 7,
+                                          backgroundColor: const Color(0xFF1E3A8A),
+                                          child: Text(
+                                            (widget.student?.name.isNotEmpty == true) ? widget.student!.name[0] : 'S',
+                                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 8, color: Colors.white),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        Flexible(
+                                          child: Text(
+                                            widget.student?.name ?? "수험생",
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 10),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
 
-                    // Right: Ultra-Compact Countdown Timer
-                    ValueListenableBuilder<int>(
-                      valueListenable: _remainingSecondsNotifier,
-                      builder: (context, remainingSecs, _) {
-                        final isLowTime = remainingSecs < 300;
-                        return Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: isLowTime ? Colors.red.shade50 : Colors.white,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: isLowTime ? Colors.red : Colors.grey.shade300,
-                              width: 1.1,
+                                // Countdown Timer
+                                ValueListenableBuilder<int>(
+                                  valueListenable: _remainingSecondsNotifier,
+                                  builder: (context, remainingSecs, _) {
+                                    final isLowTime = remainingSecs < 300;
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: isLowTime ? Colors.red.shade50 : Colors.white,
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                          color: isLowTime ? Colors.red : Colors.grey.shade300,
+                                          width: 1.0,
+                                        ),
+                                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.timer_outlined, color: isLowTime ? Colors.red : const Color(0xFF1E3A8A), size: 13),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            _formatTimer(remainingSecs),
+                                            style: TextStyle(
+                                              color: isLowTime ? Colors.red.shade900 : const Color(0xFF0F172A),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 11,
+                                              letterSpacing: 0.8,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 4),
+
+                                // Screen Rotation Switch Button
+                                InkWell(
+                                  onTap: () => OrientationService.toggleOrientation(mediaQuery.orientation),
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: Colors.grey.shade300),
+                                      boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                                    ),
+                                    child: const Icon(Icons.screen_rotation, size: 14, color: Color(0xFF1E3A8A)),
+                                  ),
+                                ),
+                              ],
                             ),
-                            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.timer_outlined, color: isLowTime ? Colors.red : const Color(0xFF1E3A8A), size: 14),
-                              const SizedBox(width: 5),
-                              Text(
-                                _formatTimer(remainingSecs),
-                                style: TextStyle(
-                                  color: isLowTime ? Colors.red.shade900 : const Color(0xFF0F172A),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                  letterSpacing: 1.0,
+                            const SizedBox(height: 3),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                                  decoration: BoxDecoration(
+                                    color: isReading ? const Color(0xFF2563EB) : const Color(0xFFEA580C),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    isReading
+                                        ? '📖 읽기 (Reading) #${_currentQuestionIndex + 1}/40'
+                                        : '🎧 듣기 (Listening) #${_currentQuestionIndex + 1}/40',
+                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10.5),
+                                  ),
                                 ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    '${LanguageService.instance.trText(ne: "उत्तर:", en: "Answered:", ko: "풀이:")} ${_selectedAnswers.length}/40',
+                                    style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.w600, fontSize: 10),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      // 🖥️ LANDSCAPE HEADER (1 SLEEK ROW)
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Left: Exit Button & Compact Candidate Tag
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                OutlinedButton.icon(
+                                  onPressed: _confirmExit,
+                                  icon: const Icon(Icons.exit_to_app, size: 13, color: Colors.red),
+                                  label: Text(
+                                    LanguageService.instance.trText(ne: 'बाहिरिनुहोस्', en: 'Exit', ko: '퇴실'),
+                                    style: const TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    side: BorderSide(color: Colors.red.shade300, width: 1.0),
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                                    elevation: 1,
+                                    shadowColor: Colors.black12,
+                                    minimumSize: Size.zero,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: Colors.grey.shade300),
+                                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 8,
+                                        backgroundColor: const Color(0xFF1E3A8A),
+                                        child: Text(
+                                          (widget.student?.name.isNotEmpty == true) ? widget.student!.name[0] : 'S',
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 9, color: Colors.white),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        '${widget.student?.name ?? "수험생"} | ${widget.student?.registrationNo ?? "2026-001"}',
+                                        style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.bold, fontSize: 11),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            // Center: Compact Section Badge
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: isReading ? const Color(0xFF2563EB) : const Color(0xFFEA580C),
+                                borderRadius: BorderRadius.circular(6),
+                                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
                               ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
+                              child: Text(
+                                isReading
+                                    ? '📖 읽기 (문항 ${_currentQuestionIndex + 1}/40)'
+                                    : '🎧 듣기 (문항 ${_currentQuestionIndex + 1}/40)',
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                            ),
 
-              // 2. MAIN BODY: Full-height, unclipped Question View
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
-                  child: _buildCurrentQuestion(currentQ),
+                            // Right: Countdown Timer & Screen Rotation Button
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ValueListenableBuilder<int>(
+                                  valueListenable: _remainingSecondsNotifier,
+                                  builder: (context, remainingSecs, _) {
+                                    final isLowTime = remainingSecs < 300;
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: isLowTime ? Colors.red.shade50 : Colors.white,
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(
+                                          color: isLowTime ? Colors.red : Colors.grey.shade300,
+                                          width: 1.1,
+                                        ),
+                                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.timer_outlined, color: isLowTime ? Colors.red : const Color(0xFF1E3A8A), size: 14),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            _formatTimer(remainingSecs),
+                                            style: TextStyle(
+                                              color: isLowTime ? Colors.red.shade900 : const Color(0xFF0F172A),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                              letterSpacing: 1.0,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 6),
+                                InkWell(
+                                  onTap: () => OrientationService.toggleOrientation(mediaQuery.orientation),
+                                  borderRadius: BorderRadius.circular(6),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(6),
+                                      border: Border.all(color: Colors.grey.shade300),
+                                      boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                                    ),
+                                    child: const Icon(Icons.screen_rotation, size: 15, color: Color(0xFF1E3A8A)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                 ),
-              ),
 
-              // 3. ULTRA-SLEEK FLOATING BOTTOM CONTROLS
-              Padding(
-                padding: const EdgeInsets.fromLTRB(10, 2, 10, 4),
-                child: _buildBottomControlBar(),
-              ),
-            ],
+                // 2. MAIN BODY: Full-height, unclipped Question View
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(6, 2, 6, 2),
+                    child: _buildCurrentQuestion(currentQ),
+                  ),
+                ),
+
+                // 3. ULTRA-SLEEK FLOATING BOTTOM CONTROLS
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 2, 8, 4),
+                  child: _buildBottomControlBar(),
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildCurrentQuestion(QuestionTemplate currentQ) {
     final bool isListening = (currentQ is ListeningAudioQuestion) ||
@@ -945,153 +975,176 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     final isFlagged = _flaggedQuestions.contains(_currentQuestionIndex);
     final isLast = _currentQuestionIndex == _questions.length - 1;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Previous Button
-        OutlinedButton.icon(
-          onPressed: _currentQuestionIndex > 0 ? () => _jumpToQuestion(_currentQuestionIndex - 1) : null,
-          icon: const Icon(Icons.arrow_back, size: 14),
-          label: Text(LanguageService.instance.tr('prev_btn'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-          style: OutlinedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF1E3A8A),
-            disabledForegroundColor: Colors.grey.shade400,
-            disabledBackgroundColor: Colors.white70,
-            side: BorderSide(color: Colors.grey.shade300, width: 1.0),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            elevation: 1,
-            shadowColor: Colors.black12,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-        ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 460;
+        final hPad = isCompact ? 6.0 : 10.0;
+        final btnFontSize = isCompact ? 10.5 : 12.0;
 
-        // CENTER: '전체문항 (Total 40 Questions)' & REVIEW FLAG
-        Row(
-          mainAxisSize: MainAxisSize.min,
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Material(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(6),
-              elevation: 1,
-              shadowColor: Colors.black12,
-              child: InkWell(
-                onTap: _openAllQuestionsSheet,
-                borderRadius: BorderRadius.circular(6),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: Colors.grey.shade300, width: 1.0),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.grid_view, color: Color(0xFF1E3A8A), size: 15),
-                      const SizedBox(width: 4),
-                      Text(
-                        LanguageService.instance.trText(ne: 'सबै प्रश्नहरू', en: 'All Qs', ko: '전체문항'),
-                        style: const TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: 11),
-                      ),
-                      const SizedBox(width: 6),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E3A8A).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '${_selectedAnswers.length}/40',
-                          style: const TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: 10),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            // Previous Button
+            OutlinedButton.icon(
+              onPressed: _currentQuestionIndex > 0 ? () => _jumpToQuestion(_currentQuestionIndex - 1) : null,
+              icon: Icon(Icons.arrow_back, size: isCompact ? 12 : 14),
+              label: Text(
+                LanguageService.instance.tr('prev_btn'),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: btnFontSize),
+              ),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: const Color(0xFF1E3A8A),
+                disabledForegroundColor: Colors.grey.shade400,
+                disabledBackgroundColor: Colors.white70,
+                side: BorderSide(color: Colors.grey.shade300, width: 1.0),
+                padding: EdgeInsets.symmetric(horizontal: hPad, vertical: isCompact ? 4 : 5),
+                elevation: 1,
+                shadowColor: Colors.black12,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
-            const SizedBox(width: 8),
 
-            Material(
-              color: isFlagged ? Colors.red.shade50 : Colors.white,
-              borderRadius: BorderRadius.circular(6),
-              elevation: 1,
-              shadowColor: Colors.black12,
-              child: InkWell(
-                onTap: () => _toggleFlagQuestion(_currentQuestionIndex),
-                borderRadius: BorderRadius.circular(6),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: isFlagged ? Colors.red.shade50 : Colors.white,
-                    border: Border.all(color: isFlagged ? Colors.red : Colors.grey.shade300, width: 1.0),
+            // CENTER: '전체문항 (Total 40 Questions)' & REVIEW FLAG
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Material(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  elevation: 1,
+                  shadowColor: Colors.black12,
+                  child: InkWell(
+                    onTap: _openAllQuestionsSheet,
                     borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        isFlagged ? Icons.flag : Icons.outlined_flag,
-                        color: isFlagged ? Colors.red : Colors.grey.shade700,
-                        size: 14,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: isCompact ? 5 : 8, vertical: isCompact ? 3 : 4),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.grey.shade300, width: 1.0),
                       ),
-                      const SizedBox(width: 3),
-                      Text(
-                        LanguageService.instance.trText(ne: 'समीक्षा 🚩', en: 'Review 🚩', ko: '검토 🚩'),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: isFlagged ? Colors.red.shade900 : Colors.grey.shade800,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.grid_view, color: const Color(0xFF1E3A8A), size: isCompact ? 13 : 15),
+                          SizedBox(width: isCompact ? 2 : 4),
+                          Text(
+                            isCompact
+                                ? LanguageService.instance.trText(ne: 'सबै', en: 'All', ko: '전체')
+                                : LanguageService.instance.trText(ne: 'सबै प्रश्नहरू', en: 'All Qs', ko: '전체문항'),
+                            style: TextStyle(color: const Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: isCompact ? 9.5 : 11),
+                          ),
+                          SizedBox(width: isCompact ? 3 : 6),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: isCompact ? 3 : 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '${_selectedAnswers.length}/40',
+                              style: TextStyle(color: const Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: isCompact ? 9 : 10),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+                SizedBox(width: isCompact ? 4 : 8),
+
+                Material(
+                  color: isFlagged ? Colors.red.shade50 : Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  elevation: 1,
+                  shadowColor: Colors.black12,
+                  child: InkWell(
+                    onTap: () => _toggleFlagQuestion(_currentQuestionIndex),
+                    borderRadius: BorderRadius.circular(6),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: isCompact ? 5 : 8, vertical: isCompact ? 3 : 4),
+                      decoration: BoxDecoration(
+                        color: isFlagged ? Colors.red.shade50 : Colors.white,
+                        border: Border.all(color: isFlagged ? Colors.red : Colors.grey.shade300, width: 1.0),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isFlagged ? Icons.flag : Icons.outlined_flag,
+                            color: isFlagged ? Colors.red : Colors.grey.shade700,
+                            size: isCompact ? 12 : 14,
+                          ),
+                          SizedBox(width: isCompact ? 2 : 3),
+                          Text(
+                            isCompact
+                                ? (isFlagged ? '🚩' : '🚩')
+                                : LanguageService.instance.trText(ne: 'समीक्षा 🚩', en: 'Review 🚩', ko: '검토 🚩'),
+                            style: TextStyle(
+                              fontSize: isCompact ? 9.5 : 10,
+                              fontWeight: FontWeight.bold,
+                              color: isFlagged ? Colors.red.shade900 : Colors.grey.shade800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Next / Submit Button
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!isLast)
+                  ElevatedButton.icon(
+                    onPressed: () => _jumpToQuestion(_currentQuestionIndex + 1),
+                    icon: Icon(Icons.arrow_forward, size: isCompact ? 12 : 14),
+                    label: Text(
+                      LanguageService.instance.tr('next_btn'),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: btnFontSize),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E3A8A),
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: isCompact ? 4 : 5),
+                      elevation: 1,
+                      shadowColor: Colors.black12,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                if (isLast)
+                  ElevatedButton.icon(
+                    onPressed: _confirmSubmit,
+                    icon: Icon(Icons.check_circle, size: isCompact ? 12 : 14),
+                    label: Text(
+                      LanguageService.instance.tr('submit_exam'),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: btnFontSize),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD97706),
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: isCompact ? 8 : 12, vertical: isCompact ? 4 : 5),
+                      elevation: 1,
+                      shadowColor: Colors.black12,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+              ],
             ),
           ],
-        ),
-
-        // Next / Submit Button
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (!isLast)
-              ElevatedButton.icon(
-                onPressed: () => _jumpToQuestion(_currentQuestionIndex + 1),
-                icon: const Icon(Icons.arrow_forward, size: 14),
-                label: Text(LanguageService.instance.tr('next_btn'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E3A8A),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  elevation: 1,
-                  shadowColor: Colors.black12,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ),
-            if (isLast)
-              ElevatedButton.icon(
-                onPressed: _confirmSubmit,
-                icon: const Icon(Icons.check_circle, size: 14),
-                label: Text(LanguageService.instance.tr('submit_exam'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD97706),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                  elevation: 1,
-                  shadowColor: Colors.black12,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ),
-          ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
+
+

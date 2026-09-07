@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 class ExamTimerWidget extends StatefulWidget {
   final int durationSeconds; // जस्तै: ५० मिनेट = ३००० सेकेन्ड
   final VoidCallback onTimerFinished; // समय सकिएपछि कल हुने फङ्सन (Auto-submit)
+  final bool isCompact;
 
   const ExamTimerWidget({
     Key? key,
     required this.durationSeconds,
     required this.onTimerFinished,
+    this.isCompact = false,
   }) : super(key: key);
 
   @override
@@ -62,24 +64,27 @@ class _ExamTimerWidgetState extends State<ExamTimerWidget> {
     Color timerColor = _remainingSeconds < 300 ? Colors.red : Colors.green.shade700;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: widget.isCompact ? 8 : 16,
+        vertical: widget.isCompact ? 3 : 8,
+      ),
       decoration: BoxDecoration(
         color: timerColor.withOpacity(0.1),
-        border: Border.all(color: timerColor, width: 2),
-        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: timerColor, width: widget.isCompact ? 1.0 : 2.0),
+        borderRadius: BorderRadius.circular(widget.isCompact ? 6 : 8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.timer, color: timerColor),
-          const SizedBox(width: 8),
+          Icon(Icons.timer, color: timerColor, size: widget.isCompact ? 14 : 20),
+          SizedBox(width: widget.isCompact ? 4 : 8),
           Text(
             _formattedTime,
             style: TextStyle(
-              fontSize: 24,
+              fontSize: widget.isCompact ? 13 : 24,
               fontWeight: FontWeight.bold,
               color: timerColor,
-              letterSpacing: 2,
+              letterSpacing: widget.isCompact ? 1.0 : 2.0,
             ),
           ),
         ],

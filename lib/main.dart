@@ -136,8 +136,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             .getAllMockSets()
             .where((s) => s.isApproved)
             .toList();
-        final screenWidth = MediaQuery.of(context).size.width;
-        final bool isMobile = screenWidth < 850;
+        final mediaQuery = MediaQuery.of(context);
+        final screenWidth = mediaQuery.size.width;
+        final bool isMobile = mediaQuery.size.shortestSide < 600 || screenWidth < 850;
 
         return PopScope(
           canPop: false,
@@ -2324,68 +2325,190 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
         body: SafeArea(
           child: Column(
             children: [
-              // Clean Floating Top Header (No dark/heavy bar)
+              // Clean Floating Top Header (Responsive for Portrait & Landscape)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                child: Builder(
+                  builder: (context) {
+                    final mediaQuery = MediaQuery.of(context);
+                    final isPortrait = mediaQuery.orientation == Orientation.portrait || mediaQuery.size.width < 600;
+
+                    if (isPortrait) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              OutlinedButton.icon(
+                                icon: const Icon(Icons.arrow_back, size: 12, color: Colors.red),
+                                label: Text(
+                                  LanguageService.instance.tr("exit_exam"),
+                                  style: const TextStyle(color: Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  side: BorderSide(color: Colors.red.shade200, width: 1.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  elevation: 1,
+                                  minimumSize: Size.zero,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                onPressed: _confirmExitExam,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: Colors.grey.shade300),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const CircleAvatar(radius: 8, backgroundColor: Color(0xFF1E3A8A), child: Icon(Icons.person, size: 10, color: Colors.white)),
+                                      const SizedBox(width: 5),
+                                      Flexible(
+                                        child: Text(
+                                          widget.student?.name ?? '수험생',
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Color(0xFF0F172A)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              ExamTimerWidget(durationSeconds: 3000, onTimerFinished: _submitExam, isCompact: true),
+                              const SizedBox(width: 4),
+                              InkWell(
+                                onTap: () => OrientationService.toggleOrientation(mediaQuery.orientation),
+                                borderRadius: BorderRadius.circular(6),
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: Colors.grey.shade300),
+                                  ),
+                                  child: const Icon(Icons.screen_rotation, size: 14, color: Color(0xFF1E3A8A)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 3),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                                decoration: BoxDecoration(
+                                  color: isReading ? const Color(0xFF2563EB) : const Color(0xFFEA580C),
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Text(
+                                  isReading ? LanguageService.instance.trText(ne: "📖 रिडिङ (१-२०)", en: "📖 Reading (1-20)", ko: "📖 읽기 (1-20)") : LanguageService.instance.trText(ne: "🎧 लिसनिङ (२१-४०)", en: "🎧 Listening (21-40)", ko: "🎧 듣기 (21-40)"),
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10.5),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.shade50,
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: Colors.amber.shade300, width: 0.8),
+                                ),
+                                child: Text(
+                                  LanguageService.instance.trText(ne: "प्रश्न ${_currentQuestionIndex + 1} / ४०", en: "Question ${_currentQuestionIndex + 1} / 40", ko: "문항 ${_currentQuestionIndex + 1} / 40"),
+                                  style: TextStyle(color: Colors.amber.shade900, fontWeight: FontWeight.bold, fontSize: 10),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    }
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        OutlinedButton.icon(
-                          icon: const Icon(Icons.arrow_back, size: 14, color: Colors.red),
-                          label: Text(
-                            LanguageService.instance.tr("exit_exam"),
-                            style: const TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            side: BorderSide(color: Colors.red.shade200, width: 1.1),
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            elevation: 1,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                          ),
-                          onPressed: _confirmExitExam,
-                        ),
-                        const SizedBox(width: 10),
-                        const CircleAvatar(radius: 14, backgroundColor: Color(0xFF1E3A8A), child: Icon(Icons.person, size: 16, color: Colors.white)),
-                        const SizedBox(width: 8),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
                           children: [
-                            Text(LanguageService.instance.trText(ne: "दर्ता: ${widget.student?.registrationNo ?? '01234567'}", en: "Reg: ${widget.student?.registrationNo ?? '01234567'}", ko: "수험번호: ${widget.student?.registrationNo ?? '01234567'}"), style: TextStyle(fontSize: 10, color: Colors.grey.shade700)),
-                            Text(LanguageService.instance.trText(ne: "नाम: ${widget.student?.name ?? 'परीक्षार्थी'}", en: "Name: ${widget.student?.name ?? 'Candidate'}", ko: "성명: ${widget.student?.name ?? '수험생'}"), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0F172A))),
+                            OutlinedButton.icon(
+                              icon: const Icon(Icons.arrow_back, size: 13, color: Colors.red),
+                              label: Text(
+                                LanguageService.instance.tr("exit_exam"),
+                                style: const TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                side: BorderSide(color: Colors.red.shade200, width: 1.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                elevation: 1,
+                                minimumSize: Size.zero,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              onPressed: _confirmExitExam,
+                            ),
+                            const SizedBox(width: 8),
+                            const CircleAvatar(radius: 12, backgroundColor: Color(0xFF1E3A8A), child: Icon(Icons.person, size: 14, color: Colors.white)),
+                            const SizedBox(width: 6),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(LanguageService.instance.trText(ne: "दर्ता: ${widget.student?.registrationNo ?? '01234567'}", en: "Reg: ${widget.student?.registrationNo ?? '01234567'}", ko: "수험번호: ${widget.student?.registrationNo ?? '01234567'}"), style: TextStyle(fontSize: 9, color: Colors.grey.shade700)),
+                                Text(LanguageService.instance.trText(ne: "नाम: ${widget.student?.name ?? 'परीक्षार्थी'}", en: "Name: ${widget.student?.name ?? 'Candidate'}", ko: "성명: ${widget.student?.name ?? '수험생'}"), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Color(0xFF0F172A))),
+                              ],
+                            ),
+                            const SizedBox(width: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: isReading ? const Color(0xFF2563EB) : const Color(0xFFEA580C),
+                                borderRadius: BorderRadius.circular(6),
+                                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                              ),
+                              child: Text(
+                                isReading ? LanguageService.instance.trText(ne: "📖 रिडिङ (१-२०)", en: "📖 Reading (1-20)", ko: "📖 읽기 (1-20)") : LanguageService.instance.trText(ne: "🎧 लिसनिङ (२१-४०)", en: "🎧 Listening (21-40)", ko: "🎧 듣기 (21-40)"),
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                              ),
+                            ),
                           ],
                         ),
-                        const SizedBox(width: 14),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: isReading ? const Color(0xFF2563EB) : const Color(0xFFEA580C),
-                            borderRadius: BorderRadius.circular(6),
-                            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)],
-                          ),
-                          child: Text(
-                            isReading ? LanguageService.instance.trText(ne: "📖 रिडिङ (१-२०)", en: "📖 Reading (1-20)", ko: "📖 읽기 (1-20)") : LanguageService.instance.trText(ne: "🎧 लिसनिङ (२१-४०)", en: "🎧 Listening (21-40)", ko: "🎧 듣기 (21-40)"),
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ExamTimerWidget(durationSeconds: 3000, onTimerFinished: _submitExam, isCompact: mediaQuery.size.width < 800),
+                            const SizedBox(width: 6),
+                            InkWell(
+                              onTap: () => OrientationService.toggleOrientation(mediaQuery.orientation),
+                              borderRadius: BorderRadius.circular(6),
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: Colors.grey.shade300),
+                                ),
+                                child: const Icon(Icons.screen_rotation, size: 15, color: Color(0xFF1E3A8A)),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
-                    ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ExamTimerWidget(durationSeconds: 3000, onTimerFinished: _submitExam),
-                      ],
-                    ), 
-                  ],
+                    );
+                  },
                 ),
               ),
               
               // Full-Width Split Question View Area
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
                   child: Builder(
                     builder: (context) {
                       final isListeningQ = (currentQuestion is ListeningAudioQuestion) ||
@@ -2417,111 +2540,123 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
 
               // Bottom Navigation Controls with Center Pull-Up Trigger
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Previous Button
-                    OutlinedButton.icon(
-                      onPressed: _currentQuestionIndex > 0 ? _previousQuestion : null,
-                      icon: const Icon(Icons.arrow_back, size: 16),
-                      label: Text(LanguageService.instance.tr('prev_btn'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF1E3A8A),
-                        disabledForegroundColor: Colors.grey.shade400,
-                        side: BorderSide(color: Colors.grey.shade300, width: 1.2),
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                        elevation: 1,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isCompact = constraints.maxWidth < 480;
+                    final hPad = isCompact ? 8.0 : 14.0;
+                    final btnFontSize = isCompact ? 11.0 : 13.0;
 
-                    // CENTER: Pull-up / Clickable All Questions Sheet
-                    Material(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      elevation: 1,
-                      child: InkWell(
-                        onTap: _openAllQuestionsDrawer,
-                        borderRadius: BorderRadius.circular(8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey.shade300, width: 1.2),
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Previous Button
+                        OutlinedButton.icon(
+                          onPressed: _currentQuestionIndex > 0 ? _previousQuestion : null,
+                          icon: Icon(Icons.arrow_back, size: isCompact ? 13 : 16),
+                          label: Text(LanguageService.instance.tr('prev_btn'), style: TextStyle(fontWeight: FontWeight.bold, fontSize: btnFontSize)),
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFF1E3A8A),
+                            disabledForegroundColor: Colors.grey.shade400,
+                            side: BorderSide(color: Colors.grey.shade300, width: 1.0),
+                            padding: EdgeInsets.symmetric(horizontal: hPad, vertical: isCompact ? 5 : 8),
+                            elevation: 1,
+                            minimumSize: Size.zero,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.grid_view, color: Color(0xFF1E3A8A), size: 20),
-                            const SizedBox(width: 8),
-                            Text(
-                              LanguageService.instance.tr('all_questions_grid'),
-                              style: const TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: 14),
-                            ),
-                            const SizedBox(width: 10),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1E3A8A).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                LanguageService.instance.isEnglish
-                                    ? "Attempted: ${_selectedAnswers.length}/40"
-                                    : (LanguageService.instance.isKorean
-                                        ? "풀이: ${_selectedAnswers.length}/40"
-                                        : "हल: ${_selectedAnswers.length}/40"),
-                                style: const TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: 12),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: Colors.amber.shade100,
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: Colors.amber.shade400, width: 0.8),
-                              ),
-                              child: Text(
-                                LanguageService.instance.trText(ne: "प्रश्न ${_currentQuestionIndex + 1} / ४०", en: "Question ${_currentQuestionIndex + 1} / 40", ko: "문항 ${_currentQuestionIndex + 1} / 40"),
-                                style: TextStyle(color: Colors.amber.shade900, fontWeight: FontWeight.bold, fontSize: 12),
-                              ),
-                            ),
-                          ],
                         ),
-                      ),
-                    ),
-                  ),
 
-                  // Next / Submit Button
-                  ElevatedButton.icon(
-                    onPressed: _currentQuestionIndex < _questions.length - 1 ? _nextQuestion : _submitExam,
-                    icon: Icon(_currentQuestionIndex < _questions.length - 1 ? Icons.arrow_forward : Icons.check_circle, size: 16),
-                    label: Text(
-                      _currentQuestionIndex < _questions.length - 1
-                          ? LanguageService.instance.tr('next_btn')
-                          : LanguageService.instance.tr('finish_exam'),
-                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _currentQuestionIndex < _questions.length - 1 ? const Color(0xFF1E3A8A) : const Color(0xFFD97706),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      elevation: 1,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                  ),
-                ],
+                        // CENTER: Pull-up / Clickable All Questions Sheet
+                        Material(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(6),
+                          elevation: 1,
+                          child: InkWell(
+                            onTap: _openAllQuestionsDrawer,
+                            borderRadius: BorderRadius.circular(6),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: isCompact ? 8 : 14, vertical: isCompact ? 4 : 7),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: Colors.grey.shade300, width: 1.0),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.grid_view, color: const Color(0xFF1E3A8A), size: isCompact ? 14 : 18),
+                                  SizedBox(width: isCompact ? 4 : 6),
+                                  Text(
+                                    isCompact
+                                        ? LanguageService.instance.trText(ne: 'सबै', en: 'All', ko: '전체')
+                                        : LanguageService.instance.tr('all_questions_grid'),
+                                    style: TextStyle(color: const Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: isCompact ? 10.5 : 13),
+                                  ),
+                                  SizedBox(width: isCompact ? 4 : 8),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(horizontal: isCompact ? 4 : 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      '${_selectedAnswers.length}/40',
+                                      style: TextStyle(color: const Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: isCompact ? 9.5 : 11),
+                                    ),
+                                  ),
+                                  if (!isCompact) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.amber.shade100,
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(color: Colors.amber.shade400, width: 0.8),
+                                      ),
+                                      child: Text(
+                                        LanguageService.instance.trText(ne: "प्रश्न ${_currentQuestionIndex + 1} / ४०", en: "Q ${_currentQuestionIndex + 1} / 40", ko: "문항 ${_currentQuestionIndex + 1} / 40"),
+                                        style: TextStyle(color: Colors.amber.shade900, fontWeight: FontWeight.bold, fontSize: 11),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        // Next / Submit Button
+                        ElevatedButton.icon(
+                          onPressed: _currentQuestionIndex < _questions.length - 1 ? _nextQuestion : _submitExam,
+                          icon: Icon(_currentQuestionIndex < _questions.length - 1 ? Icons.arrow_forward : Icons.check_circle, size: isCompact ? 13 : 16),
+                          label: Text(
+                            _currentQuestionIndex < _questions.length - 1
+                                ? LanguageService.instance.tr('next_btn')
+                                : LanguageService.instance.tr('finish_exam'),
+                            style: TextStyle(fontSize: btnFontSize, fontWeight: FontWeight.bold),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _currentQuestionIndex < _questions.length - 1 ? const Color(0xFF1E3A8A) : const Color(0xFFD97706),
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(horizontal: isCompact ? 8 : 14, vertical: isCompact ? 5 : 8),
+                            elevation: 1,
+                            minimumSize: Size.zero,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   /// Bottom-Center Pull-Up Drawer displaying all 40 questions in a clean horizontal grid
   void _openAllQuestionsDrawer() {
@@ -2781,7 +2916,7 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
   @override
   void initState() {
     super.initState();
-    OrientationService.forceLandscape();
+    OrientationService.unlockOrientation();
     _allQuestions = widget.mockSet?.questions ?? QuestionBankService.instance.getFull40ExamQuestions();
     _answerKeys = widget.mockSet?.answerKeys ?? QuestionBankService.instance.getAnswerKeys();
   }
@@ -2991,8 +3126,8 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
       }
     }
 
-    final screenWidth = MediaQuery.of(context).size.width;
-    final bool isMobile = screenWidth < 700;
+    final mediaQuery = MediaQuery.of(context);
+    final bool isMobile = mediaQuery.size.shortestSide < 600 || mediaQuery.size.width < 750;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),

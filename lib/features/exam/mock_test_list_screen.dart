@@ -480,7 +480,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
             style: TextStyle(fontSize: 13, color: Colors.grey.shade700, height: 1.4),
           ),
 
-          const Spacer(),
+          const SizedBox(height: 14),
 
           // Details Row: Questions, Time, Marks
           Container(
