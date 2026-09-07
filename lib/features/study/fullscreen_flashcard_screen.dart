@@ -6,7 +6,6 @@ import '../../core/services/language_service.dart';
 import '../../core/services/study_material_service.dart';
 import '../../core/services/korean_tts_service.dart';
 import '../../core/services/audio_playback_service.dart';
-import '../../core/services/file_upload_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
 
 /// Immersive Fullscreen Flashcard Learning Screen
@@ -192,121 +191,6 @@ class _FullscreenFlashcardScreenState extends State<FullscreenFlashcardScreen> {
           ),
         ),
         duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  void _showAttachAudioDialog(VisualFlashcard card) {
-    final urlCtrl = TextEditingController(text: card.audioUrl ?? '');
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Row(
-            children: [
-              const Icon(Icons.audiotrack, color: Color(0xFF1E3A8A)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  LanguageService.instance.trText(
-                    ne: '${card.koreanWord} - अडियो जोड्नुहोस्',
-                    en: '${card.koreanWord} - Attach Audio',
-                    ko: '${card.koreanWord} - 음원 첨부',
-                  ),
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                LanguageService.instance.trText(
-                  ne: 'यस शब्दका लागि मोबाइल/कम्प्युटरबाट MP3 अडियो फाइल रोज्नुहोस्:',
-                  en: 'Select MP3 audio for this word from your device:',
-                  ko: '이 단어의 MP3 음원을 기기에서 선택하세요:',
-                ),
-                style: const TextStyle(fontSize: 13, color: Colors.black87),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal.shade700,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                ),
-                onPressed: () async {
-                  final file = await FileUploadService.instance.pickAudioFile();
-                  if (file != null) {
-                    setDialogState(() {
-                      urlCtrl.text = file.dataUrl;
-                    });
-                  }
-                },
-                icon: const Icon(Icons.audio_file, size: 18),
-                label: Text(
-                  urlCtrl.text.isEmpty
-                      ? (LanguageService.instance.isEnglish
-                          ? '📁 Pick Audio from device'
-                          : (LanguageService.instance.isKorean ? '📁 기기에서 오디오 선택' : '📁 डिभाइसबाट सिधै अडियो रोज्नुहोस्'))
-                      : (LanguageService.instance.isEnglish
-                          ? 'Audio loaded ✅'
-                          : (LanguageService.instance.isKorean ? '오디오 로드 완료 ✅' : 'अडियो लोड भयो ✅')),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: urlCtrl,
-                decoration: InputDecoration(
-                  labelText: LanguageService.instance.isEnglish
-                      ? 'Or enter audio URL'
-                      : (LanguageService.instance.isKorean ? '또는 오디오 링크 입력' : 'वा अडियो लिङ्क राख्नुहोस्'),
-                  hintText: 'https://hrd.go.kr/audio/word.mp3',
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.link),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(LanguageService.instance.tr('cancel')),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
-              onPressed: () {
-                final newUrl = urlCtrl.text.trim();
-                if (newUrl.isNotEmpty) {
-                  final updated = VisualFlashcard(
-                    id: card.id,
-                    koreanWord: card.koreanWord,
-                    pronunciation: card.pronunciation,
-                    nepaliMeaning: card.nepaliMeaning,
-                    chapterNo: card.chapterNo,
-                    chapterTitle: card.chapterTitle,
-                    topic: card.topic,
-                    visualIcon: card.visualIcon,
-                    exampleSentence: card.exampleSentence,
-                    isMastered: card.isMastered,
-                    audioUrl: newUrl,
-                  );
-                  StudyMaterialService.instance.deleteVisualFlashcard(card.id);
-                  StudyMaterialService.instance.addVisualFlashcard(updated);
-                  setState(() {
-                    final idx = _deck.indexWhere((c) => c.id == card.id);
-                    if (idx >= 0) _deck[idx] = updated;
-                  });
-                }
-                Navigator.pop(ctx);
-              },
-              child: Text(LanguageService.instance.trText(ne: 'अडियो सेभ गर्नुहोस्', en: 'Save Audio', ko: '오디오 저장')),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -745,20 +629,27 @@ class _FullscreenFlashcardScreenState extends State<FullscreenFlashcardScreen> {
                 runSpacing: 6,
                 alignment: WrapAlignment.center,
                 children: [
-                  // Korean Normal TTS
+                  // 1. Korean Native Pronunciation Button
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1E3A8A),
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
                     onPressed: () => KoreanTtsService.instance.speakKorean(card.koreanWord),
                     icon: const Icon(Icons.volume_up, size: 16),
-                    label: Text(LanguageService.instance.trText(ne: '🔊 उच्चारण', en: '🔊 Speak', ko: '🔊 발음 듣기'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                    label: Text(
+                      LanguageService.instance.trText(
+                        ne: '🔊 उच्चारण सुन्नुहोस्',
+                        en: '🔊 Listen',
+                        ko: '🔊 발음 듣기',
+                      ),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    ),
                   ),
 
-                  // Slow Speech 0.7x TTS
+                  // 2. Slow Speed Pronunciation
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFF1E3A8A),
@@ -766,44 +657,38 @@ class _FullscreenFlashcardScreenState extends State<FullscreenFlashcardScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
-                    onPressed: () {
-                      // Slow TTS
-                      KoreanTtsService.instance.speakKorean(card.koreanWord);
-                    },
+                    onPressed: () => KoreanTtsService.instance.speakKorean(card.koreanWord),
                     icon: const Icon(Icons.speed, size: 15),
-                    label: Text(LanguageService.instance.trText(ne: '🐢 बिस्तारै', en: '🐢 Slow', ko: '🐢 느리게'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                  ),
-
-                  // Custom MP3 Audio if attached
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: (card.audioUrl != null && card.audioUrl!.isNotEmpty)
-                          ? Colors.teal.shade700
-                          : Colors.blueGrey.shade700,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    ),
-                    onPressed: () {
-                      if (card.audioUrl != null && card.audioUrl!.isNotEmpty) {
-                        AudioPlaybackService.instance.playAudioUrl(card.audioUrl!);
-                      } else {
-                        _showAttachAudioDialog(card);
-                      }
-                    },
-                    icon: Icon(
-                      (card.audioUrl != null && card.audioUrl!.isNotEmpty)
-                          ? Icons.play_circle_filled
-                          : Icons.upload_file,
-                      size: 16,
-                    ),
                     label: Text(
-                      (card.audioUrl != null && card.audioUrl!.isNotEmpty)
-                          ? LanguageService.instance.trText(ne: '🎵 आफ्नै MP3', en: '🎵 Custom MP3', ko: '🎵 내 음원')
-                          : LanguageService.instance.trText(ne: '🎵 अडियो थप्नुहोस्', en: '🎵 Add Audio', ko: '🎵 오디오 추가'),
+                      LanguageService.instance.trText(
+                        ne: '🐢 बिस्तारै',
+                        en: '🐢 Slow',
+                        ko: '🐢 느리게',
+                      ),
                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                   ),
+
+                  // 3. Official Textbook MP3 if present
+                  if (card.audioUrl != null && card.audioUrl!.isNotEmpty)
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal.shade700,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                      onPressed: () => AudioPlaybackService.instance.playAudioUrl(card.audioUrl!),
+                      icon: const Icon(Icons.play_circle_filled, size: 16),
+                      label: Text(
+                        LanguageService.instance.trText(
+                          ne: '🎧 पाठ्यपुस्तक अडियो',
+                          en: '🎧 Textbook Audio',
+                          ko: '🎧 교재 음원',
+                        ),
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                 ],
               ),
               const SizedBox(height: 6),
