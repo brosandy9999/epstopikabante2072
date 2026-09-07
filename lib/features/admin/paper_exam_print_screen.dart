@@ -32,6 +32,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
   late Map<String, String> _questionQrCodes;
   String? _listeningSectionQrUrl;
 
+  // Image scaling & chart customization for PBT PDF booklet
+  double _imageScale = 1.0;
+  bool _autoEnlargeCharts = true;
+  final Map<int, bool> _customChartOverrides = {};
+
   @override
   void initState() {
     super.initState();
@@ -75,6 +80,9 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       _currentSet,
       customQrCodes: _questionQrCodes,
       customSectionQr: _listeningSectionQrUrl,
+      imageScale: _imageScale,
+      autoEnlargeCharts: _autoEnlargeCharts,
+      customChartOverrides: _customChartOverrides,
     );
     printExamHtml(htmlContent);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -101,6 +109,9 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       _currentSet,
       customQrCodes: _questionQrCodes,
       customSectionQr: _listeningSectionQrUrl,
+      imageScale: _imageScale,
+      autoEnlargeCharts: _autoEnlargeCharts,
+      customChartOverrides: _customChartOverrides,
     );
     openExamInNewTab(htmlContent);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -598,6 +609,316 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     );
   }
 
+  Future<void> _openImageSizeDialog() async {
+    double tempScale = _imageScale;
+    bool tempAutoEnlarge = _autoEnlargeCharts;
+    final tempOverrides = Map<int, bool>.from(_customChartOverrides);
+
+    // Identify candidate questions (Q5-Q10 or chart/notice keywords)
+    final allQs = _currentSet.questions;
+    final candidateIndices = <int>[];
+    for (int i = 0; i < allQs.length && i < 20; i++) {
+      final qNo = i + 1;
+      if (PaperExamHtmlBuilder.isChartOrNoticeQuestion(qNo, allQs[i])) {
+        candidateIndices.add(qNo);
+      }
+    }
+
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setModalState) {
+            return Dialog(
+              backgroundColor: const Color(0xFF1E293B),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 620, maxHeight: 680),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0D9488),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.photo_size_select_large, color: Colors.white, size: 22),
+                            ),
+                            const SizedBox(width: 12),
+                            const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '🖼️ फोटो / चित्रको साइज समायोजन',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                Text(
+                                  'Image Scaling & Chart Settings (PBT PDF)',
+                                  style: TextStyle(color: Colors.white60, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                    const Divider(color: Colors.white24, height: 24),
+
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 1. Chart / Notice Enlarge Switch
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0F172A),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: const Color(0xFF334155)),
+                              ),
+                              child: SwitchListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text(
+                                  '📊 पाईचार्ट / नोटिस बोर्ड ठूलो देखाउने',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                                subtitle: const Padding(
+                                  padding: EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    'Q5–Q10, प्रतिशत, ग्राफ र सूचना पाटी भएका चित्रहरूलाई साइड-बाइ-साइड नराखी पुरै चौडाइमा ठूलो र स्पष्ट देखाउँछ।',
+                                    style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.35),
+                                  ),
+                                ),
+                                value: tempAutoEnlarge,
+                                activeThumbColor: const Color(0xFF0D9488),
+                                onChanged: (val) {
+                                  setModalState(() => tempAutoEnlarge = val);
+                                },
+                              ),
+                            ),
+
+                            const SizedBox(height: 18),
+
+                            // 2. Global Scale Presets
+                            const Text(
+                              '🎯 फोटोको समग्र साइज (Overall Image Scale)',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.5),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'PDF मा सम्पूर्ण फोटोहरूको आकार प्रतिशतमा घटबढ गर्नुहोस्:',
+                              style: TextStyle(color: Colors.grey.shade400, fontSize: 11.5),
+                            ),
+                            const SizedBox(height: 10),
+
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                _presetChip('८५% (सानो)', 0.85, tempScale, (v) => setModalState(() => tempScale = v)),
+                                _presetChip('१००% (सामान्य)', 1.0, tempScale, (v) => setModalState(() => tempScale = v)),
+                                _presetChip('११५% (सिफारिस)', 1.15, tempScale, (v) => setModalState(() => tempScale = v)),
+                                _presetChip('१३०% (ठूलो)', 1.30, tempScale, (v) => setModalState(() => tempScale = v)),
+                                _presetChip('१४५% (धेरै ठूलो)', 1.45, tempScale, (v) => setModalState(() => tempScale = v)),
+                              ],
+                            ),
+
+                            const SizedBox(height: 14),
+
+                            // Slider with live percentage
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0F172A),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.photo_size_select_small, color: Colors.white70, size: 20),
+                                  Expanded(
+                                    child: Slider(
+                                      value: tempScale,
+                                      min: 0.70,
+                                      max: 1.50,
+                                      divisions: 16,
+                                      activeColor: const Color(0xFF0D9488),
+                                      inactiveColor: Colors.grey.shade700,
+                                      onChanged: (val) {
+                                        setModalState(() => tempScale = double.parse(val.toStringAsFixed(2)));
+                                      },
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 58,
+                                    alignment: Alignment.center,
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0D9488),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      '${(tempScale * 100).round()}%',
+                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            if (candidateIndices.isNotEmpty) ...[
+                              const SizedBox(height: 18),
+                              const Text(
+                                '⚙️ प्रश्न अनुसार पाईचार्ट / ग्राफ लेआउट नियन्त्रण (Per-Question)',
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                'विशेष प्रश्नलाई ठूलो चार्ट बक्स वा सानो साइड-बाइ-साइड बक्समा राख्ने छनौट गर्नुहोस्:',
+                                style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                              ),
+                              const SizedBox(height: 8),
+                              ...candidateIndices.map((qNo) {
+                                final isEnlarged = tempOverrides[qNo] ?? tempAutoEnlarge;
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 6),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0F172A),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: Colors.white10),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'प्रश्न $qNo (Question $qNo)',
+                                        style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
+                                      ),
+                                      Row(
+                                        children: [
+                                          ChoiceChip(
+                                            label: const Text('ठूलो चार्ट', style: TextStyle(fontSize: 11)),
+                                            selected: isEnlarged,
+                                            selectedColor: const Color(0xFF0D9488),
+                                            labelStyle: TextStyle(color: isEnlarged ? Colors.white : Colors.white70),
+                                            onSelected: (_) {
+                                              setModalState(() => tempOverrides[qNo] = true);
+                                            },
+                                          ),
+                                          const SizedBox(width: 6),
+                                          ChoiceChip(
+                                            label: const Text('साइड-बाइ-साइड', style: TextStyle(fontSize: 11)),
+                                            selected: !isEnlarged,
+                                            selectedColor: const Color(0xFF475569),
+                                            labelStyle: TextStyle(color: !isEnlarged ? Colors.white : Colors.white70),
+                                            onSelected: (_) {
+                                              setModalState(() => tempOverrides[qNo] = false);
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const Divider(color: Colors.white24, height: 24),
+
+                    // Actions
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton.icon(
+                          icon: const Icon(Icons.refresh, size: 16, color: Colors.white70),
+                          label: const Text('डिफल्ट (100%) मा फर्काउनुहोस्', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          onPressed: () {
+                            setModalState(() {
+                              tempScale = 1.0;
+                              tempAutoEnlarge = true;
+                              tempOverrides.clear();
+                            });
+                          },
+                        ),
+                        Row(
+                          children: [
+                            TextButton(
+                              child: const Text('रद्द गर्नुहोस् (Cancel)', style: TextStyle(color: Colors.white60)),
+                              onPressed: () => Navigator.pop(ctx),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0D9488),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              icon: const Icon(Icons.check, size: 18),
+                              label: const Text('लागू गर्नुहोस् (Apply)', style: TextStyle(fontWeight: FontWeight.bold)),
+                              onPressed: () {
+                                setState(() {
+                                  _imageScale = tempScale;
+                                  _autoEnlargeCharts = tempAutoEnlarge;
+                                  _customChartOverrides
+                                    ..clear()
+                                    ..addAll(tempOverrides);
+                                });
+                                Navigator.pop(ctx);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('✅ फोटो साइज ${(_imageScale * 100).round()}% मा सेट गरियो। PDF र प्रिन्टमा लागू भएको छ।'),
+                                    backgroundColor: const Color(0xFF0D9488),
+                                    duration: const Duration(seconds: 3),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _presetChip(String label, double scaleVal, double currentScale, ValueChanged<double> onSelect) {
+    final isSelected = (currentScale - scaleVal).abs() < 0.03;
+    return ChoiceChip(
+      label: Text(label, style: TextStyle(fontSize: 11.5, color: isSelected ? Colors.white : Colors.white70, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+      selected: isSelected,
+      selectedColor: const Color(0xFF0D9488),
+      backgroundColor: const Color(0xFF0F172A),
+      side: BorderSide(color: isSelected ? const Color(0xFF0D9488) : Colors.white24),
+      onSelected: (_) => onSelect(scaleVal),
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // BUILD
   // ─────────────────────────────────────────────────────────────────────────
@@ -700,6 +1021,9 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       allQs,
       listeningStartIndex,
       hasSectionQr: _listeningSectionQrUrl != null && _listeningSectionQrUrl!.isNotEmpty,
+      imageScale: _imageScale,
+      autoEnlargeCharts: _autoEnlargeCharts,
+      customChartOverrides: _customChartOverrides,
     );
 
     return Scaffold(
@@ -728,6 +1052,20 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
           IconButton(icon: const Icon(Icons.zoom_in), tooltip: 'Zoom In',
               onPressed: () => setState(() => _zoomLevel = (_zoomLevel + 0.1).clamp(0.5, 1.4))),
           const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0D9488),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+              icon: const Icon(Icons.photo_size_select_large, size: 18),
+              label: Text('🖼️ फोटो साइज (${(_imageScale * 100).round()}%)',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              onPressed: _openImageSizeDialog,
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
             child: ElevatedButton.icon(
@@ -1240,7 +1578,12 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     else if (q is ListeningImageOptionsQuestion) { imgOpts = q.imageOptionPaths; }
 
     final bool hasImageOpts = imgOpts.isNotEmpty && imgOpts.any((x) => x != null && x.isNotEmpty);
-    final bool isSideBySide = (imgUrl != null && imgUrl.isNotEmpty && !hasImageOpts && (passage == null || passage.length <= 80));
+    final bool isChartCandidate = PaperExamHtmlBuilder.isChartOrNoticeQuestion(no, q);
+    final bool isChartNotice = (_customChartOverrides.containsKey(no))
+        ? _customChartOverrides[no]!
+        : (_autoEnlargeCharts && isChartCandidate);
+
+    final bool isSideBySide = !isChartNotice && (imgUrl != null && imgUrl.isNotEmpty && !hasImageOpts && (passage == null || passage.length <= 80));
     final bool hasMaterial = (passage != null && passage.isNotEmpty) ||
         (imgUrl != null && imgUrl.isNotEmpty);
 
@@ -1310,8 +1653,8 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
               children: [
                 // Left Column: Picture Box
                 Container(
-                  width: 240,
-                  constraints: const BoxConstraints(maxHeight: 110),
+                  width: (240 * _imageScale).clamp(180.0, 320.0),
+                  constraints: BoxConstraints(maxHeight: (110 * _imageScale).clamp(70.0, 180.0)),
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: const Color(0xFFF9FAFB),
@@ -1331,7 +1674,10 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                       ],
                       Flexible(
                         child: Container(
-                          constraints: const BoxConstraints(maxHeight: 95, maxWidth: 225),
+                          constraints: BoxConstraints(
+                            maxHeight: (95 * _imageScale).clamp(60.0, 160.0),
+                            maxWidth: (225 * _imageScale).clamp(150.0, 300.0),
+                          ),
                           child: SmartImageWidget(imageSource: imgUrl, fit: BoxFit.contain),
                         ),
                       ),
@@ -1349,59 +1695,105 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
         ] else ...[
           // ── Standard Stacked Layout: Material on Top, Options Below ──
           if (hasMaterial) ...[
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(left: 36, top: 6, bottom: 4),
-              padding: EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: isSingleWord ? 11 : 8,
-              ),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF9FAFB),
-                border: Border.all(color: Colors.black87, width: 1.2),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Column(
-                crossAxisAlignment: isSingleWord ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-                children: [
-                  // Paragraph / Passage / Words
-                  if (passage != null && passage.isNotEmpty)
-                    isSingleWord
-                        ? Center(
-                            child: Text(
-                              passage,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                                letterSpacing: 0.5,
-                              ),
-                            ),
-                          )
-                        : Text(
-                            passage,
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(
-                              fontSize: 12.5,
-                              height: 1.55,
-                              color: Colors.black87,
-                            ),
-                          ),
-
-                  // Image inside rounded border box
-                  if (imgUrl != null && imgUrl.isNotEmpty) ...[
-                    if (passage != null && passage.isNotEmpty) const SizedBox(height: 6),
+            if (isChartNotice && imgUrl != null && imgUrl.isNotEmpty) ...[
+              // Dedicated full-width chart / notice box
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(left: 36, top: 6, bottom: 4),
+                padding: EdgeInsets.symmetric(
+                  horizontal: (12 * _imageScale).clamp(8.0, 20.0),
+                  vertical: (8 * _imageScale).clamp(6.0, 16.0),
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFAFAFA),
+                  border: Border.all(color: Colors.black87, width: 1.2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    if (passage != null && passage.isNotEmpty) ...[
+                      Text(
+                        passage,
+                        textAlign: TextAlign.left,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          height: 1.5,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                    ],
                     Center(
                       child: Container(
-                        constraints: const BoxConstraints(maxHeight: 110, maxWidth: 280),
+                        constraints: BoxConstraints(
+                          maxHeight: (165 * _imageScale).clamp(100.0, 260.0),
+                          maxWidth: (480 * _imageScale).clamp(280.0, 640.0),
+                        ),
                         child: SmartImageWidget(imageSource: imgUrl, fit: BoxFit.contain),
                       ),
                     ),
                   ],
-                ],
+                ),
               ),
-            ),
+            ] else ...[
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(left: 36, top: 6, bottom: 4),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: isSingleWord ? 11 : 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FAFB),
+                  border: Border.all(color: Colors.black87, width: 1.2),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Column(
+                  crossAxisAlignment: isSingleWord ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                  children: [
+                    // Paragraph / Passage / Words
+                    if (passage != null && passage.isNotEmpty)
+                      isSingleWord
+                          ? Center(
+                              child: Text(
+                                passage,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              passage,
+                              textAlign: TextAlign.left,
+                              style: const TextStyle(
+                                fontSize: 12.5,
+                                height: 1.55,
+                                color: Colors.black87,
+                              ),
+                            ),
+
+                    // Image inside rounded border box
+                    if (imgUrl != null && imgUrl.isNotEmpty) ...[
+                      if (passage != null && passage.isNotEmpty) const SizedBox(height: 6),
+                      Center(
+                        child: Container(
+                          constraints: BoxConstraints(
+                            maxHeight: (110 * _imageScale).clamp(70.0, 200.0),
+                            maxWidth: (280 * _imageScale).clamp(180.0, 500.0),
+                          ),
+                          child: SmartImageWidget(imageSource: imgUrl, fit: BoxFit.contain),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
           ],
 
           const SizedBox(height: 4),
@@ -1419,7 +1811,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                   final img = i < imgOpts.length ? imgOpts[i] : null;
                   return Expanded(
                     child: Container(
-                      height: 85,
+                      height: (85 * _imageScale).clamp(60.0, 130.0),
                       margin: EdgeInsets.only(
                         left: i == 0 ? 0 : 4,
                         right: i == 3 ? 0 : 4,

@@ -3,10 +3,45 @@ import '../../core/models/mock_test_model.dart';
 import '../question_engine/question_template.dart';
 
 class PaperExamHtmlBuilder {
+  static bool isChartOrNoticeQuestion(int qNo, QuestionTemplate q) {
+    final text = q.questionText.toLowerCase();
+    const chartKeywords = [
+      '그래프', // graph
+      '도표', // chart / pie chart / diagram
+      '차트', // chart
+      '표지판', // signboard / notice
+      '안내문', // notice board / announcement
+      '영수증', // receipt
+      '광고', // advertisement
+      '표를', // table / schedule / ticket
+      '출입증', // badge
+      '기차표', // train ticket
+      '비행기표', // air ticket
+      '시간표', // timetable
+      '통계', // statistics
+      '비율', // percentage/ratio
+      '퍼센트', // percent
+      '%',
+    ];
+
+    for (final kw in chartKeywords) {
+      if (text.contains(kw)) return true;
+    }
+
+    if (qNo >= 5 && qNo <= 10) {
+      return true;
+    }
+
+    return false;
+  }
+
   static String buildExamHtml(
     MockTestSet testSet, {
     Map<String, String>? customQrCodes,
     String? customSectionQr,
+    double imageScale = 1.0,
+    bool autoEnlargeCharts = true,
+    Map<int, bool>? customChartOverrides,
   }) {
     final allQs = testSet.questions;
 
@@ -30,6 +65,9 @@ class PaperExamHtmlBuilder {
       allQs,
       listeningStartIndex,
       hasSectionQr: effectiveSectionQr != null && effectiveSectionQr.isNotEmpty,
+      imageScale: imageScale,
+      autoEnlargeCharts: autoEnlargeCharts,
+      customChartOverrides: customChartOverrides,
     );
 
     final institute = testSet.instituteName ?? 'Official Test Center';
@@ -255,9 +293,23 @@ class PaperExamHtmlBuilder {
       color: #1e293b;
       white-space: pre-line;
     }
+    .material-box.chart-box {
+      margin: 4px 0 6px 28px;
+      padding: 8px 12px;
+      text-align: center;
+      background: #ffffff;
+      border: 1.5px solid #1e3a8a;
+    }
     .material-box img {
-      max-height: 95px;
-      max-width: 240px;
+      max-height: ${(145 * imageScale).round()}px;
+      max-width: ${(460 * imageScale).clamp(260, 620).round()}px;
+      display: block;
+      margin: 4px auto;
+      object-fit: contain;
+    }
+    .material-box.chart-box img {
+      max-height: ${(165 * imageScale).round()}px;
+      max-width: ${(480 * imageScale).clamp(300, 640).round()}px;
       display: block;
       margin: 4px auto;
       object-fit: contain;
@@ -272,8 +324,8 @@ class PaperExamHtmlBuilder {
       margin-top: 4px;
     }
     .q-side-media {
-      flex: 0 0 250px;
-      max-width: 250px;
+      flex: 0 0 ${(240 * imageScale).clamp(190, 310).round()}px;
+      max-width: ${(260 * imageScale).clamp(210, 330).round()}px;
     }
     .q-side-media .material-box {
       margin: 0 !important;
@@ -282,12 +334,12 @@ class PaperExamHtmlBuilder {
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 85px;
+      min-height: ${(85 * imageScale).round()}px;
       background: #fafafa;
     }
     .q-side-media img {
-      max-height: 105px;
-      max-width: 235px;
+      max-height: ${(105 * imageScale).round()}px;
+      max-width: ${(235 * imageScale).round()}px;
       object-fit: contain;
       margin: 2px auto;
       display: block;
@@ -568,6 +620,9 @@ class PaperExamHtmlBuilder {
           isLastPage: (p == 6),
           qrCodes: customQrCodes,
           sectionQrUrl: customSectionQr,
+          imageScale: imageScale,
+          autoEnlargeCharts: autoEnlargeCharts,
+          customChartOverrides: customChartOverrides,
         ));
         currentQIndex += pageQs.length;
       }
@@ -671,6 +726,9 @@ class PaperExamHtmlBuilder {
     bool isLastPage = false,
     Map<String, String>? qrCodes,
     String? sectionQrUrl,
+    double imageScale = 1.0,
+    bool autoEnlargeCharts = true,
+    Map<int, bool>? customChartOverrides,
   }) {
     final effectiveSectionQr = sectionQrUrl ?? testSet.listeningSectionQrUrl;
 
@@ -748,7 +806,14 @@ class PaperExamHtmlBuilder {
         qQr = q.questionQrCodeUrl;
       }
 
-      sb.writeln(_buildSingleQuestionHtml(qNo, q, qrCodeUrl: qQr));
+      sb.writeln(_buildSingleQuestionHtml(
+        qNo,
+        q,
+        qrCodeUrl: qQr,
+        imageScale: imageScale,
+        autoEnlargeCharts: autoEnlargeCharts,
+        customChartOverrides: customChartOverrides,
+      ));
     }
     sb.writeln('</div>'); // questions-list
 
@@ -775,7 +840,14 @@ class PaperExamHtmlBuilder {
     return sb.toString();
   }
 
-  static String _buildSingleQuestionHtml(int no, QuestionTemplate q, {String? qrCodeUrl}) {
+  static String _buildSingleQuestionHtml(
+    int no,
+    QuestionTemplate q, {
+    String? qrCodeUrl,
+    double imageScale = 1.0,
+    bool autoEnlargeCharts = true,
+    Map<int, bool>? customChartOverrides,
+  }) {
     final rawText = q.questionText.trim();
     final (qText, passage) = _splitQuestionPrompt(rawText);
 
@@ -791,7 +863,10 @@ class PaperExamHtmlBuilder {
     else if (q is ListeningImageOptionsQuestion) { imgOpts = q.imageOptionPaths; }
 
     final bool hasImageOpts = imgOpts.isNotEmpty && imgOpts.any((x) => x != null && x.isNotEmpty);
-    final bool isSideBySide = (imgUrl != null && imgUrl.isNotEmpty && !hasImageOpts && (passage == null || passage.length <= 80));
+    final bool isChartNotice = (customChartOverrides != null && customChartOverrides[no] != null)
+        ? customChartOverrides[no]!
+        : (autoEnlargeCharts && isChartOrNoticeQuestion(no, q));
+    final bool isSideBySide = !isChartNotice && (imgUrl != null && imgUrl.isNotEmpty && !hasImageOpts && (passage == null || passage.length <= 80));
     final bool hasMaterial = (passage != null && passage.isNotEmpty) || (imgUrl != null && imgUrl.isNotEmpty);
 
     final bool isSingleWord = passage != null &&
@@ -836,9 +911,9 @@ class PaperExamHtmlBuilder {
       sb.writeln('</div>'); // q-side-options
       sb.writeln('</div>'); // q-side-row
     } else {
-      // ── Standard Stacked Layout: Material on Top, Options Below ──
+      // ── Standard Stacked Layout (Charts, Notice boards, Reading passages) ──
       if (hasMaterial) {
-        final boxClass = isSingleWord ? 'material-box single-word' : 'material-box paragraph';
+        final boxClass = isChartNotice ? 'material-box chart-box' : isSingleWord ? 'material-box single-word' : 'material-box paragraph';
         sb.writeln('<div class="$boxClass">');
         if (passage != null && passage.isNotEmpty) {
           sb.writeln(_esc(passage));
@@ -945,6 +1020,9 @@ class PaperExamHtmlBuilder {
     List<QuestionTemplate> questions,
     int listeningStartIndex, {
     bool hasSectionQr = false,
+    double imageScale = 1.0,
+    bool autoEnlargeCharts = true,
+    Map<int, bool>? customChartOverrides,
   }) {
     if (questions.isEmpty) {
       return List.generate(7, (_) => <QuestionTemplate>[]);
@@ -961,7 +1039,13 @@ class PaperExamHtmlBuilder {
     }
 
     final n = questions.length;
-    final heights = questions.map((q) => _estimateHeight(q)).toList();
+    final heights = questions.asMap().entries.map((e) => _estimateHeight(
+      e.value,
+      e.key + 1,
+      imageScale: imageScale,
+      autoEnlargeCharts: autoEnlargeCharts,
+      customChartOverrides: customChartOverrides,
+    )).toList();
 
     double pageCost(int i, int j, int p) {
       if (j <= i) return 1e9;
@@ -1030,7 +1114,13 @@ class PaperExamHtmlBuilder {
     return result;
   }
 
-  static double _estimateHeight(QuestionTemplate q) {
+  static double _estimateHeight(
+    QuestionTemplate q,
+    int qNo, {
+    double imageScale = 1.0,
+    bool autoEnlargeCharts = true,
+    Map<int, bool>? customChartOverrides,
+  }) {
     double h = 26.0;
     final rawText = q.questionText.trim();
     final (_, passage) = _splitQuestionPrompt(rawText);
@@ -1047,7 +1137,10 @@ class PaperExamHtmlBuilder {
     else if (q is ListeningImageOptionsQuestion) { imgOpts = q.imageOptionPaths; }
 
     final bool hasImageOpts = imgOpts.isNotEmpty && imgOpts.any((x) => x != null && x.isNotEmpty);
-    final bool isSideBySide = (imgUrl != null && imgUrl.isNotEmpty && !hasImageOpts && (passage == null || passage.length <= 80));
+    final bool isChartNotice = (customChartOverrides != null && customChartOverrides[qNo] != null)
+        ? customChartOverrides[qNo]!
+        : (autoEnlargeCharts && isChartOrNoticeQuestion(qNo, q));
+    final bool isSideBySide = !isChartNotice && (imgUrl != null && imgUrl.isNotEmpty && !hasImageOpts && (passage == null || passage.length <= 80));
 
     final cleaned = List.generate(4, (i) => i < textOpts.length ? textOpts[i].trim() : '');
     final hasNewlines = cleaned.any((o) => o.contains('\n'));
@@ -1055,7 +1148,8 @@ class PaperExamHtmlBuilder {
 
     if (isSideBySide) {
       double optionsH = (!hasNewlines && maxLen <= 8) ? 44.0 : 88.0;
-      h += (optionsH > 105.0 ? optionsH : 105.0) + 6.0;
+      final mediaH = 105.0 * imageScale;
+      h += (optionsH > mediaH ? optionsH : mediaH) + 6.0;
     } else {
       final bool hasMaterial = (passage != null && passage.isNotEmpty) || (imgUrl != null && imgUrl.isNotEmpty);
       if (hasMaterial) {
@@ -1065,12 +1159,12 @@ class PaperExamHtmlBuilder {
           h += lines * 16.0;
         }
         if (imgUrl != null && imgUrl.isNotEmpty) {
-          h += 95.0;
+          h += isChartNotice ? (145.0 * imageScale) : (95.0 * imageScale);
         }
       }
 
       if (hasImageOpts) {
-        h += 68.0;
+        h += 68.0 * imageScale;
       } else {
         if (!hasNewlines && maxLen <= 11) {
           h += 20.0;
