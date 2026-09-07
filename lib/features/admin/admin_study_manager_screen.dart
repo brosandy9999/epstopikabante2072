@@ -7,6 +7,7 @@ import '../../core/services/audio_playback_service.dart';
 import '../../core/services/file_upload_service.dart';
 import '../../core/services/cloud_sync_service.dart';
 import '../study/book_reader_screen.dart';
+import '../study/video_course_player_screen.dart';
 
 /// Admin Resources, Books, Dictionary & Notice Manager Screen
 /// Allows administrators to upload unlimited books (new/old editions),
@@ -872,20 +873,57 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, i) {
           final v = list[i];
+          final ytId = v.youtubeId;
           return Card(
             elevation: 1,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             child: ListTile(
-              leading: CircleAvatar(backgroundColor: Colors.teal.shade100, child: Icon(Icons.play_arrow, color: Colors.teal.shade900)),
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: v.thumbnailUrl.isNotEmpty
+                    ? Image.network(
+                        v.thumbnailUrl,
+                        width: 54,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 54,
+                          height: 40,
+                          color: Colors.teal.shade100,
+                          child: const Icon(Icons.play_arrow, color: Color(0xFF1E3A8A)),
+                        ),
+                      )
+                    : Container(
+                        width: 54,
+                        height: 40,
+                        color: Colors.teal.shade100,
+                        child: const Icon(Icons.play_arrow, color: Color(0xFF1E3A8A)),
+                      ),
+              ),
               title: Text(v.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-              subtitle: Text('${v.category} • ${v.duration} • ${v.instructor}'),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                onPressed: () {
-                  StudyMaterialService.instance.deleteVideo(v.id);
-                  setState(() {});
-                  CloudSyncService.instance.pushToCloud();
-                },
+              subtitle: Text('${v.category} • ${v.duration} • ${v.instructor}${ytId.isNotEmpty ? " • 📺 YouTube ID: $ytId" : ""}'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.play_circle_fill, color: Color(0xFF1E3A8A)),
+                    tooltip: 'प्लेयरमा खोलेर हेर्नुहोस्',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => VideoCoursePlayerScreen(course: v)),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () {
+                      StudyMaterialService.instance.deleteVideo(v.id);
+                      setState(() {});
+                      CloudSyncService.instance.pushToCloud();
+                    },
+                  ),
+                ],
               ),
             ),
           );
@@ -905,52 +943,126 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(LanguageService.instance.trText(ne: '🎥 नयाँ भिडियो क्लास थप्नुहोस्', en: '🎥 Add Video Class', ko: '🎥 새 동영상 강의 추가'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(controller: titleCtrl, decoration: InputDecoration(labelText: LanguageService.instance.trText(ne: 'भिडियो शीर्षक*', en: 'Video Title*', ko: '동영상 제목*'), border: const OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: urlCtrl, decoration: InputDecoration(labelText: LanguageService.instance.trText(ne: 'भिडियो लिङ्क / YouTube URL*', en: 'Video Link / YouTube URL*', ko: '동영상 링크 / YouTube URL*'), border: const OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: instCtrl, decoration: InputDecoration(labelText: LanguageService.instance.trText(ne: 'प्रशिक्षकको नाम', en: 'Instructor Name', ko: '강사명'), border: const OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: durCtrl, decoration: InputDecoration(labelText: LanguageService.instance.trText(ne: 'अवधि (जस्तै: २५ मिनेट)', en: 'Duration (e.g., 25 mins)', ko: '재생 시간 (예: 25분)'), border: const OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: catCtrl, decoration: InputDecoration(labelText: LanguageService.instance.trText(ne: 'वर्ग / श्रेणी', en: 'Category', ko: '분류/카테고리'), border: const OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: descCtrl, maxLines: 2, decoration: InputDecoration(labelText: LanguageService.instance.trText(ne: 'संक्षिप्त विवरण', en: 'Short Description', ko: '간단 설명'), border: const OutlineInputBorder())),
-              ],
+        builder: (context, setDialogState) {
+          final detectedYtId = extractYouTubeId(urlCtrl.text);
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Text(
+              LanguageService.instance.trText(ne: '🎥 नयाँ YouTube भिडियो क्लास थप्नुहोस्', en: '🎥 Add YouTube Video Class', ko: '🎥 새 유튜브 동영상 강의 추가'),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(LanguageService.instance.trText(ne: 'रद्द गर्नुहोस्', en: 'Cancel', ko: '취소'))),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.teal.shade800, foregroundColor: Colors.white),
-              onPressed: () {
-                if (titleCtrl.text.trim().isEmpty || urlCtrl.text.trim().isEmpty) return;
-                final newVideo = VideoCourse(
-                  id: 'vid_${DateTime.now().millisecondsSinceEpoch}',
-                  title: titleCtrl.text.trim(),
-                  instructor: instCtrl.text.trim(),
-                  duration: durCtrl.text.trim(),
-                  videoUrl: urlCtrl.text.trim(),
-                  category: catCtrl.text.trim().isEmpty ? 'पाठ्यपुस्तक भिडियो' : catCtrl.text.trim(),
-                  description: descCtrl.text.trim().isEmpty ? 'EPS-TOPIK अनलाइन भिडियो क्लास' : descCtrl.text.trim(),
-                  createdAt: DateTime.now(),
-                );
-                StudyMaterialService.instance.addVideo(newVideo);
-                Navigator.pop(ctx);
-                setState(() {});
-                CloudSyncService.instance.pushToCloud();
-              },
-              child: Text(LanguageService.instance.trText(ne: 'भिडियो क्लास सेभ गर्नुहोस्', en: 'Save Video Class', ko: '강의 저장')),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: titleCtrl,
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(ne: 'भिडियो शीर्षक*', en: 'Video Title*', ko: '동영상 제목*'),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: urlCtrl,
+                    onChanged: (val) => setDialogState(() {}),
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(
+                        ne: 'YouTube भिडियो लिङ्क / URL*',
+                        en: 'YouTube Video Link / URL*',
+                        ko: '유튜브 동영상 링크 / URL*',
+                      ),
+                      hintText: 'https://www.youtube.com/watch?v=... वा youtu.be/...',
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                  if (detectedYtId.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.teal.shade50,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.teal.shade300),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.check_circle, color: Colors.teal, size: 16),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'YouTube भिडियो ID: $detectedYtId (सुरक्षित प्लेयरमा सिफारिसहरू रोकिएर खुल्नेछ)',
+                              style: TextStyle(color: Colors.teal.shade900, fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: instCtrl,
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(ne: 'प्रशिक्षकको नाम', en: 'Instructor Name', ko: '강사명'),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: durCtrl,
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(ne: 'अवधि (जस्तै: २५ मिनेट)', en: 'Duration (e.g., 25 mins)', ko: '재생 시간 (예: 25분)'),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: catCtrl,
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(ne: 'वर्ग / श्रेणी', en: 'Category', ko: '분류/카테고리'),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: descCtrl,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      labelText: LanguageService.instance.trText(ne: 'संक्षिप्त विवरण', en: 'Short Description', ko: '간단 설명'),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: Text(LanguageService.instance.trText(ne: 'रद्द गर्नुहोस्', en: 'Cancel', ko: '취소'))),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal.shade800, foregroundColor: Colors.white),
+                onPressed: () {
+                  if (titleCtrl.text.trim().isEmpty || urlCtrl.text.trim().isEmpty) return;
+                  final newVideo = VideoCourse(
+                    id: 'vid_${DateTime.now().millisecondsSinceEpoch}',
+                    title: titleCtrl.text.trim(),
+                    instructor: instCtrl.text.trim(),
+                    duration: durCtrl.text.trim(),
+                    videoUrl: urlCtrl.text.trim(),
+                    category: catCtrl.text.trim().isEmpty ? 'पाठ्यपुस्तक भिडियो' : catCtrl.text.trim(),
+                    description: descCtrl.text.trim().isEmpty ? 'EPS-TOPIK अनलाइन भिडियो क्लास' : descCtrl.text.trim(),
+                    createdAt: DateTime.now(),
+                  );
+                  StudyMaterialService.instance.addVideo(newVideo);
+                  Navigator.pop(ctx);
+                  setState(() {});
+                  CloudSyncService.instance.pushToCloud();
+                },
+                child: Text(LanguageService.instance.trText(ne: 'भिडियो क्लास सेभ गर्नुहोस्', en: 'Save Video Class', ko: '강의 저장')),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

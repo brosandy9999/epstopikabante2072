@@ -9,6 +9,7 @@ import '../../core/services/audio_playback_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
 import 'book_reader_screen.dart';
 import 'fullscreen_flashcard_screen.dart';
+import 'video_course_player_screen.dart';
 
 /// Central Student Resources Screen (रिसोर्स सेक्सन)
 /// Features Unlimited Books, Korean-Nepali Dictionary, Visual Swipeable Flashcards with Audio & Chapters,
@@ -1228,65 +1229,182 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
   Widget _buildVideoCourseTab() {
     final videos = StudyMaterialService.instance.getAllVideos();
 
+    if (videos.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.video_library_outlined, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 12),
+            Text(
+              LanguageService.instance.trText(
+                ne: 'कुनै भिडियो पाठ भेटिएन।',
+                en: 'No video lessons available.',
+                ko: '등록된 동영상 강의가 없습니다.',
+              ),
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+            ),
+          ],
+        ),
+      );
+    }
+
     return ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       itemCount: videos.length,
       separatorBuilder: (_, __) => const SizedBox(height: 16),
       itemBuilder: (context, i) {
         final v = videos[i];
+        final lessons = v.effectiveLessons;
 
         return Card(
           elevation: 2,
+          clipBehavior: Clip.antiAlias,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          child: Padding(
-            padding: const EdgeInsets.all(18),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => VideoCoursePlayerScreen(course: v)),
+              );
+            },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Top Thumbnail Box with Play Overlay
                 Stack(
                   alignment: Alignment.center,
                   children: [
                     Container(
-                      height: 130,
+                      height: 160,
                       width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF0F172A), Color(0xFF1E3A8A)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      color: const Color(0xFF0F172A),
+                      child: v.thumbnailUrl.isNotEmpty
+                          ? Image.network(
+                              v.thumbnailUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: 160,
+                              errorBuilder: (_, __, ___) => Container(
+                                decoration: const BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [Color(0xFF0F172A), Color(0xFF1E3A8A)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Color(0xFF0F172A), Color(0xFF1E3A8A)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                            ),
+                    ),
+                    Container(
+                      height: 160,
+                      color: Colors.black38,
                     ),
                     Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        CircleAvatar(
-                          radius: 26,
-                          backgroundColor: Colors.white.withOpacity(0.9),
-                          child: const Icon(Icons.play_arrow_rounded, color: Color(0xFF1E3A8A), size: 34),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade600,
+                            shape: BoxShape.circle,
+                            boxShadow: const [
+                              BoxShadow(color: Colors.black45, blurRadius: 10),
+                            ],
+                          ),
+                          child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 36),
                         ),
                         const SizedBox(height: 8),
-                        Text(LanguageService.instance.trText(ne: 'भिडियो कक्षा (${v.duration})', en: 'Video Lesson (${v.duration})', ko: '동영상 강의 (${v.duration})'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.black87,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            LanguageService.instance.trText(
+                              ne: '🔒 युट्युब पाठ्यक्रम प्लेयर • ${lessons.length} वटा पाठ',
+                              en: '🔒 YouTube Course Player • ${lessons.length} Lessons',
+                              ko: '🔒 유튜브 집중 강의 • ${lessons.length}강',
+                            ),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                          ),
+                        ),
                       ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
-                      child: Text(v.category, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.teal.shade900)),
+                    Positioned(
+                      bottom: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.8),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '⏱️ ${v.duration}',
+                          style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                        ),
+                      ),
                     ),
-                    Text('⏱️ ${v.duration}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(v.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F172A))),
-                const SizedBox(height: 6),
-                Text(v.description, style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.black87)),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
+                            child: Text(v.category, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.teal.shade900)),
+                          ),
+                          Text('👨‍🏫 ${v.instructor}', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(v.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F172A))),
+                      const SizedBox(height: 6),
+                      Text(v.description, style: const TextStyle(fontSize: 13, height: 1.4, color: Colors.black87)),
+                      const SizedBox(height: 14),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1E3A8A),
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 40),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => VideoCoursePlayerScreen(course: v)),
+                          );
+                        },
+                        icon: const Icon(Icons.play_circle_fill, size: 18),
+                        label: Text(
+                          LanguageService.instance.trText(
+                            ne: 'भिडियो क्लास खोल्नुहोस् (सुरक्षित प्लेयर)',
+                            en: 'Open Video Class (Safe Player)',
+                            ko: '동영상 강의 시작 (집중 모드)',
+                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

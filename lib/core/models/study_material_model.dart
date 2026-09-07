@@ -205,6 +205,43 @@ class DictionaryWord {
       );
 }
 
+class CourseLesson {
+  final String id;
+  final String title;
+  final String videoUrl;
+  final String duration;
+  final String? summary;
+
+  const CourseLesson({
+    required this.id,
+    required this.title,
+    required this.videoUrl,
+    required this.duration,
+    this.summary,
+  });
+
+  String get youtubeId => extractYouTubeId(videoUrl);
+  String get thumbnailUrl => youtubeId.isNotEmpty
+      ? 'https://img.youtube.com/vi/$youtubeId/hqdefault.jpg'
+      : '';
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'videoUrl': videoUrl,
+        'duration': duration,
+        'summary': summary,
+      };
+
+  factory CourseLesson.fromJson(Map<String, dynamic> json) => CourseLesson(
+        id: json['id'] ?? '',
+        title: json['title'] ?? '',
+        videoUrl: json['videoUrl'] ?? '',
+        duration: json['duration'] ?? '',
+        summary: json['summary'],
+      );
+}
+
 class VideoCourse {
   final String id;
   final String title;
@@ -214,6 +251,7 @@ class VideoCourse {
   final String category;
   final String description;
   final bool isFree;
+  final List<CourseLesson> lessons;
   final DateTime createdAt;
 
   const VideoCourse({
@@ -225,8 +263,30 @@ class VideoCourse {
     required this.category,
     required this.description,
     this.isFree = true,
+    this.lessons = const [],
     required this.createdAt,
   });
+
+  String get youtubeId => extractYouTubeId(videoUrl);
+  String get thumbnailUrl => youtubeId.isNotEmpty
+      ? 'https://img.youtube.com/vi/$youtubeId/hqdefault.jpg'
+      : '';
+
+  List<CourseLesson> get effectiveLessons {
+    if (lessons.isNotEmpty) return lessons;
+    if (videoUrl.isNotEmpty) {
+      return [
+        CourseLesson(
+          id: '${id}_main',
+          title: title,
+          videoUrl: videoUrl,
+          duration: duration,
+          summary: description,
+        )
+      ];
+    }
+    return const [];
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -237,6 +297,7 @@ class VideoCourse {
         'category': category,
         'description': description,
         'isFree': isFree,
+        'lessons': lessons.map((l) => l.toJson()).toList(),
         'createdAt': createdAt.toIso8601String(),
       };
 
@@ -249,10 +310,50 @@ class VideoCourse {
         category: json['category'] ?? 'सामान्य',
         description: json['description'] ?? '',
         isFree: json['isFree'] ?? true,
+        lessons: (json['lessons'] as List<dynamic>?)
+                ?.map((item) => CourseLesson.fromJson(item as Map<String, dynamic>))
+                .toList() ??
+            const [],
         createdAt: json['createdAt'] != null
             ? DateTime.tryParse(json['createdAt']) ?? DateTime.now()
             : DateTime.now(),
       );
+}
+
+/// Helper function to reliably extract 11-char YouTube Video ID from any URL format
+String extractYouTubeId(String url) {
+  final clean = url.trim();
+  if (clean.isEmpty) return '';
+  if (clean.length == 11 && !clean.contains('/') && !clean.contains('?')) {
+    return clean;
+  }
+  final uri = Uri.tryParse(clean);
+  if (uri != null) {
+    if (uri.queryParameters.containsKey('v') && uri.queryParameters['v']!.isNotEmpty) {
+      return uri.queryParameters['v']!;
+    }
+    if (uri.host.contains('youtu.be') && uri.pathSegments.isNotEmpty) {
+      return uri.pathSegments.first;
+    }
+    if (uri.pathSegments.contains('embed')) {
+      final idx = uri.pathSegments.indexOf('embed');
+      if (idx + 1 < uri.pathSegments.length) {
+        return uri.pathSegments[idx + 1];
+      }
+    }
+    if (uri.pathSegments.contains('shorts')) {
+      final idx = uri.pathSegments.indexOf('shorts');
+      if (idx + 1 < uri.pathSegments.length) {
+        return uri.pathSegments[idx + 1];
+      }
+    }
+  }
+  final regExp = RegExp(
+    r'(?:https?:\/\/)?(?:www\.|m\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})',
+    caseSensitive: false,
+  );
+  final match = regExp.firstMatch(clean);
+  return match != null ? match.group(1) ?? '' : '';
 }
 
 /// Comprehensive Study Book supporting Unlimited Admin Uploads (old and new editions)
