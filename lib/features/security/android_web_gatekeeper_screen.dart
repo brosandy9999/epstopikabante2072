@@ -1,3 +1,4 @@
+import '../authentication/login_screen.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/language_service.dart';
 import '../../core/services/download_helper.dart';
@@ -522,6 +523,32 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                                 ),
                               );
                             },
+                          ),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        // Option to continue in web browser
+                        TextButton.icon(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            );
+                          },
+                          icon: const Icon(Icons.language_rounded, size: 16, color: Color(0xFF38BDF8)),
+                          label: Text(
+                            LanguageService.instance.trText(
+                              ne: '🌐 मोबाइल वेब ब्राउजरमै लगइन गर्नुहोस् (Continue in Web Browser)',
+                              en: '🌐 Continue in Web Browser (Web Login)',
+                              ko: '🌐 모바일 웹에서 계속하기 (웹 로그인)',
+                            ),
+                            style: const TextStyle(
+                              color: Color(0xFF38BDF8),
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                         ),
 
