@@ -3,7 +3,11 @@ import '../../core/models/mock_test_model.dart';
 import '../question_engine/question_template.dart';
 
 class PaperExamHtmlBuilder {
-  static String buildExamHtml(MockTestSet testSet) {
+  static String buildExamHtml(
+    MockTestSet testSet, {
+    Map<String, String>? customQrCodes,
+    String? customSectionQr,
+  }) {
     final allQs = testSet.questions;
     final reading = allQs.take(20).toList();
     final listening = allQs.skip(20).take(20).toList();
@@ -117,11 +121,18 @@ class PaperExamHtmlBuilder {
 
     /* Section Banner */
     .section-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       background: #1e3a8a;
       color: #ffffff;
       padding: 6px 12px;
       border-radius: 4px;
       margin-bottom: 10px;
+      gap: 12px;
+    }
+    .section-banner-content {
+      flex: 1;
     }
     .section-banner-title {
       font-size: 12px;
@@ -131,6 +142,28 @@ class PaperExamHtmlBuilder {
       font-size: 9.5px;
       opacity: 0.85;
       margin-top: 1px;
+    }
+    .section-banner-qr {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 3px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .section-banner-qr img {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+    }
+    .banner-qr-label {
+      font-size: 7.5px;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-top: 2px;
+      white-space: nowrap;
     }
 
     /* Questions container */
@@ -149,8 +182,15 @@ class PaperExamHtmlBuilder {
     }
     .q-title-row {
       display: flex;
+      justify-content: space-between;
       align-items: flex-start;
       gap: 6px;
+    }
+    .q-title-left {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      flex: 1;
     }
     .q-badge {
       background: #1e3a8a;
@@ -171,6 +211,29 @@ class PaperExamHtmlBuilder {
       font-weight: 700;
       line-height: 1.35;
       color: #0f172a;
+    }
+    .q-qr-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-left: 6px;
+    }
+    .q-qr-box img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+    }
+    .q-qr-label {
+      font-size: 7px;
+      font-weight: 700;
+      color: #1e3a8a;
+      margin-top: 1px;
+      white-space: nowrap;
     }
 
     /* Rounded corner rectangular border box */
@@ -466,13 +529,13 @@ class PaperExamHtmlBuilder {
     ${_buildQPageHtml(testSet, r4, r4Start, 5, institute)}
 
     <!-- PAGE 6: LISTENING 1 -->
-    ${_buildQPageHtml(testSet, l1, l1Start, 6, institute, isListeningStart: true)}
+    ${_buildQPageHtml(testSet, l1, l1Start, 6, institute, isListeningStart: true, qrCodes: customQrCodes, sectionQrUrl: customSectionQr)}
 
     <!-- PAGE 7: LISTENING 2 -->
-    ${_buildQPageHtml(testSet, l2, l2Start, 7, institute)}
+    ${_buildQPageHtml(testSet, l2, l2Start, 7, institute, qrCodes: customQrCodes)}
 
     <!-- PAGE 8: LISTENING 3 (LAST) -->
-    ${_buildQPageHtml(testSet, l3, l3Start, 8, institute, isLastPage: true)}
+    ${_buildQPageHtml(testSet, l3, l3Start, 8, institute, isLastPage: true, qrCodes: customQrCodes)}
   </div>
 
   <script>
@@ -570,10 +633,14 @@ class PaperExamHtmlBuilder {
     bool isReadingStart = false,
     bool isListeningStart = false,
     bool isLastPage = false,
+    Map<String, String>? qrCodes,
+    String? sectionQrUrl,
   }) {
     final sectionTitle = (isListeningStart || (!isReadingStart && startNumber > 20))
         ? '듣기 (Listening)'
         : '읽기 (Reading)';
+
+    final effectiveSectionQr = sectionQrUrl ?? testSet.listeningSectionQrUrl;
 
     final sb = StringBuffer();
     sb.writeln('<div class="pbt-page">');
@@ -591,15 +658,25 @@ class PaperExamHtmlBuilder {
     if (isReadingStart) {
       sb.writeln('''
         <div class="section-banner">
-          <div class="section-banner-title">읽기 영역 (Reading) : 1번 ~ 20번 / 50점</div>
-          <div class="section-banner-desc">아래 내용을 읽고 물음에 맞는 가장 알맞은 것을 ①②③④ 중에서 고르십시오.</div>
+          <div class="section-banner-content">
+            <div class="section-banner-title">읽기 영역 (Reading) : 1번 ~ 20번 / 50점</div>
+            <div class="section-banner-desc">아래 내용을 읽고 물음에 맞는 가장 알맞은 것을 ①②③④ 중에서 고르십시오.</div>
+          </div>
         </div>
       ''');
     } else if (isListeningStart) {
       sb.writeln('''
         <div class="section-banner">
-          <div class="section-banner-title">듣기 영역 (Listening) : 21번 ~ 40번 / 50점</div>
-          <div class="section-banner-desc">다음을 듣고 알맞은 것을 ①②③④ 중에서 고르십시오. (듣기 대본은 시험지에 제공되지 않습니다.)</div>
+          <div class="section-banner-content">
+            <div class="section-banner-title">듣기 영역 (Listening) : 21번 ~ 40번 / 50점</div>
+            <div class="section-banner-desc">다음을 듣고 알맞은 것을 ①②③④ 중에서 고르십시오. (듣기 대본은 시험지에 제공되지 않습니다.)</div>
+          </div>
+          ${effectiveSectionQr != null && effectiveSectionQr.isNotEmpty ? '''
+          <div class="section-banner-qr">
+            <img src="${_esc(effectiveSectionQr)}" alt="Full Audio QR" />
+            <span class="banner-qr-label">🎧 전체 듣기 (Full Audio)</span>
+          </div>
+          ''' : ''}
         </div>
       ''');
     }
@@ -609,7 +686,19 @@ class PaperExamHtmlBuilder {
     for (int i = 0; i < questions.length; i++) {
       final q = questions[i];
       final no = startNumber + i;
-      sb.writeln(_buildSingleQuestionHtml(no, q));
+
+      String? qQr;
+      if (qrCodes != null) {
+        qQr = qrCodes[q.questionId] ?? qrCodes['$no'];
+      }
+      if (qQr == null && testSet.listeningQrCodes != null) {
+        qQr = testSet.listeningQrCodes![q.questionId] ?? testSet.listeningQrCodes!['$no'];
+      }
+      if (qQr == null && q is UniversalQuestion && q.questionQrCodeUrl != null && q.questionQrCodeUrl!.isNotEmpty) {
+        qQr = q.questionQrCodeUrl;
+      }
+
+      sb.writeln(_buildSingleQuestionHtml(no, q, qrCodeUrl: qQr));
     }
     sb.writeln('</div>'); // questions-list
 
@@ -636,7 +725,7 @@ class PaperExamHtmlBuilder {
     return sb.toString();
   }
 
-  static String _buildSingleQuestionHtml(int no, QuestionTemplate q) {
+  static String _buildSingleQuestionHtml(int no, QuestionTemplate q, {String? qrCodeUrl}) {
     final rawText = q.questionText.trim();
     final (qText, passage) = _splitQuestionPrompt(rawText);
 
@@ -663,11 +752,19 @@ class PaperExamHtmlBuilder {
     final sb = StringBuffer();
     sb.writeln('<div class="q-item">');
 
-    // Title Row with badge
+    // Title Row with badge and optional listening QR code
     sb.writeln('''
       <div class="q-title-row">
-        <div class="q-badge">$no</div>
-        <div class="q-text">${_esc(qText)}</div>
+        <div class="q-title-left">
+          <div class="q-badge">$no</div>
+          <div class="q-text">${_esc(qText)}</div>
+        </div>
+        ${qrCodeUrl != null && qrCodeUrl.isNotEmpty ? '''
+        <div class="q-qr-box">
+          <img src="${_esc(qrCodeUrl)}" alt="QR $no" />
+          <span class="q-qr-label">🎧 듣기 QR</span>
+        </div>
+        ''' : ''}
       </div>
     ''');
 

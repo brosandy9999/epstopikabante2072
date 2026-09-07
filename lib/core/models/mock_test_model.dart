@@ -18,6 +18,8 @@ class MockTestSet {
   final bool isLiveExam;
   final String? liveExamDate;
   final bool isStrictMode;
+  final String? listeningSectionQrUrl;
+  final Map<String, String>? listeningQrCodes; // questionId or questionNumber (e.g. '21') -> qrCodeUrl/base64
 
   const MockTestSet({
     required this.id,
@@ -36,6 +38,8 @@ class MockTestSet {
     this.isLiveExam = false,
     this.liveExamDate,
     this.isStrictMode = true,
+    this.listeningSectionQrUrl,
+    this.listeningQrCodes,
   });
 
   int get readingQuestionCount =>
@@ -61,6 +65,8 @@ class MockTestSet {
     bool? isLiveExam,
     String? liveExamDate,
     bool? isStrictMode,
+    String? listeningSectionQrUrl,
+    Map<String, String>? listeningQrCodes,
   }) {
     return MockTestSet(
       id: id ?? this.id,
@@ -79,6 +85,8 @@ class MockTestSet {
       isLiveExam: isLiveExam ?? this.isLiveExam,
       liveExamDate: liveExamDate ?? this.liveExamDate,
       isStrictMode: isStrictMode ?? this.isStrictMode,
+      listeningSectionQrUrl: listeningSectionQrUrl ?? this.listeningSectionQrUrl,
+      listeningQrCodes: listeningQrCodes ?? this.listeningQrCodes,
     );
   }
 
@@ -97,6 +105,8 @@ class MockTestSet {
     'isLiveExam': isLiveExam,
     'liveExamDate': liveExamDate,
     'isStrictMode': isStrictMode,
+    'listeningSectionQrUrl': listeningSectionQrUrl,
+    'listeningQrCodes': listeningQrCodes,
     'questions': questions.asMap().entries.map((entry) {
       final idx = entry.key;
       final q = entry.value;
@@ -186,6 +196,16 @@ class MockTestSet {
       }
     });
 
+    Map<String, String>? parsedQrMap;
+    if (json['listeningQrCodes'] is Map) {
+      parsedQrMap = {};
+      (json['listeningQrCodes'] as Map).forEach((k, v) {
+        if (k != null && v != null) {
+          parsedQrMap![k.toString()] = v.toString();
+        }
+      });
+    }
+
     return MockTestSet(
       id: json['id'] as String? ?? 'set_custom',
       title: json['title'] as String? ?? 'नयाँ मोडल सेट',
@@ -201,6 +221,8 @@ class MockTestSet {
       isLiveExam: json['isLiveExam'] as bool? ?? false,
       liveExamDate: json['liveExamDate'] as String?,
       isStrictMode: json['isStrictMode'] as bool? ?? true,
+      listeningSectionQrUrl: json['listeningSectionQrUrl'] as String?,
+      listeningQrCodes: parsedQrMap,
       questions: parsedQ,
       answerKeys: parsedAns,
     );

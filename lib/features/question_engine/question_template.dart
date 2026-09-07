@@ -87,6 +87,7 @@ class UniversalQuestion extends QuestionTemplate {
   final bool isListening; // false: Reading (Q1-20), true: Listening (Q21-40)
   final String? questionImageUrl;
   final String? questionAudioUrl;
+  final String? questionQrCodeUrl; // Listening QR code image / data url
   final String? audioScript;
   final String? audioScriptNepali;
   final bool isAudioOnly;
@@ -102,6 +103,7 @@ class UniversalQuestion extends QuestionTemplate {
     required this.isListening,
     this.questionImageUrl,
     this.questionAudioUrl,
+    this.questionQrCodeUrl,
     this.audioScript,
     this.audioScriptNepali,
     this.isAudioOnly = false,
@@ -113,8 +115,41 @@ class UniversalQuestion extends QuestionTemplate {
 
   bool get hasQuestionImage => questionImageUrl != null && questionImageUrl!.trim().isNotEmpty;
   bool get hasQuestionAudio => questionAudioUrl != null && questionAudioUrl!.trim().isNotEmpty;
+  bool get hasQuestionQrCode => questionQrCodeUrl != null && questionQrCodeUrl!.trim().isNotEmpty;
   bool get hasOptionImages => imageOptions.any((img) => img != null && img.trim().isNotEmpty);
   bool get hasOptionAudios => audioOptions.any((aud) => aud != null && aud.trim().isNotEmpty);
+
+  UniversalQuestion copyWith({
+    String? questionId,
+    String? questionText,
+    int? questionNumber,
+    bool? isListening,
+    String? questionImageUrl,
+    String? questionAudioUrl,
+    String? questionQrCodeUrl,
+    String? audioScript,
+    String? audioScriptNepali,
+    bool? isAudioOnly,
+    List<String>? textOptions,
+    List<String?>? imageOptions,
+    List<String?>? audioOptions,
+  }) {
+    return UniversalQuestion(
+      questionId: questionId ?? this.questionId,
+      questionText: questionText ?? this.questionText,
+      questionNumber: questionNumber ?? this.questionNumber,
+      isListening: isListening ?? this.isListening,
+      questionImageUrl: questionImageUrl ?? this.questionImageUrl,
+      questionAudioUrl: questionAudioUrl ?? this.questionAudioUrl,
+      questionQrCodeUrl: questionQrCodeUrl ?? this.questionQrCodeUrl,
+      audioScript: audioScript ?? this.audioScript,
+      audioScriptNepali: audioScriptNepali ?? this.audioScriptNepali,
+      isAudioOnly: isAudioOnly ?? this.isAudioOnly,
+      textOptions: textOptions ?? this.textOptions,
+      imageOptions: imageOptions ?? this.imageOptions,
+      audioOptions: audioOptions ?? this.audioOptions,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     'type': 'UniversalQuestion',
@@ -124,6 +159,7 @@ class UniversalQuestion extends QuestionTemplate {
     'isListening': isListening,
     'questionImageUrl': questionImageUrl,
     'questionAudioUrl': questionAudioUrl,
+    'questionQrCodeUrl': questionQrCodeUrl,
     'audioScript': audioScript,
     'audioScriptNepali': audioScriptNepali,
     'isAudioOnly': isAudioOnly,
@@ -180,6 +216,7 @@ class UniversalQuestion extends QuestionTemplate {
       isListening: isListening,
       questionImageUrl: (json['questionImageUrl'] ?? json['imageAssetPath']) as String?,
       questionAudioUrl: (json['questionAudioUrl'] ?? json['audioAssetPath']) as String?,
+      questionQrCodeUrl: json['questionQrCodeUrl'] as String?,
       audioScript: json['audioScript'] as String?,
       audioScriptNepali: json['audioScriptNepali'] as String?,
       isAudioOnly: json['isAudioOnly'] as bool? ?? false,

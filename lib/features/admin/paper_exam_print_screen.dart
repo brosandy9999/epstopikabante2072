@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/models/mock_test_model.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/file_upload_web.dart';
+import '../../core/services/question_bank_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
 import '../question_engine/question_template.dart';
 import 'paper_exam_html_builder.dart';
@@ -26,6 +28,29 @@ class PaperExamPrintScreen extends StatefulWidget {
 class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
   double _zoomLevel = 1.0;
   final ScrollController _scrollController = ScrollController();
+  late MockTestSet _currentSet;
+  late Map<String, String> _questionQrCodes;
+  String? _listeningSectionQrUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentSet = widget.testSet;
+    _listeningSectionQrUrl = widget.testSet.listeningSectionQrUrl;
+    _questionQrCodes = Map<String, String>.from(widget.testSet.listeningQrCodes ?? {});
+
+    // Also check individual UniversalQuestion.questionQrCodeUrl
+    final qs = widget.testSet.questions;
+    for (int i = 20; i < qs.length && i < 40; i++) {
+      final q = qs[i];
+      final qNum = '${i + 1}';
+      if (!_questionQrCodes.containsKey(qNum) || _questionQrCodes[qNum]!.trim().isEmpty) {
+        if (q is UniversalQuestion && q.questionQrCodeUrl != null && q.questionQrCodeUrl!.trim().isNotEmpty) {
+          _questionQrCodes[qNum] = q.questionQrCodeUrl!.trim();
+        }
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -33,9 +58,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     super.dispose();
   }
 
+  int get _configuredQrCount => _questionQrCodes.values.where((v) => v.trim().isNotEmpty).length;
+
   void _triggerPrint() {
     final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
-    if (!isSuperAdmin && !widget.testSet.isApproved) {
+    if (!isSuperAdmin && !_currentSet.isApproved) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('🔒 सुपर एडमिनको स्वीकृति बिना यो प्रश्नपत्र डाउनलोड गर्न मिल्दैन।'),
@@ -44,7 +71,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       );
       return;
     }
-    final htmlContent = PaperExamHtmlBuilder.buildExamHtml(widget.testSet);
+    final htmlContent = PaperExamHtmlBuilder.buildExamHtml(
+      _currentSet,
+      customQrCodes: _questionQrCodes,
+      customSectionQr: _listeningSectionQrUrl,
+    );
     printExamHtml(htmlContent);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -57,7 +88,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
 
   void _openInNewTab() {
     final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
-    if (!isSuperAdmin && !widget.testSet.isApproved) {
+    if (!isSuperAdmin && !_currentSet.isApproved) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('🔒 सुपर एडमिनको स्वीकृति बिना यो प्रश्नपत्र खोल्न मिल्दैन।'),
@@ -66,7 +97,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       );
       return;
     }
-    final htmlContent = PaperExamHtmlBuilder.buildExamHtml(widget.testSet);
+    final htmlContent = PaperExamHtmlBuilder.buildExamHtml(
+      _currentSet,
+      customQrCodes: _questionQrCodes,
+      customSectionQr: _listeningSectionQrUrl,
+    );
     openExamInNewTab(htmlContent);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -77,13 +112,499 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     );
   }
 
+  Future<void> _openListeningQrManagerDialog() async {
+    final tempQrMap = Map<String, String>.from(_questionQrCodes);
+    String? tempSectionQr = _listeningSectionQrUrl;
+
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) {
+        return StatefulBuilder(
+          builder: (modalCtx, setModalState) {
+            final listeningQuestions = _currentSet.questions.skip(20).take(20).toList();
+            final count = tempQrMap.values.where((v) => v.trim().isNotEmpty).length;
+
+            return Dialog(
+              backgroundColor: const Color(0xFF0F172A),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Container(
+                width: 900,
+                height: 750,
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Header
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2563EB).withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFF2563EB), width: 1.5),
+                          ),
+                          child: const Icon(Icons.qr_code_2, color: Color(0xFF60A5FA), size: 28),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                '🎧 लिसनिङ अडियो QR कोड व्यवस्थापन (Listening Audio QR Manager)',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'PBT PDF मा प्रत्येक लिसनिङ प्रश्न (२१–४०) वा पेज ६ को ब्यानरमा अडियो सुन्न मिल्ने QR कोड फोटो पेस्ट वा अपलोड गर्नुहोस्।',
+                                style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E293B),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.5)),
+                          ),
+                          child: Text(
+                            'सेट भएका QR: $count / 20',
+                            style: const TextStyle(
+                              color: Color(0xFF60A5FA),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.pop(modalCtx),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    const Divider(color: Colors.white12, height: 1),
+                    const SizedBox(height: 16),
+
+                    // Scrollable content
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // ─── MASTER SECTION QR ───
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E293B),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFF334155)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.library_music, color: Color(0xFF38BDF8), size: 20),
+                                      const SizedBox(width: 8),
+                                      const Text(
+                                        '📢 समग्र लिसनिङ QR (Master Listening QR — Page 6 Banner)',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      if (tempSectionQr != null && tempSectionQr!.isNotEmpty) ...[
+                                        TextButton.icon(
+                                          style: TextButton.styleFrom(foregroundColor: const Color(0xFF38BDF8)),
+                                          icon: const Icon(Icons.copy_all, size: 16),
+                                          label: const Text('सबै प्रश्नमा (२१–४०) यही QR लागू गर्नुहोस्', style: TextStyle(fontSize: 11)),
+                                          onPressed: () {
+                                            for (int i = 21; i <= 40; i++) {
+                                              tempQrMap['$i'] = tempSectionQr!;
+                                            }
+                                            setModalState(() {});
+                                            if (mounted) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('✅ समग्र QR २१ देखि ४० सम्मका सबै प्रश्नमा कपी गरियो!'),
+                                                  backgroundColor: Color(0xFF16A34A),
+                                                  duration: Duration(seconds: 2),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                                          tooltip: 'समग्र QR हटाउनुहोस्',
+                                          onPressed: () => setModalState(() => tempSectionQr = null),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'यो QR कोड Page 6 को Listening ब्यानर दायाँपट्टी "전체 듣기 (Full Audio)" को रूपमा देखिनेछ।',
+                                    style: TextStyle(color: Colors.grey.shade400, fontSize: 11.5),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      // Preview box
+                                      Container(
+                                        width: 64,
+                                        height: 64,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(6),
+                                          border: Border.all(color: Colors.grey.shade600),
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: (tempSectionQr != null && tempSectionQr!.isNotEmpty)
+                                            ? SmartImageWidget(imageSource: tempSectionQr!, fit: BoxFit.contain)
+                                            : Icon(Icons.qr_code_2, color: Colors.grey.shade400, size: 36),
+                                      ),
+                                      const SizedBox(width: 14),
+                                      Expanded(
+                                        child: Wrap(
+                                          spacing: 10,
+                                          runSpacing: 8,
+                                          children: [
+                                            ElevatedButton.icon(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFF2563EB),
+                                                foregroundColor: Colors.white,
+                                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                              ),
+                                              icon: const Icon(Icons.content_paste, size: 16),
+                                              label: const Text('📋 क्लिपबोर्डबाट फोटो पेस्ट (Ctrl+V)', style: TextStyle(fontSize: 12)),
+                                              onPressed: () async {
+                                                final res = await FileUploadService.instance.pasteImageFromClipboard();
+                                                if (res != null && res.dataUrl.isNotEmpty) {
+                                                  setModalState(() => tempSectionQr = res.dataUrl);
+                                                } else {
+                                                  if (mounted) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text('⚠️ क्लिपबोर्डमा कुनै फोटो फेला परेन। पहिले QR फोटो Copy (Ctrl+C) गर्नुहोस्।'),
+                                                        backgroundColor: Colors.orange,
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+                                              },
+                                            ),
+                                            OutlinedButton.icon(
+                                              style: OutlinedButton.styleFrom(
+                                                foregroundColor: Colors.white,
+                                                side: const BorderSide(color: Colors.white38),
+                                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                              ),
+                                              icon: const Icon(Icons.upload_file, size: 16),
+                                              label: const Text('📁 फोटो छान्नुहोस् (Upload)', style: TextStyle(fontSize: 12)),
+                                              onPressed: () async {
+                                                final res = await FileUploadService.instance.pickImageFile();
+                                                if (res != null && res.dataUrl.isNotEmpty) {
+                                                  setModalState(() => tempSectionQr = res.dataUrl);
+                                                }
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+
+                            // ─── PER-QUESTION LISTENING QRs (Q21 to Q40) ───
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  '🎯 प्रत्येक लिसनिङ प्रश्नको QR कोड (Questions 21 – 40)',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  'प्रत्येक प्रश्नको आफ्नै QR भएमा सोही प्रश्नको टाइटल दायाँपट्टी प्रिन्ट हुनेछ।',
+                                  style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+
+                            ...List.generate(listeningQuestions.length, (idx) {
+                              final qNo = 21 + idx;
+                              final q = listeningQuestions[idx];
+                              final qNumStr = '$qNo';
+                              final currentQr = tempQrMap[qNumStr];
+                              final hasQr = currentQr != null && currentQr.trim().isNotEmpty;
+
+                              // Extract question title snippet
+                              String titleSnippet = q.questionText.trim();
+                              if (titleSnippet.contains('\n')) {
+                                titleSnippet = titleSnippet.split('\n').first.trim();
+                              }
+                              titleSnippet = titleSnippet.replaceFirst(RegExp(r'^\[?\d{1,2}\]?[.\s-]*'), '').trim();
+                              if (titleSnippet.length > 55) {
+                                titleSnippet = '${titleSnippet.substring(0, 52)}...';
+                              }
+
+                              final String? audioUrl = (q is UniversalQuestion)
+                                  ? q.questionAudioUrl
+                                  : (q is ListeningAudioQuestion)
+                                      ? q.audioAssetPath
+                                      : (q is ListeningImageOptionsQuestion)
+                                          ? q.audioAssetPath
+                                          : null;
+
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: hasQr ? const Color(0xFF1E293B) : const Color(0xFF141E33),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: hasQr ? const Color(0xFF2563EB).withValues(alpha: 0.6) : const Color(0xFF1E293B),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    // Question Number Badge
+                                    Container(
+                                      width: 34,
+                                      height: 34,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: hasQr ? const Color(0xFF1E3A8A) : const Color(0xFF334155),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        '$qNo',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+
+                                    // Snippet
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            titleSnippet,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12.5,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          if (audioUrl != null && audioUrl.isNotEmpty) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              '🎵 $audioUrl',
+                                              style: TextStyle(color: Colors.grey.shade400, fontSize: 10),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+
+                                    // QR Thumbnail preview
+                                    Container(
+                                      width: 44,
+                                      height: 44,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(color: hasQr ? Colors.blueAccent : Colors.grey.shade600),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: hasQr
+                                          ? SmartImageWidget(imageSource: currentQr, fit: BoxFit.contain)
+                                          : Icon(Icons.qr_code, color: Colors.grey.shade400, size: 24),
+                                    ),
+                                    const SizedBox(width: 10),
+
+                                    // Action buttons
+                                    // 1. Paste from clipboard
+                                    IconButton(
+                                      icon: const Icon(Icons.content_paste, size: 18, color: Color(0xFF60A5FA)),
+                                      tooltip: 'क्लिपबोर्डबाट फोटो पेस्ट (Ctrl+V)',
+                                      onPressed: () async {
+                                        final res = await FileUploadService.instance.pasteImageFromClipboard();
+                                        if (res != null && res.dataUrl.isNotEmpty) {
+                                          setModalState(() => tempQrMap[qNumStr] = res.dataUrl);
+                                        } else {
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('⚠️ Q$qNo को लागि क्लिपबोर्डमा कुनै फोटो फेला परेन। पहिले QR फोटो Copy (Ctrl+C) गर्नुहोस्।'),
+                                                backgroundColor: Colors.orange,
+                                              ),
+                                            );
+                                          }
+                                        }
+                                      },
+                                    ),
+                                    // 2. Upload file
+                                    IconButton(
+                                      icon: const Icon(Icons.upload_file, size: 18, color: Colors.white70),
+                                      tooltip: 'फोटो फाइल अपलोड गर्नुहोस्',
+                                      onPressed: () async {
+                                        final res = await FileUploadService.instance.pickImageFile();
+                                        if (res != null && res.dataUrl.isNotEmpty) {
+                                          setModalState(() => tempQrMap[qNumStr] = res.dataUrl);
+                                        }
+                                      },
+                                    ),
+                                    // 3. Auto generate QR if audioUrl exists
+                                    if (audioUrl != null && audioUrl.isNotEmpty)
+                                      IconButton(
+                                        icon: const Icon(Icons.auto_fix_high, size: 18, color: Color(0xFFFBBF24)),
+                                        tooltip: 'अडियो लिंकबाट स्वचालित QR कोड सिर्जना गर्नुहोस्',
+                                        onPressed: () {
+                                          final genUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${Uri.encodeComponent(audioUrl)}';
+                                          setModalState(() => tempQrMap[qNumStr] = genUrl);
+                                        },
+                                      ),
+                                    // 4. Delete
+                                    if (hasQr)
+                                      IconButton(
+                                        icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
+                                        tooltip: 'QR हटाउनुहोस्',
+                                        onPressed: () => setModalState(() => tempQrMap.remove(qNumStr)),
+                                      ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+                    const Divider(color: Colors.white12, height: 1),
+                    const SizedBox(height: 16),
+
+                    // Dialog Footer
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '💡 नोट: तपाईंले यहाँ थपेका QR कोडहरू सिधै PDF प्रिन्ट र प्रश्न सेटमा सुरक्षित हुनेछन्।',
+                          style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                        ),
+                        Row(
+                          children: [
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white70,
+                                side: const BorderSide(color: Colors.white24),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              ),
+                              onPressed: () => Navigator.pop(modalCtx),
+                              child: const Text('रद्द गर्नुहोस् (Cancel)'),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF16A34A),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              icon: const Icon(Icons.check, size: 18),
+                              label: const Text('💾 सुरक्षित गरी PDF मा लागू गर्नुहोस् (Save & Apply)',
+                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              onPressed: () {
+                                setState(() {
+                                  _questionQrCodes = tempQrMap;
+                                  _listeningSectionQrUrl = tempSectionQr;
+
+                                  // Update questions in _currentSet
+                                  final updatedQuestions = List<QuestionTemplate>.from(_currentSet.questions);
+                                  for (int i = 20; i < updatedQuestions.length && i < 40; i++) {
+                                    final qNumStr = '${i + 1}';
+                                    final qr = _questionQrCodes[qNumStr];
+                                    final orig = updatedQuestions[i];
+                                    if (orig is UniversalQuestion) {
+                                      updatedQuestions[i] = orig.copyWith(questionQrCodeUrl: qr ?? '');
+                                    }
+                                  }
+
+                                  _currentSet = _currentSet.copyWith(
+                                    listeningSectionQrUrl: _listeningSectionQrUrl,
+                                    listeningQrCodes: _questionQrCodes,
+                                    questions: updatedQuestions,
+                                  );
+                                });
+
+                                // Persist to QuestionBankService custom sets
+                                QuestionBankService.instance.updateMockSet(_currentSet);
+
+                                Navigator.pop(modalCtx);
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('✅ लिसनिङ QR कोडहरू सफलतापूर्वक सुरक्षित गरियो र PDF मा लागू भयो!'),
+                                    backgroundColor: Color(0xFF16A34A),
+                                    duration: Duration(seconds: 4),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // BUILD
   // ─────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
-    final isAllowed = isSuperAdmin || widget.testSet.isApproved;
+    final isAllowed = isSuperAdmin || _currentSet.isApproved;
 
     if (!isAllowed) {
       return Scaffold(
@@ -91,7 +612,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
         appBar: AppBar(
           backgroundColor: const Color(0xFF0F172A),
           foregroundColor: Colors.white,
-          title: Text(widget.testSet.title),
+          title: Text(_currentSet.title),
         ),
         body: Center(
           child: Container(
@@ -159,7 +680,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       );
     }
 
-    final allQs = widget.testSet.questions; // up to 40 questions
+    final allQs = _currentSet.questions; // up to 40 questions
     final reading  = allQs.take(20).toList();
     final listening = allQs.skip(20).take(20).toList();
 
@@ -195,7 +716,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${widget.testSet.title}  —  PBT Paper Exam (८ पृष्ठ)',
+            Text('${_currentSet.title}  —  PBT Paper Exam (८ पृष्ठ)',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
             const Text('Page 1: Cover  •  Pages 2–8: Questions (Single Column, HRD Style)',
                 style: TextStyle(fontSize: 10, color: Colors.white60)),
@@ -212,6 +733,20 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
           IconButton(icon: const Icon(Icons.zoom_in), tooltip: 'Zoom In',
               onPressed: () => setState(() => _zoomLevel = (_zoomLevel + 0.1).clamp(0.5, 1.4))),
           const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2563EB),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+              icon: const Icon(Icons.qr_code_2, size: 18),
+              label: Text('🎧 लिसनिङ QR ($_configuredQrCount/20)',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              onPressed: _openListeningQrManagerDialog,
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
             child: ElevatedButton.icon(
@@ -290,6 +825,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                   questions: l1,
                   startNumber: l1Start,
                   isListeningStart: true,
+                  listeningSectionQrUrl: _listeningSectionQrUrl,
                 )),
                 _gap,
 
@@ -561,7 +1097,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                   child: Text('- $pageNum -',
                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87)),
                 ),
-                Text(widget.testSet.instituteName ?? 'Official Test Center',
+                Text(_currentSet.instituteName ?? 'Official Test Center',
                     style: TextStyle(fontSize: 9, color: Colors.grey.shade500)),
               ],
             ),
@@ -576,7 +1112,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildPage1Cover() {
     final user = AuthService.instance.currentUser;
-    final instituteName = widget.testSet.instituteName ?? user?.instituteName ?? 'INSTITUTE NAME';
+    final instituteName = _currentSet.instituteName ?? user?.instituteName ?? 'INSTITUTE NAME';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -747,6 +1283,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     bool isReadingStart = false,
     bool isListeningStart = false,
     bool isLastPage = false,
+    String? listeningSectionQrUrl,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -761,16 +1298,24 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
               '아래 내용을 읽고 물음에 맞는 가장 알맞은 것을 ①②③④ 중에서 고르십시오. / Q1–Q20 सम्म पढेर सही उत्तर ①②③④ मा छान्नुहोस्।'),
           const SizedBox(height: 14),
         ] else if (isListeningStart) ...[
-          _sectionBanner('듣기 영역 (Listening)  :  21번 ~ 40번  /  50점',
-              '다음을 듣고 알맞은 것을 ①②③④ 중에서 고르십시오. / Q21–Q40 सम्म सुनेर सही उत्तर ①②③④ मा छान्नुहोस्।'),
+          _sectionBanner(
+            '듣기 영역 (Listening)  :  21번 ~ 40번  /  50점',
+            '다음을 듣고 알맞은 것을 ①②③④ 중에서 고르십시오. / Q21–Q40 सम्म सुनेर सही उत्तर ①②③④ मा छान्नुहोस्।',
+            qrUrl: listeningSectionQrUrl,
+          ),
           const SizedBox(height: 14),
         ],
 
         // Questions — single column, HRD style
-        ...questions.asMap().entries.map((e) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: _hrdQuestion(startNumber + e.key, e.value),
-        )),
+        ...questions.asMap().entries.map((e) {
+          final qNo = startNumber + e.key;
+          final qrUrl = _questionQrCodes['$qNo'] ??
+              ((e.value is UniversalQuestion) ? (e.value as UniversalQuestion).questionQrCodeUrl : null);
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 14),
+            child: _hrdQuestion(qNo, e.value, qrUrl: qrUrl),
+          );
+        }),
 
         // End of exam banner on last page
         if (isLastPage) ...[
@@ -798,7 +1343,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       padding: const EdgeInsets.only(bottom: 6),
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black87, width: 1.2))),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text('${widget.testSet.title}  •  $sectionTitle',
+        Text('${_currentSet.title}  •  $sectionTitle',
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
         const Text('EPS-TOPIK  PBT  지필 모의고사',
             style: TextStyle(fontSize: 11, color: Colors.black45)),
@@ -806,7 +1351,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     );
   }
 
-  Widget _sectionBanner(String title, String subtitle) {
+  Widget _sectionBanner(String title, String subtitle, {String? qrUrl}) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -814,11 +1359,40 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
         color: const Color(0xFF1E3A8A),
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
-        const SizedBox(height: 2),
-        Text(subtitle, style: const TextStyle(color: Colors.white70, fontSize: 10)),
-      ]),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13)),
+              const SizedBox(height: 2),
+              Text(subtitle, style: const TextStyle(color: Colors.white70, fontSize: 10)),
+            ]),
+          ),
+          if (qrUrl != null && qrUrl.isNotEmpty) ...[
+            const SizedBox(width: 12),
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: SmartImageWidget(imageSource: qrUrl, fit: BoxFit.contain),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text('🎧 전체 듣기',
+                      style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.black87)),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -826,7 +1400,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
   // HRD-STYLE SINGLE QUESTION WIDGET
   // Bold question title + rounded-border material box + options ①②③④
   // ─────────────────────────────────────────────────────────────────────────
-  Widget _hrdQuestion(int no, QuestionTemplate q) {
+  Widget _hrdQuestion(int no, QuestionTemplate q, {String? qrUrl}) {
     const nums = ['①', '②', '③', '④'];
 
     // Extract fields with smart prompt / passage / word splitting
@@ -858,7 +1432,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Question Number Badge + Bold Title ─────────────────────────
+        // ── Question Number Badge + Bold Title + QR Code (if available) ─────────────────────────
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           // Number badge
           Container(
@@ -881,6 +1455,28 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                   height: 1.35,
                 )),
           ),
+          if (qrUrl != null && qrUrl.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.black87, width: 1),
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  child: SmartImageWidget(imageSource: qrUrl, fit: BoxFit.contain),
+                ),
+                const SizedBox(height: 2),
+                const Text('🎧 듣기 QR',
+                    style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+              ],
+            ),
+          ],
         ]),
 
         // ── Rounded Corner Rectangular Border Box ─────────────────────

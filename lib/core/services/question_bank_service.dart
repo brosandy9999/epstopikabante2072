@@ -163,7 +163,7 @@ class QuestionBankService extends ChangeNotifier {
 
     return MockTestSet(
       id: randomId,
-      title: '제${uniqueNo}회 EPS-TOPIK 실전 무작위 모의고사',
+      title: '제$uniqueNo회 EPS-TOPIK 실전 무작위 모의고사',
       sector: '무작위 실전 (Random Blueprint)',
       description: 'आधिकारिक EPS-TOPIK ब्लुप्रिन्ट अनुसार प्रश्न बैंकबाट स्वचालित रूपमा छानिएका नयाँ ४० प्रश्नहरूको परीक्षा सेट।',
       questions: combinedQuestions,
@@ -321,13 +321,9 @@ class QuestionBankService extends ChangeNotifier {
     addOrUpdateMockSet(updatedSet);
   }
 
-  void _saveCustomSetsToStorage() {
-    _saveCustomSets();
-  }
-
   void loadFromStorage(List<Map<String, dynamic>> savedSets) {
     if (savedSets.isEmpty) return;
-    getAllMockSets(); // Ensure base sets are populated
+    _ensureCustomSetsLoaded();
     for (final map in savedSets) {
       final sId = map['id'] as String? ?? '';
       if (sId.isEmpty) continue;
@@ -341,77 +337,6 @@ class QuestionBankService extends ChangeNotifier {
     }
     _cachedSets = null;
     notifyListeners();
-  }
-
-  static Map<String, dynamic> _questionToJson(QuestionTemplate q, QuestionAnswerInfo? ans) {
-    final Map<String, dynamic> map;
-    if (q is UniversalQuestion) {
-      map = q.toJson();
-    } else if (q is ReadingTextQuestion) {
-      map = {
-        'type': 'UniversalQuestion',
-        'questionId': q.questionId,
-        'questionText': q.questionText,
-        'questionNumber': 1,
-        'isListening': false,
-        'textOptions': q.textOptions,
-      };
-    } else if (q is ReadingImageQuestion) {
-      map = {
-        'type': 'UniversalQuestion',
-        'questionId': q.questionId,
-        'questionText': q.questionText,
-        'questionNumber': 1,
-        'isListening': false,
-        'questionImageUrl': q.imageAssetPath,
-        'textOptions': q.textOptions,
-      };
-    } else if (q is ListeningAudioQuestion) {
-      map = {
-        'type': 'UniversalQuestion',
-        'questionId': q.questionId,
-        'questionText': q.questionText,
-        'questionNumber': 21,
-        'isListening': true,
-        'questionAudioUrl': q.audioAssetPath,
-        'textOptions': q.textOptions,
-        'audioScript': q.audioScript,
-        'audioScriptNepali': q.audioScriptNepali,
-      };
-    } else if (q is ListeningImageOptionsQuestion) {
-      map = {
-        'type': 'UniversalQuestion',
-        'questionId': q.questionId,
-        'questionText': q.questionText,
-        'questionNumber': 21,
-        'isListening': true,
-        'questionAudioUrl': q.audioAssetPath,
-        'imageOptions': q.imageOptionPaths,
-        'textOptions': const ['', '', '', ''],
-        'audioScript': q.audioScript,
-        'audioScriptNepali': q.audioScriptNepali,
-      };
-    } else {
-      map = {
-        'type': 'UniversalQuestion',
-        'questionId': q.questionId,
-        'questionText': q.questionText,
-        'textOptions': const ['', '', '', ''],
-      };
-    }
-
-    map['correctIndex'] = ans?.correctIndex ?? 0;
-    map['explanation'] = ans?.explanation ?? '';
-    return map;
-  }
-
-  static ({QuestionTemplate question, QuestionAnswerInfo answer}) _questionFromJson(Map<String, dynamic> json) {
-    final correctIndex = json['correctIndex'] as int? ?? 0;
-    final explanation = json['explanation'] as String? ?? '';
-    final ans = QuestionAnswerInfo(correctIndex: correctIndex, explanation: explanation);
-
-    final uq = UniversalQuestion.fromJson(json);
-    return (question: uq, answer: ans);
   }
 
   MockTestSet getMockSetById(String setId) {
@@ -890,6 +815,14 @@ class QuestionBankService extends ChangeNotifier {
   void deleteMockSet(String setId) {
     _ensureCustomSetsLoaded();
     _customSets.removeWhere((s) => s.id == setId);
+    _saveCustomSets();
+  }
+
+  /// Update entire mock test set (e.g. listening QR codes, metadata, questions)
+  void updateMockSet(MockTestSet updatedSet) {
+    _ensureCustomSetsLoaded();
+    _customSets.removeWhere((s) => s.id == updatedSet.id);
+    _customSets.add(updatedSet);
     _saveCustomSets();
   }
 }
