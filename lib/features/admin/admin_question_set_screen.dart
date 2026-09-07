@@ -582,12 +582,67 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                         const SizedBox(height: 6),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0F766E),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              ),
+                              onPressed: () async {
+                                final pasted = await FileUploadService.instance.pasteImageFromClipboard();
+                                if (pasted != null) {
+                                  setDialogState(() {
+                                    imgCtrl.text = pasted.bestUrl;
+                                  });
+                                  if (ctx.mounted) {
+                                    ScaffoldMessenger.of(ctx).showSnackBar(
+                                      SnackBar(
+                                        content: Text(LanguageService.instance.trText(
+                                          ne: '📋 क्लिपबोर्डबाट फोटो सफलतापूर्वक पेस्ट भयो!',
+                                          en: '📋 Image pasted successfully from clipboard!',
+                                          ko: '📋 클립보드에서 이미지를 붙여넣었습니다!',
+                                        )),
+                                        backgroundColor: const Color(0xFF0F766E),
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  if (ctx.mounted) {
+                                    ScaffoldMessenger.of(ctx).showSnackBar(
+                                      SnackBar(
+                                        content: Text(LanguageService.instance.trText(
+                                          ne: '⚠️ क्लिपबोर्डमा कुनै फोटो भेटिएन। पहिले Screenshot (Win+Shift+S) वा Copy गर्नुहोस्।',
+                                          en: '⚠️ No image in clipboard. Take a screenshot (Win+Shift+S) or Copy first.',
+                                          ko: '⚠️ 클립보드에 이미지가 없습니다. 먼저 캡처(Win+Shift+S)하거나 복사하세요.',
+                                        )),
+                                        backgroundColor: Colors.orange.shade800,
+                                        duration: const Duration(seconds: 3),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              icon: const Icon(Icons.content_paste_rounded, size: 16),
+                              label: Text(
+                                LanguageService.instance.trText(
+                                  ne: '📋 फोटो पेस्ट गर्नुहोस् (Ctrl+V)',
+                                  en: '📋 Paste Image (Ctrl+V)',
+                                  ko: '📋 이미지 붙여넣기',
+                                ),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ),
                             ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.blueGrey.shade800,
                                 foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               ),
                               onPressed: () async {
                                 final uploaded = await FileUploadService.instance.pickImageFile();
@@ -598,22 +653,19 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 }
                               },
                               icon: const Icon(Icons.cloud_upload, size: 16),
-                              label: Text(LanguageService.instance.trText(ne: 'तस्बिर अपलोड गर्नुहोस्', en: 'Upload Image', ko: '이미지 업로드')),
+                              label: Text(LanguageService.instance.trText(ne: 'फाइल छान्नुहोस्', en: 'Upload File', ko: '파일 업로드')),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                imgCtrl.text.isEmpty
-                                    ? LanguageService.instance.trText(ne: '(कुनै तस्बिर छैन)', en: '(No image selected)', ko: '(이미지 없음)')
-                                    : (imgCtrl.text.startsWith('data:image')
-                                        ? '🖼️ Base64 Image (${(imgCtrl.text.length / 1024).toStringAsFixed(1)} KB)'
-                                        : (imgCtrl.text.startsWith('https://firebasestorage')
-                                            ? '☁️ Firebase ✅'
-                                            : LanguageService.instance.trText(ne: 'तस्बिर लोड भयो ✅', en: 'Image Loaded ✅', ko: '이미지 로드됨 ✅'))),
-                              ),
+                            Text(
+                              imgCtrl.text.isEmpty
+                                  ? LanguageService.instance.trText(ne: '(कुनै तस्बिर छैन)', en: '(No image selected)', ko: '(이미지 없음)')
+                                  : (imgCtrl.text.startsWith('data:image')
+                                      ? '🖼️ Base64 (${(imgCtrl.text.length / 1024).toStringAsFixed(1)} KB)'
+                                      : (imgCtrl.text.startsWith('https://firebasestorage')
+                                          ? '☁️ Firebase ✅'
+                                          : LanguageService.instance.trText(ne: 'तस्बिर लोड भयो ✅', en: 'Image Loaded ✅', ko: '이미지 로드됨 ✅'))),
+                              style: TextStyle(fontSize: 11, color: Colors.grey.shade700, fontWeight: FontWeight.bold),
                             ),
                             if (imgCtrl.text.isNotEmpty) ...[
-                              const SizedBox(width: 8),
                               IconButton(
                                 icon: const Icon(Icons.delete_outline, color: Colors.red),
                                 tooltip: LanguageService.instance.trText(ne: 'तस्बिर हटाउनुहोस्', en: 'Remove image', ko: '이미지 제거'),
@@ -930,6 +982,19 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                             const SizedBox(height: 6),
                             Row(
                               children: [
+                                OutlinedButton.icon(
+                                  onPressed: () async {
+                                    final pasted = await FileUploadService.instance.pasteImageFromClipboard();
+                                    if (pasted != null) {
+                                      setDialogState(() {
+                                        optionImgCtrls[index].text = pasted.bestUrl;
+                                      });
+                                    }
+                                  },
+                                  icon: const Icon(Icons.content_paste_rounded, size: 14),
+                                  label: Text(LanguageService.instance.trText(ne: 'पेस्ट', en: 'Paste', ko: '붙여넣기'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                ),
+                                const SizedBox(width: 4),
                                 OutlinedButton.icon(
                                   onPressed: () async {
                                     final uploaded = await FileUploadService.instance.pickImageFile();

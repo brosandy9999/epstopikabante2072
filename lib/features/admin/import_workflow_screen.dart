@@ -830,6 +830,27 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
                                 foregroundColor: Colors.white,
                               ),
                             ),
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                final pasted = await FileUploadService.instance.pasteImageFromClipboard();
+                                if (pasted != null) {
+                                  setState(() {
+                                    _uploadedFile = pasted;
+                                    _validationError = null;
+                                  });
+                                } else {
+                                  setState(() {
+                                    _validationError = "क्लिपबोर्डमा कुनै तस्बिर भेटिएन। पहिले Screenshot वा Copy गर्नुहोस्।";
+                                  });
+                                }
+                              },
+                              icon: const Icon(Icons.content_paste_rounded, size: 18),
+                              label: const Text("📋 क्लिपबोर्डबाट फोटो पेस्ट (Ctrl+V)"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1E3A8A),
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
                           ],
                         ),
 

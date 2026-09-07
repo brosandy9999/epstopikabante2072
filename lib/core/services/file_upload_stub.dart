@@ -40,4 +40,8 @@ class FileUploadService {
   Future<UploadedFilePayload?> pickPdfFile() async {
     return null;
   }
+
+  Future<UploadedFilePayload?> pasteImageFromClipboard() async {
+    return null;
+  }
 }
