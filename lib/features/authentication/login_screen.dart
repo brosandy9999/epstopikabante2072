@@ -882,6 +882,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 10),
+              if (!kIsWeb)
               SizedBox(
                 width: double.infinity,
                 height: 40,
@@ -1017,7 +1018,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
 
-                if (kIsWeb)
+                if (!kIsWeb)  // Android app banner — mobile only
                   Container(
                     width: 440,
                     margin: const EdgeInsets.only(top: 6, bottom: 8),
@@ -1307,6 +1308,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 14),
 
                   // Explore App Features Link
+                  if (!kIsWeb)
                   InkWell(
                     onTap: () {
                       Navigator.push(

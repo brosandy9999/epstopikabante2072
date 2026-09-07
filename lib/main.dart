@@ -1,5 +1,4 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'features/security/android_web_gatekeeper_screen.dart';
+// android_web_gatekeeper_screen removed from startup — web now goes to LoginScreen directly
 import 'core/services/orientation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -92,7 +91,7 @@ class EpsTopikApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color(0xFFF3F4F6),
             useMaterial3: true,
           ),
-          home: kIsWeb ? const AndroidWebGatekeeperScreen() : const LoginScreen(),
+          home: const LoginScreen(), // web + mobile both go to login
         );
       },
     );
