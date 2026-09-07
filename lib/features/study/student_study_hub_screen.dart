@@ -317,48 +317,48 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                 final isFullDownloaded = OfflineDownloadService.instance.isBookDownloaded(b.id);
                 final downloadedCount = OfflineDownloadService.instance.getDownloadedChaptersCount(b.id);
 
-                return Column(
+                return Row(
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1E3A8A),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 11),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                            ),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => BookReaderScreen(book: b)),
-                              );
-                            },
-                            icon: const Icon(Icons.chrome_reader_mode, size: 18),
-                            label: Text(LanguageService.instance.trText(ne: 'अडियोसहित पुस्तक खोल्नुहोस्', en: 'Open Book with Audio', ko: '오디오 포함 교재 열기')),
-                          ),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1E3A8A),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 11),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
-                        const SizedBox(width: 8),
-                        OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: (isFullDownloaded || downloadedCount > 0) ? Colors.green.shade700 : const Color(0xFF0F766E),
-                            side: BorderSide(color: (isFullDownloaded || downloadedCount > 0) ? Colors.green : const Color(0xFF0F766E)),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 11),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
-                          onPressed: () => _showBookChaptersDownloadModal(b),
-                          icon: Icon((isFullDownloaded || downloadedCount > 0) ? Icons.offline_pin : Icons.download_for_offline_outlined, size: 18),
-                          label: Text(
-                            isFullDownloaded
-                                ? LanguageService.instance.trText(ne: '✅ पूरै पुस्तक सेभ', en: '✅ Full Book Saved', ko: '✅ 전체 저장됨')
-                                : (downloadedCount > 0
-                                    ? LanguageService.instance.trText(ne: '✅ $downloadedCount अध्याय सेभ', en: '✅ $downloadedCount Chaps Saved', ko: '✅ $downloadedCount개 단원 저장됨')
-                                    : LanguageService.instance.trText(ne: '⬇️ अध्यायगत डाउनलोड', en: '⬇️ Chapter Downloads', ko: '⬇️ 단원별 다운로드')),
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => BookReaderScreen(book: b)),
+                          );
+                        },
+                        icon: const Icon(Icons.chrome_reader_mode, size: 18),
+                        label: Text(LanguageService.instance.trText(ne: 'अडियोसहित पुस्तक खोल्नुहोस्', en: 'Open Book with Audio', ko: '오디오 포함 교재 열기')),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: (isFullDownloaded || downloadedCount > 0) ? Colors.teal.shade50 : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: (isFullDownloaded || downloadedCount > 0) ? Colors.teal.shade300 : Colors.grey.shade300),
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          (isFullDownloaded || downloadedCount > 0) ? Icons.offline_pin : Icons.download_for_offline_outlined,
+                          color: (isFullDownloaded || downloadedCount > 0) ? Colors.green.shade700 : const Color(0xFF0F766E),
+                          size: 22,
                         ),
-                      ],
+                        tooltip: LanguageService.instance.trText(
+                          ne: (isFullDownloaded || downloadedCount > 0)
+                              ? 'अध्यायगत अफलाइन डाउनलोड (${isFullDownloaded ? "सबै" : "$downloadedCount"} सुरक्षित)'
+                              : 'च्याप्टर अनुसार अफलाइन डाउनलोड सूची खोल्नुहोस्',
+                          en: 'Chapter offline download list',
+                          ko: '단원별 오프라인 다운로드 목록',
+                        ),
+                        onPressed: () => _showBookChaptersDownloadModal(b),
+                      ),
                     ),
                   ],
                 );
@@ -444,20 +444,15 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
-                              side: BorderSide(color: isDownloaded ? Colors.green : const Color(0xFF0F766E)),
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          IconButton(
+                            icon: Icon(
+                              isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined,
+                              color: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
+                              size: 22,
                             ),
-                            icon: Icon(isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined, size: 16),
-                            label: Text(
-                              isDownloaded
-                                  ? LanguageService.instance.trText(ne: '✅ सुरक्षित', en: '✅ Saved', ko: '✅ 저장됨')
-                                  : LanguageService.instance.trText(ne: '⬇️ डाउनलोड', en: '⬇️ Download', ko: '⬇️ 다운로드'),
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                            ),
+                            tooltip: isDownloaded
+                                ? LanguageService.instance.trText(ne: 'अध्याय $ch अफलाइन सुरक्षित छ (हटाउन ट्याप गर्नुहोस्)', en: 'Chapter $ch saved offline (Tap to remove)', ko: '제$ch과 오프라인 저장됨')
+                                : LanguageService.instance.trText(ne: 'अध्याय $ch अफलाइन डाउनलोड गर्नुहोस्', en: 'Download Chapter $ch offline', ko: '제$ch과 오프라인 다운로드'),
                             onPressed: () async {
                               await OfflineDownloadService.instance.toggleChapterDownload(b.id, ch);
                               setModalState(() {});

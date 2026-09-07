@@ -485,20 +485,15 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
-                              side: BorderSide(color: isDownloaded ? Colors.green : const Color(0xFF0F766E)),
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          IconButton(
+                            icon: Icon(
+                              isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined,
+                              color: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
+                              size: 22,
                             ),
-                            icon: Icon(isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined, size: 16),
-                            label: Text(
-                              isDownloaded
-                                  ? LanguageService.instance.trText(ne: '✅ सुरक्षित', en: '✅ Saved', ko: '✅ 저장됨')
-                                  : LanguageService.instance.trText(ne: '⬇️ डाउनलोड', en: '⬇️ Download', ko: '⬇️ 다운로드'),
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                            ),
+                            tooltip: isDownloaded
+                                ? LanguageService.instance.trText(ne: 'अफलाइन सुरक्षित (हटाउन ट्याप गर्नुहोस्)', en: 'Saved offline (Tap to remove)', ko: '오프라인 저장됨')
+                                : LanguageService.instance.trText(ne: 'अफलाइन डाउनलोड गर्नुहोस्', en: 'Download offline', ko: '오프라인 다운로드'),
                             onPressed: () async {
                               await OfflineDownloadService.instance.toggleChapterDownload(_currentBook.id, ch);
                               setModalState(() {});
@@ -578,8 +573,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
             icon: const Icon(Icons.add_circle, size: 15),
             label: Text(LanguageService.instance.trText(ne: '➕ अडियो बटन', en: '➕ Audio Button', ko: '➕ 오디오 버튼'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
           ),
-          const SizedBox(width: 6),
-                    const SizedBox(width: 8),
+          const SizedBox(width: 8),
         ],
       ),
       bottomNavigationBar: _buildGlobalNowPlayingBar(),
@@ -637,19 +631,28 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                   }
                 },
               ),
-              const SizedBox(width: 8),
-              // Chapter-level direct offline download button
+              const SizedBox(width: 6),
+              // Chapter-level direct offline download side icon
               Builder(
                 builder: (context) {
                   final isDownloaded = OfflineDownloadService.instance.isChapterDownloaded(_currentBook.id, _selectedChapter);
-                  return OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
-                      side: BorderSide(color: isDownloaded ? Colors.green : const Color(0xFF0F766E)),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      minimumSize: const Size(0, 32),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                  return IconButton(
+                    icon: Icon(
+                      isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined,
+                      color: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
+                      size: 20,
                     ),
+                    tooltip: isDownloaded
+                        ? LanguageService.instance.trText(
+                            ne: 'अध्याय $_selectedChapter अफलाइन सुरक्षित छ (हटाउन ट्याप गर्नुहोस्)',
+                            en: 'Chapter $_selectedChapter saved offline (Tap to remove)',
+                            ko: '제$_selectedChapter과 오프라인 저장됨',
+                          )
+                        : LanguageService.instance.trText(
+                            ne: 'अध्याय $_selectedChapter अफलाइन डाउनलोड गर्नुहोस्',
+                            en: 'Download Chapter $_selectedChapter offline',
+                            ko: '제$_selectedChapter과 오프라인 다운로드',
+                          ),
                     onPressed: () async {
                       await OfflineDownloadService.instance.toggleChapterDownload(_currentBook.id, _selectedChapter);
                       setState(() {});
@@ -672,17 +675,10 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                         ),
                       );
                     },
-                    icon: Icon(isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined, size: 15),
-                    label: Text(
-                      isDownloaded
-                          ? LanguageService.instance.trText(ne: '✅ अफलाइन सेभ', en: '✅ Saved', ko: '✅ 저장됨')
-                          : LanguageService.instance.trText(ne: '⬇️ पाठ डाउनलोड', en: '⬇️ Download Lesson', ko: '⬇️ 단원 다운로드'),
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                    ),
                   );
                 },
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
               IconButton(
                 icon: const Icon(Icons.format_list_bulleted, size: 18, color: Color(0xFF1E3A8A)),
                 tooltip: LanguageService.instance.trText(ne: 'सबै अध्यायहरू र डाउनलोड सूची', en: 'All Chapters & Download List', ko: '모든 단원 및 다운로드 목록'),
