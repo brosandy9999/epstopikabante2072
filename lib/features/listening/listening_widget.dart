@@ -309,25 +309,20 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "[선택지] 맞는 것을 고르십시오",
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFD97706)),
+                    if (widget.selectedOptionIndex != null) ...[
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
+                          child: Text(
+                            "선택: ${widget.selectedOptionIndex! + 1}번",
+                            style: const TextStyle(color: Color(0xFF92400E), fontWeight: FontWeight.bold, fontSize: 11),
+                          ),
                         ),
-                        if (widget.selectedOptionIndex != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
-                            child: Text(
-                              "선택: ${widget.selectedOptionIndex! + 1}번",
-                              style: const TextStyle(color: Color(0xFF92400E), fontWeight: FontWeight.bold, fontSize: 11),
-                            ),
-                          )
-                      ],
-                    ),
-                    const SizedBox(height: 6),
+                      ),
+                      const SizedBox(height: 6),
+                    ],
 
                     // 4 Options Stacked Vertically
                     ...List.generate(4, (index) {

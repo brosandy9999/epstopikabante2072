@@ -9,6 +9,7 @@ import '../../core/services/cloud_sync_service.dart';
 import '../../core/models/mock_test_model.dart';
 import '../../core/services/language_service.dart';
 import '../question_engine/question_template.dart';
+import 'paper_exam_print_screen.dart';
 
 /// Admin 40-Question Set Management & Multi-Modal Question Editor
 /// Manages strict 40-question sets (20 Reading + 20 Listening)
@@ -25,6 +26,94 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
   MockTestSet? _selectedSet;
   String _questionFilter = 'all'; // 'all', 'reading', 'listening'
   final TextEditingController _searchController = TextEditingController();
+
+  void _handleOpenPaperExamPdf(MockTestSet set) {
+    final currentUser = AuthService.instance.currentUser;
+    final isSuperAdmin = currentUser?.role == UserRole.superAdmin;
+    final canDownloadPdf = isSuperAdmin || set.isApproved;
+
+    if (!canDownloadPdf) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.lock_clock, color: Colors.amber, size: 28),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  LanguageService.instance.trText(
+                    ne: 'सुपर एडमिनको स्वीकृति आवश्यक',
+                    en: 'Super Admin Approval Required',
+                    ko: '최고관리자 승인 필요',
+                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                LanguageService.instance.trText(
+                  ne: 'यस प्रश्न सेटको आधिकारिक पेपर परीक्षा (PBT) बुकलेट तथा OMR पाना PDF डाउनलोड गर्न सुपर एडमिन (Super Admin) को स्वीकृति आवश्यक पर्दछ।',
+                  en: 'Official Super Admin approval is required before downloading the physical PBT exam booklet and OMR sheet.',
+                  ko: '본 세트의 지필시험(PBT) 문제지 및 OMR 답안지 PDF를 다운로드하려면 최고 관리자의 승인이 필요합니다.',
+                ),
+                style: const TextStyle(fontSize: 13, height: 1.4),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.amber.shade300),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.shield_outlined, color: Colors.orange, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        LanguageService.instance.trText(
+                          ne: '🔒 हाल यो सेट स्वीकृतिको पर्खाइमा छ। सुपर एडमिनले स्वीकृत गरेपछि मात्र भौतिक परीक्षा PDF डाउनलोड अनलक हुनेछ।',
+                          en: '🔒 Pending approval. Once approved by Super Admin, PDF download will unlock automatically.',
+                          ko: '🔒 현재 승인 대기 중입니다. 최고관리자 승인 후 지필시험 PDF 다운로드가 활성화됩니다.',
+                        ),
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF9A3412), fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E3A8A),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(LanguageService.instance.tr('ok')),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaperExamPrintScreen(testSet: set),
+      ),
+    );
+  }
 
   final List<String> _sectorsList = [
     '제조업 (Manufacturing)',
@@ -1233,30 +1322,62 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                               });
                             },
                             icon: const Icon(Icons.manage_search, size: 16),
-                            label: Text(LanguageService.instance.trText(ne: '४० प्रश्नहरू व्यवस्थापन गर्नुहोस्', en: 'Manage 40 Questions', ko: '40문항 관리'), style: TextStyle(fontSize: 12)),
+                            label: Text(LanguageService.instance.trText(ne: '४० प्रश्नहरू व्यवस्थापन गर्नुहोस्', en: 'Manage 40 Questions', ko: '40문항 관리'), style: const TextStyle(fontSize: 12)),
                           ),
                           const SizedBox(height: 6),
-                          OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: set.isLiveExam ? Colors.red : const Color(0xFF0F766E),
-                              side: BorderSide(color: set.isLiveExam ? Colors.red : const Color(0xFF0F766E)),
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              visualDensity: VisualDensity.compact,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                QuestionBankService.instance.setLiveDailyExam(set.id, isLive: !set.isLiveExam);
-                              });
-                              CloudSyncService.instance.pushToCloud();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(set.isLiveExam ? LanguageService.instance.trText(ne: 'लाइभ परीक्षा हटाइयो।', en: 'Live exam removed.', ko: '라이브 시험이 해제되었습니다.') : LanguageService.instance.trText(ne: '🔴 ${set.title} आजको दैनिक लाइभ परीक्षा (Strict Mode) को रूपमा तोकियो!', en: "🔴 ${set.title} set as Today's Live Exam (Strict Mode)!", ko: '🔴 ${set.title} 오늘의 라이브 시험(엄격 모드)으로 지정되었습니다!')),
-                                  backgroundColor: set.isLiveExam ? Colors.blueGrey : Colors.teal,
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            alignment: WrapAlignment.end,
+                            children: [
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
+                                      ? const Color(0xFF0F766E)
+                                      : Colors.amber.shade800,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  visualDensity: VisualDensity.compact,
                                 ),
-                              );
-                            },
-                            icon: Icon(set.isLiveExam ? Icons.cancel_outlined : Icons.flash_on, size: 14),
-                            label: Text(set.isLiveExam ? LanguageService.instance.trText(ne: 'लाइभ परीक्षा हटाउनुहोस्', en: 'Remove Live Exam', ko: '라이브 시험 해제') : LanguageService.instance.trText(ne: '🔴 आजको लाइभ परीक्षा बनाउनुहोस्', en: '🔴 Make Live Exam', ko: '🔴 오늘 라이브 시험 설정'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                onPressed: () => _handleOpenPaperExamPdf(set),
+                                icon: Icon(
+                                  (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
+                                      ? Icons.picture_as_pdf
+                                      : Icons.lock_clock,
+                                  size: 14,
+                                ),
+                                label: Text(
+                                  (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
+                                      ? LanguageService.instance.trText(ne: '📄 पेपर परीक्षा PDF', en: '📄 Paper Exam PDF', ko: '📄 지필시험 PDF')
+                                      : LanguageService.instance.trText(ne: '🔒 PDF (स्वीकृति आवश्यक)', en: '🔒 PDF (Approval Req.)', ko: '🔒 PDF (승인 필요)'),
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: set.isLiveExam ? Colors.red : const Color(0xFF0F766E),
+                                  side: BorderSide(color: set.isLiveExam ? Colors.red : const Color(0xFF0F766E)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    QuestionBankService.instance.setLiveDailyExam(set.id, isLive: !set.isLiveExam);
+                                  });
+                                  CloudSyncService.instance.pushToCloud();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(set.isLiveExam
+                                          ? LanguageService.instance.trText(ne: 'लाइभ परीक्षा हटाइयो।', en: 'Live exam removed.', ko: '라이브 시험이 해제되었습니다.')
+                                          : LanguageService.instance.trText(ne: '🔴 ${set.title} आजको दैनिक लाइभ परीक्षा (Strict Mode) को रूपमा तोकियो!', en: "🔴 ${set.title} set as Today's Live Exam (Strict Mode)!", ko: '🔴 ${set.title} 오늘의 라이브 시험(엄격 모드)으로 지정되었습니다!')),
+                                      backgroundColor: set.isLiveExam ? Colors.blueGrey : Colors.teal,
+                                    ),
+                                  );
+                                },
+                                icon: Icon(set.isLiveExam ? Icons.cancel_outlined : Icons.flash_on, size: 14),
+                                label: Text(set.isLiveExam ? LanguageService.instance.trText(ne: 'लाइभ हटाउनुहोस्', en: 'Remove Live', ko: '라이브 해제') : LanguageService.instance.trText(ne: '🔴 लाइभ परीक्षा', en: '🔴 Live Exam', ko: '🔴 라이브 설정'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -1313,7 +1434,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(4)),
-                            child: Text(LanguageService.instance.trText(ne: 'कुल ४० प्रश्न', en: 'Total 40 Questions', ko: '총 40문항'), style: TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold)),
+                            child: Text(LanguageService.instance.trText(ne: 'कुल ४० प्रश्न', en: 'Total 40 Questions', ko: '총 40문항'), style: const TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold)),
                           ),
                         ],
                       ),
@@ -1322,6 +1443,28 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                     ],
                   ),
                 ),
+                ElevatedButton.icon(
+                  onPressed: () => _handleOpenPaperExamPdf(set),
+                  icon: Icon(
+                    (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
+                        ? Icons.picture_as_pdf
+                        : Icons.lock_clock,
+                    size: 16,
+                  ),
+                  label: Text(
+                    (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
+                        ? LanguageService.instance.trText(ne: '📄 पेपर परीक्षा PDF (६-७ पृष्ठ)', en: '📄 Paper Exam PDF (6-7 Pages)', ko: '📄 지필시험 PDF (6~7p)')
+                        : LanguageService.instance.trText(ne: '🔒 PDF (स्वीकृति आवश्यक)', en: '🔒 PDF (Approval Req.)', ko: '🔒 PDF (승인 필요)'),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: (AuthService.instance.currentUser?.role == UserRole.superAdmin || set.isApproved)
+                        ? const Color(0xFF0F766E)
+                        : Colors.amber.shade800,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 8),
                 ElevatedButton.icon(
                   onPressed: () => setState(() => _selectedSet = null),
                   icon: const Icon(Icons.list, size: 18),

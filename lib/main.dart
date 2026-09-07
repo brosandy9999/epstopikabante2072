@@ -2374,24 +2374,6 @@ class _UbtExamScreenState extends State<UbtExamScreen> {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6), border: Border.all(color: Colors.grey.shade300), boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)]),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.pinch, size: 14, color: Color(0xFF1E3A8A)),
-                              const SizedBox(width: 4),
-                              Text(
-                                LanguageService.instance.isEnglish
-                                    ? 'Pinch to Zoom'
-                                    : (LanguageService.instance.isKorean ? '화면 확대/축소' : 'पिन्च गरी जुम गर्नुहोस्'),
-                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 10),
                         ExamTimerWidget(durationSeconds: 3000, onTimerFinished: _submitExam),
                       ],
                     ), 
@@ -3233,18 +3215,6 @@ class _StudyModeScreenState extends State<StudyModeScreen> {
                             ),
                           ),
                           const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(6)),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.pinch, size: 13, color: Color(0xFF0F766E)),
-                                const SizedBox(width: 4),
-                                Text(LanguageService.instance.trText(ne: 'पिन्च गरी जुम गर्नुहोस्', en: 'Pinch to zoom', ko: '핀치하여 확대/축소'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF0F766E))),
-                              ],
-                            ),
-                          ),
                         ],
                       ),
                     ),

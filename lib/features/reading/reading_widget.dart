@@ -101,25 +101,20 @@ class ReadingQuestionWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "[선택지] 맞는 것을 고르십시오",
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                    if (selectedOptionIndex != null) ...[
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: Colors.blue.shade100, borderRadius: BorderRadius.circular(4)),
+                          child: Text(
+                            "선택: ${selectedOptionIndex! + 1}번",
+                            style: const TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: 11),
+                          ),
                         ),
-                        if (selectedOptionIndex != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(color: Colors.blue.shade100, borderRadius: BorderRadius.circular(4)),
-                            child: Text(
-                              "선택: ${selectedOptionIndex! + 1}번",
-                              style: const TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: 11),
-                            ),
-                          )
-                      ],
-                    ),
-                    const SizedBox(height: 6),
+                      ),
+                      const SizedBox(height: 6),
+                    ],
 
                     // 4 Options Stacked Vertically
                     ...List.generate(4, (index) {
@@ -379,30 +374,25 @@ class ReadingQuestionWidget extends StatelessWidget {
           ],
         ),
       );
-    } else {
+    } else if (text.contains('\n')) {
+      final passageText = text.split('\n').skip(1).join('\n').trim();
+      if (passageText.isEmpty) return const SizedBox.shrink();
       // Clean Korean Passage Box
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: const Color(0xFFF8FAFC),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: const Color(0xFFCBD5E1)),
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.format_quote, color: Color(0xFF64748B)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                text.contains('\n') ? text.split('\n').skip(1).join('\n') : text,
-                style: const TextStyle(fontSize: 16, height: 1.6, color: Color(0xFF334155)),
-              ),
-            ),
-          ],
+        child: Text(
+          passageText,
+          style: const TextStyle(fontSize: 15, height: 1.55, color: Color(0xFF334155)),
         ),
       );
+    } else {
+      return const SizedBox.shrink();
     }
   }
 }

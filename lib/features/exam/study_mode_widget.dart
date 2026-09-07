@@ -388,17 +388,10 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
     );
   }
 
-  /// Builds options list and instant feedback card with Nepali explanation
   Widget _buildOptionsAndFeedback(List<String> options, bool isAnswered, bool isCorrect) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          LanguageService.instance.trText(ne: '[विकल्प छनोट] सहि उत्तर रोज्नुहोस्:', en: '[Options] Choose the correct answer:', ko: '[보기 선택] 정답을 고르십시오:'),
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.blueGrey),
-        ),
-        const SizedBox(height: 14),
-
         // 4 Options
         ...List.generate(options.length, (index) {
           final circledNumbers = ['①', '②', '③', '④'];
