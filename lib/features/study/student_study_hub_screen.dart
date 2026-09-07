@@ -9,6 +9,7 @@ import '../../core/services/audio_playback_service.dart';
 import '../../core/services/file_upload_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
 import 'book_reader_screen.dart';
+import 'fullscreen_flashcard_screen.dart';
 
 /// Central Student Resources Screen (रिसोर्स सेक्सन)
 /// Features Unlimited Books, Korean-Nepali Dictionary, Visual Swipeable Flashcards with Audio & Chapters,
@@ -455,53 +456,6 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
     );
   }
 
-  void _openBookReaderModal(StudyBook b) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            const Icon(Icons.menu_book, color: Color(0xFF1E3A8A), size: 26),
-            const SizedBox(width: 10),
-            Expanded(child: Text(b.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(b.subtitle, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black54, fontSize: 13)),
-              const SizedBox(height: 8),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(8)),
-                child: Text('कुल अध्याय संख्या: ${b.chaptersCount} • संस्करण: ${b.editionType}', style: TextStyle(color: Colors.blue.shade900, fontWeight: FontWeight.bold, fontSize: 12)),
-              ),
-              const SizedBox(height: 12),
-              Text(b.description, style: const TextStyle(fontSize: 13, height: 1.5)),
-              const SizedBox(height: 14),
-              const Text('अध्यायगत मुख्य सूची:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-              const SizedBox(height: 6),
-              ...b.highlightTopics.map((h) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Text('• $h', style: const TextStyle(fontSize: 12)),
-                  )),
-            ],
-          ),
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(LanguageService.instance.tr('close')),
-          ),
-        ],
-      ),
-    );
-  }
-
   // -------------------------------------------------------------
   // TAB 2: DICTIONARY (कोरियन-नेपाली स्मार्ट डिक्सनरी)
   // -------------------------------------------------------------
@@ -770,25 +724,69 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
               ? Center(child: Text(LanguageService.instance.trText(ne: 'कुनै फ्ल्यासकार्ड भेटिएन।', en: 'No flashcards found.', ko: '단어장을 찾을 수 없습니다.'), style: const TextStyle(color: Colors.black54)))
               : Column(
                   children: [
-                    const SizedBox(height: 12),
-                    // Progress & Counter
+                    const SizedBox(height: 8),
+                    // Progress, Counter & Fullscreen Mode Action
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'कार्ड ${_currentFlashcardIndex + 1} / ${filtered.length}',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1E3A8A).withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'कार्ड ${_currentFlashcardIndex + 1} / ${filtered.length}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'कण्ठ: ${filtered.where((c) => c.isMastered).length}/${filtered.length}',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.green),
+                              ),
+                            ],
                           ),
-                          Text(
-                            'कण्ठ भएका: ${filtered.where((c) => c.isMastered).length}/${filtered.length}',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.green),
+
+                          // PROMINENT FULLSCREEN MODE BUTTON
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF1E3A8A),
+                              foregroundColor: Colors.white,
+                              elevation: 2,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => FullscreenFlashcardScreen(
+                                    flashcards: filtered,
+                                    initialIndex: _currentFlashcardIndex,
+                                    chapterTitle: _getChapterName(_selectedFlashcardChapter),
+                                  ),
+                                ),
+                              ).then((_) => setState(() {}));
+                            },
+                            icon: const Icon(Icons.fullscreen, size: 18),
+                            label: Text(
+                              LanguageService.instance.trText(
+                                ne: '🚀 फुल स्क्रिन मोड',
+                                en: '🚀 Full Screen Mode',
+                                ko: '🚀 전체화면 모드',
+                              ),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
 
                     // Swipeable PageView
                     Expanded(
@@ -837,7 +835,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      // Header tags
+                                      // Header tags & Fullscreen Icon Button
                                       Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
@@ -846,9 +844,33 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                             decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(6)),
                                             child: Text('제${card.chapterNo}과 • ${card.topic}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
                                           ),
-                                          Text(
-                                            isFlipped ? '🇳🇵 पछाडिको भाग (अर्थ)' : '🇰🇷 अगाडिको भाग (शब्द)',
-                                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isFlipped ? Colors.green.shade800 : const Color(0xFF1E3A8A)),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                isFlipped ? '🇳🇵 पछाडिको भाग (अर्थ)' : '🇰🇷 अगाडिको भाग (शब्द)',
+                                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isFlipped ? Colors.green.shade800 : const Color(0xFF1E3A8A)),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              IconButton(
+                                                icon: const Icon(Icons.fullscreen, color: Color(0xFF1E3A8A), size: 20),
+                                                padding: EdgeInsets.zero,
+                                                constraints: const BoxConstraints(),
+                                                tooltip: LanguageService.instance.trText(ne: 'फुल स्क्रिन', en: 'Full Screen', ko: '전체화면'),
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (_) => FullscreenFlashcardScreen(
+                                                        flashcards: filtered,
+                                                        initialIndex: i,
+                                                        chapterTitle: _getChapterName(_selectedFlashcardChapter),
+                                                      ),
+                                                    ),
+                                                  ).then((_) => setState(() {}));
+                                                },
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -997,9 +1019,9 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                       ),
                     ),
 
-                    // Bottom Navigation Buttons
+                    // Bottom Navigation Buttons with Center Fullscreen Action
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -1007,13 +1029,30 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                             onPressed: _currentFlashcardIndex > 0
                                 ? () {
                                     _flashcardPageController.previousPage(
-                                      duration: const Duration(milliseconds: 300),
+                                       duration: const Duration(milliseconds: 300),
                                       curve: Curves.easeInOut,
                                     );
                                   }
                                 : null,
                             icon: const Icon(Icons.chevron_left),
                             label: Text(LanguageService.instance.trText(ne: 'अघिल्लो', en: 'Previous', ko: '이전')),
+                          ),
+                          IconButton.filled(
+                            style: IconButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A)),
+                            icon: const Icon(Icons.fullscreen, color: Colors.white),
+                            tooltip: LanguageService.instance.trText(ne: 'फुल स्क्रिन मोड', en: 'Fullscreen Mode', ko: '전체화면 모드'),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => FullscreenFlashcardScreen(
+                                    flashcards: filtered,
+                                    initialIndex: _currentFlashcardIndex,
+                                    chapterTitle: _getChapterName(_selectedFlashcardChapter),
+                                  ),
+                                ),
+                              ).then((_) => setState(() {}));
+                            },
                           ),
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
