@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/models/mock_test_model.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/file_upload_web.dart';
+import '../../core/services/institute_service.dart';
 import '../../core/services/question_bank_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
 import '../question_engine/question_template.dart';
@@ -37,6 +38,12 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
   bool _autoEnlargeCharts = true;
   final Map<int, bool> _customChartOverrides = {};
 
+  // Custom institute branding for Cover Page (Page 1) & Footers
+  late String _instituteName;
+  String? _instituteLogo;
+  String _instituteInfo = '';
+  String _examSubtitle = '';
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +62,27 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
         }
       }
     }
+
+    // Initialize institute branding
+    final user = AuthService.instance.currentUser;
+    final instId = user?.instituteId ?? 'inst_01';
+    final profile = InstituteService.instance.getInstituteById(instId) ??
+        InstituteService.instance.getDefaultInstitute();
+
+    _instituteName = widget.testSet.instituteName ?? user?.instituteName ?? profile.name;
+    final userLogo = user?.instituteLogo;
+    _instituteLogo = (profile.logoUrl.isNotEmpty && !profile.logoUrl.contains('institute_logo_default.png'))
+        ? profile.logoUrl
+        : (userLogo != null && userLogo.isNotEmpty && !userLogo.contains('institute_logo_default.png'))
+            ? userLogo
+            : null;
+
+    final contactParts = <String>[];
+    if (profile.address.trim().isNotEmpty) contactParts.add(profile.address.trim());
+    if (profile.phone.trim().isNotEmpty) contactParts.add('Tel: ${profile.phone.trim()}');
+    if (profile.email.trim().isNotEmpty) contactParts.add(profile.email.trim());
+    _instituteInfo = contactParts.join('  •  ');
+    _examSubtitle = '${widget.testSet.sector}  •  공식 지필시험 형태 문제지';
   }
 
   @override
@@ -83,6 +111,10 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       imageScale: _imageScale,
       autoEnlargeCharts: _autoEnlargeCharts,
       customChartOverrides: _customChartOverrides,
+      customInstituteName: _instituteName,
+      customInstituteLogo: _instituteLogo,
+      customInstituteInfo: _instituteInfo,
+      customExamSubtitle: _examSubtitle,
     );
     printExamHtml(htmlContent);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -112,6 +144,10 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       imageScale: _imageScale,
       autoEnlargeCharts: _autoEnlargeCharts,
       customChartOverrides: _customChartOverrides,
+      customInstituteName: _instituteName,
+      customInstituteLogo: _instituteLogo,
+      customInstituteInfo: _instituteInfo,
+      customExamSubtitle: _examSubtitle,
     );
     openExamInNewTab(htmlContent);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -919,6 +955,335 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     );
   }
 
+  Future<void> _openInstituteCoverDialog() async {
+    final nameCtrl = TextEditingController(text: _instituteName);
+    final infoCtrl = TextEditingController(text: _instituteInfo);
+    final subCtrl = TextEditingController(text: _examSubtitle);
+    String? tempLogo = _instituteLogo;
+    bool saveToProfile = false;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setModalState) {
+            return Dialog(
+              backgroundColor: const Color(0xFF1E293B),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 640, maxHeight: 720),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E3A8A),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(Icons.school, color: Colors.white, size: 22),
+                            ),
+                            const SizedBox(width: 12),
+                            const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '🏫 इन्स्टिच्युट कभर तथा ब्राण्डिङ सम्पादन',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                Text(
+                                  'Edit Institute Name, Logo & Contact Info for Cover Page',
+                                  style: TextStyle(color: Colors.white60, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white70),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                      ],
+                    ),
+                    const Divider(color: Colors.white24, height: 24),
+
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 1. Institute Name
+                            const Text(
+                              '🏢 इन्स्टिच्युटको नाम (Institute Name)',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: nameCtrl,
+                              style: const TextStyle(color: Colors.white, fontSize: 14),
+                              decoration: InputDecoration(
+                                hintText: 'e.g. SEOUL KOREAN LANGUAGE INSTITUTE',
+                                hintStyle: const TextStyle(color: Colors.white38),
+                                filled: true,
+                                fillColor: const Color(0xFF0F172A),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF334155))),
+                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF334155))),
+                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5)),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              ),
+                            ),
+
+                            const SizedBox(height: 18),
+
+                            // 2. Institute Logo
+                            const Text(
+                              '🖼️ इन्स्टिच्युटको लोगो (Logo)',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF0F172A),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: const Color(0xFF334155)),
+                              ),
+                              child: Row(
+                                children: [
+                                  // Logo preview box
+                                  Container(
+                                    width: 68,
+                                    height: 68,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.grey.shade400),
+                                    ),
+                                    padding: const EdgeInsets.all(4),
+                                    alignment: Alignment.center,
+                                    child: (tempLogo != null && tempLogo!.trim().isNotEmpty)
+                                        ? SmartImageWidget(imageSource: tempLogo!, fit: BoxFit.contain)
+                                        : Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: const [
+                                              Icon(Icons.school, color: Color(0xFF1E3A8A), size: 28),
+                                              Text('HRD', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+                                            ],
+                                          ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: [
+                                        ElevatedButton.icon(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(0xFF2563EB),
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                                          ),
+                                          icon: const Icon(Icons.content_paste, size: 16),
+                                          label: const Text('📋 क्लिपबोर्डबाट पेस्ट (Ctrl+V)', style: TextStyle(fontSize: 12)),
+                                          onPressed: () async {
+                                            final res = await FileUploadService.instance.pasteImageFromClipboard();
+                                            if (res != null && res.dataUrl.isNotEmpty) {
+                                              setModalState(() => tempLogo = res.dataUrl);
+                                            } else {
+                                              if (mounted) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('⚠️ क्लिपबोर्डमा कुनै फोटो फेला परेन। पहिले लोगो Copy (Ctrl+C) गर्नुहोस्।'),
+                                                    backgroundColor: Colors.orange,
+                                                  ),
+                                                );
+                                              }
+                                            }
+                                          },
+                                        ),
+                                        OutlinedButton.icon(
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: Colors.white,
+                                            side: const BorderSide(color: Colors.white38),
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                                          ),
+                                          icon: const Icon(Icons.upload_file, size: 16),
+                                          label: const Text('📁 लोगो अपलोड (Upload)', style: TextStyle(fontSize: 12)),
+                                          onPressed: () async {
+                                            final res = await FileUploadService.instance.pickImageFile();
+                                            if (res != null && res.dataUrl.isNotEmpty) {
+                                              setModalState(() => tempLogo = res.dataUrl);
+                                            }
+                                          },
+                                        ),
+                                        if (tempLogo != null && tempLogo!.isNotEmpty)
+                                          TextButton.icon(
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: Colors.redAccent,
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
+                                            ),
+                                            icon: const Icon(Icons.delete_outline, size: 16),
+                                            label: const Text('❌ हटाउनुहोस्', style: TextStyle(fontSize: 12)),
+                                            onPressed: () => setModalState(() => tempLogo = null),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 18),
+
+                            // 3. Contact & Information
+                            const Text(
+                              '📍 ठेगाना, फोन तथा सम्पर्क विवरण (Address & Contact Info)',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'यो विवरण कभर पृष्ठको माथि इन्स्टिच्युट नामको तल सानो अक्षरमा देखिनेछ:',
+                              style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
+                            ),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: infoCtrl,
+                              maxLines: 2,
+                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                              decoration: InputDecoration(
+                                hintText: 'e.g. बागबजार, काठमाडौँ  •  सम्पर्क: ९८XXXXXXXX, ०१-XXXXXXX  •  info@institute.com',
+                                hintStyle: const TextStyle(color: Colors.white38),
+                                filled: true,
+                                fillColor: const Color(0xFF0F172A),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF334155))),
+                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF334155))),
+                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5)),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              ),
+                            ),
+
+                            const SizedBox(height: 18),
+
+                            // 4. Exam Subtitle / Extra Note
+                            const Text(
+                              '📝 कभर उप-शीर्षक / परीक्षा विवरण (Exam Subtitle / Sector Note)',
+                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: subCtrl,
+                              style: const TextStyle(color: Colors.white, fontSize: 13),
+                              decoration: InputDecoration(
+                                hintText: 'e.g. 제조업 (Manufacturing)  •  공식 지필시험 형태 문제지',
+                                hintStyle: const TextStyle(color: Colors.white38),
+                                filled: true,
+                                fillColor: const Color(0xFF0F172A),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF334155))),
+                                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF334155))),
+                                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF2563EB), width: 1.5)),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // 5. Save to Profile switch
+                            CheckboxListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text(
+                                '💾 यो विवरण इन्स्टिच्युट प्रोफाइलमा पनि सेभ गर्नुहोस् (Save to Institute Profile)',
+                                style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
+                              ),
+                              subtitle: const Text(
+                                'भविष्यमा अन्य सेट प्रिन्ट गर्दा पनि यही नाम र लोगो स्वतः प्रयोग हुनेछ।',
+                                style: TextStyle(color: Colors.white54, fontSize: 11),
+                              ),
+                              value: saveToProfile,
+                              activeColor: const Color(0xFF2563EB),
+                              onChanged: (val) => setModalState(() => saveToProfile = val ?? false),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    const Divider(color: Colors.white24, height: 24),
+
+                    // Buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          child: const Text('रद्द गर्नुहोस् (Cancel)', style: TextStyle(color: Colors.white60)),
+                          onPressed: () => Navigator.pop(ctx),
+                        ),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF2563EB),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          icon: const Icon(Icons.check, size: 18),
+                          label: const Text('लागू गर्नुहोस् (Apply & Update PDF)', style: TextStyle(fontWeight: FontWeight.bold)),
+                          onPressed: () {
+                            final newName = nameCtrl.text.trim();
+                            final newInfo = infoCtrl.text.trim();
+                            final newSub = subCtrl.text.trim();
+
+                            setState(() {
+                              if (newName.isNotEmpty) _instituteName = newName;
+                              _instituteLogo = tempLogo;
+                              _instituteInfo = newInfo;
+                              if (newSub.isNotEmpty) _examSubtitle = newSub;
+                            });
+
+                            if (saveToProfile) {
+                              final user = AuthService.instance.currentUser;
+                              final instId = user?.instituteId ?? 'inst_01';
+                              final profile = InstituteService.instance.getInstituteById(instId) ??
+                                  InstituteService.instance.getDefaultInstitute();
+                              if (newName.isNotEmpty) profile.name = newName;
+                              if (tempLogo != null) profile.logoUrl = tempLogo!;
+                              InstituteService.instance.updateInstitute(profile);
+                              AuthService.instance.updateInstituteBranding(
+                                instituteId: profile.id,
+                                instituteName: profile.name,
+                                instituteLogo: profile.logoUrl,
+                              );
+                            }
+
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('✅ इन्स्टिच्युटको नाम, लोगो र कभर विवरण सफलतापूर्वक अपडेट भयो! PDF मा लागू भएको छ।'),
+                                backgroundColor: Color(0xFF16A34A),
+                                duration: Duration(seconds: 3),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // BUILD
   // ─────────────────────────────────────────────────────────────────────────
@@ -1052,6 +1417,20 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
           IconButton(icon: const Icon(Icons.zoom_in), tooltip: 'Zoom In',
               onPressed: () => setState(() => _zoomLevel = (_zoomLevel + 0.1).clamp(0.5, 1.4))),
           const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4338CA),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+              icon: const Icon(Icons.school, size: 18),
+              label: const Text('🏫 फ्रन्ट कभर सम्पादन',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              onPressed: _openInstituteCoverDialog,
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
             child: ElevatedButton.icon(
@@ -1223,7 +1602,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                   child: Text('- $pageNum -',
                       style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black87)),
                 ),
-                Text(_currentSet.instituteName ?? 'Official Test Center',
+                Text(_instituteName,
                     style: TextStyle(fontSize: 9, color: Colors.grey.shade500)),
               ],
             ),
@@ -1237,52 +1616,138 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
   // PAGE 1 — INSTITUTE COVER + CANDIDATE FILL-UP BOXES
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildPage1Cover() {
-    final user = AuthService.instance.currentUser;
-    final instituteName = _currentSet.instituteName ?? user?.instituteName ?? 'INSTITUTE NAME';
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Container(height: 6, color: const Color(0xFF1E3A8A)),
         const SizedBox(height: 3),
         Container(height: 2, color: Colors.black87),
+        const SizedBox(height: 16),
+
+        // Interactive Cover Header (Clickable to Edit)
+        InkWell(
+          onTap: _openInstituteCoverDialog,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFCBD5E1)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Logo or HRD fallback
+                Container(
+                  width: 62,
+                  height: 62,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: const Color(0xFF1E3A8A), width: 1.5),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  alignment: Alignment.center,
+                  child: (_instituteLogo != null && _instituteLogo!.trim().isNotEmpty)
+                      ? SmartImageWidget(imageSource: _instituteLogo!, fit: BoxFit.contain)
+                      : Container(
+                          color: const Color(0xFF1E3A8A),
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: const Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.school, color: Colors.white, size: 26),
+                                Text('HRD', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                              ],
+                            ),
+                          ),
+                        ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            '고용허가제 한국어능력시험 (EPS-TOPIK)',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E3A8A).withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: const Color(0xFF1E3A8A).withValues(alpha: 0.25)),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.edit, size: 10, color: Color(0xFF1E3A8A)),
+                                SizedBox(width: 3),
+                                Text('सम्पादन', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Text(
+                        'Employment Permit System — Test of Proficiency in Korean',
+                        style: TextStyle(fontSize: 9.5, color: Colors.black54),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _instituteName.toUpperCase(),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Colors.black87, letterSpacing: 0.8),
+                      ),
+                      if (_instituteInfo.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          _instituteInfo,
+                          style: const TextStyle(fontSize: 9.5, color: Color(0xFF475569), height: 1.25),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF1E3A8A), width: 2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: const Text(
+                    'PBT\n문제지',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Color(0xFF1E3A8A)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
         const SizedBox(height: 20),
-
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(
-            width: 62, height: 62,
-            decoration: BoxDecoration(color: const Color(0xFF1E3A8A), borderRadius: BorderRadius.circular(6)),
-            child: const Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.school, color: Colors.white, size: 26),
-              Text('HRD', style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
-            ])),
-          ),
-          const SizedBox(width: 16),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('고용허가제 한국어능력시험 (EPS-TOPIK)',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
-            const Text('Employment Permit System — Test of Proficiency in Korean',
-                style: TextStyle(fontSize: 10, color: Colors.black54)),
-            const SizedBox(height: 6),
-            Text(instituteName.toUpperCase(),
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: Colors.black87, letterSpacing: 0.8)),
-          ])),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(border: Border.all(color: const Color(0xFF1E3A8A), width: 2), borderRadius: BorderRadius.circular(4)),
-            child: const Text('PBT\n문제지', textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13, color: Color(0xFF1E3A8A))),
-          ),
-        ]),
-
-        const SizedBox(height: 22),
         Container(height: 2, color: Colors.black87),
         const SizedBox(height: 14),
 
         Center(child: Text(widget.testSet.title.toUpperCase(),
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 1.2, color: Color(0xFF0F172A)))),
-        const SizedBox(height: 10),
+        const SizedBox(height: 4),
+        if (_examSubtitle.isNotEmpty) ...[
+          Center(child: Text(_examSubtitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF475569)))),
+          const SizedBox(height: 8),
+        ] else
+          const SizedBox(height: 6),
         Center(child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 7),
           decoration: BoxDecoration(color: const Color(0xFF1E3A8A), borderRadius: BorderRadius.circular(4)),

@@ -42,6 +42,10 @@ class PaperExamHtmlBuilder {
     double imageScale = 1.0,
     bool autoEnlargeCharts = true,
     Map<int, bool>? customChartOverrides,
+    String? customInstituteName,
+    String? customInstituteLogo,
+    String? customInstituteInfo,
+    String? customExamSubtitle,
   }) {
     final allQs = testSet.questions;
 
@@ -70,7 +74,9 @@ class PaperExamHtmlBuilder {
       customChartOverrides: customChartOverrides,
     );
 
-    final institute = testSet.instituteName ?? 'Official Test Center';
+    final institute = (customInstituteName != null && customInstituteName.trim().isNotEmpty)
+        ? customInstituteName.trim()
+        : (testSet.instituteName ?? 'Official Test Center');
 
     return '''<!DOCTYPE html>
 <html lang="ko">
@@ -448,6 +454,103 @@ class PaperExamHtmlBuilder {
       margin-top: 8px;
     }
 
+    /* Cover Institute Header & Branding */
+    .cover-inst-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    .inst-logo-box {
+      width: 58px;
+      height: 58px;
+      border-radius: 6px;
+      border: 1.5px solid #1e3a8a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #ffffff;
+      flex-shrink: 0;
+    }
+    .inst-logo-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .inst-logo-fallback {
+      background: #1e3a8a;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+    }
+    .inst-logo-fallback .logo-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+    .inst-logo-fallback .logo-txt {
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+    .inst-meta {
+      flex: 1;
+    }
+    .inst-kor-top {
+      font-size: 11px;
+      font-weight: 800;
+      color: #1e3a8a;
+      letter-spacing: 0.3px;
+    }
+    .inst-eng-sub {
+      font-size: 9px;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+    .inst-name {
+      font-size: 15px;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      line-height: 1.25;
+    }
+    .inst-info {
+      font-size: 9.5px;
+      color: #475569;
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+    .inst-pbt-badge {
+      border: 2px solid #1e3a8a;
+      border-radius: 4px;
+      padding: 4px 10px;
+      text-align: center;
+      color: #1e3a8a;
+      flex-shrink: 0;
+    }
+    .inst-pbt-badge .pbt-b1 {
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+    .inst-pbt-badge .pbt-b2 {
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .cover-divider {
+      height: 3px;
+      background: #1e3a8a;
+      border-bottom: 1.5px solid #0f172a;
+      margin-bottom: 12px;
+    }
+
     /* Cover Page 1 */
     .cover-top {
       text-align: center;
@@ -601,7 +704,13 @@ class PaperExamHtmlBuilder {
 
   <div class="page-container">
     <!-- PAGE 1: COVER -->
-    ${_buildCoverPageHtml(testSet, institute)}
+    ${_buildCoverPageHtml(
+      testSet,
+      institute: institute,
+      logoUrl: customInstituteLogo,
+      instituteInfo: customInstituteInfo,
+      examSubtitle: customExamSubtitle,
+    )}
 
     <!-- PAGES 2–8: 7 CONTINUOUS QUESTION PAGES -->
     ${() {
@@ -641,14 +750,46 @@ class PaperExamHtmlBuilder {
 </html>''';
   }
 
-  static String _buildCoverPageHtml(MockTestSet testSet, String institute) {
+  static String _buildCoverPageHtml(
+    MockTestSet testSet, {
+    required String institute,
+    String? logoUrl,
+    String? instituteInfo,
+    String? examSubtitle,
+  }) {
+    final sub = (examSubtitle != null && examSubtitle.trim().isNotEmpty)
+        ? examSubtitle.trim()
+        : '${testSet.sector}  •  공식 지필시험 형태 문제지';
+
     return '''
     <div class="pbt-page">
       <div>
+        <div class="cover-inst-header">
+          <div class="inst-logo-box">
+            ${(logoUrl != null && logoUrl.trim().isNotEmpty)
+                ? '<img src="$logoUrl" class="inst-logo-img" alt="Logo" />'
+                : '<div class="inst-logo-fallback"><div class="logo-icon">🏛️</div><div class="logo-txt">HRD</div></div>'}
+          </div>
+          <div class="inst-meta">
+            <div class="inst-kor-top">고용허가제 한국어능력시험 (EPS-TOPIK)</div>
+            <div class="inst-eng-sub">Employment Permit System — Test of Proficiency in Korean</div>
+            <div class="inst-name">${_esc(institute.toUpperCase())}</div>
+            ${(instituteInfo != null && instituteInfo.trim().isNotEmpty)
+                ? '<div class="inst-info">${_esc(instituteInfo.trim())}</div>'
+                : ''}
+          </div>
+          <div class="inst-pbt-badge">
+            <div class="pbt-b1">PBT</div>
+            <div class="pbt-b2">문제지</div>
+          </div>
+        </div>
+
+        <div class="cover-divider"></div>
+
         <div class="cover-top">
           <div class="cover-badge">EPS-TOPIK PBT  지필 모의고사</div>
           <div class="cover-title">${_esc(testSet.title)}</div>
-          <div class="cover-subtitle">${_esc(testSet.sector)}  •  공식 지필시험 형태 문제지</div>
+          <div class="cover-subtitle">${_esc(sub)}</div>
           <div class="cover-specs">읽기 20문항 + 듣기 20문항  |  시험시간: 50분  |  100점 만점</div>
         </div>
 
