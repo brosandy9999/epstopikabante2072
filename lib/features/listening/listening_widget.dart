@@ -25,7 +25,6 @@ class ListeningQuestionWidget extends StatefulWidget {
 
 class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
   AudioState _audioState = AudioState.ready;
-  double _playbackProgress = 0.0;
 
   @override
   void dispose() {
@@ -66,28 +65,15 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
     // ----------------------------------------
     setState(() {
       _audioState = AudioState.playingFirst;
-      _playbackProgress = 0.0;
     });
 
     playCurrentTrack();
-
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (mounted && _audioState == AudioState.playingFirst) {
-        setState(() => _playbackProgress = 0.45);
-      }
-    });
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted && _audioState == AudioState.playingFirst) {
-        setState(() => _playbackProgress = 0.85);
-      }
-    });
 
     // Round 1 ends after 2.4s -> 1.5s brief pause before auto repeating
     Future.delayed(const Duration(milliseconds: 2400), () {
       if (!mounted) return;
       setState(() {
         _audioState = AudioState.firstComplete; // Intermission state
-        _playbackProgress = 1.0;
       });
 
       // ----------------------------------------
@@ -97,28 +83,15 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
         if (!mounted) return;
         setState(() {
           _audioState = AudioState.playingSecond;
-          _playbackProgress = 0.0;
         });
 
         playCurrentTrack();
-
-        Future.delayed(const Duration(milliseconds: 700), () {
-          if (mounted && _audioState == AudioState.playingSecond) {
-            setState(() => _playbackProgress = 0.45);
-          }
-        });
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          if (mounted && _audioState == AudioState.playingSecond) {
-            setState(() => _playbackProgress = 0.85);
-          }
-        });
 
         // Round 2 finishes -> Permanently Locked!
         Future.delayed(const Duration(milliseconds: 2400), () {
           if (!mounted) return;
           setState(() {
             _audioState = AudioState.locked;
-            _playbackProgress = 1.0;
           });
         });
       });
@@ -127,11 +100,26 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final options = (widget.question is UniversalQuestion)
-        ? (widget.question as UniversalQuestion).textOptions
-        : ((widget.question is ListeningAudioQuestion)
-            ? (widget.question as ListeningAudioQuestion).textOptions
-            : <String>[]);
+    List<String> rawOptions = [];
+    if (widget.question is UniversalQuestion) {
+      rawOptions = (widget.question as UniversalQuestion).textOptions;
+    } else if (widget.question is ListeningAudioQuestion) {
+      rawOptions = (widget.question as ListeningAudioQuestion).textOptions;
+    } else if (widget.question is ListeningImageOptionsQuestion) {
+      rawOptions = (widget.question as ListeningImageOptionsQuestion).imageOptionPaths;
+    } else if (widget.question is ReadingTextQuestion) {
+      rawOptions = (widget.question as ReadingTextQuestion).textOptions;
+    } else if (widget.question is ReadingImageQuestion) {
+      rawOptions = (widget.question as ReadingImageQuestion).textOptions;
+    }
+
+    final List<String> options = List.generate(4, (index) {
+      if (index < rawOptions.length) {
+        return rawOptions[index];
+      }
+      return '';
+    });
+
     final isLocked = _audioState == AudioState.locked;
     final isPlaying = _audioState == AudioState.playingFirst || _audioState == AudioState.playingSecond;
     final isIntermission = _audioState == AudioState.firstComplete;
@@ -342,10 +330,39 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                     const SizedBox(height: 6),
 
                     // 4 Options Stacked Vertically
-                    ...List.generate(options.length, (index) {
+                    ...List.generate(4, (index) {
                       final isSelected = widget.selectedOptionIndex == index;
                       const circledNumbers = ["①", "②", "③", "④"];
-                      final numLabel = index < circledNumbers.length ? circledNumbers[index] : "${index + 1}";
+                      final numLabel = circledNumbers[index];
+                      final optionText = options[index].trim();
+
+                      // Check if image option exists
+                      String? imageOptionUrl;
+                      if (widget.question is UniversalQuestion) {
+                        final uq = widget.question as UniversalQuestion;
+                        if (index < uq.imageOptions.length && uq.imageOptions[index] != null && uq.imageOptions[index]!.trim().isNotEmpty) {
+                          imageOptionUrl = uq.imageOptions[index]!.trim();
+                        }
+                      } else if (widget.question is ListeningImageOptionsQuestion) {
+                        final lio = widget.question as ListeningImageOptionsQuestion;
+                        if (index < lio.imageOptionPaths.length && lio.imageOptionPaths[index].trim().isNotEmpty) {
+                          imageOptionUrl = lio.imageOptionPaths[index].trim();
+                        }
+                      }
+
+                      // Check if audio option exists
+                      String? audioOptionUrl;
+                      if (widget.question is UniversalQuestion) {
+                        final uq = widget.question as UniversalQuestion;
+                        if (index < uq.audioOptions.length && uq.audioOptions[index] != null && uq.audioOptions[index]!.trim().isNotEmpty) {
+                          audioOptionUrl = uq.audioOptions[index]!.trim();
+                        }
+                      }
+
+                      // Fallback text if text is blank and no image is attached:
+                      final displayText = optionText.isNotEmpty 
+                          ? optionText 
+                          : (imageOptionUrl == null ? "${index + 1}번" : "");
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 6),
@@ -366,7 +383,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                               ),
                               child: Row(
                                 children: [
-                                  // Circled Number or Radio
+                                  // Circled Number
                                   Container(
                                     width: 24,
                                     height: 24,
@@ -395,66 +412,59 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        if (options[index].isNotEmpty)
+                                        if (displayText.isNotEmpty)
                                           Text(
-                                            options[index],
+                                            displayText,
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                               color: isSelected ? const Color(0xFF92400E) : Colors.black87,
                                             ),
                                           ),
-                                        if (widget.question is UniversalQuestion) ...[
-                                          if (index < (widget.question as UniversalQuestion).imageOptions.length &&
-                                              (widget.question as UniversalQuestion).imageOptions[index] != null &&
-                                              (widget.question as UniversalQuestion).imageOptions[index]!.trim().isNotEmpty) ...[
-                                            const SizedBox(height: 4),
-                                            Container(
-                                              constraints: const BoxConstraints(maxHeight: 85),
+                                        if (imageOptionUrl != null) ...[
+                                          const SizedBox(height: 4),
+                                          Container(
+                                            constraints: const BoxConstraints(maxHeight: 85),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(6),
+                                              border: Border.all(color: Colors.grey.shade300),
+                                            ),
+                                            clipBehavior: Clip.antiAlias,
+                                            child: SmartImageWidget(
+                                              imageSource: imageOptionUrl,
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ],
+                                        if (audioOptionUrl != null) ...[
+                                          const SizedBox(height: 4),
+                                          InkWell(
+                                            onTap: () => AudioPlaybackService.instance.playAudioUrl(audioOptionUrl!),
+                                            borderRadius: BorderRadius.circular(16),
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                               decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(6),
-                                                border: Border.all(color: Colors.grey.shade300),
+                                                color: Colors.amber.shade50,
+                                                borderRadius: BorderRadius.circular(16),
+                                                border: Border.all(color: Colors.amber.shade300),
                                               ),
-                                              clipBehavior: Clip.antiAlias,
-                                              child: SmartImageWidget(
-                                                imageSource: (widget.question as UniversalQuestion).imageOptions[index]!.trim(),
-                                                fit: BoxFit.contain,
-                                              ),
-                                            ),
-                                          ],
-                                          if (index < (widget.question as UniversalQuestion).audioOptions.length &&
-                                              (widget.question as UniversalQuestion).audioOptions[index] != null &&
-                                              (widget.question as UniversalQuestion).audioOptions[index]!.trim().isNotEmpty) ...[
-                                            const SizedBox(height: 4),
-                                            InkWell(
-                                              onTap: () => AudioPlaybackService.instance.playAudioUrl(
-                                                  (widget.question as UniversalQuestion).audioOptions[index]!.trim()),
-                                              borderRadius: BorderRadius.circular(16),
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.amber.shade50,
-                                                  borderRadius: BorderRadius.circular(16),
-                                                  border: Border.all(color: Colors.amber.shade300),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    const Icon(Icons.play_circle_fill, size: 14, color: Color(0xFFD97706)),
-                                                    const SizedBox(width: 3),
-                                                    Text(
-                                                      LanguageService.instance.trText(
-                                                        ne: 'अडियो सुन्नुहोस्',
-                                                        en: 'Play Audio',
-                                                        ko: '오디오 듣기',
-                                                      ),
-                                                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(Icons.play_circle_fill, size: 14, color: Color(0xFFD97706)),
+                                                  const SizedBox(width: 3),
+                                                  Text(
+                                                    LanguageService.instance.trText(
+                                                      ne: 'अडियो सुन्नुहोस्',
+                                                      en: 'Play Audio',
+                                                      ko: '오디오 듣기',
                                                     ),
-                                                  ],
-                                                ),
+                                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                          ],
+                                          ),
                                         ],
                                       ],
                                     ),

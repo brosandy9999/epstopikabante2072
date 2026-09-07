@@ -20,13 +20,24 @@ class ReadingQuestionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final options = (question is UniversalQuestion)
-        ? (question as UniversalQuestion).textOptions
-        : ((question is ReadingTextQuestion)
-            ? (question as ReadingTextQuestion).textOptions
-            : ((question is ReadingImageQuestion)
-                ? (question as ReadingImageQuestion).textOptions
-                : <String>[]));
+    List<String> rawOptions = [];
+    if (question is UniversalQuestion) {
+      rawOptions = (question as UniversalQuestion).textOptions;
+    } else if (question is ReadingTextQuestion) {
+      rawOptions = (question as ReadingTextQuestion).textOptions;
+    } else if (question is ReadingImageQuestion) {
+      rawOptions = (question as ReadingImageQuestion).textOptions;
+    } else if (question is ListeningAudioQuestion) {
+      rawOptions = (question as ListeningAudioQuestion).textOptions;
+    }
+
+    final List<String> options = List.generate(4, (index) {
+      if (index < rawOptions.length) {
+        return rawOptions[index];
+      }
+      return '';
+    });
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -109,10 +120,31 @@ class ReadingQuestionWidget extends StatelessWidget {
                     const SizedBox(height: 6),
 
                     // 4 Options Stacked Vertically
-                    ...List.generate(options.length, (index) {
+                    ...List.generate(4, (index) {
                       final isSelected = selectedOptionIndex == index;
                       const circledNumbers = ["①", "②", "③", "④"];
-                      final numLabel = index < circledNumbers.length ? circledNumbers[index] : "${index + 1}";
+                      final numLabel = circledNumbers[index];
+                      final optionText = options[index].trim();
+
+                      String? imageOptionUrl;
+                      if (question is UniversalQuestion) {
+                        final uq = question as UniversalQuestion;
+                        if (index < uq.imageOptions.length && uq.imageOptions[index] != null && uq.imageOptions[index]!.trim().isNotEmpty) {
+                          imageOptionUrl = uq.imageOptions[index]!.trim();
+                        }
+                      }
+
+                      String? audioOptionUrl;
+                      if (question is UniversalQuestion) {
+                        final uq = question as UniversalQuestion;
+                        if (index < uq.audioOptions.length && uq.audioOptions[index] != null && uq.audioOptions[index]!.trim().isNotEmpty) {
+                          audioOptionUrl = uq.audioOptions[index]!.trim();
+                        }
+                      }
+
+                      final displayText = optionText.isNotEmpty 
+                          ? optionText 
+                          : (imageOptionUrl == null ? "${index + 1}번" : "");
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 6),
@@ -162,66 +194,59 @@ class ReadingQuestionWidget extends StatelessWidget {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        if (options[index].isNotEmpty)
+                                        if (displayText.isNotEmpty)
                                           Text(
-                                            options[index],
+                                            displayText,
                                             style: TextStyle(
                                               fontSize: 14,
                                               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                               color: isSelected ? const Color(0xFF1E3A8A) : Colors.black87,
                                             ),
                                           ),
-                                        if (question is UniversalQuestion) ...[
-                                          if (index < (question as UniversalQuestion).imageOptions.length &&
-                                              (question as UniversalQuestion).imageOptions[index] != null &&
-                                              (question as UniversalQuestion).imageOptions[index]!.trim().isNotEmpty) ...[
-                                            const SizedBox(height: 4),
-                                            Container(
-                                              constraints: const BoxConstraints(maxHeight: 90),
+                                        if (imageOptionUrl != null) ...[
+                                          const SizedBox(height: 4),
+                                          Container(
+                                            constraints: const BoxConstraints(maxHeight: 90),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(6),
+                                              border: Border.all(color: Colors.grey.shade300),
+                                            ),
+                                            clipBehavior: Clip.antiAlias,
+                                            child: SmartImageWidget(
+                                              imageSource: imageOptionUrl,
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ],
+                                        if (audioOptionUrl != null) ...[
+                                          const SizedBox(height: 4),
+                                          InkWell(
+                                            onTap: () => AudioPlaybackService.instance.playAudioUrl(audioOptionUrl!),
+                                            borderRadius: BorderRadius.circular(20),
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                               decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(6),
-                                                border: Border.all(color: Colors.grey.shade300),
+                                                color: Colors.blue.shade50,
+                                                borderRadius: BorderRadius.circular(20),
+                                                border: Border.all(color: Colors.blue.shade200),
                                               ),
-                                              clipBehavior: Clip.antiAlias,
-                                              child: SmartImageWidget(
-                                                imageSource: (question as UniversalQuestion).imageOptions[index]!.trim(),
-                                                fit: BoxFit.contain,
-                                              ),
-                                            ),
-                                          ],
-                                          if (index < (question as UniversalQuestion).audioOptions.length &&
-                                              (question as UniversalQuestion).audioOptions[index] != null &&
-                                              (question as UniversalQuestion).audioOptions[index]!.trim().isNotEmpty) ...[
-                                            const SizedBox(height: 4),
-                                            InkWell(
-                                              onTap: () => AudioPlaybackService.instance.playAudioUrl(
-                                                  (question as UniversalQuestion).audioOptions[index]!.trim()),
-                                              borderRadius: BorderRadius.circular(20),
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.blue.shade50,
-                                                  borderRadius: BorderRadius.circular(20),
-                                                  border: Border.all(color: Colors.blue.shade200),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    const Icon(Icons.play_circle_fill, size: 14, color: Color(0xFF1E3A8A)),
-                                                    const SizedBox(width: 4),
-                                                    Text(
-                                                      LanguageService.instance.trText(
-                                                        ne: 'अडियो सुन्नुहोस्',
-                                                        en: 'Play Audio',
-                                                        ko: '오디오 듣기',
-                                                      ),
-                                                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(Icons.play_circle_fill, size: 14, color: Color(0xFF1E3A8A)),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    LanguageService.instance.trText(
+                                                      ne: 'अडियो सुन्नुहोस्',
+                                                      en: 'Play Audio',
+                                                      ko: '오디오 듣기',
                                                     ),
-                                                  ],
-                                                ),
+                                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                          ],
+                                          ),
                                         ],
                                       ],
                                     ),
