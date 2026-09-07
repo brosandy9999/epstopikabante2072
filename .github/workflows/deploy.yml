@@ -7,6 +7,12 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
@@ -19,7 +25,9 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build web --release --base-href "/epstopikabante2072/"
-      - run: touch ./build/web/.nojekyll
+      - run: |
+          touch ./build/web/.nojekyll
+          cp ./web/_config.yml ./build/web/_config.yml
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
