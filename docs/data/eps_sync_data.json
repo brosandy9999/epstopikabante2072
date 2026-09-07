@@ -1,7 +1,7 @@
 {
   "version": "2.4",
   "channelId": "epstopikabante2072_main",
-  "timestamp": "2026-09-05T16:22:01.437168",
+  "timestamp": "2026-09-07T10:53:38.388028",
   "deviceType": "mobile_app",
   "sets": [
     {
@@ -21,6 +21,7 @@
       "isStrictMode": true,
       "questions": [
         {
+          "type": "UniversalQuestion",
           "questionId": "Q01",
           "questionText": "[1] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
           "questionNumber": 1,
@@ -33,9 +34,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q02",
           "questionText": "[2] 다음 그림을 보고 맞는 단어를 고르십시오.",
-          "questionNumber": 1,
+          "questionNumber": 2,
           "isListening": false,
           "textOptions": [
             "의사",
@@ -45,9 +47,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q03",
           "questionText": "[3] 다음 질문에 맞는 표지를 고르십시오. '주차금지'",
-          "questionNumber": 1,
+          "questionNumber": 3,
           "isListening": false,
           "textOptions": [
             "차를 세우지 마십시오.",
@@ -57,9 +60,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q04",
           "questionText": "[4] 다음 안내판의 설명으로 알맞은 것은 무엇입니까?",
-          "questionNumber": 1,
+          "questionNumber": 4,
           "isListening": false,
           "textOptions": [
             "비상구입니다.",
@@ -69,9 +73,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q05",
           "questionText": "[5] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 어디에 가요?\n나: 시장에 (      ).",
-          "questionNumber": 1,
+          "questionNumber": 5,
           "isListening": false,
           "textOptions": [
             "가요",
@@ -81,9 +86,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q06",
           "questionText": "[6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 사과가 얼마예요?\n나: 한 개에 천 (      )이에요.",
-          "questionNumber": 1,
+          "questionNumber": 6,
           "isListening": false,
           "textOptions": [
             "명",
@@ -93,9 +99,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q07",
           "questionText": "[7] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 오늘 날씨가 어때요?\n나: 비가 와서 날씨가 (      ).",
-          "questionNumber": 1,
+          "questionNumber": 7,
           "isListening": false,
           "textOptions": [
             "더워요",
@@ -105,9 +112,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q08",
           "questionText": "[8] 다음 단어와 관계있는 것은 무엇입니까?\n[ 밥, 찌개, 김치, 반찬 ]",
-          "questionNumber": 1,
+          "questionNumber": 8,
           "isListening": false,
           "textOptions": [
             "식사",
@@ -117,9 +125,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q09",
           "questionText": "[9] 다음 영수증을 보고 맞지 않는 것을 고르십시오.",
-          "questionNumber": 1,
+          "questionNumber": 9,
           "isListening": false,
           "textOptions": [
             "사과를 샀습니다.",
@@ -129,9 +138,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q10",
           "questionText": "[10] 다음 글을 읽고 내용과 같은 것을 고르십시오.\n저는 베트남 사람입니다. 한국 공장에서 일합니다. 일이 조금 힘들지만 재미있습니다.",
-          "questionNumber": 1,
+          "questionNumber": 10,
           "isListening": false,
           "textOptions": [
             "이 사람은 공장에서 일합니다.",
@@ -141,9 +151,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q11",
           "questionText": "[11] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월요일부터 금요일까지 일하고, 토요일과 일요일은 (      )입니다.",
-          "questionNumber": 1,
+          "questionNumber": 11,
           "isListening": false,
           "textOptions": [
             "주말",
@@ -153,9 +164,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q12",
           "questionText": "[12] 다음 글의 내용과 맞는 것을 고르십시오.\n우리 회사는 9시에 시작해서 오후 6시에 끝납니다. 점심시간은 12시 30분부터 1시간입니다.",
-          "questionNumber": 1,
+          "questionNumber": 12,
           "isListening": false,
           "textOptions": [
             "점심시간은 12시 30분부터입니다.",
@@ -165,9 +177,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q13",
           "questionText": "[13] 다음 단어의 반대말은 무엇입니까?\n[ 들어가다 ]",
-          "questionNumber": 1,
+          "questionNumber": 13,
           "isListening": false,
           "textOptions": [
             "올라가다",
@@ -177,9 +190,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q14",
           "questionText": "[14] 다음 단어와 비슷한 말은 무엇입니까?\n[ 이야기하다 ]",
-          "questionNumber": 1,
+          "questionNumber": 14,
           "isListening": false,
           "textOptions": [
             "노래하다",
@@ -189,9 +203,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q15",
           "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n작업장에 들어가기 전에는 반드시 안전모와 (      )를 착용해야 합니다.",
-          "questionNumber": 1,
+          "questionNumber": 15,
           "isListening": false,
           "textOptions": [
             "안전화",
@@ -201,9 +216,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q16",
           "questionText": "[16] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 이 기계는 어떻게 꺼요?\n나: 빨간색 스위치를 (      ) 됩니다.",
-          "questionNumber": 1,
+          "questionNumber": 16,
           "isListening": false,
           "textOptions": [
             "켜면",
@@ -213,9 +229,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q17",
           "questionText": "[17] 다음 설명에 맞는 어휘를 고르십시오.\n[ 물건을 담아서 옮기는 데 쓰는 직사각형 상자 ]",
-          "questionNumber": 1,
+          "questionNumber": 17,
           "isListening": false,
           "textOptions": [
             "상자",
@@ -225,9 +242,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q18",
           "questionText": "[18] 다음 중 작업 중 화재가 났을 때 가장 먼저 해야 할 일은?",
-          "questionNumber": 1,
+          "questionNumber": 18,
           "isListening": false,
           "textOptions": [
             "사진을 찍는다.",
@@ -237,9 +255,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q19",
           "questionText": "[19] 다음 글을 읽고 물음에 답하십시오.\n한국에서는 어른에게 물건을 드릴 때 두 손으로 드려야 합니다. 그리고 식사할 때 어른이 먼저 수저를 든 후에 먹습니다.",
-          "questionNumber": 1,
+          "questionNumber": 19,
           "isListening": false,
           "textOptions": [
             "어른에게 두 손으로 물건을 드립니다.",
@@ -249,9 +268,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q20",
           "questionText": "[20] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월급을 받으면 고향에 있는 가족에게 돈을 (      ) 합니다.",
-          "questionNumber": 1,
+          "questionNumber": 20,
           "isListening": false,
           "textOptions": [
             "바꾸려고",
@@ -261,6 +281,7 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q21",
           "questionText": "[21] 들은 것을 고르십시오.",
           "questionNumber": 21,
@@ -276,9 +297,10 @@
           "audioScriptNepali": "कारखाना"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q22",
           "questionText": "[22] 들은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 22,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -291,9 +313,10 @@
           "audioScriptNepali": "टोपी"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q23",
           "questionText": "[23] 그림을 보고 알맞은 대답을 고르십시오.\n이것은 무엇입니까?",
-          "questionNumber": 21,
+          "questionNumber": 23,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -306,9 +329,10 @@
           "audioScriptNepali": "यो के हो? सुरक्षा जुत्ता हो।"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q24",
           "questionText": "[24] 질문을 듣고 알맞은 대답을 고르십시오.\n한국 사람입니까?",
-          "questionNumber": 21,
+          "questionNumber": 24,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -321,9 +345,10 @@
           "audioScriptNepali": "तपाईं कोरियन मानिस हुनुहुन्छ?"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q25",
           "questionText": "[25] 질문을 듣고 알맞은 대답을 고르십시오.\n지금 몇 시예요?",
-          "questionNumber": 21,
+          "questionNumber": 25,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -336,9 +361,10 @@
           "audioScriptNepali": "अहिले कति बज्यो?"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q26",
           "questionText": "[26] 질문을 듣고 알맞은 대답을 고르십시오.\n이 일은 언제까지 끝내야 합니까?",
-          "questionNumber": 21,
+          "questionNumber": 26,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -351,9 +377,10 @@
           "audioScriptNepali": "यो काम कहिलेसम्म सकिसक्नु पर्छ?"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q27",
           "questionText": "[27] 질문을 듣고 알맞은 대답을 고르십시오.\n작업을 시작하기 전에 무엇을 해야 합니까?",
-          "questionNumber": 21,
+          "questionNumber": 27,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -366,9 +393,10 @@
           "audioScriptNepali": "काम सुरु गर्नुअघि के गर्नुपर्छ?"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q28",
           "questionText": "[28] 질문을 듣고 알맞은 대답을 고르십시오.\n수루 씨, 오늘 저녁에 시간 있어요?",
-          "questionNumber": 21,
+          "questionNumber": 28,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -381,9 +409,10 @@
           "audioScriptNepali": "सुरु जी, आज साँझ फुर्सद छ?"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q29",
           "questionText": "[29] 질문을 듣고 알맞은 대답을 고르십시오.\n퇴근 후에 뭐 할 거예요?",
-          "questionNumber": 21,
+          "questionNumber": 29,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -396,9 +425,10 @@
           "audioScriptNepali": "काम सकिएपछि के गर्नुहुन्छ?"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q30",
           "questionText": "[30] 이야기를 듣고 질문에 알맞은 대답을 고르십시오.\n남자는 무엇을 찾고 있습니까?",
-          "questionNumber": 21,
+          "questionNumber": 30,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -411,9 +441,10 @@
           "audioScriptNepali": "क्याप्टेन ज्यू, सुरक्षा टोपी (हेलमेट) कहाँ छ? उ त्यहाँ र्‍याक माथि छ।"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q31",
           "questionText": "[31] 대화를 듣고 여자가 가려고 하는 곳을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 31,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -426,9 +457,10 @@
           "audioScriptNepali": "टाउको धेरै दुखेर औषधि पसल गएर टाउको दुखाईको औषधि किन्नुपर्ला।"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q32",
           "questionText": "[32] 대화를 듣고 두 사람이 오늘 할 일을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 32,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -441,9 +473,10 @@
           "audioScriptNepali": "आज छुट्टी भएपछि चलचित्र हेर्न जाने हो? हुन्छ, सँगै जाउँ।"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q33",
           "questionText": "[33] 다음을 듣고 이어지는 말로 가장 알맞은 것을 고르십시오.\n식사 맛있게 하셨어요?",
-          "questionNumber": 21,
+          "questionNumber": 33,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -456,9 +489,10 @@
           "audioScriptNepali": "खाना मिठो गरी खानुभयो?"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q34",
           "questionText": "[34] 대화를 듣고 남자의 직업을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 34,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -471,9 +505,10 @@
           "audioScriptNepali": "म कारखानामा फलामको पाता वेल्डिङ गर्ने वेल्डर हुँ।"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q35",
           "questionText": "[35] 이야기를 듣고 질문에 알맞은 답을 고르십시오.\n남자는 왜 늦었습니까?",
-          "questionNumber": 21,
+          "questionNumber": 35,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -486,9 +521,10 @@
           "audioScriptNepali": "किन यति ढिलो हुनुभयो? काममा आउने समयमा गाडी धेरै जाम भएर ढिलो भयो।"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q36",
           "questionText": "[36] 대화를 듣고 두 사람이 만날 시간을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 36,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -501,9 +537,10 @@
           "audioScriptNepali": "हामी कति बजे भेट्ने? ६:३० बजे भेटौं।"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q37",
           "questionText": "[37] 대화를 듣고 남자가 주문한 음식을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 37,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -516,9 +553,10 @@
           "audioScriptNepali": "यहाँ एउटा किम्ची चिगे दिनुहोस्।"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q38",
           "questionText": "[38] 다음을 듣고 들은 내용과 일치하는 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 38,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -531,9 +569,10 @@
           "audioScriptNepali": "जानकारी गराउँदछु। आज मेसिन जाँचका कारण कारखानाको काम सकिएको छ।"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q39",
           "questionText": "[39] 대화를 듣고 여자가 할 일로 알맞은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 39,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -546,9 +585,10 @@
           "audioScriptNepali": "क्याप्टेन ज्यू, म यो बक्स गोदाममा सार्नेछु।"
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "Q40",
           "questionText": "[40] 대화를 듣고 물음에 답하십시오.\n남자는 내일 몇 시에 출근합니까?",
-          "questionNumber": 21,
+          "questionNumber": 40,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -741,6 +781,7 @@
       "isStrictMode": true,
       "questions": [
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q01",
           "questionText": "[1] 다음 그림을 보고 맞는 단어를 고르십시오.",
           "questionNumber": 1,
@@ -753,9 +794,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q02",
           "questionText": "[2] 다음 그림을 보고 알맞은 가축을 고르십시오.",
-          "questionNumber": 1,
+          "questionNumber": 2,
           "isListening": false,
           "textOptions": [
             "소",
@@ -765,9 +807,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q03",
           "questionText": "[3] 다음 표지의 의미로 알맞은 것은 무엇입니까? '출입금지'",
-          "questionNumber": 1,
+          "questionNumber": 3,
           "isListening": false,
           "textOptions": [
             "들어오지 마십시오.",
@@ -777,9 +820,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q04",
           "questionText": "[4] 비닐하우스의 온도를 조절하기 위해 무엇을 열어야 합니까?",
-          "questionNumber": 1,
+          "questionNumber": 4,
           "isListening": false,
           "textOptions": [
             "환풍기",
@@ -789,9 +833,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q05",
           "questionText": "[5] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n밭에 씨앗을 (      ) 후에 물을 줍니다.",
-          "questionNumber": 1,
+          "questionNumber": 5,
           "isListening": false,
           "textOptions": [
             "심은",
@@ -801,9 +846,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q06",
           "questionText": "[6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 돼지에게 밥을 주었습니까?\n나: 네, 아침에 (      )을 주었습니다.",
-          "questionNumber": 1,
+          "questionNumber": 6,
           "isListening": false,
           "textOptions": [
             "사료",
@@ -813,9 +859,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q07",
           "questionText": "[7] 다음 단어와 관계있는 것은 무엇입니까?\n[ 토마토, 배추, 상추, 고추 ]",
-          "questionNumber": 1,
+          "questionNumber": 7,
           "isListening": false,
           "textOptions": [
             "채소",
@@ -825,9 +872,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q08",
           "questionText": "[8] 농약 살포 시 착용해야 하는 안전 장비가 아닌 것은?",
-          "questionNumber": 1,
+          "questionNumber": 8,
           "isListening": false,
           "textOptions": [
             "마스크",
@@ -837,9 +885,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q09",
           "questionText": "[9] 다음 글을 읽고 내용과 같은 것을 고르십시오.\n가을에는 벼를 베고 과일을 수확합니다. 농촌에서 가장 바쁜 계절입니다.",
-          "questionNumber": 1,
+          "questionNumber": 9,
           "isListening": false,
           "textOptions": [
             "가을은 농촌이 바쁩니다.",
@@ -849,9 +898,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q10",
           "questionText": "[10] 다음 닭 사육장(양계장) 관리 수칙 중 맞는 것은?",
-          "questionNumber": 1,
+          "questionNumber": 10,
           "isListening": false,
           "textOptions": [
             "매일 사료통을 청소합니다.",
@@ -861,9 +911,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q11",
           "questionText": "[11] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n채소에 벌레가 많아서 (      )를 뿌려야 합니다.",
-          "questionNumber": 1,
+          "questionNumber": 11,
           "isListening": false,
           "textOptions": [
             "농약",
@@ -873,9 +924,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q12",
           "questionText": "[12] 다음 단어의 반대말은 무엇입니까?\n[ 수확하다 (Harvest) ]",
-          "questionNumber": 1,
+          "questionNumber": 12,
           "isListening": false,
           "textOptions": [
             "심다 (Plant)",
@@ -885,9 +937,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q13",
           "questionText": "[13] 다음 설명에 맞는 어휘를 고르십시오.\n[ 소나 돼지, 닭을 기르는 건물 ]",
-          "questionNumber": 1,
+          "questionNumber": 13,
           "isListening": false,
           "textOptions": [
             "축사",
@@ -897,9 +950,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q14",
           "questionText": "[14] 비닐하우스 안에서 일할 때 주의할 점은 무엇입니까?",
-          "questionNumber": 1,
+          "questionNumber": 14,
           "isListening": false,
           "textOptions": [
             "충분한 수분을 섭취하고 휴식한다.",
@@ -909,9 +963,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q15",
           "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n과일을 상자에 담아서 창고로 (      ).",
-          "questionNumber": 1,
+          "questionNumber": 15,
           "isListening": false,
           "textOptions": [
             "운반합니다",
@@ -921,9 +976,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q16",
           "questionText": "[16] 풀을 벨 때 사용하는 도구는 무엇입니까?",
-          "questionNumber": 1,
+          "questionNumber": 16,
           "isListening": false,
           "textOptions": [
             "낫",
@@ -933,9 +989,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q17",
           "questionText": "[17] 다음 중 거름(비료)을 주는 올바른 이유는?",
-          "questionNumber": 1,
+          "questionNumber": 17,
           "isListening": false,
           "textOptions": [
             "작물이 잘 자라도록 하기 위해",
@@ -945,9 +1002,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q18",
           "questionText": "[18] 축사를 청소할 때 가장 먼저 해야 할 일은?",
-          "questionNumber": 1,
+          "questionNumber": 18,
           "isListening": false,
           "textOptions": [
             "분뇨(똥)를 치운다.",
@@ -957,9 +1015,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q19",
           "questionText": "[19] 다음 농장 일정표를 보고 알맞은 것을 고르십시오.\n[월: 씨앗 뿌리기, 화: 비료 주기, 수: 물주기]",
-          "questionNumber": 1,
+          "questionNumber": 19,
           "isListening": false,
           "textOptions": [
             "화요일에는 비료를 줍니다.",
@@ -969,9 +1028,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q20",
           "questionText": "[20] 트랙터나 경운기를 운전할 때 주의사항은?",
-          "questionNumber": 1,
+          "questionNumber": 20,
           "isListening": false,
           "textOptions": [
             "안전벨트를 매고 서행한다.",
@@ -981,6 +1041,7 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q21",
           "questionText": "[21] 들은 것을 고르십시오.",
           "questionNumber": 21,
@@ -996,9 +1057,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q22",
           "questionText": "[22] 들은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 22,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1011,9 +1073,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q23",
           "questionText": "[23] 그림을 보고 알맞은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 23,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1026,9 +1089,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q24",
           "questionText": "[24] 질문을 듣고 알맞은 대답을 고르십시오.\n오늘 비닐하우스 환기시켰어요?",
-          "questionNumber": 21,
+          "questionNumber": 24,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1041,9 +1105,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q25",
           "questionText": "[25] 질문을 듣고 알맞은 대답을 고르십시오.\n사료는 하루에 몇 번 줍니까?",
-          "questionNumber": 21,
+          "questionNumber": 25,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1056,9 +1121,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q26",
           "questionText": "[26] 대화를 듣고 남자가 할 일을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 26,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1071,9 +1137,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q27",
           "questionText": "[27] 대화를 듣고 여자가 찾는 도구를 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 27,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1086,9 +1153,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q28",
           "questionText": "[28] 질문을 듣고 알맞은 대답을 고르십시오.\n상추 수확은 언제 시작해요?",
-          "questionNumber": 21,
+          "questionNumber": 28,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1101,9 +1169,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q29",
           "questionText": "[29] 대화를 듣고 작업 장소를 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 29,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1116,9 +1185,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q30",
           "questionText": "[30] 이야기를 듣고 질문에 답하십시오.\n남자는 왜 병원에 가야 합니까?",
-          "questionNumber": 21,
+          "questionNumber": 30,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1131,9 +1201,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q31",
           "questionText": "[31] 대화를 듣고 오늘 할 작업을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 31,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1146,9 +1217,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q32",
           "questionText": "[32] 대화를 듣고 여자의 고향 날씨를 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 32,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1161,9 +1233,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q33",
           "questionText": "[33] 질문을 듣고 알맞은 대답을 고르십시오.\n농약 칠 때 마스크 썼어요?",
-          "questionNumber": 21,
+          "questionNumber": 33,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1176,9 +1249,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q34",
           "questionText": "[34] 대화를 듣고 두 사람이 이야기하는 작물을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 34,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1191,9 +1265,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q35",
           "questionText": "[35] 대화를 듣고 남자가 오후에 할 일을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 35,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1206,9 +1281,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q36",
           "questionText": "[36] 대화를 듣고 소의 상태가 어떤지 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 36,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1221,9 +1297,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q37",
           "questionText": "[37] 대화를 듣고 내일 날씨를 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 37,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1236,9 +1313,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q38",
           "questionText": "[38] 대화를 듣고 여자가 사 오기로 한 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 38,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1251,9 +1329,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q39",
           "questionText": "[39] 대화를 듣고 퇴근 시간으로 알맞은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 39,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1266,9 +1345,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S2_Q40",
           "questionText": "[40] 대화를 듣고 질문에 답하십시오.\n상자 몇 개를 트럭에 실었습니까?",
-          "questionNumber": 21,
+          "questionNumber": 40,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1461,6 +1541,7 @@
       "isStrictMode": true,
       "questions": [
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q01",
           "questionText": "[3회 1] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
           "questionNumber": 1,
@@ -1473,9 +1554,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q02",
           "questionText": "[3회 2] 다음 그림을 보고 맞는 단어를 고르십시오.",
-          "questionNumber": 1,
+          "questionNumber": 2,
           "isListening": false,
           "textOptions": [
             "의사",
@@ -1485,9 +1567,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q03",
           "questionText": "[3] 다음 질문에 맞는 표지를 고르십시오. '주차금지'",
-          "questionNumber": 1,
+          "questionNumber": 3,
           "isListening": false,
           "textOptions": [
             "차를 세우지 마십시오.",
@@ -1497,9 +1580,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q04",
           "questionText": "[4] 다음 안내판의 설명으로 알맞은 것은 무엇입니까?",
-          "questionNumber": 1,
+          "questionNumber": 4,
           "isListening": false,
           "textOptions": [
             "비상구입니다.",
@@ -1509,9 +1593,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q05",
           "questionText": "[5] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 어디에 가요?\n나: 시장에 (      ).",
-          "questionNumber": 1,
+          "questionNumber": 5,
           "isListening": false,
           "textOptions": [
             "가요",
@@ -1521,9 +1606,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q06",
           "questionText": "[6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 사과가 얼마예요?\n나: 한 개에 천 (      )이에요.",
-          "questionNumber": 1,
+          "questionNumber": 6,
           "isListening": false,
           "textOptions": [
             "명",
@@ -1533,9 +1619,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q07",
           "questionText": "[7] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 오늘 날씨가 어때요?\n나: 비가 와서 날씨가 (      ).",
-          "questionNumber": 1,
+          "questionNumber": 7,
           "isListening": false,
           "textOptions": [
             "더워요",
@@ -1545,9 +1632,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q08",
           "questionText": "[8] 다음 단어와 관계있는 것은 무엇입니까?\n[ 밥, 찌개, 김치, 반찬 ]",
-          "questionNumber": 1,
+          "questionNumber": 8,
           "isListening": false,
           "textOptions": [
             "식사",
@@ -1557,9 +1645,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q09",
           "questionText": "[9] 다음 영수증을 보고 맞지 않는 것을 고르십시오.",
-          "questionNumber": 1,
+          "questionNumber": 9,
           "isListening": false,
           "textOptions": [
             "사과를 샀습니다.",
@@ -1569,9 +1658,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q10",
           "questionText": "[10] 다음 글을 읽고 내용과 같은 것을 고르십시오.\n저는 베트남 사람입니다. 한국 공장에서 일합니다. 일이 조금 힘들지만 재미있습니다.",
-          "questionNumber": 1,
+          "questionNumber": 10,
           "isListening": false,
           "textOptions": [
             "이 사람은 공장에서 일합니다.",
@@ -1581,9 +1671,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q11",
           "questionText": "[11] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월요일부터 금요일까지 일하고, 토요일과 일요일은 (      )입니다.",
-          "questionNumber": 1,
+          "questionNumber": 11,
           "isListening": false,
           "textOptions": [
             "주말",
@@ -1593,9 +1684,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q12",
           "questionText": "[12] 다음 글의 내용과 맞는 것을 고르십시오.\n우리 회사는 9시에 시작해서 오후 6시에 끝납니다. 점심시간은 12시 30분부터 1시간입니다.",
-          "questionNumber": 1,
+          "questionNumber": 12,
           "isListening": false,
           "textOptions": [
             "점심시간은 12시 30분부터입니다.",
@@ -1605,9 +1697,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q13",
           "questionText": "[13] 다음 단어의 반대말은 무엇입니까?\n[ 들어가다 ]",
-          "questionNumber": 1,
+          "questionNumber": 13,
           "isListening": false,
           "textOptions": [
             "올라가다",
@@ -1617,9 +1710,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q14",
           "questionText": "[14] 다음 단어와 비슷한 말은 무엇입니까?\n[ 이야기하다 ]",
-          "questionNumber": 1,
+          "questionNumber": 14,
           "isListening": false,
           "textOptions": [
             "노래하다",
@@ -1629,9 +1723,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q15",
           "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n작업장에 들어가기 전에는 반드시 안전모와 (      )를 착용해야 합니다.",
-          "questionNumber": 1,
+          "questionNumber": 15,
           "isListening": false,
           "textOptions": [
             "안전화",
@@ -1641,9 +1736,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q16",
           "questionText": "[16] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 이 기계는 어떻게 꺼요?\n나: 빨간색 스위치를 (      ) 됩니다.",
-          "questionNumber": 1,
+          "questionNumber": 16,
           "isListening": false,
           "textOptions": [
             "켜면",
@@ -1653,9 +1749,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q17",
           "questionText": "[17] 다음 설명에 맞는 어휘를 고르십시오.\n[ 물건을 담아서 옮기는 데 쓰는 직사각형 상자 ]",
-          "questionNumber": 1,
+          "questionNumber": 17,
           "isListening": false,
           "textOptions": [
             "상자",
@@ -1665,9 +1762,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q18",
           "questionText": "[18] 다음 중 작업 중 화재가 났을 때 가장 먼저 해야 할 일은?",
-          "questionNumber": 1,
+          "questionNumber": 18,
           "isListening": false,
           "textOptions": [
             "사진을 찍는다.",
@@ -1677,9 +1775,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q19",
           "questionText": "[19] 다음 글을 읽고 물음에 답하십시오.\n한국에서는 어른에게 물건을 드릴 때 두 손으로 드려야 합니다. 그리고 식사할 때 어른이 먼저 수저를 든 후에 먹습니다.",
-          "questionNumber": 1,
+          "questionNumber": 19,
           "isListening": false,
           "textOptions": [
             "어른에게 두 손으로 물건을 드립니다.",
@@ -1689,9 +1788,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q20",
           "questionText": "[20] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월급을 받으면 고향에 있는 가족에게 돈을 (      ) 합니다.",
-          "questionNumber": 1,
+          "questionNumber": 20,
           "isListening": false,
           "textOptions": [
             "바꾸려고",
@@ -1701,6 +1801,7 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q21",
           "questionText": "[3회 21] 들은 것을 고르십시오.",
           "questionNumber": 21,
@@ -1716,9 +1817,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q22",
           "questionText": "[22] 들은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 22,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1731,9 +1833,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q23",
           "questionText": "[23] 그림을 보고 알맞은 대답을 고르십시오.\n이것은 무엇입니까?",
-          "questionNumber": 21,
+          "questionNumber": 23,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1746,9 +1849,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q24",
           "questionText": "[24] 질문을 듣고 알맞은 대답을 고르십시오.\n한국 사람입니까?",
-          "questionNumber": 21,
+          "questionNumber": 24,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1761,9 +1865,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q25",
           "questionText": "[25] 질문을 듣고 알맞은 대답을 고르십시오.\n지금 몇 시예요?",
-          "questionNumber": 21,
+          "questionNumber": 25,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1776,9 +1881,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q26",
           "questionText": "[26] 질문을 듣고 알맞은 대답을 고르십시오.\n이 일은 언제까지 끝내야 합니까?",
-          "questionNumber": 21,
+          "questionNumber": 26,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1791,9 +1897,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q27",
           "questionText": "[27] 질문을 듣고 알맞은 대답을 고르십시오.\n작업을 시작하기 전에 무엇을 해야 합니까?",
-          "questionNumber": 21,
+          "questionNumber": 27,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1806,9 +1913,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q28",
           "questionText": "[28] 질문을 듣고 알맞은 대답을 고르십시오.\n수루 씨, 오늘 저녁에 시간 있어요?",
-          "questionNumber": 21,
+          "questionNumber": 28,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1821,9 +1929,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q29",
           "questionText": "[29] 질문을 듣고 알맞은 대답을 고르십시오.\n퇴근 후에 뭐 할 거예요?",
-          "questionNumber": 21,
+          "questionNumber": 29,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1836,9 +1945,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q30",
           "questionText": "[30] 이야기를 듣고 질문에 알맞은 대답을 고르십시오.\n남자는 무엇을 찾고 있습니까?",
-          "questionNumber": 21,
+          "questionNumber": 30,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1851,9 +1961,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q31",
           "questionText": "[31] 대화를 듣고 여자가 가려고 하는 곳을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 31,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1866,9 +1977,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q32",
           "questionText": "[32] 대화를 듣고 두 사람이 오늘 할 일을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 32,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1881,9 +1993,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q33",
           "questionText": "[33] 다음을 듣고 이어지는 말로 가장 알맞은 것을 고르십시오.\n식사 맛있게 하셨어요?",
-          "questionNumber": 21,
+          "questionNumber": 33,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1896,9 +2009,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q34",
           "questionText": "[34] 대화를 듣고 남자의 직업을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 34,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1911,9 +2025,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q35",
           "questionText": "[35] 이야기를 듣고 질문에 알맞은 답을 고르십시오.\n남자는 왜 늦었습니까?",
-          "questionNumber": 21,
+          "questionNumber": 35,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1926,9 +2041,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q36",
           "questionText": "[36] 대화를 듣고 두 사람이 만날 시간을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 36,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1941,9 +2057,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q37",
           "questionText": "[37] 대화를 듣고 남자가 주문한 음식을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 37,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1956,9 +2073,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q38",
           "questionText": "[38] 다음을 듣고 들은 내용과 일치하는 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 38,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1971,9 +2089,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q39",
           "questionText": "[39] 대화를 듣고 여자가 할 일로 알맞은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 39,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -1986,9 +2105,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S3_Q40",
           "questionText": "[40] 대화를 듣고 물음에 답하십시오.\n남자는 내일 몇 시에 출근합니까?",
-          "questionNumber": 21,
+          "questionNumber": 40,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2181,6 +2301,7 @@
       "isStrictMode": true,
       "questions": [
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q01",
           "questionText": "[4회 1] 다음 그림을 보고 맞는 단어를 고르십시오.",
           "questionNumber": 1,
@@ -2193,9 +2314,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q02",
           "questionText": "[2] 다음 그림을 보고 알맞은 가축을 고르십시오.",
-          "questionNumber": 1,
+          "questionNumber": 2,
           "isListening": false,
           "textOptions": [
             "소",
@@ -2205,9 +2327,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q03",
           "questionText": "[3] 다음 표지의 의미로 알맞은 것은 무엇입니까? '출입금지'",
-          "questionNumber": 1,
+          "questionNumber": 3,
           "isListening": false,
           "textOptions": [
             "들어오지 마십시오.",
@@ -2217,9 +2340,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q04",
           "questionText": "[4] 비닐하우스의 온도를 조절하기 위해 무엇을 열어야 합니까?",
-          "questionNumber": 1,
+          "questionNumber": 4,
           "isListening": false,
           "textOptions": [
             "환풍기",
@@ -2229,9 +2353,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q05",
           "questionText": "[5] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n밭에 씨앗을 (      ) 후에 물을 줍니다.",
-          "questionNumber": 1,
+          "questionNumber": 5,
           "isListening": false,
           "textOptions": [
             "심은",
@@ -2241,9 +2366,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q06",
           "questionText": "[6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 돼지에게 밥을 주었습니까?\n나: 네, 아침에 (      )을 주었습니다.",
-          "questionNumber": 1,
+          "questionNumber": 6,
           "isListening": false,
           "textOptions": [
             "사료",
@@ -2253,9 +2379,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q07",
           "questionText": "[7] 다음 단어와 관계있는 것은 무엇입니까?\n[ 토마토, 배추, 상추, 고추 ]",
-          "questionNumber": 1,
+          "questionNumber": 7,
           "isListening": false,
           "textOptions": [
             "채소",
@@ -2265,9 +2392,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q08",
           "questionText": "[8] 농약 살포 시 착용해야 하는 안전 장비가 아닌 것은?",
-          "questionNumber": 1,
+          "questionNumber": 8,
           "isListening": false,
           "textOptions": [
             "마스크",
@@ -2277,9 +2405,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q09",
           "questionText": "[9] 다음 글을 읽고 내용과 같은 것을 고르십시오.\n가을에는 벼를 베고 과일을 수확합니다. 농촌에서 가장 바쁜 계절입니다.",
-          "questionNumber": 1,
+          "questionNumber": 9,
           "isListening": false,
           "textOptions": [
             "가을은 농촌이 바쁩니다.",
@@ -2289,9 +2418,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q10",
           "questionText": "[10] 다음 닭 사육장(양계장) 관리 수칙 중 맞는 것은?",
-          "questionNumber": 1,
+          "questionNumber": 10,
           "isListening": false,
           "textOptions": [
             "매일 사료통을 청소합니다.",
@@ -2301,9 +2431,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q11",
           "questionText": "[11] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n채소에 벌레가 많아서 (      )를 뿌려야 합니다.",
-          "questionNumber": 1,
+          "questionNumber": 11,
           "isListening": false,
           "textOptions": [
             "농약",
@@ -2313,9 +2444,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q12",
           "questionText": "[12] 다음 단어의 반대말은 무엇입니까?\n[ 수확하다 (Harvest) ]",
-          "questionNumber": 1,
+          "questionNumber": 12,
           "isListening": false,
           "textOptions": [
             "심다 (Plant)",
@@ -2325,9 +2457,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q13",
           "questionText": "[13] 다음 설명에 맞는 어휘를 고르십시오.\n[ 소나 돼지, 닭을 기르는 건물 ]",
-          "questionNumber": 1,
+          "questionNumber": 13,
           "isListening": false,
           "textOptions": [
             "축사",
@@ -2337,9 +2470,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q14",
           "questionText": "[14] 비닐하우스 안에서 일할 때 주의할 점은 무엇입니까?",
-          "questionNumber": 1,
+          "questionNumber": 14,
           "isListening": false,
           "textOptions": [
             "충분한 수분을 섭취하고 휴식한다.",
@@ -2349,9 +2483,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q15",
           "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n과일을 상자에 담아서 창고로 (      ).",
-          "questionNumber": 1,
+          "questionNumber": 15,
           "isListening": false,
           "textOptions": [
             "운반합니다",
@@ -2361,9 +2496,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q16",
           "questionText": "[16] 풀을 벨 때 사용하는 도구는 무엇입니까?",
-          "questionNumber": 1,
+          "questionNumber": 16,
           "isListening": false,
           "textOptions": [
             "낫",
@@ -2373,9 +2509,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q17",
           "questionText": "[17] 다음 중 거름(비료)을 주는 올바른 이유는?",
-          "questionNumber": 1,
+          "questionNumber": 17,
           "isListening": false,
           "textOptions": [
             "작물이 잘 자라도록 하기 위해",
@@ -2385,9 +2522,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q18",
           "questionText": "[18] 축사를 청소할 때 가장 먼저 해야 할 일은?",
-          "questionNumber": 1,
+          "questionNumber": 18,
           "isListening": false,
           "textOptions": [
             "분뇨(똥)를 치운다.",
@@ -2397,9 +2535,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q19",
           "questionText": "[19] 다음 농장 일정표를 보고 알맞은 것을 고르십시오.\n[월: 씨앗 뿌리기, 화: 비료 주기, 수: 물주기]",
-          "questionNumber": 1,
+          "questionNumber": 19,
           "isListening": false,
           "textOptions": [
             "화요일에는 비료를 줍니다.",
@@ -2409,9 +2548,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q20",
           "questionText": "[20] 트랙터나 경운기를 운전할 때 주의사항은?",
-          "questionNumber": 1,
+          "questionNumber": 20,
           "isListening": false,
           "textOptions": [
             "안전벨트를 매고 서행한다.",
@@ -2421,6 +2561,7 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q21",
           "questionText": "[4회 21] 들은 것을 고르십시오.",
           "questionNumber": 21,
@@ -2436,9 +2577,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q22",
           "questionText": "[22] 들은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 22,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2451,9 +2593,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q23",
           "questionText": "[23] 그림을 보고 알맞은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 23,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2466,9 +2609,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q24",
           "questionText": "[24] 질문을 듣고 알맞은 대답을 고르십시오.\n오늘 비닐하우스 환기시켰어요?",
-          "questionNumber": 21,
+          "questionNumber": 24,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2481,9 +2625,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q25",
           "questionText": "[25] 질문을 듣고 알맞은 대답을 고르십시오.\n사료는 하루에 몇 번 줍니까?",
-          "questionNumber": 21,
+          "questionNumber": 25,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2496,9 +2641,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q26",
           "questionText": "[26] 대화를 듣고 남자가 할 일을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 26,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2511,9 +2657,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q27",
           "questionText": "[27] 대화를 듣고 여자가 찾는 도구를 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 27,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2526,9 +2673,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q28",
           "questionText": "[28] 질문을 듣고 알맞은 대답을 고르십시오.\n상추 수확은 언제 시작해요?",
-          "questionNumber": 21,
+          "questionNumber": 28,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2541,9 +2689,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q29",
           "questionText": "[29] 대화를 듣고 작업 장소를 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 29,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2556,9 +2705,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q30",
           "questionText": "[30] 이야기를 듣고 질문에 답하십시오.\n남자는 왜 병원에 가야 합니까?",
-          "questionNumber": 21,
+          "questionNumber": 30,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2571,9 +2721,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q31",
           "questionText": "[31] 대화를 듣고 오늘 할 작업을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 31,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2586,9 +2737,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q32",
           "questionText": "[32] 대화를 듣고 여자의 고향 날씨를 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 32,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2601,9 +2753,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q33",
           "questionText": "[33] 질문을 듣고 알맞은 대답을 고르십시오.\n농약 칠 때 마스크 썼어요?",
-          "questionNumber": 21,
+          "questionNumber": 33,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2616,9 +2769,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q34",
           "questionText": "[34] 대화를 듣고 두 사람이 이야기하는 작물을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 34,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2631,9 +2785,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q35",
           "questionText": "[35] 대화를 듣고 남자가 오후에 할 일을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 35,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2646,9 +2801,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q36",
           "questionText": "[36] 대화를 듣고 소의 상태가 어떤지 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 36,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2661,9 +2817,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q37",
           "questionText": "[37] 대화를 듣고 내일 날씨를 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 37,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2676,9 +2833,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q38",
           "questionText": "[38] 대화를 듣고 여자가 사 오기로 한 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 38,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2691,9 +2849,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q39",
           "questionText": "[39] 대화를 듣고 퇴근 시간으로 알맞은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 39,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2706,9 +2865,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S4_S2_Q40",
           "questionText": "[40] 대화를 듣고 질문에 답하십시오.\n상자 몇 개를 트럭에 실었습니까?",
-          "questionNumber": 21,
+          "questionNumber": 40,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -2901,6 +3061,7 @@
       "isStrictMode": true,
       "questions": [
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q01",
           "questionText": "[실전 1] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
           "questionNumber": 1,
@@ -2913,9 +3074,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q02",
           "questionText": "[실전 2] 다음 그림을 보고 맞는 단어를 고르십시오.",
-          "questionNumber": 1,
+          "questionNumber": 2,
           "isListening": false,
           "textOptions": [
             "의사",
@@ -2925,9 +3087,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q03",
           "questionText": "[3] 다음 질문에 맞는 표지를 고르십시오. '주차금지'",
-          "questionNumber": 1,
+          "questionNumber": 3,
           "isListening": false,
           "textOptions": [
             "차를 세우지 마십시오.",
@@ -2937,9 +3100,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q04",
           "questionText": "[4] 다음 안내판의 설명으로 알맞은 것은 무엇입니까?",
-          "questionNumber": 1,
+          "questionNumber": 4,
           "isListening": false,
           "textOptions": [
             "비상구입니다.",
@@ -2949,9 +3113,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q05",
           "questionText": "[5] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 어디에 가요?\n나: 시장에 (      ).",
-          "questionNumber": 1,
+          "questionNumber": 5,
           "isListening": false,
           "textOptions": [
             "가요",
@@ -2961,9 +3126,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q06",
           "questionText": "[6] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 사과가 얼마예요?\n나: 한 개에 천 (      )이에요.",
-          "questionNumber": 1,
+          "questionNumber": 6,
           "isListening": false,
           "textOptions": [
             "명",
@@ -2973,9 +3139,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q07",
           "questionText": "[7] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 오늘 날씨가 어때요?\n나: 비가 와서 날씨가 (      ).",
-          "questionNumber": 1,
+          "questionNumber": 7,
           "isListening": false,
           "textOptions": [
             "더워요",
@@ -2985,9 +3152,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q08",
           "questionText": "[8] 다음 단어와 관계있는 것은 무엇입니까?\n[ 밥, 찌개, 김치, 반찬 ]",
-          "questionNumber": 1,
+          "questionNumber": 8,
           "isListening": false,
           "textOptions": [
             "식사",
@@ -2997,9 +3165,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q09",
           "questionText": "[9] 다음 영수증을 보고 맞지 않는 것을 고르십시오.",
-          "questionNumber": 1,
+          "questionNumber": 9,
           "isListening": false,
           "textOptions": [
             "사과를 샀습니다.",
@@ -3009,9 +3178,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q10",
           "questionText": "[10] 다음 글을 읽고 내용과 같은 것을 고르십시오.\n저는 베트남 사람입니다. 한국 공장에서 일합니다. 일이 조금 힘들지만 재미있습니다.",
-          "questionNumber": 1,
+          "questionNumber": 10,
           "isListening": false,
           "textOptions": [
             "이 사람은 공장에서 일합니다.",
@@ -3021,9 +3191,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q11",
           "questionText": "[11] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월요일부터 금요일까지 일하고, 토요일과 일요일은 (      )입니다.",
-          "questionNumber": 1,
+          "questionNumber": 11,
           "isListening": false,
           "textOptions": [
             "주말",
@@ -3033,9 +3204,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q12",
           "questionText": "[12] 다음 글의 내용과 맞는 것을 고르십시오.\n우리 회사는 9시에 시작해서 오후 6시에 끝납니다. 점심시간은 12시 30분부터 1시간입니다.",
-          "questionNumber": 1,
+          "questionNumber": 12,
           "isListening": false,
           "textOptions": [
             "점심시간은 12시 30분부터입니다.",
@@ -3045,9 +3217,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q13",
           "questionText": "[13] 다음 단어의 반대말은 무엇입니까?\n[ 들어가다 ]",
-          "questionNumber": 1,
+          "questionNumber": 13,
           "isListening": false,
           "textOptions": [
             "올라가다",
@@ -3057,9 +3230,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q14",
           "questionText": "[14] 다음 단어와 비슷한 말은 무엇입니까?\n[ 이야기하다 ]",
-          "questionNumber": 1,
+          "questionNumber": 14,
           "isListening": false,
           "textOptions": [
             "노래하다",
@@ -3069,9 +3243,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q15",
           "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n작업장에 들어가기 전에는 반드시 안전모와 (      )를 착용해야 합니다.",
-          "questionNumber": 1,
+          "questionNumber": 15,
           "isListening": false,
           "textOptions": [
             "안전화",
@@ -3081,9 +3256,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q16",
           "questionText": "[16] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n가: 이 기계는 어떻게 꺼요?\n나: 빨간색 스위치를 (      ) 됩니다.",
-          "questionNumber": 1,
+          "questionNumber": 16,
           "isListening": false,
           "textOptions": [
             "켜면",
@@ -3093,9 +3269,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q17",
           "questionText": "[17] 다음 설명에 맞는 어휘를 고르십시오.\n[ 물건을 담아서 옮기는 데 쓰는 직사각형 상자 ]",
-          "questionNumber": 1,
+          "questionNumber": 17,
           "isListening": false,
           "textOptions": [
             "상자",
@@ -3105,9 +3282,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q18",
           "questionText": "[18] 다음 중 작업 중 화재가 났을 때 가장 먼저 해야 할 일은?",
-          "questionNumber": 1,
+          "questionNumber": 18,
           "isListening": false,
           "textOptions": [
             "사진을 찍는다.",
@@ -3117,9 +3295,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q19",
           "questionText": "[19] 다음 글을 읽고 물음에 답하십시오.\n한국에서는 어른에게 물건을 드릴 때 두 손으로 드려야 합니다. 그리고 식사할 때 어른이 먼저 수저를 든 후에 먹습니다.",
-          "questionNumber": 1,
+          "questionNumber": 19,
           "isListening": false,
           "textOptions": [
             "어른에게 두 손으로 물건을 드립니다.",
@@ -3129,9 +3308,10 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q20",
           "questionText": "[20] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n월급을 받으면 고향에 있는 가족에게 돈을 (      ) 합니다.",
-          "questionNumber": 1,
+          "questionNumber": 20,
           "isListening": false,
           "textOptions": [
             "바꾸려고",
@@ -3141,6 +3321,7 @@
           ]
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q21",
           "questionText": "[실전 21] 들은 것을 고르십시오.",
           "questionNumber": 21,
@@ -3156,9 +3337,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q22",
           "questionText": "[22] 들은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 22,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3171,9 +3353,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q23",
           "questionText": "[23] 그림을 보고 알맞은 대답을 고르십시오.\n이것은 무엇입니까?",
-          "questionNumber": 21,
+          "questionNumber": 23,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3186,9 +3369,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q24",
           "questionText": "[24] 질문을 듣고 알맞은 대답을 고르십시오.\n한국 사람입니까?",
-          "questionNumber": 21,
+          "questionNumber": 24,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3201,9 +3385,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q25",
           "questionText": "[25] 질문을 듣고 알맞은 대답을 고르십시오.\n지금 몇 시예요?",
-          "questionNumber": 21,
+          "questionNumber": 25,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3216,9 +3401,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q26",
           "questionText": "[26] 질문을 듣고 알맞은 대답을 고르십시오.\n이 일은 언제까지 끝내야 합니까?",
-          "questionNumber": 21,
+          "questionNumber": 26,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3231,9 +3417,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q27",
           "questionText": "[27] 질문을 듣고 알맞은 대답을 고르십시오.\n작업을 시작하기 전에 무엇을 해야 합니까?",
-          "questionNumber": 21,
+          "questionNumber": 27,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3246,9 +3433,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q28",
           "questionText": "[28] 질문을 듣고 알맞은 대답을 고르십시오.\n수루 씨, 오늘 저녁에 시간 있어요?",
-          "questionNumber": 21,
+          "questionNumber": 28,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3261,9 +3449,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q29",
           "questionText": "[29] 질문을 듣고 알맞은 대답을 고르십시오.\n퇴근 후에 뭐 할 거예요?",
-          "questionNumber": 21,
+          "questionNumber": 29,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3276,9 +3465,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q30",
           "questionText": "[30] 이야기를 듣고 질문에 알맞은 대답을 고르십시오.\n남자는 무엇을 찾고 있습니까?",
-          "questionNumber": 21,
+          "questionNumber": 30,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3291,9 +3481,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q31",
           "questionText": "[31] 대화를 듣고 여자가 가려고 하는 곳을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 31,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3306,9 +3497,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q32",
           "questionText": "[32] 대화를 듣고 두 사람이 오늘 할 일을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 32,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3321,9 +3513,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q33",
           "questionText": "[33] 다음을 듣고 이어지는 말로 가장 알맞은 것을 고르십시오.\n식사 맛있게 하셨어요?",
-          "questionNumber": 21,
+          "questionNumber": 33,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3336,9 +3529,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q34",
           "questionText": "[34] 대화를 듣고 남자의 직업을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 34,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3351,9 +3545,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q35",
           "questionText": "[35] 이야기를 듣고 질문에 알맞은 답을 고르십시오.\n남자는 왜 늦었습니까?",
-          "questionNumber": 21,
+          "questionNumber": 35,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3366,9 +3561,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q36",
           "questionText": "[36] 대화를 듣고 두 사람이 만날 시간을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 36,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3381,9 +3577,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q37",
           "questionText": "[37] 대화를 듣고 남자가 주문한 음식을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 37,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3396,9 +3593,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q38",
           "questionText": "[38] 다음을 듣고 들은 내용과 일치하는 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 38,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3411,9 +3609,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q39",
           "questionText": "[39] 대화를 듣고 여자가 할 일로 알맞은 것을 고르십시오.",
-          "questionNumber": 21,
+          "questionNumber": 39,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3426,9 +3625,10 @@
           "audioScriptNepali": null
         },
         {
+          "type": "UniversalQuestion",
           "questionId": "S5_Q40",
           "questionText": "[40] 대화를 듣고 물음에 답하십시오.\n남자는 내일 몇 시에 출근합니까?",
-          "questionNumber": 21,
+          "questionNumber": 40,
           "isListening": true,
           "questionAudioUrl": "assets/audio/sample_listening.mp3",
           "textOptions": [
@@ -3682,7 +3882,7 @@
       "readingScore": 42.5,
       "listeningScore": 45.0,
       "isPassed": true,
-      "completedAt": "2026-09-05T14:22:01.379070",
+      "completedAt": "2026-09-07T08:53:38.368499",
       "timeSpentSeconds": 1620,
       "userAnswers": {}
     },
@@ -3696,7 +3896,7 @@
       "readingScore": 35.0,
       "listeningScore": 37.5,
       "isPassed": true,
-      "completedAt": "2026-09-05T11:22:01.379070",
+      "completedAt": "2026-09-07T05:53:38.368499",
       "timeSpentSeconds": 1840,
       "userAnswers": {}
     },
@@ -3710,7 +3910,7 @@
       "readingScore": 22.5,
       "listeningScore": 25.0,
       "isPassed": false,
-      "completedAt": "2026-09-05T07:22:01.379070",
+      "completedAt": "2026-09-07T01:53:38.368499",
       "timeSpentSeconds": 2100,
       "userAnswers": {}
     },
@@ -3724,7 +3924,7 @@
       "readingScore": 37.5,
       "listeningScore": 40.0,
       "isPassed": true,
-      "completedAt": "2026-09-04T16:22:01.379070",
+      "completedAt": "2026-09-06T10:53:38.368499",
       "timeSpentSeconds": 1530,
       "userAnswers": {}
     },
@@ -3738,7 +3938,7 @@
       "readingScore": 45.0,
       "listeningScore": 47.5,
       "isPassed": true,
-      "completedAt": "2026-09-04T12:22:01.379070",
+      "completedAt": "2026-09-06T06:53:38.368499",
       "timeSpentSeconds": 1480,
       "userAnswers": {}
     }
@@ -4050,7 +4250,7 @@
         "제21과~30과: 약속, 전화 및 병원 (भेटघाट र स्वास्थ्य)"
       ],
       "audioTracks": [],
-      "createdAt": "2026-09-05T16:22:01.404809"
+      "createdAt": "2026-09-07T10:53:38.376847"
     },
     {
       "id": "book_new_02",
@@ -4069,7 +4269,7 @@
         "제56과~60과: 휴가, 체류 연장 및 귀국 (बिदा, भिसा थप र स्वदेश फिर्ता)"
       ],
       "audioTracks": [],
-      "createdAt": "2026-09-05T16:22:01.406626"
+      "createdAt": "2026-09-07T10:53:38.377517"
     },
     {
       "id": "book_old_01",
@@ -4086,7 +4286,7 @@
         "कार्यस्थल तथा निर्माण साइट संवाद (अध्याय ३१-६०)"
       ],
       "audioTracks": [],
-      "createdAt": "2026-08-26T16:22:01.406626"
+      "createdAt": "2026-08-28T10:53:38.377517"
     },
     {
       "id": "book_guide_01",
@@ -4104,7 +4304,7 @@
         "श्रम कानुन तथा सम्झौता शब्दावली"
       ],
       "audioTracks": [],
-      "createdAt": "2026-08-16T16:22:01.407654"
+      "createdAt": "2026-08-18T10:53:38.377517"
     }
   ],
   "videos": [
@@ -4113,22 +4313,61 @@
       "title": "EPS-TOPIK Book 1: अध्याय १ देखि १० आधारभूत वर्णमाला र दैनिक संवाद",
       "instructor": "कोरियन भाषा मुख्य प्रशिक्षक",
       "duration": "४५ मिनेट",
-      "videoUrl": "https://youtube.com",
+      "videoUrl": "https://www.youtube.com/watch?v=0ZhOeA0RD9o",
       "category": "Book 1 पाठ्यपुस्तक",
       "description": "हन्गुल वर्णमाला, स्वर तथा व्यञ्जन, बाछिमका नियमहरू र आत्मपरिचय सम्बन्धी पूर्ण भिडियो पाठ।",
       "isFree": true,
-      "createdAt": "2026-09-05T16:22:01.410839"
+      "lessons": [
+        {
+          "id": "l_01_1",
+          "title": "पाठ १: हन्गुल वर्णमाला र उच्चारणका आधारभूत नियमहरू",
+          "videoUrl": "https://www.youtube.com/watch?v=0ZhOeA0RD9o",
+          "duration": "१५ मिनेट",
+          "summary": "आधारभूत स्वर वर्ण (모음) र व्यञ्जन वर्ण (자음) को शुद्ध उच्चारण र लेख्ने तरिका।"
+        },
+        {
+          "id": "l_01_2",
+          "title": "पाठ २: बाछिम (받침) तथा संयुक्त व्यञ्जनको नियम",
+          "videoUrl": "https://www.youtube.com/watch?v=s5aobqyEaMQ",
+          "duration": "१५ मिनेट",
+          "summary": "अन्तिम व्यञ्जनको उच्चारण र जोडिएर आउँदा हुने ध्वनी परिवर्तनका मुख्य नियमहरू।"
+        },
+        {
+          "id": "l_01_3",
+          "title": "पाठ ३: दैनिक अभिवादन, आत्मपरिचय र आधारभूत व्याकरण",
+          "videoUrl": "https://www.youtube.com/watch?v=2N_N8rP9pXo",
+          "duration": "१५ मिनेट",
+          "summary": "안녕하세요, 저는 ... 입니다 लगायत औपचारिक आत्मपरिचय र दैनिक संवाद।"
+        }
+      ],
+      "createdAt": "2026-09-07T10:53:38.378801"
     },
     {
       "id": "vid_02",
       "title": "कारखाना औजार तथा कार्यस्थल सुरक्षा उपकरण प्रत्यक्ष भिडियो गाइड",
       "instructor": "प्राविधिक कार्यशाला संयोजक",
       "duration": "३० मिनेट",
-      "videoUrl": "https://youtube.com",
+      "videoUrl": "https://www.youtube.com/watch?v=s5aobqyEaMQ",
       "category": "औजार तथा सुरक्षा",
       "description": "म्यानुफ्याक्चरिङ तथा कन्स्ट्रक्सनमा प्रयोग हुने ५० वटा औजारहरूको प्रत्यक्ष कोरियाली नाम र काम गर्ने तरिका।",
       "isFree": true,
-      "createdAt": "2026-09-05T16:22:01.412025"
+      "lessons": [
+        {
+          "id": "l_02_1",
+          "title": "पाठ १: निर्माण तथा उत्पादन क्षेत्रका हाते औजारहरू (수공구)",
+          "videoUrl": "https://www.youtube.com/watch?v=s5aobqyEaMQ",
+          "duration": "१५ मिनेट",
+          "summary": "ड्रिल, रेन्च, स्क्रुड्राइभर, प्लायर्स, हेक्सो लगायत सबै उपकरणहरूको कोरियाली नामाकरण।"
+        },
+        {
+          "id": "l_02_2",
+          "title": "पाठ २: कार्यस्थल सुरक्षा, सुरक्षात्मक पोशाक र दुर्घटना रोकथाम",
+          "videoUrl": "https://www.youtube.com/watch?v=0ZhOeA0RD9o",
+          "duration": "१५ मिनेट",
+          "summary": "सुरक्षा हेल्मेट (안전모), जुत्ता (안전화), चश्मा र आपतकालीन साइरन नियमहरू।"
+        }
+      ],
+      "createdAt": "2026-09-07T10:53:38.379446"
     }
   ],
   "grammar": [
@@ -4148,7 +4387,7 @@
           "nepali": "कामको समयमा मोबाइल फोन प्रयोग गर्न सकिँदैन।"
         }
       ],
-      "createdAt": "2026-09-05T16:22:01.416287"
+      "createdAt": "2026-09-07T10:53:38.380775"
     },
     {
       "id": "g_02",
@@ -4166,7 +4405,7 @@
           "nepali": "कारखानामा गएर मेसिन चेकजाँच गर्नुहोस्।"
         }
       ],
-      "createdAt": "2026-09-05T16:22:01.417548"
+      "createdAt": "2026-09-07T10:53:38.380775"
     }
   ],
   "dictionary": [
@@ -4267,7 +4506,7 @@
       "author": "परीक्षा शाखा प्रमुख",
       "priority": "अति जरुरी",
       "category": "परीक्षा",
-      "date": "2026-09-05T12:22:01.425027",
+      "date": "2026-09-07T06:53:38.384761",
       "isPinned": true
     }
   ],
@@ -4282,7 +4521,7 @@
       "address": "बागबजार, काठमाडौं (Bagbazar, Kathmandu)",
       "aboutUs": "नेपालकै अग्रणी कोरियन भाषा शिक्षण तथा EPS-TOPIK UBT परीक्षा तयारी केन्द्र। १० वर्षभन्दा बढीको अनुभव र हजारौं सफल विद्यार्थीहरू।",
       "allowedSetsQuota": 5,
-      "validityExpiry": "2027-09-05T16:22:01.431915",
+      "validityExpiry": "2027-09-07T10:53:38.386724",
       "maxStudentsQuota": 200,
       "isActive": true,
       "customSetQuota": 1,
@@ -4296,7 +4535,7 @@
         "set_04",
         "set_05"
       ],
-      "createdAt": "2026-09-05T16:22:01.435831"
+      "createdAt": "2026-09-07T10:53:38.387385"
     },
     {
       "id": "inst_02",
@@ -4308,7 +4547,7 @@
       "address": "महेन्द्रपुल, पोखरा (Mahendrapool, Pokhara)",
       "aboutUs": "गण्डकी प्रदेशको भरपर्दो कोरियन भाषा इन्स्टिच्युट। उच्चस्तरीय कम्प्युटर UBT ल्याब तथा दक्ष भाषा प्रशिक्षक।",
       "allowedSetsQuota": 3,
-      "validityExpiry": "2026-12-04T16:22:01.435831",
+      "validityExpiry": "2026-12-06T10:53:38.387385",
       "maxStudentsQuota": 100,
       "isActive": true,
       "customSetQuota": 1,
@@ -4320,7 +4559,7 @@
         "set_02",
         "set_03"
       ],
-      "createdAt": "2026-09-05T16:22:01.435831"
+      "createdAt": "2026-09-07T10:53:38.388028"
     }
   ]
 }

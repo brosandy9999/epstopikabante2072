@@ -132,11 +132,14 @@ class QuestionBankService extends ChangeNotifier {
     for (final s in allSets) {
       poolKeys.addAll(s.answerKeys);
       for (final q in s.questions) {
-        if (q is ReadingTextQuestion) {
+        final isListen = (q is UniversalQuestion)
+            ? q.isListening
+            : (q is ListeningAudioQuestion || q is ListeningImageOptionsQuestion);
+        if (!isListen) {
           if (!poolReading.any((item) => item.questionId == q.questionId)) {
             poolReading.add(q);
           }
-        } else if (q is ListeningAudioQuestion) {
+        } else {
           if (!poolListening.any((item) => item.questionId == q.questionId)) {
             poolListening.add(q);
           }
@@ -186,7 +189,6 @@ class QuestionBankService extends ChangeNotifier {
     }
     if (hasChanges) {
       _saveCustomSets();
-      _saveCustomSetsToStorage();
     }
   }
 
@@ -205,8 +207,6 @@ class QuestionBankService extends ChangeNotifier {
       _customSets.add(set);
     }
     _saveCustomSets();
-    _saveCustomSetsToStorage();
-    notifyListeners();
   }
 
   void approveMockSet(String setId) {
@@ -222,8 +222,7 @@ class QuestionBankService extends ChangeNotifier {
       }
     }
     _saveCustomSets();
-    _saveCustomSetsToStorage();
-    notifyListeners();
+    CloudSyncService.instance.pushToCloud();
   }
 
   void rejectMockSet(String setId) {
@@ -239,8 +238,7 @@ class QuestionBankService extends ChangeNotifier {
       }
     }
     _saveCustomSets();
-    _saveCustomSetsToStorage();
-    notifyListeners();
+    CloudSyncService.instance.pushToCloud();
   }
 
   void setLiveDailyExam(String setId, {bool isLive = true, String? date}) {
@@ -281,8 +279,7 @@ class QuestionBankService extends ChangeNotifier {
       }
     }
     _saveCustomSets();
-    _saveCustomSetsToStorage();
-    notifyListeners();
+    CloudSyncService.instance.pushToCloud();
   }
 
   MockTestSet? getTodayLiveExam() {
@@ -322,23 +319,7 @@ class QuestionBankService extends ChangeNotifier {
   }
 
   void _saveCustomSetsToStorage() {
-    if (_cachedSets == null) return;
-    final List<Map<String, dynamic>> serializedSets = [];
-    for (final s in _cachedSets!) {
-      final List<Map<String, dynamic>> qList = [];
-      for (final q in s.questions) {
-        final ans = s.answerKeys[q.questionId];
-        qList.add(_questionToJson(q, ans));
-      }
-      serializedSets.add({
-        'id': s.id,
-        'title': s.title,
-        'sector': s.sector,
-        'description': s.description,
-        'questions': qList,
-      });
-    }
-    StorageService.instance.saveCustomQuestions(serializedSets);
+    _saveCustomSets();
   }
 
   void loadFromStorage(List<Map<String, dynamic>> savedSets) {
@@ -346,144 +327,88 @@ class QuestionBankService extends ChangeNotifier {
     getAllMockSets(); // Ensure base sets are populated
     for (final map in savedSets) {
       final sId = map['id'] as String? ?? '';
-      final title = map['title'] as String? ?? '';
-      final sector = map['sector'] as String? ?? '';
-      final desc = map['description'] as String? ?? '';
-      final rawQuestions = map['questions'] as List? ?? [];
-
-      final List<QuestionTemplate> loadedQuestions = [];
-      final Map<String, QuestionAnswerInfo> loadedAnswerKeys = {};
-
-      for (final item in rawQuestions) {
-        final parsed = _questionFromJson(Map<String, dynamic>.from(item as Map));
-        loadedQuestions.add(parsed.question);
-        loadedAnswerKeys[parsed.question.questionId] = parsed.answer;
+      if (sId.isEmpty) continue;
+      try {
+        final loadedSet = MockTestSet.fromJson(map);
+        _customSets.removeWhere((s) => s.id == sId);
+        _customSets.add(loadedSet);
+      } catch (e) {
+        debugPrint('[QuestionBankService] Error parsing set $sId: $e');
       }
-
-      final loadedSet = MockTestSet(
-        id: sId,
-        title: title,
-        sector: sector,
-        description: desc,
-        totalQuestions: loadedQuestions.length,
-        questions: loadedQuestions,
-        answerKeys: loadedAnswerKeys,
-      );
-      _customSets.removeWhere((s) => s.id == sId);
-      _customSets.add(loadedSet);
     }
     _cachedSets = null;
     notifyListeners();
   }
 
   static Map<String, dynamic> _questionToJson(QuestionTemplate q, QuestionAnswerInfo? ans) {
-    if (q is ReadingTextQuestion) {
-      return {
-        'type': 'ReadingTextQuestion',
+    final Map<String, dynamic> map;
+    if (q is UniversalQuestion) {
+      map = q.toJson();
+    } else if (q is ReadingTextQuestion) {
+      map = {
+        'type': 'UniversalQuestion',
         'questionId': q.questionId,
         'questionText': q.questionText,
+        'questionNumber': 1,
+        'isListening': false,
         'textOptions': q.textOptions,
-        'correctIndex': ans?.correctIndex ?? 0,
-        'explanation': ans?.explanation ?? '',
       };
     } else if (q is ReadingImageQuestion) {
-      return {
-        'type': 'ReadingImageQuestion',
+      map = {
+        'type': 'UniversalQuestion',
         'questionId': q.questionId,
         'questionText': q.questionText,
-        'imageAssetPath': q.imageAssetPath,
+        'questionNumber': 1,
+        'isListening': false,
+        'questionImageUrl': q.imageAssetPath,
         'textOptions': q.textOptions,
-        'correctIndex': ans?.correctIndex ?? 0,
-        'explanation': ans?.explanation ?? '',
       };
     } else if (q is ListeningAudioQuestion) {
-      return {
-        'type': 'ListeningAudioQuestion',
+      map = {
+        'type': 'UniversalQuestion',
         'questionId': q.questionId,
         'questionText': q.questionText,
-        'audioAssetPath': q.audioAssetPath,
+        'questionNumber': 21,
+        'isListening': true,
+        'questionAudioUrl': q.audioAssetPath,
         'textOptions': q.textOptions,
         'audioScript': q.audioScript,
         'audioScriptNepali': q.audioScriptNepali,
-        'correctIndex': ans?.correctIndex ?? 0,
-        'explanation': ans?.explanation ?? '',
       };
     } else if (q is ListeningImageOptionsQuestion) {
-      return {
-        'type': 'ListeningImageOptionsQuestion',
+      map = {
+        'type': 'UniversalQuestion',
         'questionId': q.questionId,
         'questionText': q.questionText,
-        'audioAssetPath': q.audioAssetPath,
-        'imageOptionPaths': q.imageOptionPaths,
+        'questionNumber': 21,
+        'isListening': true,
+        'questionAudioUrl': q.audioAssetPath,
+        'imageOptions': q.imageOptionPaths,
+        'textOptions': const ['', '', '', ''],
         'audioScript': q.audioScript,
         'audioScriptNepali': q.audioScriptNepali,
-        'correctIndex': ans?.correctIndex ?? 0,
-        'explanation': ans?.explanation ?? '',
+      };
+    } else {
+      map = {
+        'type': 'UniversalQuestion',
+        'questionId': q.questionId,
+        'questionText': q.questionText,
+        'textOptions': const ['', '', '', ''],
       };
     }
-    return {
-      'type': 'ReadingTextQuestion',
-      'questionId': q.questionId,
-      'questionText': q.questionText,
-      'textOptions': [],
-      'correctIndex': 0,
-      'explanation': '',
-    };
+
+    map['correctIndex'] = ans?.correctIndex ?? 0;
+    map['explanation'] = ans?.explanation ?? '';
+    return map;
   }
 
   static ({QuestionTemplate question, QuestionAnswerInfo answer}) _questionFromJson(Map<String, dynamic> json) {
-    final type = json['type'] as String? ?? 'ReadingTextQuestion';
-    final qId = json['questionId'] as String? ?? 'Q01';
-    final qText = json['questionText'] as String? ?? '';
-    final textOptions = (json['textOptions'] as List?)?.map((e) => e.toString()).toList() ?? [];
     final correctIndex = json['correctIndex'] as int? ?? 0;
     final explanation = json['explanation'] as String? ?? '';
     final ans = QuestionAnswerInfo(correctIndex: correctIndex, explanation: explanation);
 
-    if (type == 'ReadingImageQuestion') {
-      return (
-        question: ReadingImageQuestion(
-          questionId: qId,
-          questionText: qText,
-          imageAssetPath: json['imageAssetPath'] as String? ?? 'assets/images/sample.jpg',
-          textOptions: textOptions,
-        ),
-        answer: ans,
-      );
-    } else if (type == 'ListeningAudioQuestion') {
-      return (
-        question: ListeningAudioQuestion(
-          questionId: qId,
-          questionText: qText,
-          audioAssetPath: json['audioAssetPath'] as String? ?? 'assets/audio/sample_listening.mp3',
-          textOptions: textOptions,
-          audioScript: json['audioScript'] as String?,
-          audioScriptNepali: json['audioScriptNepali'] as String?,
-        ),
-        answer: ans,
-      );
-    } else if (type == 'ListeningImageOptionsQuestion') {
-      return (
-        question: ListeningImageOptionsQuestion(
-          questionId: qId,
-          questionText: qText,
-          audioAssetPath: json['audioAssetPath'] as String? ?? 'assets/audio/sample_listening.mp3',
-          imageOptionPaths: (json['imageOptionPaths'] as List?)?.map((e) => e.toString()).toList() ?? [],
-          audioScript: json['audioScript'] as String?,
-          audioScriptNepali: json['audioScriptNepali'] as String?,
-        ),
-        answer: ans,
-      );
-    }
-
-    return (
-      question: ReadingTextQuestion(
-        questionId: qId,
-        questionText: qText,
-        textOptions: textOptions,
-      ),
-      answer: ans,
-    );
+    final uq = UniversalQuestion.fromJson(json);
+    return (question: uq, answer: ans);
   }
 
   MockTestSet getMockSetById(String setId) {

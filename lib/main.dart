@@ -34,6 +34,7 @@ import 'core/services/study_material_service.dart';
 import 'features/super_admin/super_admin_dashboard.dart';
 
 import 'core/services/cloud_sync_service.dart';
+import 'core/services/update_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +69,9 @@ Future<void> main() async {
   if (CloudSyncService.instance.hasConfiguredCloud) {
     CloudSyncService.instance.pullFromCloud().catchError((_) => false);
   }
+
+  // 7. Initialize UpdateService (auto-checks for new releases and updates)
+  UpdateService.instance.init();
 
   runApp(const EpsTopikApp());
 }
@@ -122,7 +126,10 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       listenable: LanguageService.instance,
       builder: (context, _) {
         final s = widget.student ?? AuthService.instance.students.first;
-        final allSets = QuestionBankService.instance.getAllMockSets();
+        final allSets = QuestionBankService.instance
+            .getAllMockSets()
+            .where((s) => s.isApproved)
+            .toList();
         final screenWidth = MediaQuery.of(context).size.width;
         final bool isMobile = screenWidth < 850;
 
@@ -295,8 +302,50 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     },
                   ),
                 ),
+              ListenableBuilder(
+                listenable: UpdateService.instance,
+                builder: (context, _) {
+                  if (UpdateService.instance.hasUpdateAvailable) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF16A34A),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                          visualDensity: VisualDensity.compact,
+                          elevation: 3,
+                        ),
+                        icon: const Icon(Icons.system_update_rounded, size: 16, color: Colors.white),
+                        label: Text(
+                          LanguageService.instance.trText(
+                            ne: 'अपडेट (v${UpdateService.instance.updateInfo?.latestVersion ?? ''})',
+                            en: 'Update (v${UpdateService.instance.updateInfo?.latestVersion ?? ''})',
+                            ko: '업데이트',
+                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                        ),
+                        onPressed: () => UpdateService.instance.showUpdateDialog(context),
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
               IconButton(
-                icon: const Icon(Icons.settings),
+                icon: ListenableBuilder(
+                  listenable: UpdateService.instance,
+                  builder: (context, _) {
+                    if (UpdateService.instance.hasUpdateAvailable) {
+                      return const Badge(
+                        backgroundColor: Colors.amber,
+                        label: Text('1', style: TextStyle(fontSize: 9, color: Colors.black, fontWeight: FontWeight.bold)),
+                        child: Icon(Icons.settings),
+                      );
+                    }
+                    return const Icon(Icons.settings);
+                  },
+                ),
                 tooltip: LanguageService.instance.tr('settings'),
                 onPressed: () => showUniversalSettingsDialog(context),
               ),
@@ -673,6 +722,79 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     );
   }
 
+  Widget _buildUpdateBannerIfAvailable(BuildContext context) {
+    return ListenableBuilder(
+      listenable: UpdateService.instance,
+      builder: (context, _) {
+        if (!UpdateService.instance.hasUpdateAvailable) return const SizedBox.shrink();
+        final info = UpdateService.instance.updateInfo;
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0F766E), Color(0xFF1E3A8A)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0F766E).withOpacity(0.35),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.rocket_launch_rounded, color: Colors.amber, size: 28),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      LanguageService.instance.trText(
+                        ne: '🚀 नयाँ अपडेट उपलब्ध छ (v${info?.latestVersion ?? ''})',
+                        en: '🚀 New Update Available (v${info?.latestVersion ?? ''})',
+                        ko: '🚀 새 업데이트 가능 (v${info?.latestVersion ?? ''})',
+                      ),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      info?.getLocalizedNotes() ?? '',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white70, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  foregroundColor: Colors.black87,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  elevation: 2,
+                ),
+                icon: const Icon(Icons.system_update_rounded, size: 16),
+                label: Text(
+                  LanguageService.instance.trText(ne: 'अपडेट', en: 'Update', ko: '업데이트'),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                onPressed: () => UpdateService.instance.showUpdateDialog(context),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildHomeTab(AppUser s, List<MockTestSet> allSets, bool isMobile) {
     return Center(
       child: ConstrainedBox(
@@ -685,6 +807,9 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 0. Update Alert Banner (if update available)
+          _buildUpdateBannerIfAvailable(context),
+
           // 1. Student Profile Card
           _buildProfileCard(s, isMobile),
           const SizedBox(height: 18),

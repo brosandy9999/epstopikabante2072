@@ -1322,13 +1322,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           const Icon(Icons.auto_awesome_rounded, size: 16, color: Color(0xFF1E3A8A)),
                           const SizedBox(width: 6),
-                          Text(
-                            LanguageService.instance.trText(
-                              ne: 'एपका ६ मुख्य विशेषता तथा सुविधाहरू हेर्नुहोस् ➜',
-                              en: 'Explore 6 Key Features of the App ➜',
-                              ko: '앱의 6가지 핵심 기능 상세 보기 ➜',
+                          Flexible(
+                            child: Text(
+                              LanguageService.instance.trText(
+                                ne: 'एपका ६ मुख्य विशेषता तथा सुविधाहरू हेर्नुहोस् ➜',
+                                en: 'Explore 6 Key Features of the App ➜',
+                                ko: '앱의 6가지 핵심 기능 상세 보기 ➜',
+                              ),
+                              style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
                           ),
                         ],
                       ),

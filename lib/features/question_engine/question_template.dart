@@ -117,6 +117,7 @@ class UniversalQuestion extends QuestionTemplate {
   bool get hasOptionAudios => audioOptions.any((aud) => aud != null && aud.trim().isNotEmpty);
 
   Map<String, dynamic> toJson() => {
+    'type': 'UniversalQuestion',
     'questionId': questionId,
     'questionText': questionText,
     'questionNumber': questionNumber,
@@ -131,19 +132,61 @@ class UniversalQuestion extends QuestionTemplate {
     'audioOptions': audioOptions,
   };
 
-  factory UniversalQuestion.fromJson(Map<String, dynamic> json) => UniversalQuestion(
-    questionId: json['questionId'] as String? ?? 'q_01',
-    questionText: json['questionText'] as String? ?? '',
-    questionNumber: json['questionNumber'] as int? ?? 1,
-    isListening: json['isListening'] as bool? ?? false,
-    questionImageUrl: json['questionImageUrl'] as String?,
-    questionAudioUrl: json['questionAudioUrl'] as String?,
-    audioScript: json['audioScript'] as String?,
-    audioScriptNepali: json['audioScriptNepali'] as String?,
-    isAudioOnly: json['isAudioOnly'] as bool? ?? false,
-    textOptions: (json['textOptions'] as List?)?.map((e) => e.toString()).toList() ?? ['', '', '', ''],
-    imageOptions: (json['imageOptions'] as List?)?.map((e) => e?.toString()).toList(),
-    audioOptions: (json['audioOptions'] as List?)?.map((e) => e?.toString()).toList(),
-  );
+  factory UniversalQuestion.fromJson(Map<String, dynamic> json) {
+    // 1. Text Options Extraction
+    List<String> rawTextOpts = [];
+    if (json['textOptions'] is List) {
+      rawTextOpts = (json['textOptions'] as List).map((e) => e?.toString() ?? '').toList();
+    } else if (json['options'] is List) {
+      rawTextOpts = (json['options'] as List).map((e) => e?.toString() ?? '').toList();
+    }
+    while (rawTextOpts.length < 4) {
+      rawTextOpts.add('');
+    }
+
+    // 2. Image Options Extraction
+    List<String?> rawImgOpts = [null, null, null, null];
+    if (json['imageOptions'] is List) {
+      rawImgOpts = (json['imageOptions'] as List).map((e) => (e != null && e.toString().trim().isNotEmpty) ? e.toString().trim() : null).toList();
+    } else if (json['imageOptionPaths'] is List) {
+      rawImgOpts = (json['imageOptionPaths'] as List).map((e) => (e != null && e.toString().trim().isNotEmpty) ? e.toString().trim() : null).toList();
+    }
+    while (rawImgOpts.length < 4) {
+      rawImgOpts.add(null);
+    }
+
+    // 3. Audio Options Extraction
+    List<String?> rawAudOpts = [null, null, null, null];
+    if (json['audioOptions'] is List) {
+      rawAudOpts = (json['audioOptions'] as List).map((e) => (e != null && e.toString().trim().isNotEmpty) ? e.toString().trim() : null).toList();
+    }
+    while (rawAudOpts.length < 4) {
+      rawAudOpts.add(null);
+    }
+
+    // 4. Determine Listening vs Reading modality
+    final int qNum = json['questionNumber'] as int? ?? 1;
+    final String typeStr = (json['type'] ?? '').toString().toLowerCase();
+    final bool isListening = json['isListening'] as bool? ??
+        (typeStr.contains('listen')) ||
+        (json['questionAudioUrl'] != null && json['questionAudioUrl'].toString().trim().isNotEmpty) ||
+        (json['audioAssetPath'] != null && json['audioAssetPath'].toString().trim().isNotEmpty) ||
+        (qNum > 20);
+
+    return UniversalQuestion(
+      questionId: json['questionId'] as String? ?? 'q_01',
+      questionText: json['questionText'] as String? ?? '',
+      questionNumber: qNum,
+      isListening: isListening,
+      questionImageUrl: (json['questionImageUrl'] ?? json['imageAssetPath']) as String?,
+      questionAudioUrl: (json['questionAudioUrl'] ?? json['audioAssetPath']) as String?,
+      audioScript: json['audioScript'] as String?,
+      audioScriptNepali: json['audioScriptNepali'] as String?,
+      isAudioOnly: json['isAudioOnly'] as bool? ?? false,
+      textOptions: rawTextOpts.take(4).toList(),
+      imageOptions: rawImgOpts.take(4).toList(),
+      audioOptions: rawAudOpts.take(4).toList(),
+    );
+  }
 }
 

@@ -3,6 +3,7 @@ import '../settings/universal_settings_dialog.dart';
 import '../../core/models/institute_model.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/institute_service.dart';
+import '../../core/services/question_bank_service.dart';
 import '../../core/services/cloud_sync_service.dart';
 import '../../core/widgets/app_exit_dialog.dart';
 import '../admin/admin_question_set_screen.dart';
@@ -149,7 +150,20 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
                     text: LanguageService.instance.trText(ne: 'केन्द्रीय पाठ्यपुस्तक', en: 'Textbooks & Hub', ko: '표준교재 허브'),
                   ),
                   Tab(
-                    icon: const Icon(Icons.quiz),
+                    icon: ListenableBuilder(
+                      listenable: QuestionBankService.instance,
+                      builder: (context, _) {
+                        final pendingCount = QuestionBankService.instance.getPendingApprovalSets().length;
+                        if (pendingCount > 0) {
+                          return Badge(
+                            label: Text('$pendingCount', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: Colors.white)),
+                            backgroundColor: Colors.amber.shade900,
+                            child: const Icon(Icons.quiz),
+                          );
+                        }
+                        return const Icon(Icons.quiz);
+                      },
+                    ),
                     text: LanguageService.instance.trText(ne: 'प्रश्न सेट बैंक', en: 'Question Bank', ko: '문제 세트 은행'),
                   ),
                   Tab(

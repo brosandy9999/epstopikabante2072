@@ -29,6 +29,8 @@ class ReadingQuestionWidget extends StatelessWidget {
       rawOptions = (question as ReadingImageQuestion).textOptions;
     } else if (question is ListeningAudioQuestion) {
       rawOptions = (question as ListeningAudioQuestion).textOptions;
+    } else if (question is ListeningImageOptionsQuestion) {
+      rawOptions = (question as ListeningImageOptionsQuestion).imageOptionPaths;
     }
 
     final List<String> options = List.generate(4, (index) {

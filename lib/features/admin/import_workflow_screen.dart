@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../question_engine/question_template.dart';
 import '../../core/models/mock_test_model.dart';
 import '../../core/services/question_bank_service.dart';
+import '../../core/services/auth_service.dart';
+import '../../core/services/cloud_sync_service.dart';
 import '../../core/services/language_service.dart';
 import '../../core/widgets/app_exit_dialog.dart';
 
@@ -160,18 +162,22 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
 
       if (type.contains('listen')) {
         _parsedQuestions.add(
-          ListeningAudioQuestion(
+          UniversalQuestion(
             questionId: qId,
+            questionNumber: qIndex,
             questionText: qText,
-            audioAssetPath: 'assets/audio/sample_listening.mp3',
+            isListening: true,
+            questionAudioUrl: 'assets/audio/sample_listening.mp3',
             textOptions: options,
           ),
         );
       } else {
         _parsedQuestions.add(
-          ReadingTextQuestion(
+          UniversalQuestion(
             questionId: qId,
+            questionNumber: qIndex,
             questionText: qText,
+            isListening: false,
             textOptions: options,
           ),
         );
@@ -230,18 +236,25 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
 
       if (type.contains('listen')) {
         _parsedQuestions.add(
-          ListeningAudioQuestion(
+          UniversalQuestion(
             questionId: qId,
+            questionNumber: qIndex,
             questionText: qText,
-            audioAssetPath: 'assets/audio/sample_listening.mp3',
+            isListening: true,
+            questionAudioUrl: (item['audioUrl'] ?? item['questionAudioUrl'] ?? 'assets/audio/sample_listening.mp3').toString(),
             textOptions: options.sublist(0, 4),
+            audioScript: item['audioScript']?.toString(),
+            audioScriptNepali: item['audioScriptNepali']?.toString(),
           ),
         );
       } else {
         _parsedQuestions.add(
-          ReadingTextQuestion(
+          UniversalQuestion(
             questionId: qId,
+            questionNumber: qIndex,
             questionText: qText,
+            isListening: false,
+            questionImageUrl: (item['imageUrl'] ?? item['questionImageUrl'])?.toString(),
             textOptions: options.sublist(0, 4),
           ),
         );
@@ -259,6 +272,9 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
   void _importToQuestionBank() {
     if (_parsedQuestions.isEmpty) return;
 
+    final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
+    final instituteId = AuthService.instance.currentUser?.instituteId;
+    final instituteName = AuthService.instance.currentUser?.instituteName;
     final existingSets = QuestionBankService.instance.getAllMockSets();
     MockTestSet targetSet;
 
@@ -275,6 +291,10 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
         description: 'Admin द्वारा CSV/JSON मार्फत थपिएको ${_parsedQuestions.length} वटा नयाँ प्रश्नहरूको सेट।',
         questions: _parsedQuestions,
         answerKeys: _parsedAnswerKeys,
+        isApproved: isSuperAdmin,
+        createdByRole: isSuperAdmin ? 'superAdmin' : 'admin',
+        instituteId: instituteId,
+        instituteName: instituteName,
       );
     } else {
       final current = QuestionBankService.instance.getMockSetById(_targetSetId);
@@ -285,23 +305,32 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
         description: current.description,
         questions: _parsedQuestions,
         answerKeys: _parsedAnswerKeys,
+        isApproved: isSuperAdmin ? current.isApproved : false,
+        createdByRole: isSuperAdmin ? current.createdByRole : 'admin',
+        instituteId: instituteId ?? current.instituteId,
+        instituteName: instituteName ?? current.instituteName,
       );
     }
 
     QuestionBankService.instance.addOrUpdateMockSet(targetSet);
+    CloudSyncService.instance.pushToCloud();
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Row(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.green),
-            SizedBox(width: 8),
-            Text("थोक प्रश्न आयात सफल भयो!"),
+            Icon(isSuperAdmin ? Icons.check_circle : Icons.hourglass_top_rounded,
+                color: isSuperAdmin ? Colors.green : Colors.amber.shade800),
+            const SizedBox(width: 8),
+            Text(isSuperAdmin ? "थोक प्रश्न आयात सफल भयो!" : "प्रश्न सेट सुरक्षित र स्वीकृतिको प्रतीक्षामा!"),
           ],
         ),
         content: Text(
-          "कुल ${_parsedQuestions.length} वटा प्रश्नहरू '${targetSet.title}' मा सफलतापूर्वक थपिएका छन्। विद्यार्थीहरूले अब परीक्षा हल र अभ्यास मोडमा यी प्रश्नहरू देख्नेछन्।",
+          isSuperAdmin
+              ? "कुल ${_parsedQuestions.length} वटा प्रश्नहरू '${targetSet.title}' मा सफलतापूर्वक थपिएका छन्। यो सेट तुरुन्तै सबै विद्यार्थीहरूका लागि प्रकाशित भएको छ।"
+              : "कुल ${_parsedQuestions.length} वटा प्रश्नहरू '${targetSet.title}' मा सफलतापूर्वक सुरक्षित गरिएको छ।\n\n📌 सूचना: यो सेट सुपर एडमिनले जाँच गरी स्वीकृति (Approval) दिएपछि मात्र विद्यार्थीहरूको परीक्षा हल तथा अभ्यास पोर्टलमा देखिनेछ।",
         ),
         actions: [
           ElevatedButton(
@@ -608,8 +637,20 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
               separatorBuilder: (ctx, i) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final q = _parsedQuestions[index];
-                final isReading = q is ReadingTextQuestion;
-                final opts = isReading ? q.textOptions : (q as ListeningAudioQuestion).textOptions;
+                final isReading = (q is UniversalQuestion)
+                    ? !q.isListening
+                    : (q is ReadingTextQuestion || q is ReadingImageQuestion || index < 20);
+                List<String> opts = [];
+                if (q is UniversalQuestion) {
+                  opts = q.textOptions;
+                } else if (q is ReadingTextQuestion) {
+                  opts = q.textOptions;
+                } else if (q is ListeningAudioQuestion) {
+                  opts = q.textOptions;
+                }
+                while (opts.length < 4) {
+                  opts.add('');
+                }
                 final ansInfo = _parsedAnswerKeys[q.questionId];
 
                 return Container(

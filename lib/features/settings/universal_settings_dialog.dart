@@ -1,4 +1,6 @@
 import '../../core/services/cloud_sync_service.dart';
+import '../../core/services/update_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/language_service.dart';
@@ -1079,70 +1081,272 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
     );
   }
 
-  // 📦 TAB 6: DATA, STORAGE & APP INFO
+  // 📦 TAB 6: DATA, STORAGE, AUTO-UPDATE & APP INFO
   Widget _buildDataAndInfoTab() {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 6),
-          Text(
-            LanguageService.instance.isEnglish ? 'Storage, Cache & System Info:' : (LanguageService.instance.isKorean ? '저장소, 캐시 및 시스템 정보:' : 'भण्डारण, क्यास र प्रणाली विवरण:'),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
-          ),
-          const SizedBox(height: 12),
+    return ListenableBuilder(
+      listenable: UpdateService.instance,
+      builder: (context, _) {
+        final updateSvc = UpdateService.instance;
+        final hasUpdate = updateSvc.hasUpdateAvailable;
+        final info = updateSvc.updateInfo;
 
-          // Cache management
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.grey.shade200)),
-            child: ListTile(
-              leading: const Icon(Icons.cleaning_services, color: Colors.teal),
-              title: Text(LanguageService.instance.isEnglish ? 'Clear Temporary Cache' : (LanguageService.instance.isKorean ? '임시 캐시 삭제' : 'अस्थायी क्यास खाली गर्नुहोस्'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-              subtitle: Text(LanguageService.instance.isEnglish ? 'Improves app speed and cleans local storage.' : (LanguageService.instance.isKorean ? '앱 속도를 개선하고 로컬 저장공간을 정리합니다.' : 'एपको गति र स्थानीय भण्डारण सफा गर्दछ।'), style: const TextStyle(fontSize: 11)),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, visualDensity: VisualDensity.compact),
-                onPressed: () {
-                  setState(() {
-                    _isSuccess = true;
-                    _statusMessage = LanguageService.instance.trText(ne: '✅ अस्थायी क्यास सफलतापूर्वक खाली गरियो!', en: '✅ Temporary cache cleared successfully!', ko: '✅ 임시 캐시가 성공적으로 삭제되었습니다!');
-                  });
-                },
-                child: Text(LanguageService.instance.tr('clear')),
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 6),
+              Text(
+                LanguageService.instance.isEnglish
+                    ? 'App Updates, Storage & System Info:'
+                    : (LanguageService.instance.isKorean ? '앱 업데이트, 저장소 및 시스템 정보:' : 'एप अपडेट, भण्डारण र प्रणाली विवरण:'),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
               ),
-            ),
-          ),
-          const SizedBox(height: 10),
+              const SizedBox(height: 12),
 
-          // App Info
-          Card(
-            color: const Color(0xFFF8FAFC),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.grey.shade300)),
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Row(
+              // 🚀 1. APP VERSION & AUTO-UPDATER CARD
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: hasUpdate ? const Color(0xFF16A34A) : const Color(0xFF1E3A8A).withOpacity(0.3),
+                    width: hasUpdate ? 1.8 : 1.0,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.verified, color: Colors.blue, size: 18),
-                      SizedBox(width: 8),
-                      Text('EPS-TOPIK Nepal-Korea Platform', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A))),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: (hasUpdate ? const Color(0xFF16A34A) : const Color(0xFF1E3A8A)).withOpacity(0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              hasUpdate ? Icons.system_update_alt_rounded : Icons.verified_rounded,
+                              color: hasUpdate ? const Color(0xFF16A34A) : const Color(0xFF1E3A8A),
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      LanguageService.instance.trText(
+                                        ne: 'एप भर्सन तथा अपडेट इन्जिन',
+                                        en: 'App Version & Auto-Updater',
+                                        ko: '앱 버전 및 자동 업데이트',
+                                      ),
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                                    ),
+                                    const Spacer(),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: hasUpdate ? Colors.green.shade700 : const Color(0xFF1E3A8A),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        'v${UpdateService.currentVersion}',
+                                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  hasUpdate
+                                      ? LanguageService.instance.trText(
+                                          ne: '🚀 नयाँ संस्करण v${info?.latestVersion ?? ''} उपलब्ध छ!',
+                                          en: '🚀 New version v${info?.latestVersion ?? ''} available!',
+                                          ko: '🚀 새 버전 v${info?.latestVersion ?? ''} 이용 가능!',
+                                        )
+                                      : LanguageService.instance.trText(
+                                          ne: '✅ तपाईंको एप नवीनतम संस्करणमा छ।',
+                                          en: '✅ Your app is up to date.',
+                                          ko: '✅ 최신 버전을 사용 중입니다.',
+                                        ),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: hasUpdate ? Colors.green.shade800 : Colors.black54,
+                                    fontWeight: hasUpdate ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Update buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                visualDensity: VisualDensity.compact,
+                                padding: const EdgeInsets.symmetric(vertical: 10),
+                              ),
+                              icon: updateSvc.isChecking
+                                  ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                                  : const Icon(Icons.sync_rounded, size: 16),
+                              label: Text(
+                                updateSvc.isChecking
+                                    ? LanguageService.instance.trText(ne: 'जाँचिँदैछ...', en: 'Checking...', ko: '확인 중...')
+                                    : LanguageService.instance.trText(ne: 'अपडेट जाँच गर्नुहोस्', en: 'Check for Updates', ko: '업데이트 확인'),
+                                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
+                              onPressed: updateSvc.isChecking
+                                  ? null
+                                  : () async {
+                                      await updateSvc.checkForUpdates(silent: false, context: context);
+                                    },
+                            ),
+                          ),
+                          if (hasUpdate) ...[
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF16A34A),
+                                  foregroundColor: Colors.white,
+                                  visualDensity: VisualDensity.compact,
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                ),
+                                icon: Icon(kIsWeb ? Icons.refresh_rounded : Icons.download_rounded, size: 16),
+                                label: Text(
+                                  kIsWeb
+                                      ? LanguageService.instance.trText(ne: 'अहिले रिफ्रेस गर्नुहोस्', en: 'Refresh App', ko: '지금 새로고침')
+                                      : LanguageService.instance.trText(ne: 'अहिले अपडेट गर्नुहोस्', en: 'Update Now', ko: '지금 업데이트'),
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
+                                onPressed: () {
+                                  updateSvc.showUpdateDialog(context);
+                                },
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ],
                   ),
-                  const Divider(height: 16),
-                  Text(LanguageService.instance.trText(ne: '• संस्करण: v2.4.0 (2026 Production Edition)', en: '• Version: v2.4.0 (2026 Production Edition)', ko: '• 버전: v2.4.0 (2026 Production Edition)'), style: const TextStyle(fontSize: 12)),
-                  const SizedBox(height: 4),
-                  Text(LanguageService.instance.trText(ne: '• UBT परीक्षा इन्जिन: HRD Korea मानक ४० प्रश्न ढाँचा', en: '• UBT Exam Engine: HRD Korea Standard 40 Questions', ko: '• UBT 시험 엔진: HRD Korea 표준 40문항 규격'), style: const TextStyle(fontSize: 12)),
-                  const SizedBox(height: 4),
-                  Text(LanguageService.instance.trText(ne: '• बहु-भाषा इन्जिन: नेपाली, 한국어, English समर्थित', en: '• Multi-language Engine: Nepali, Korean, English Supported', ko: '• 다국어 엔진: 한국어, 영어, 네팔어 완벽 지원'), style: const TextStyle(fontSize: 12)),
-                  const SizedBox(height: 4),
-                  Text(LanguageService.instance.trText(ne: '• डेटा इन्क्रिप्सन: स्थानीय AES र सुरक्षित SharedPreferences भण्डारण', en: '• Data Encryption: Local AES & Secure Storage', ko: '• 데이터 암호화: 로컬 AES 및 보안 스토리지 적용'), style: const TextStyle(fontSize: 12)),
-                ],
+                ),
               ),
-            ),
+              const SizedBox(height: 12),
+
+              // 💡 2. PWA / ZERO-DOWNLOAD AUTO-UPDATE GUIDE
+              Card(
+                color: const Color(0xFFEFF6FF),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: Colors.blue.shade200),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.tips_and_updates_rounded, color: Color(0xFF1E40AF), size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              LanguageService.instance.trText(
+                                ne: '📲 नयाँ APK डाउनलोड नगरी सधैं अटो-अपडेट हुने बनाउने तरिका:',
+                                en: '📲 Zero-Download Auto-Update Guide (PWA / Web):',
+                                ko: '📲 APK 재설치 없이 항상 자동 업데이트하는 팁 (PWA):',
+                              ),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E40AF)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: '१. मोबाइलको Google Chrome वा Safari मा यो एप खोल्नुहोस्।\n'
+                              '२. ब्राउजरको माथिल्लो मेनु (⋮ वा Share) थिची "Add to Home screen" (होम स्क्रिनमा राख्नुहोस्) छान्नुहोस्।\n'
+                              '३. यसो गर्दा एप मोबाइलमा सिधै इन्स्टल हुन्छ र कुनै पनि नयाँ कोड वा सुधार आउँदा बारम्बार नयाँ APK डाउनलोड गर्नै पर्दैन, सिधै १ सेकेन्डमै अपडेट हुन्छ!\n'
+                              '४. नयाँ प्रश्नहरू तथा परीक्षाहरू क्लाउड सिङ्क (Cloud Sync) मार्फत स्वतः अद्यावधिक भइरहन्छन्।',
+                          en: '1. Open the app in Google Chrome or Safari on your phone.\n'
+                              '2. Tap the browser menu (⋮ or Share) and select "Add to Home screen".\n'
+                              '3. The app is installed as a PWA, meaning all future code updates happen instantly without needing new APK downloads!\n'
+                              '4. All question sets and exams update dynamically via Cloud Sync.',
+                          ko: '1. 모바일 크롬 또는 사파리에서 앱 접속 후 "홈 화면에 추가"를 누르세요.\n'
+                              '2. PWA로 설치되어 APK를 매번 다시 다운로드할 필요 없이 최신 코드가 즉시 반영됩니다!\n'
+                              '3. 새로운 시험 문항은 Cloud Sync를 통해 앱 재설치 없이 실시간 동기화됩니다.',
+                        ),
+                        style: const TextStyle(fontSize: 11, height: 1.5, color: Color(0xFF1E293B)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // 🧹 3. Cache management
+              Card(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.grey.shade200)),
+                child: ListTile(
+                  leading: const Icon(Icons.cleaning_services, color: Colors.teal),
+                  title: Text(LanguageService.instance.isEnglish ? 'Clear Temporary Cache' : (LanguageService.instance.isKorean ? '임시 캐시 삭제' : 'अस्थायी क्यास खाली गर्नुहोस्'), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                  subtitle: Text(LanguageService.instance.isEnglish ? 'Improves app speed and cleans local storage.' : (LanguageService.instance.isKorean ? '앱 속도를 개선하고 로컬 저장공간을 정리합니다.' : 'एपको गति र स्थानीय भण्डारण सफा गर्दछ।'), style: const TextStyle(fontSize: 11)),
+                  trailing: ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.teal, foregroundColor: Colors.white, visualDensity: VisualDensity.compact),
+                    onPressed: () {
+                      setState(() {
+                        _isSuccess = true;
+                        _statusMessage = LanguageService.instance.trText(ne: '✅ अस्थायी क्यास सफलतापूर्वक खाली गरियो!', en: '✅ Temporary cache cleared successfully!', ko: '✅ 임시 캐시가 성공적으로 삭제되었습니다!');
+                      });
+                    },
+                    child: Text(LanguageService.instance.tr('clear')),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // ℹ️ 4. App Info & Architecture
+              Card(
+                color: const Color(0xFFF8FAFC),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.grey.shade300)),
+                child: Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.verified, color: Colors.blue, size: 18),
+                          SizedBox(width: 8),
+                          Text('EPS-TOPIK Nepal-Korea Platform', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A))),
+                        ],
+                      ),
+                      const Divider(height: 16),
+                      Text(LanguageService.instance.trText(ne: '• संस्करण: v2.4.0 (2026 Production Edition)', en: '• Version: v2.4.0 (2026 Production Edition)', ko: '• 버전: v2.4.0 (2026 Production Edition)'), style: const TextStyle(fontSize: 12)),
+                      const SizedBox(height: 4),
+                      Text(LanguageService.instance.trText(ne: '• UBT परीक्षा इन्जिन: HRD Korea मानक ४० प्रश्न ढाँचा', en: '• UBT Exam Engine: HRD Korea Standard 40 Questions', ko: '• UBT 시험 엔진: HRD Korea 표준 40문항 규격'), style: const TextStyle(fontSize: 12)),
+                      const SizedBox(height: 4),
+                      Text(LanguageService.instance.trText(ne: '• बहु-भाषा इन्जिन: नेपाली, 한국어, English समर्थित', en: '• Multi-language Engine: Nepali, Korean, English Supported', ko: '• 다국어 엔진: 한국어, 영어, 네팔어 완벽 지원'), style: const TextStyle(fontSize: 12)),
+                      const SizedBox(height: 4),
+                      Text(LanguageService.instance.trText(ne: '• डेटा इन्क्रिप्सन: स्थानीय AES र सुरक्षित SharedPreferences भण्डारण', en: '• Data Encryption: Local AES & Secure Storage', ko: '• 데이터 암호화: 로컬 AES 및 보안 스토리지 적용'), style: const TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

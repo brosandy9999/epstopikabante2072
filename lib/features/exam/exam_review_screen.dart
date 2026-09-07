@@ -162,11 +162,19 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                       final isCorrect = userChoice != null && keyInfo != null && userChoice == keyInfo.correctIndex;
                       final isUnanswered = userChoice == null;
 
-                      final options = (q is UniversalQuestion)
-                          ? q.textOptions
-                          : ((q is ReadingTextQuestion)
-                              ? q.textOptions
-                              : ((q is ListeningAudioQuestion) ? q.textOptions : <String>[]));
+                      List<String> rawOptions = [];
+                      if (q is UniversalQuestion) {
+                        rawOptions = q.textOptions;
+                      } else if (q is ReadingTextQuestion) {
+                        rawOptions = q.textOptions;
+                      } else if (q is ReadingImageQuestion) {
+                        rawOptions = q.textOptions;
+                      } else if (q is ListeningAudioQuestion) {
+                        rawOptions = q.textOptions;
+                      } else if (q is ListeningImageOptionsQuestion) {
+                        rawOptions = q.imageOptionPaths;
+                      }
+                      final options = List.generate(4, (i) => i < rawOptions.length ? rawOptions[i] : '');
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 20),
@@ -320,7 +328,7 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                                       const SizedBox(width: 10),
                                       Expanded(
                                         child: Text(
-                                          options[optIdx],
+                                          options[optIdx].trim().isNotEmpty ? options[optIdx] : "${optIdx + 1}번",
                                           style: TextStyle(fontSize: 15, fontWeight: (isCorrectChoice || isUserChoice) ? FontWeight.bold : FontWeight.normal, color: textColor),
                                         ),
                                       ),

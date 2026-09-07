@@ -102,25 +102,24 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
 
       QuestionTemplate newQ;
       if (_selectedCategory == 'Listening') {
-        newQ = ListeningAudioQuestion(
+        newQ = UniversalQuestion(
           questionId: qId,
+          questionNumber: 21,
           questionText: qText,
-          audioAssetPath: _audioPath ?? 'assets/audio/sample_listening.mp3',
+          isListening: true,
+          questionAudioUrl: _audioPath ?? 'assets/audio/sample_listening.mp3',
+          questionImageUrl: _imagePath,
           textOptions: options,
           audioScript: options.isNotEmpty ? options[_correctOptionIndex] : null,
           audioScriptNepali: explanation.isNotEmpty ? explanation : null,
         );
-      } else if (_imagePath != null) {
-        newQ = ReadingImageQuestion(
-          questionId: qId,
-          questionText: qText,
-          imageAssetPath: _imagePath!,
-          textOptions: options,
-        );
       } else {
-        newQ = ReadingTextQuestion(
+        newQ = UniversalQuestion(
           questionId: qId,
+          questionNumber: 1,
           questionText: qText,
+          isListening: false,
+          questionImageUrl: _imagePath,
           textOptions: options,
         );
       }

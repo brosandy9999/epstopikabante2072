@@ -197,7 +197,9 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
 
   void _showQuestionEditorDialog(MockTestSet set, int qIndex, QuestionTemplate q) {
     // Extract properties
-    final isReading = (q is ReadingTextQuestion) || (q is UniversalQuestion && !q.isListening);
+    final isReading = (q is UniversalQuestion)
+        ? !q.isListening
+        : (q is ReadingTextQuestion || q is ReadingImageQuestion || qIndex < 20);
     final questionNo = qIndex + 1;
     final qId = q.questionId;
     final ansInfo = set.answerKeys[qId] ?? const QuestionAnswerInfo(correctIndex: 0, explanation: 'सही उत्तर');
@@ -218,14 +220,29 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
 
     // 4 Options
     List<String> rawTexts = ['', '', '', ''];
-    if (q is UniversalQuestion) rawTexts = q.textOptions;
-    else if (q is ReadingTextQuestion) rawTexts = q.textOptions;
-    else if (q is ListeningAudioQuestion) rawTexts = q.textOptions;
-    while (rawTexts.length < 4) rawTexts.add('');
+    if (q is UniversalQuestion) {
+      rawTexts = q.textOptions;
+    } else if (q is ReadingTextQuestion) {
+      rawTexts = q.textOptions;
+    } else if (q is ReadingImageQuestion) {
+      rawTexts = q.textOptions;
+    } else if (q is ListeningAudioQuestion) {
+      rawTexts = q.textOptions;
+    } else if (q is ListeningImageOptionsQuestion) {
+      rawTexts = const ['', '', '', ''];
+    }
+    while (rawTexts.length < 4) {
+      rawTexts.add('');
+    }
+
+    final List<String?> rawImgs = (q is UniversalQuestion)
+        ? q.imageOptions
+        : ((q is ListeningImageOptionsQuestion) ? q.imageOptionPaths : const [null, null, null, null]);
+    final List<String?> rawAudios = (q is UniversalQuestion) ? q.audioOptions : const [null, null, null, null];
 
     final optionTextCtrls = List.generate(4, (i) => TextEditingController(text: i < rawTexts.length ? rawTexts[i] : ''));
-    final optionImgCtrls = List.generate(4, (i) => TextEditingController(text: (q is UniversalQuestion && i < q.imageOptions.length) ? (q.imageOptions[i] ?? '') : ''));
-    final optionAudioCtrls = List.generate(4, (i) => TextEditingController(text: (q is UniversalQuestion && i < q.audioOptions.length) ? (q.audioOptions[i] ?? '') : ''));
+    final optionImgCtrls = List.generate(4, (i) => TextEditingController(text: (i < rawImgs.length && rawImgs[i] != null) ? rawImgs[i]! : ''));
+    final optionAudioCtrls = List.generate(4, (i) => TextEditingController(text: (i < rawAudios.length && rawAudios[i] != null) ? rawAudios[i]! : ''));
 
     final explCtrl = TextEditingController(text: ansInfo.explanation);
     int selectedCorrectIndex = ansInfo.correctIndex;
@@ -1361,6 +1378,10 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
               } else if (q is ListeningAudioQuestion) {
                 hasAud = true;
                 options = q.textOptions;
+              } else if (q is ListeningImageOptionsQuestion) {
+                hasAud = true;
+                hasOptionImg = true;
+                options = q.imageOptionPaths;
               }
 
               return Card(
@@ -1439,8 +1460,11 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                       Wrap(
                         spacing: 12,
                         runSpacing: 6,
-                        children: List.generate(options.length, (optIdx) {
+                        children: List.generate(4, (optIdx) {
                           final isCorrect = ans?.correctIndex == optIdx;
+                          final String optText = (optIdx < options.length && options[optIdx].trim().isNotEmpty)
+                              ? options[optIdx].trim()
+                              : "${optIdx + 1}번";
                           return Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
@@ -1449,7 +1473,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                               border: Border.all(color: isCorrect ? Colors.green : Colors.grey.shade300),
                             ),
                             child: Text(
-                              '${optIdx + 1}) ${options[optIdx]} ${isCorrect ? "✓" : ""}',
+                              '${optIdx + 1}) $optText ${isCorrect ? "✓" : ""}',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: isCorrect ? FontWeight.bold : FontWeight.normal,

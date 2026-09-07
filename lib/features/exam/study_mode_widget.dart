@@ -128,15 +128,22 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isListening = (widget.question is ListeningAudioQuestion) ||
-        (widget.question is UniversalQuestion && (widget.question as UniversalQuestion).isListening);
-    final options = (widget.question is UniversalQuestion)
-        ? (widget.question as UniversalQuestion).textOptions
-        : ((widget.question is ReadingTextQuestion)
-            ? (widget.question as ReadingTextQuestion).textOptions
-            : ((widget.question is ListeningAudioQuestion)
-                ? (widget.question as ListeningAudioQuestion).textOptions
-                : <String>[]));
+    final bool isListening = (widget.question is UniversalQuestion)
+        ? (widget.question as UniversalQuestion).isListening
+        : (widget.question is ListeningAudioQuestion || widget.question is ListeningImageOptionsQuestion);
+    List<String> rawOptions = [];
+    if (widget.question is UniversalQuestion) {
+      rawOptions = (widget.question as UniversalQuestion).textOptions;
+    } else if (widget.question is ReadingTextQuestion) {
+      rawOptions = (widget.question as ReadingTextQuestion).textOptions;
+    } else if (widget.question is ReadingImageQuestion) {
+      rawOptions = (widget.question as ReadingImageQuestion).textOptions;
+    } else if (widget.question is ListeningAudioQuestion) {
+      rawOptions = (widget.question as ListeningAudioQuestion).textOptions;
+    } else if (widget.question is ListeningImageOptionsQuestion) {
+      rawOptions = (widget.question as ListeningImageOptionsQuestion).imageOptionPaths;
+    }
+    final options = List.generate(4, (i) => i < rawOptions.length ? rawOptions[i] : '');
 
     final isAnswered = widget.selectedOption != null;
     final isCorrect = isAnswered &&
@@ -300,23 +307,33 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
             ),
           ),
           const SizedBox(height: 10),
-          Center(
-            child: Text(
-              isLocked
-                  ? LanguageService.instance.trText(ne: 'अडियो समाप्त (२/२ बजिसक्यो)', en: 'Audio Finished (Played 2/2)', ko: '재생 종료 (2/2회 완료)')
-                  : (isPlaying
-                      ? (_audioState == StudyAudioState.playingFirst ? LanguageService.instance.trText(ne: 'पहिलो पटक बज्दैछ... (१/२)', en: 'Playing Round 1... (1/2)', ko: '1회차 재생 중... (1/2)') : LanguageService.instance.trText(ne: 'दोस्रो पटक बज्दैछ... (२/२)', en: 'Playing Round 2... (2/2)', ko: '2회차 자동 반복 중... (2/2)'))
-                      : (isIntermission
-                          ? LanguageService.instance.trText(ne: 'केही क्षणमा दोस्रो पटक स्वतः बज्नेछ...', en: 'Playing second round shortly...', ko: '잠시 후 2회차 자동 반복...')
-                          : LanguageService.instance.trText(ne: '🔊 अडियो बजाउनुहोस् (२ पटक बज्नेछ)', en: '🔊 Play Audio (Plays 2 times)', ko: '🔊 오디오 재생 (2회 연속 재생)'))),
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: isLocked
-                    ? Colors.grey.shade600
-                    : (isPlaying ? const Color(0xFFB45309) : const Color(0xFF1E3A8A)),
-              ),
-            ),
+          Builder(
+            builder: (context) {
+              String statusText;
+              if (isLocked) {
+                statusText = LanguageService.instance.trText(ne: 'अडियो समाप्त (२/२ बजिसक्यो)', en: 'Audio Finished (Played 2/2)', ko: '재생 종료 (2/2회 완료)');
+              } else if (isPlaying) {
+                statusText = (_audioState == StudyAudioState.playingFirst)
+                    ? LanguageService.instance.trText(ne: 'पहिलो पटक बज्दैछ... (१/२)', en: 'Playing Round 1... (1/2)', ko: '1회차 재생 중... (1/2)')
+                    : LanguageService.instance.trText(ne: 'दोस्रो पटक बज्दैछ... (२/२)', en: 'Playing Round 2... (2/2)', ko: '2회차 자동 반복 중... (2/2)');
+              } else if (isIntermission) {
+                statusText = LanguageService.instance.trText(ne: 'केही क्षणमा दोस्रो पटक स्वतः बज्नेछ...', en: 'Playing second round shortly...', ko: '잠시 후 2회차 자동 반복...');
+              } else {
+                statusText = LanguageService.instance.trText(ne: '🔊 अडियो बजाउनुहोस् (२ पटक बज्नेछ)', en: '🔊 Play Audio (Plays 2 times)', ko: '🔊 오디오 재생 (2회 연속 재생)');
+              }
+              return Center(
+                child: Text(
+                  statusText,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: isLocked
+                        ? Colors.grey.shade600
+                        : (isPlaying ? const Color(0xFFB45309) : const Color(0xFF1E3A8A)),
+                  ),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 10),
           Center(

@@ -97,22 +97,37 @@ class MockTestSet {
     'isLiveExam': isLiveExam,
     'liveExamDate': liveExamDate,
     'isStrictMode': isStrictMode,
-    'questions': questions.map((q) {
+    'questions': questions.asMap().entries.map((entry) {
+      final idx = entry.key;
+      final q = entry.value;
       if (q is UniversalQuestion) return q.toJson();
       if (q is ReadingTextQuestion) {
         return {
+          'type': 'UniversalQuestion',
           'questionId': q.questionId,
           'questionText': q.questionText,
-          'questionNumber': 1,
+          'questionNumber': idx + 1,
           'isListening': false,
+          'textOptions': q.textOptions,
+        };
+      }
+      if (q is ReadingImageQuestion) {
+        return {
+          'type': 'UniversalQuestion',
+          'questionId': q.questionId,
+          'questionText': q.questionText,
+          'questionNumber': idx + 1,
+          'isListening': false,
+          'questionImageUrl': q.imageAssetPath,
           'textOptions': q.textOptions,
         };
       }
       if (q is ListeningAudioQuestion) {
         return {
+          'type': 'UniversalQuestion',
           'questionId': q.questionId,
           'questionText': q.questionText,
-          'questionNumber': 21,
+          'questionNumber': idx + 1,
           'isListening': true,
           'questionAudioUrl': q.audioAssetPath,
           'textOptions': q.textOptions,
@@ -120,7 +135,28 @@ class MockTestSet {
           'audioScriptNepali': q.audioScriptNepali,
         };
       }
-      return {'questionId': q.questionId, 'questionText': q.questionText};
+      if (q is ListeningImageOptionsQuestion) {
+        return {
+          'type': 'UniversalQuestion',
+          'questionId': q.questionId,
+          'questionText': q.questionText,
+          'questionNumber': idx + 1,
+          'isListening': true,
+          'questionAudioUrl': q.audioAssetPath,
+          'imageOptions': q.imageOptionPaths,
+          'textOptions': const ['', '', '', ''],
+          'audioScript': q.audioScript,
+          'audioScriptNepali': q.audioScriptNepali,
+        };
+      }
+      return {
+        'type': 'UniversalQuestion',
+        'questionId': q.questionId,
+        'questionText': q.questionText,
+        'questionNumber': idx + 1,
+        'isListening': idx >= 20,
+        'textOptions': const ['', '', '', ''],
+      };
     }).toList(),
     'answerKeys': answerKeys.map((k, v) => MapEntry(k, {
       'correctIndex': v.correctIndex,
