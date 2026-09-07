@@ -118,7 +118,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   int _gridColumnsOverride = 0; // 0 = Auto, 1 = Single column, 2 = 2 columns, 3 = 3 columns
   double _uiScale = 1.0;
   double _pinchBaseScale = 1.0;
-  bool _directScrollZoomEnabled = false;
 
   @override
   void initState() {
@@ -153,7 +152,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             onPointerSignal: (pointerSignal) {
             if (pointerSignal is PointerScrollEvent) {
               final isCtrl = HardwareKeyboard.instance.isControlPressed;
-              if (isCtrl || _directScrollZoomEnabled) {
+              if (isCtrl) {
                 if (pointerSignal.scrollDelta.dy < 0) {
                   // Mouse Scroll Up = Zoom In
                   setState(() {
@@ -1797,34 +1796,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   // -----------------------------------------------------------------
   // 2. MULTIPLE MOCK TEST SETS SECTION (Set 1 to Set 5)
   // -----------------------------------------------------------------
-  Widget _buildGridColChip(int col, String label) {
-    final isSelected = _gridColumnsOverride == col;
-    return InkWell(
-      onTap: () {
-        setState(() {
-          _gridColumnsOverride = col;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1E3A8A) : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: isSelected ? const Color(0xFF1E3A8A) : Colors.grey.shade300),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? Colors.white : Colors.black87,
-          ),
-        ),
-      ),
-    );
-  }
-
-    Widget _buildMultipleSetsSection(List<MockTestSet> sets, AppUser s, bool isMobile) {
+  Widget _buildMultipleSetsSection(List<MockTestSet> sets, AppUser s, bool isMobile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1849,15 +1821,19 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                       Expanded(
                         child: Text(
                           LanguageService.instance.tr("available_sets"),
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    LanguageService.instance.trText(ne: "आधिकारिक प्रश्न सेटहरू — जुनसुकै सेट छानेर परीक्षा वा अभ्यास सुरु गर्नुहोस्:", en: "Official Question Sets — Choose any set to start exam or practice:", ko: "공식 문제 세트 — 세트를 선택하여 시험 또는 연습을 시작하세요:"),
-                    style: TextStyle(color: Colors.black54, fontSize: 13),
+                    LanguageService.instance.trText(
+                      ne: "आधिकारिक प्रश्न सेटहरू — जुनसुकै सेट छानेर परीक्षा वा अभ्यास सुरु गर्नुहोस्:",
+                      en: "Official Question Sets — Choose any set to start exam or practice:",
+                      ko: "공식 문제 세트 — 세트를 선택하여 시험 또는 연습을 시작하세요:",
+                    ),
+                    style: const TextStyle(color: Colors.black54, fontSize: 13),
                   ),
                 ],
               ),
@@ -1882,151 +1858,20 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         const SizedBox(height: 16),
         _buildRandomExamLauncherCard(s, isMobile),
 
-        // Responsive Visible Zoom & Automatic Grid Bar
-        Container(
-          margin: const EdgeInsets.only(bottom: 14),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF93C5FD), width: 1.5),
-            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.zoom_in, size: 22, color: Color(0xFF1E3A8A)),
-                      const SizedBox(width: 8),
-                      Text(
-                        LanguageService.instance.isEnglish
-                            ? 'Screen Zoom (${(_uiScale * 100).round()}%)'
-                            : (LanguageService.instance.isKorean
-                                ? '화면 확대/축소 (${(_uiScale * 100).round()}%)'
-                                : 'स्क्रीन जुम (${(_uiScale * 100).round()}%)'),
-                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
-                      ),
-                    ],
-                  ),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            _directScrollZoomEnabled = !_directScrollZoomEnabled;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: _directScrollZoomEnabled ? Colors.green.shade600 : Colors.blue.shade100,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: _directScrollZoomEnabled ? Colors.green.shade800 : Colors.blue.shade300),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.mouse, size: 13, color: _directScrollZoomEnabled ? Colors.white : const Color(0xFF1E3A8A)),
-                              const SizedBox(width: 4),
-                              Text(
-                                _directScrollZoomEnabled
-                                    ? (LanguageService.instance.isEnglish ? '🖱️ Mouse Zoom: ON' : (LanguageService.instance.isKorean ? '🖱️ 마우스 줌: 켜짐' : '🖱️ माउस जुम: चालु'))
-                                    : (LanguageService.instance.isEnglish ? '🖱️ Mouse Zoom' : (LanguageService.instance.isKorean ? '🖱️ 마우스 줌' : '🖱️ माउस जुम')),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: _directScrollZoomEnabled ? Colors.white : const Color(0xFF1E3A8A),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      _buildGridColChip(0, LanguageService.instance.trText(ne: '🔄 अटो ग्रिड', en: '🔄 Auto Grid', ko: '🔄 자동 그리드')),
-                      _buildGridColChip(1, LanguageService.instance.trText(ne: '🔲 १ स्तम्भ', en: '🔲 1 Column', ko: '🔲 1열')),
-                      _buildGridColChip(2, LanguageService.instance.trText(ne: '▦ २ स्तम्भ', en: '▦ 2 Columns', ko: '▦ 2열')),
-                      if (!isMobile) _buildGridColChip(3, LanguageService.instance.trText(ne: '▤ ३ स्तम्भ', en: '▤ 3 Columns', ko: '▤ 3열')),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.zoom_out, color: Color(0xFF1E3A8A), size: 22),
-                    tooltip: LanguageService.instance.tr('zoom_out'),
-                    onPressed: () {
-                      setState(() {
-                        _uiScale = (_uiScale - 0.15).clamp(0.8, 1.8);
-                        if (_uiScale < 1.15) _gridColumnsOverride = 0;
-                      });
-                    },
-                  ),
-                  Expanded(
-                    child: Slider(
-                      value: _uiScale,
-                      min: 0.8,
-                      max: 1.8,
-                      divisions: 10,
-                      label: '${(_uiScale * 100).round()}%',
-                      activeColor: const Color(0xFF1E3A8A),
-                      onChanged: (val) {
-                        setState(() {
-                          _uiScale = val;
-                          if (_uiScale >= 1.2) {
-                            _gridColumnsOverride = 1; // Automatically becomes 1 single card!
-                          } else if (_uiScale <= 1.0) {
-                            _gridColumnsOverride = 0; // Automatically multi grid!
-                          }
-                        });
-                      },
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.zoom_in, color: Color(0xFF1E3A8A), size: 22),
-                    tooltip: LanguageService.instance.tr('zoom_in'),
-                    onPressed: () {
-                      setState(() {
-                        _uiScale = (_uiScale + 0.15).clamp(0.8, 1.8);
-                        if (_uiScale >= 1.2) _gridColumnsOverride = 1;
-                      });
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  TextButton.icon(
-                    style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-                    onPressed: () {
-                      setState(() {
-                        _uiScale = 1.0;
-                        _gridColumnsOverride = 0;
-                      });
-                    },
-                    icon: const Icon(Icons.restart_alt, size: 16),
-                    label: Text(LanguageService.instance.trText(ne: 'रिसेट १००%', en: 'Reset 100%', ko: '100% 초기화'), style: const TextStyle(fontSize: 11)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-
         // Interactive Pinchable & Adaptive Sets Grid
         GestureDetector(
+          onScaleStart: (details) {
+            _pinchBaseScale = _uiScale;
+          },
           onScaleUpdate: (details) {
-            if (details.scale > 1.25 && _gridColumnsOverride != 1) {
+            if (details.scale != 1.0) {
               setState(() {
-                _gridColumnsOverride = 1; // Zoom in to Single Large Card
-              });
-            } else if (details.scale < 0.85 && _gridColumnsOverride != 0) {
-              setState(() {
-                _gridColumnsOverride = 0; // Zoom out to Multi Grid
+                _uiScale = (_pinchBaseScale * details.scale).clamp(0.75, 2.0);
+                if (_uiScale >= 1.18) {
+                  _gridColumnsOverride = 1;
+                } else {
+                  _gridColumnsOverride = 0;
+                }
               });
             }
           },
