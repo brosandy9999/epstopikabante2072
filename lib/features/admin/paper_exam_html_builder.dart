@@ -52,6 +52,7 @@ class PaperExamHtmlBuilder {
     Map<String, String>? customQrCodes,
     String? customSectionQr,
     double imageScale = 1.0,
+    double qrScale = 1.35,
     bool autoEnlargeCharts = true,
     Map<int, bool>? customChartOverrides,
     String? customInstituteName,
@@ -82,6 +83,7 @@ class PaperExamHtmlBuilder {
       listeningStartIndex,
       hasSectionQr: effectiveSectionQr != null && effectiveSectionQr.isNotEmpty,
       imageScale: imageScale,
+      qrScale: qrScale,
       autoEnlargeCharts: autoEnlargeCharts,
       customChartOverrides: customChartOverrides,
     );
@@ -206,21 +208,25 @@ class PaperExamHtmlBuilder {
       flex-direction: column;
       align-items: center;
       background: #ffffff;
-      border: 1px solid #cbd5e1;
-      padding: 3px 6px;
-      border-radius: 4px;
+      border: 1.2px solid #cbd5e1;
+      padding: 4px 6px;
+      border-radius: 6px;
       flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
     .section-banner-qr img {
-      width: 46px;
-      height: 46px;
+      width: ${(52 * qrScale).round()}px;
+      height: ${(52 * qrScale).round()}px;
       object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
     }
     .banner-qr-label {
-      font-size: 7.5px;
-      font-weight: 700;
+      font-size: ${(7.5 * qrScale.clamp(0.9, 1.25)).toStringAsFixed(1)}px;
+      font-weight: 800;
       color: #1e3a8a;
-      margin-top: 2px;
+      margin-top: 3px;
       white-space: nowrap;
     }
 
@@ -275,22 +281,26 @@ class PaperExamHtmlBuilder {
       flex-direction: column;
       align-items: center;
       background: #ffffff;
-      border: 1px solid #cbd5e1;
-      padding: 2px 4px;
-      border-radius: 4px;
+      border: 1.2px solid #cbd5e1;
+      padding: 3px 5px;
+      border-radius: 5px;
       flex-shrink: 0;
-      margin-left: 6px;
+      margin-left: 8px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
     }
     .q-qr-box img {
-      width: 44px;
-      height: 44px;
+      width: ${(46 * qrScale).round()}px;
+      height: ${(46 * qrScale).round()}px;
       object-fit: contain;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated;
     }
     .q-qr-label {
-      font-size: 7px;
-      font-weight: 700;
+      font-size: ${(7.0 * qrScale.clamp(0.9, 1.25)).toStringAsFixed(1)}px;
+      font-weight: 800;
       color: #1e3a8a;
-      margin-top: 1px;
+      margin-top: 2px;
       white-space: nowrap;
     }
 
@@ -1192,6 +1202,7 @@ class PaperExamHtmlBuilder {
     int listeningStartIndex, {
     bool hasSectionQr = false,
     double imageScale = 1.0,
+    double qrScale = 1.35,
     bool autoEnlargeCharts = true,
     Map<int, bool>? customChartOverrides,
   }) {
@@ -1214,6 +1225,7 @@ class PaperExamHtmlBuilder {
       e.value,
       e.key + 1,
       imageScale: imageScale,
+      qrScale: qrScale,
       autoEnlargeCharts: autoEnlargeCharts,
       customChartOverrides: customChartOverrides,
     )).toList();
@@ -1231,7 +1243,7 @@ class PaperExamHtmlBuilder {
         h += 50.0; // Reading banner
       }
       if (i <= listeningStartIndex && listeningStartIndex < j && listeningStartIndex > 0) {
-        h += (hasSectionQr ? 75.0 : 55.0);
+        h += (hasSectionQr ? (55.0 + 20.0 * qrScale) : 55.0);
       }
       if (p == 6) {
         h += 35.0; // Exam end banner
@@ -1299,6 +1311,7 @@ class PaperExamHtmlBuilder {
     QuestionTemplate q,
     int qNo, {
     double imageScale = 1.0,
+    double qrScale = 1.35,
     bool autoEnlargeCharts = true,
     Map<int, bool>? customChartOverrides,
   }) {
@@ -1358,6 +1371,17 @@ class PaperExamHtmlBuilder {
         } else {
           h += 72.0;
         }
+      }
+    }
+
+    final bool isListeningQ = (q is UniversalQuestion && q.isListening) ||
+        (q is ListeningAudioQuestion) ||
+        (q is ListeningImageOptionsQuestion) ||
+        (qNo >= 21);
+    if (isListeningQ) {
+      final qrMinH = (46.0 * qrScale) + 14.0;
+      if (h < qrMinH) {
+        h = qrMinH;
       }
     }
 

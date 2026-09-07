@@ -35,6 +35,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
 
   // Image scaling & chart customization for PBT PDF booklet
   double _imageScale = 1.0;
+  double _qrScale = 1.35; // Default 135% (~62px-70px) for reliable mobile camera scanning
   bool _autoEnlargeCharts = true;
   final Map<int, bool> _customChartOverrides = {};
 
@@ -109,6 +110,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       customQrCodes: _questionQrCodes,
       customSectionQr: _listeningSectionQrUrl,
       imageScale: _imageScale,
+      qrScale: _qrScale,
       autoEnlargeCharts: _autoEnlargeCharts,
       customChartOverrides: _customChartOverrides,
       customInstituteName: _instituteName,
@@ -142,6 +144,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       customQrCodes: _questionQrCodes,
       customSectionQr: _listeningSectionQrUrl,
       imageScale: _imageScale,
+      qrScale: _qrScale,
       autoEnlargeCharts: _autoEnlargeCharts,
       customChartOverrides: _customChartOverrides,
       customInstituteName: _instituteName,
@@ -162,6 +165,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
   Future<void> _openListeningQrManagerDialog() async {
     final tempQrMap = Map<String, String>.from(_questionQrCodes);
     String? tempSectionQr = _listeningSectionQrUrl;
+    double tempQrScale = _qrScale;
 
     await showDialog(
       context: context,
@@ -249,6 +253,132 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            // ─── QR CODE PRINT SIZE ADJUSTMENT ───
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E293B),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFF38BDF8).withValues(alpha: 0.5)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF0284C7).withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: const Icon(Icons.aspect_ratio, color: Color(0xFF38BDF8), size: 20),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      const Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '🔍 PDF मा QR कोडको साइज (QR Code Print Size)',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            SizedBox(height: 2),
+                                            Text(
+                                              'मोबाइल फोनको क्यामेराले सजिलै र टाढाबाटै स्क्यान गर्न QR कोडको साइज यहाँबाट मिलाउनुहोस्।',
+                                              style: TextStyle(color: Colors.white70, fontSize: 11),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF0F172A),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: const Color(0xFF38BDF8), width: 1.5),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.qr_code_scanner, size: 16, color: Color(0xFF38BDF8)),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              '${(tempQrScale * 100).round()}% (${(46 * tempQrScale).round()}px)',
+                                              style: const TextStyle(
+                                                color: Color(0xFF38BDF8),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 14),
+                                  // Slider
+                                  Row(
+                                    children: [
+                                      const Text('100%\n(46px)', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54, fontSize: 10)),
+                                      Expanded(
+                                        child: Slider(
+                                          value: tempQrScale,
+                                          min: 1.0,
+                                          max: 1.8,
+                                          divisions: 16,
+                                          activeColor: const Color(0xFF38BDF8),
+                                          inactiveColor: const Color(0xFF334155),
+                                          label: '${(tempQrScale * 100).round()}% (${(46 * tempQrScale).round()}px)',
+                                          onChanged: (val) {
+                                            setModalState(() => tempQrScale = val);
+                                          },
+                                        ),
+                                      ),
+                                      const Text('180%\n(83px)', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54, fontSize: 10)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  // Quick preset buttons
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 6,
+                                    children: [
+                                      _buildQrScaleChip('सामान्य (100% / 46px)', 1.0, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
+                                      _buildQrScaleChip('मध्यम (120% / 55px)', 1.2, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
+                                      _buildQrScaleChip('⭐ सिफारिस (135% / 62px)', 1.35, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
+                                      _buildQrScaleChip('ठूलो (150% / 69px)', 1.5, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
+                                      _buildQrScaleChip('धेरै ठूलो (170% / 78px)', 1.7, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0F172A),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Row(
+                                      children: [
+                                        Icon(Icons.check_circle_outline, color: Color(0xFF4ADE80), size: 15),
+                                        SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            'टिप: मोबाइल फोनको क्यामेराले कागजमा प्रिन्ट भएको QR कोड तुरुन्तै स्क्यान गर्न १३५% वा १५०% (६२px~६९px) साइज सबैभन्दा भरपर्दो हुन्छ।',
+                                            style: TextStyle(color: Colors.white70, fontSize: 11),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             // ─── MASTER SECTION QR ───
                             Container(
                               padding: const EdgeInsets.all(16),
@@ -598,6 +728,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                 setState(() {
                                   _questionQrCodes = tempQrMap;
                                   _listeningSectionQrUrl = tempSectionQr;
+                                  _qrScale = tempQrScale;
 
                                   // Update questions in _currentSet
                                   final updatedQuestions = List<QuestionTemplate>.from(_currentSet.questions);
@@ -623,10 +754,10 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                 Navigator.pop(modalCtx);
 
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('✅ लिसनिङ QR कोडहरू सफलतापूर्वक सुरक्षित गरियो र PDF मा लागू भयो!'),
-                                    backgroundColor: Color(0xFF16A34A),
-                                    duration: Duration(seconds: 4),
+                                  SnackBar(
+                                    content: Text('✅ लिसनिङ QR कोडहरू र साइज (${(_qrScale * 100).round()}%) सफलतापूर्वक सुरक्षित गरियो र PDF मा लागू भयो!'),
+                                    backgroundColor: const Color(0xFF16A34A),
+                                    duration: const Duration(seconds: 4),
                                   ),
                                 );
                               },
@@ -642,6 +773,33 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildQrScaleChip(String label, double val, double currentVal, ValueChanged<double> onSelect) {
+    final isSelected = (val - currentVal).abs() < 0.04;
+    return InkWell(
+      borderRadius: BorderRadius.circular(6),
+      onTap: () => onSelect(val),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF0284C7) : const Color(0xFF0F172A),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF38BDF8) : const Color(0xFF334155),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.white70,
+            fontSize: 11,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
     );
   }
 
@@ -1387,6 +1545,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       listeningStartIndex,
       hasSectionQr: _listeningSectionQrUrl != null && _listeningSectionQrUrl!.isNotEmpty,
       imageScale: _imageScale,
+      qrScale: _qrScale,
       autoEnlargeCharts: _autoEnlargeCharts,
       customChartOverrides: _customChartOverrides,
     );
@@ -1454,7 +1613,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               ),
               icon: const Icon(Icons.qr_code_2, size: 18),
-              label: Text('🎧 लिसनिङ QR ($_configuredQrCount/20)',
+              label: Text('🎧 लिसनिङ QR ($_configuredQrCount/20 • ${(_qrScale * 100).round()}%)',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
               onPressed: _openListeningQrManagerDialog,
             ),
@@ -2004,8 +2163,8 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
-                    width: 48,
-                    height: 48,
+                    width: (52 * _qrScale).clamp(46.0, 95.0),
+                    height: (52 * _qrScale).clamp(46.0, 95.0),
                     child: SmartImageWidget(imageSource: qrUrl, fit: BoxFit.contain),
                   ),
                   const SizedBox(height: 2),
@@ -2091,13 +2250,13 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: (46 * _qrScale).clamp(44.0, 85.0),
+                  height: (46 * _qrScale).clamp(44.0, 85.0),
                   padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    border: Border.all(color: Colors.black87, width: 1),
-                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(color: Colors.black87, width: 1.2),
+                    borderRadius: BorderRadius.circular(4),
                   ),
                   child: SmartImageWidget(imageSource: qrUrl, fit: BoxFit.contain),
                 ),
