@@ -8,6 +8,7 @@ import 'features/reading/reading_widget.dart';
 import 'features/listening/listening_widget.dart';
 import 'features/question_engine/question_template.dart';
 import 'features/exam/timer_widget.dart';
+import 'core/widgets/app_exit_dialog.dart';
 import 'features/exam/strict_mode_wrapper.dart';
 import 'features/exam/study_mode_widget.dart';
 import 'features/admin/admin_dashboard.dart' as admin;
@@ -125,8 +126,18 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         final screenWidth = MediaQuery.of(context).size.width;
         final bool isMobile = screenWidth < 850;
 
-        return Listener(
-          onPointerSignal: (pointerSignal) {
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            if (_currentTab != 0) {
+              setState(() => _currentTab = 0);
+              return;
+            }
+            await showAppExitConfirmationDialog(context);
+          },
+          child: Listener(
+            onPointerSignal: (pointerSignal) {
             if (pointerSignal is PointerScrollEvent) {
               final isCtrl = HardwareKeyboard.instance.isControlPressed;
               if (isCtrl || _directScrollZoomEnabled) {
@@ -345,7 +356,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
         ),
       ),
     ),
-  );
+  ),
+);
       },
     );
   }

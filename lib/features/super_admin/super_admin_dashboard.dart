@@ -4,6 +4,7 @@ import '../../core/models/institute_model.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/institute_service.dart';
 import '../../core/services/cloud_sync_service.dart';
+import '../../core/widgets/app_exit_dialog.dart';
 import '../admin/admin_question_set_screen.dart';
 import '../admin/admin_study_manager_screen.dart';
 import '../admin/results_analytics_screen.dart';
@@ -46,111 +47,127 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
     return ListenableBuilder(
       listenable: LanguageService.instance,
       builder: (context, _) {
-        return Scaffold(
-          backgroundColor: const Color(0xFFF1F5F9),
-          appBar: AppBar(
-            backgroundColor: const Color(0xFF0F172A),
-            foregroundColor: Colors.white,
-            elevation: 3,
-            title: Row(
-              children: [
-                const CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Colors.amber,
-                  child: Icon(Icons.workspace_premium, color: Colors.black87, size: 22),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      LanguageService.instance.trText(
-                        ne: 'सुपर एडमिन मास्टर पोर्टल',
-                        en: 'Super Admin Master Portal',
-                        ko: '최고 관리자 마스터 포털',
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            if (_tabController.index != 0) {
+              _tabController.animateTo(0);
+              return;
+            }
+            await showAppExitConfirmationDialog(context);
+          },
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF1F5F9),
+            appBar: AppBar(
+              backgroundColor: const Color(0xFF0F172A),
+              foregroundColor: Colors.white,
+              elevation: 3,
+              title: Row(
+                children: [
+                  const CircleAvatar(
+                    radius: 18,
+                    backgroundColor: Colors.amber,
+                    child: Icon(Icons.workspace_premium, color: Colors.black87, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: 'सुपर एडमिन मास्टर पोर्टल',
+                          en: 'Super Admin Master Portal',
+                          ko: '최고 관리자 마스터 포털',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    Text(
-                      LanguageService.instance.trText(
-                        ne: 'केन्द्रीय इन्स्टिच्युट, कोटा तथा क्लाउड नियन्त्रण',
-                        en: 'Master Platform Management • All Institutes & Resources Control',
-                        ko: '전국 학원 인가, 문제 세트 쿼터 및 클라우드 통합 관리',
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: 'केन्द्रीय नियन्त्रण तथा अनुमति व्यवस्थापन',
+                          en: 'Central Control & License Management',
+                          ko: '중앙 통제 및 권한 관리',
+                        ),
+                        style: const TextStyle(fontSize: 11, color: Colors.white70),
                       ),
-                      style: const TextStyle(fontSize: 10, color: Colors.white70),
-                    ),
-                  ],
+                    ],
+                  ),
+                ],
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.sync_rounded),
+                  tooltip: LanguageService.instance.trText(ne: 'क्लाउड सिङ्क', en: 'Cloud Sync', ko: '클라우드 동기화'),
+                  onPressed: () async {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(LanguageService.instance.trText(ne: 'क्लाउड सिङ्क्रोनाइजेसन सुरु भयो...', en: 'Syncing to Cloud...', ko: '클라우드 동기화 중...')),
+                        backgroundColor: const Color(0xFF1E3A8A),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                    await CloudSyncService.instance.pushToCloud(silent: false);
+                    await CloudSyncService.instance.pullFromCloud(silent: false);
+                    if (context.mounted) {
+                      setState(() {});
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(LanguageService.instance.trText(ne: '✅ क्लाउड सिङ्क्रोनाइजेसन सम्पन्न भयो!', en: '✅ Cloud sync complete!', ko: '✅ 클라우드 동기화 완료!')),
+                          backgroundColor: Colors.green,
+                          duration: const Duration(seconds: 3),
+                        ),
+                      );
+                    }
+                  },
                 ),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  tooltip: LanguageService.instance.trText(ne: 'सेटिङ', en: 'Settings', ko: '설정'),
+                  onPressed: () => showUniversalSettingsDialog(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.logout),
+                  tooltip: LanguageService.instance.trText(ne: 'लगआउट', en: 'Logout', ko: '로그아웃'),
+                  onPressed: _handleLogout,
+                ),
+                const SizedBox(width: 8),
               ],
+              bottom: TabBar(
+                controller: _tabController,
+                indicatorColor: Colors.amber,
+                indicatorWeight: 3,
+                labelColor: Colors.amber,
+                unselectedLabelColor: Colors.white70,
+                labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                tabs: [
+                  Tab(
+                    icon: const Icon(Icons.apartment),
+                    text: LanguageService.instance.trText(ne: 'इन्स्टिच्युटहरू', en: 'Institutes', ko: '학원 관리'),
+                  ),
+                  Tab(
+                    icon: const Icon(Icons.menu_book),
+                    text: LanguageService.instance.trText(ne: 'केन्द्रीय पाठ्यपुस्तक', en: 'Textbooks & Hub', ko: '표준교재 허브'),
+                  ),
+                  Tab(
+                    icon: const Icon(Icons.quiz),
+                    text: LanguageService.instance.trText(ne: 'प्रश्न सेट बैंक', en: 'Question Bank', ko: '문제 세트 은행'),
+                  ),
+                  Tab(
+                    icon: const Icon(Icons.insights),
+                    text: LanguageService.instance.trText(ne: 'समग्र एनालिटिक्स', en: 'Analytics', ko: '전체 통계'),
+                  ),
+                ],
+              ),
             ),
-            actions: [
-              
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.amber.shade700,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.verified, size: 14, color: Colors.white),
-                    const SizedBox(width: 4),
-                    Text(
-                      LanguageService.instance.trText(ne: 'प्लेटफर्म धनी', en: 'Platform Owner', ko: '플랫폼 본부'),
-                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-                            IconButton(
-                icon: const Icon(Icons.settings),
-                tooltip: LanguageService.instance.trText(ne: 'सेटिङ', en: 'Settings', ko: '설정'),
-                onPressed: () => showUniversalSettingsDialog(context),
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout),
-                tooltip: LanguageService.instance.trText(ne: 'लगआउट', en: 'Logout', ko: '로그아웃'),
-                onPressed: _handleLogout,
-              ),
-              const SizedBox(width: 8),
-            ],
-            bottom: TabBar(
+            body: TabBarView(
               controller: _tabController,
-              indicatorColor: Colors.amber,
-              indicatorWeight: 3.5,
-              labelColor: Colors.amber,
-              unselectedLabelColor: Colors.white70,
-              labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-              tabs: [
-                Tab(
-                  icon: const Icon(Icons.apartment),
-                  text: LanguageService.instance.trText(ne: 'इन्स्टिच्युटहरू', en: 'Institutes', ko: '학원 관리'),
-                ),
-                Tab(
-                  icon: const Icon(Icons.menu_book),
-                  text: LanguageService.instance.trText(ne: 'केन्द्रीय पाठ्यपुस्तक', en: 'Textbooks & Hub', ko: '표준교재 허브'),
-                ),
-                Tab(
-                  icon: const Icon(Icons.quiz),
-                  text: LanguageService.instance.trText(ne: 'प्रश्न सेट बैंक', en: 'Question Bank', ko: '문제 세트 은행'),
-                ),
-                Tab(
-                  icon: const Icon(Icons.insights),
-                  text: LanguageService.instance.trText(ne: 'समग्र एनालिटिक्स', en: 'Analytics', ko: '전체 통계'),
-                ),
+              children: [
+                _buildInstitutesManagerTab(),
+                const AdminStudyManagerScreen(),
+                const AdminQuestionSetScreen(),
+                const ResultsAnalyticsScreen(),
               ],
             ),
-          ),
-          body: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildInstitutesManagerTab(),
-              const AdminStudyManagerScreen(),
-              const AdminQuestionSetScreen(),
-              const ResultsAnalyticsScreen(),
-            ],
           ),
         );
       },

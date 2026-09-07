@@ -1023,10 +1023,18 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
     return ListenableBuilder(
       listenable: LanguageService.instance,
       builder: (context, _) {
-        if (_selectedSet != null) {
-          return _buildSetQuestionInspector(_selectedSet!);
-        }
-        return _buildSetsList();
+        return PopScope(
+          canPop: _selectedSet == null,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            if (_selectedSet != null) {
+              setState(() => _selectedSet = null);
+            }
+          },
+          child: _selectedSet != null
+              ? _buildSetQuestionInspector(_selectedSet!)
+              : _buildSetsList(),
+        );
       },
     );
   }

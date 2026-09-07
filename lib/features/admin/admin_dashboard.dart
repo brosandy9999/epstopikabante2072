@@ -1,6 +1,7 @@
 import '../../core/services/cloud_sync_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/language_service.dart';
+import '../../core/widgets/app_exit_dialog.dart';
 import '../settings/universal_settings_dialog.dart';
 import 'import_workflow_screen.dart';
 import 'user_management_screen.dart';
@@ -44,7 +45,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return ListenableBuilder(
       listenable: LanguageService.instance,
       builder: (context, _) {
-        return Scaffold(
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            if (_selectedIndex != 0) {
+              setState(() => _selectedIndex = 0);
+              return;
+            }
+            await showAppExitConfirmationDialog(context);
+          },
+          child: Scaffold(
           appBar: AppBar(
             title: Row(
               children: [
@@ -178,6 +189,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
             ],
           ),
+        ),
         );
       },
     );

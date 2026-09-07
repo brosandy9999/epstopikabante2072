@@ -611,9 +611,15 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
 
   Widget _buildRotateToLandscapePrompt(BuildContext context) {
     final lang = LanguageService.instance;
-    return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
-      body: SafeArea(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _confirmExit();
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFF0F172A),
+        body: SafeArea(
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -748,8 +754,9 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -765,9 +772,15 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
 
     return ListenableBuilder(
       listenable: LanguageService.instance,
-      builder: (context, _) => Scaffold(
-        backgroundColor: const Color(0xFFF1F5F9),
-        body: SafeArea(
+      builder: (context, _) => PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
+          _confirmExit();
+        },
+        child: Scaffold(
+          backgroundColor: const Color(0xFFF1F5F9),
+          body: SafeArea(
           child: Column(
             children: [
               // 1. CLEAN FLOATING HEADER (No AppBar slot)
@@ -926,8 +939,9 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCurrentQuestion(QuestionTemplate currentQ) {
     final bool isListening = (currentQ is ListeningAudioQuestion) ||

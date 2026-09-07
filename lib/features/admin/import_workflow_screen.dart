@@ -4,6 +4,7 @@ import '../question_engine/question_template.dart';
 import '../../core/models/mock_test_model.dart';
 import '../../core/services/question_bank_service.dart';
 import '../../core/services/language_service.dart';
+import '../../core/widgets/app_exit_dialog.dart';
 
 enum ImportFormat { csv, json }
 
@@ -321,10 +322,35 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
       builder: (context, _) {
         final lang = LanguageService.instance;
         final existingSets = QuestionBankService.instance.getAllMockSets();
+        final hasUnsavedText = _textController.text.trim().isNotEmpty || _isParsed;
 
-        return SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        return PopScope(
+          canPop: !hasUnsavedText,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            final shouldLeave = await showActionExitConfirmationDialog(
+              context,
+              titleNe: 'आयात पोर्टल छोड्ने निश्चित हुनुहुन्छ?',
+              titleEn: 'Leave Import Portal?',
+              titleKo: '문항 가져오기 화면을 나가시겠습니까?',
+              messageNe: 'तपाईंले लोड गर्नुभएको वा टाइप गर्नुभएको प्रश्न डाटा बैंकमा सेभ भएको छैन। बाहिर निस्कँदा डाटा मेटिन सक्छ।',
+              messageEn: 'Your imported question draft is not saved to the question bank yet. Leaving now will discard it.',
+              messageKo: '작성하거나 불러온 문항 데이터가 아직 문제은행에 등록되지 않았습니다. 지금 나가시면 데이터가 초기화됩니다.',
+              confirmBtnNe: 'हो, बाहिर निस्कनुहोस्',
+              confirmBtnEn: 'Discard & Leave',
+              confirmBtnKo: '나가기',
+              cancelBtnNe: 'रद्द गर्नुहोस्',
+              cancelBtnEn: 'Keep Editing',
+              cancelBtnKo: '계속 편집',
+              isDestructive: true,
+            );
+            if (shouldLeave == true && context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header Card
               Container(
@@ -648,7 +674,8 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
           ],
         ],
       ),
-    );
+    ),
+  );
       },
     );
   }

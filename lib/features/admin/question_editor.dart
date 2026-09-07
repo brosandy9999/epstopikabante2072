@@ -6,6 +6,7 @@ import '../../core/services/file_upload_service.dart';
 import '../../core/services/audio_playback_service.dart';
 import '../../core/services/language_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
+import '../../core/widgets/app_exit_dialog.dart';
 
 /// Phase 11: Question Editor (रुल २९)
 /// यो स्क्रिनबाट एडमिन/शिक्षकले नयाँ प्रश्नहरू टाइप गर्ने, फोटो हाल्ने र डेटाबेसमा सेभ गर्ने काम गर्छन्।
@@ -27,6 +28,16 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
   int _correctOptionIndex = 0; // कुन अप्सन सही हो भनेर सेट गर्न
   String? _imagePath;
   String? _audioPath;
+
+  bool _hasUnsavedData() {
+    if (_questionTextController.text.trim().isNotEmpty) return true;
+    if (_explanationController.text.trim().isNotEmpty) return true;
+    if (_imagePath != null || _audioPath != null) return true;
+    for (final c in _optionControllers) {
+      if (c.text.trim().isNotEmpty) return true;
+    }
+    return false;
+  }
 
   Future<void> _saveQuestion() async {
     if (_formKey.currentState!.validate()) {
@@ -167,9 +178,33 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
       listenable: LanguageService.instance,
       builder: (context, _) {
         final lang = LanguageService.instance;
-        return SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(24.0),
+        return PopScope(
+          canPop: !_hasUnsavedData(),
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+            final shouldLeave = await showActionExitConfirmationDialog(
+              context,
+              titleNe: 'फारम छोड्ने निश्चित हुनुहुन्छ?',
+              titleEn: 'Discard Question Draft?',
+              titleKo: '작성 중인 문항을 취소하시겠습니까?',
+              messageNe: 'तपाईंले भर्नुभएको प्रश्न विवरण अझै सेभ भएको छैन। बाहिर निस्कँदा नलेखिएको डाटा हराउन सक्छ।',
+              messageEn: 'Your question draft has unsaved changes. Leaving now will discard these changes.',
+              messageKo: '저장되지 않은 문항 변경 사항이 있습니다. 지금 나가시면 작성 중인 데이터가 삭제됩니다.',
+              confirmBtnNe: 'हो, बाहिर निस्कनुहोस्',
+              confirmBtnEn: 'Discard & Leave',
+              confirmBtnKo: '나가기',
+              cancelBtnNe: 'रद्द गर्नुहोस्',
+              cancelBtnEn: 'Keep Editing',
+              cancelBtnKo: '계속 작성',
+              isDestructive: true,
+            );
+            if (shouldLeave == true && context.mounted) {
+              Navigator.of(context).pop();
+            }
+          },
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
@@ -346,9 +381,9 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
               )
             ],
           ),
-        ),
-      ),
-    );
+            ),
+          ),
+        );
       },
     );
   }
