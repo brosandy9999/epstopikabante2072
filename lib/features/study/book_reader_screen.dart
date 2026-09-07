@@ -6,6 +6,7 @@ import '../../core/services/file_upload_service.dart';
 import '../../core/services/study_material_service.dart';
 import '../../core/services/cloud_sync_service.dart';
 import '../../core/services/language_service.dart';
+import '../../core/services/offline_download_service.dart';
 
 /// Interactive Textbook & PDF Reader with Pin-to-Canvas and Expandable Timeline Audio Buttons
 /// Allows admins and students to:
@@ -15,8 +16,9 @@ import '../../core/services/language_service.dart';
 /// 4. Tap again to stop audio and collapse the timeline back into the small compact button.
 class BookReaderScreen extends StatefulWidget {
   final StudyBook book;
+  final int initialChapter;
 
-  const BookReaderScreen({super.key, required this.book});
+  const BookReaderScreen({super.key, required this.book, this.initialChapter = 1});
 
   @override
   State<BookReaderScreen> createState() => _BookReaderScreenState();
@@ -32,6 +34,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
   void initState() {
     super.initState();
     _currentBook = widget.book;
+    _selectedChapter = widget.initialChapter.clamp(1, widget.book.chaptersCount > 0 ? widget.book.chaptersCount : 1);
     _refreshBookFromService();
   }
 
@@ -412,6 +415,127 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
     );
   }
 
+  void _showAllChaptersModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Container(
+          height: MediaQuery.of(context).size.height * 0.75,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.menu_book, color: Color(0xFF1E3A8A), size: 24),
+                      const SizedBox(width: 8),
+                      Text(
+                        LanguageService.instance.trText(ne: 'अध्यायगत सूची र अफलाइन डाउनलोड', en: 'Chapters & Offline Download', ko: '단원 목록 및 오프라인 다운로드'),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                      ),
+                    ],
+                  ),
+                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                ],
+              ),
+              Text(
+                LanguageService.instance.trText(
+                  ne: 'आफूलाई पढ्न मन लागेको च्याप्टरको साइडमा रहेको ⬇️ डाउनलोड बटन थिचेर अफलाइन सेभ गर्नुहोस्:',
+                  en: 'Tap ⬇️ download button next to any chapter to save it for offline study:',
+                  ko: '오프라인 학습을 원하는 단원 옆의 ⬇️ 다운로드 버튼을 누르세요:',
+                ),
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+              ),
+              const SizedBox(height: 8),
+              const Divider(),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: _currentBook.chaptersCount,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (ctx, i) {
+                    final ch = i + 1;
+                    final isDownloaded = OfflineDownloadService.instance.isChapterDownloaded(_currentBook.id, ch);
+                    final isSelected = _selectedChapter == ch;
+                    final tracksCount = _currentBook.audioTracks.where((t) => t.chapterNo == ch).length;
+
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      leading: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: isSelected ? const Color(0xFF1E3A8A) : (isDownloaded ? Colors.teal.shade50 : Colors.grey.shade200),
+                        child: Text('$ch', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : (isDownloaded ? Colors.teal.shade900 : Colors.black87))),
+                      ),
+                      title: Text(
+                        LanguageService.instance.trText(ne: 'अध्याय $ch', en: 'Chapter $ch', ko: '제$ch과'),
+                        style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.w600, color: isSelected ? const Color(0xFF1E3A8A) : Colors.black87),
+                      ),
+                      subtitle: Text(
+                        LanguageService.instance.trText(
+                          ne: '$tracksCount वटा अडियो ट्र्याक • ${isDownloaded ? "✅ अफलाइन सुरक्षित" : "अनलाइन"}',
+                          en: '$tracksCount Audio tracks • ${isDownloaded ? "✅ Offline Saved" : "Online"}',
+                          ko: '$tracksCount개 오디오 • ${isDownloaded ? "✅ 오프라인 저장됨" : "온라인"}',
+                        ),
+                        style: TextStyle(fontSize: 11, color: isDownloaded ? Colors.teal.shade700 : Colors.black54),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
+                              side: BorderSide(color: isDownloaded ? Colors.green : const Color(0xFF0F766E)),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                            icon: Icon(isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined, size: 16),
+                            label: Text(
+                              isDownloaded
+                                  ? LanguageService.instance.trText(ne: '✅ सुरक्षित', en: '✅ Saved', ko: '✅ 저장됨')
+                                  : LanguageService.instance.trText(ne: '⬇️ डाउनलोड', en: '⬇️ Download', ko: '⬇️ 다운로드'),
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: () async {
+                              await OfflineDownloadService.instance.toggleChapterDownload(_currentBook.id, ch);
+                              setModalState(() {});
+                              setState(() {});
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          if (!isSelected)
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF1E3A8A),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                minimumSize: const Size(60, 32),
+                              ),
+                              onPressed: () {
+                                Navigator.pop(ctx);
+                                AudioPlaybackService.instance.stop();
+                                setState(() {
+                                  _selectedChapter = ch;
+                                });
+                              },
+                              child: Text(LanguageService.instance.trText(ne: 'खोल्नुहोस्', en: 'Open', ko: '열기'), style: const TextStyle(fontSize: 11)),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -488,7 +612,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Chapter Dropdown
+          // Chapter Dropdown & Download Button
           Row(
             children: [
               Text(LanguageService.instance.trText(ne: 'पाठ:', en: 'Lesson:', ko: '과:'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A))),
@@ -512,6 +636,57 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     });
                   }
                 },
+              ),
+              const SizedBox(width: 8),
+              // Chapter-level direct offline download button
+              Builder(
+                builder: (context) {
+                  final isDownloaded = OfflineDownloadService.instance.isChapterDownloaded(_currentBook.id, _selectedChapter);
+                  return OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
+                      side: BorderSide(color: isDownloaded ? Colors.green : const Color(0xFF0F766E)),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: const Size(0, 32),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                    ),
+                    onPressed: () async {
+                      await OfflineDownloadService.instance.toggleChapterDownload(_currentBook.id, _selectedChapter);
+                      setState(() {});
+                      final nowDownloaded = OfflineDownloadService.instance.isChapterDownloaded(_currentBook.id, _selectedChapter);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(nowDownloaded
+                              ? LanguageService.instance.trText(
+                                  ne: '✅ अध्याय $_selectedChapter अफलाइन अध्ययनका लागि डाउनलोड भयो!',
+                                  en: '✅ Chapter $_selectedChapter downloaded for offline study!',
+                                  ko: '✅ 제$_selectedChapter과가 오프라인 저장되었습니다!',
+                                )
+                              : LanguageService.instance.trText(
+                                  ne: 'अध्याय $_selectedChapter अफलाइनबाट हटाइयो।',
+                                  en: 'Chapter $_selectedChapter removed from offline.',
+                                  ko: '제$_selectedChapter과가 오프라인에서 삭제되었습니다.',
+                                )),
+                          backgroundColor: nowDownloaded ? Colors.teal : Colors.blueGrey,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    icon: Icon(isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined, size: 15),
+                    label: Text(
+                      isDownloaded
+                          ? LanguageService.instance.trText(ne: '✅ अफलाइन सेभ', en: '✅ Saved', ko: '✅ 저장됨')
+                          : LanguageService.instance.trText(ne: '⬇️ पाठ डाउनलोड', en: '⬇️ Download Lesson', ko: '⬇️ 단원 다운로드'),
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(width: 6),
+              IconButton(
+                icon: const Icon(Icons.format_list_bulleted, size: 18, color: Color(0xFF1E3A8A)),
+                tooltip: LanguageService.instance.trText(ne: 'सबै अध्यायहरू र डाउनलोड सूची', en: 'All Chapters & Download List', ko: '모든 단원 및 다운로드 목록'),
+                onPressed: _showAllChaptersModal,
               ),
             ],
           ),

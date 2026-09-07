@@ -14,9 +14,11 @@ class OfflineDownloadService extends ChangeNotifier {
 
   static const String _keyDownloadedSets = 'eps_offline_downloaded_sets_v1';
   static const String _keyDownloadedBooks = 'eps_offline_downloaded_books_v1';
+  static const String _keyDownloadedChapters = 'eps_offline_downloaded_chapters_v1';
 
   final Set<String> _downloadedSetIds = {};
   final Set<String> _downloadedBookIds = {};
+  final Set<String> _downloadedChapterKeys = {};
   bool _initialized = false;
 
   void init() {
@@ -37,6 +39,11 @@ class OfflineDownloadService extends ChangeNotifier {
         final List list = jsonDecode(booksStr);
         _downloadedBookIds.addAll(list.map((e) => e.toString()));
       }
+      final chaptersStr = StorageService.instance.getString(_keyDownloadedChapters);
+      if (chaptersStr != null && chaptersStr.isNotEmpty) {
+        final List list = jsonDecode(chaptersStr);
+        _downloadedChapterKeys.addAll(list.map((e) => e.toString()));
+      }
     } catch (_) {}
   }
 
@@ -44,6 +51,7 @@ class OfflineDownloadService extends ChangeNotifier {
     try {
       StorageService.instance.setString(_keyDownloadedSets, jsonEncode(_downloadedSetIds.toList()));
       StorageService.instance.setString(_keyDownloadedBooks, jsonEncode(_downloadedBookIds.toList()));
+      StorageService.instance.setString(_keyDownloadedChapters, jsonEncode(_downloadedChapterKeys.toList()));
     } catch (_) {}
   }
 
@@ -111,6 +119,44 @@ class OfflineDownloadService extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- Chapter / Lesson Specific Downloads ---
+  String _chapterKey(String bookId, int chapterNo) => '${bookId}_chap_$chapterNo';
+
+  bool isChapterDownloaded(String bookId, int chapterNo) {
+    init();
+    // If entire book is downloaded, chapter is implicitly available
+    if (_downloadedBookIds.contains(bookId)) return true;
+    return _downloadedChapterKeys.contains(_chapterKey(bookId, chapterNo));
+  }
+
+  Future<void> downloadChapter(String bookId, int chapterNo) async {
+    init();
+    _downloadedChapterKeys.add(_chapterKey(bookId, chapterNo));
+    _saveState();
+    notifyListeners();
+  }
+
+  Future<void> removeDownloadedChapter(String bookId, int chapterNo) async {
+    init();
+    _downloadedChapterKeys.remove(_chapterKey(bookId, chapterNo));
+    _saveState();
+    notifyListeners();
+  }
+
+  Future<void> toggleChapterDownload(String bookId, int chapterNo) async {
+    if (isChapterDownloaded(bookId, chapterNo)) {
+      await removeDownloadedChapter(bookId, chapterNo);
+    } else {
+      await downloadChapter(bookId, chapterNo);
+    }
+  }
+
+  int getDownloadedChaptersCount(String bookId) {
+    init();
+    final prefix = '${bookId}_chap_';
+    return _downloadedChapterKeys.where((k) => k.startsWith(prefix)).length;
+  }
+
   // --- Metrics ---
   int get downloadedSetsCount {
     init();
@@ -122,17 +168,24 @@ class OfflineDownloadService extends ChangeNotifier {
     return _downloadedBookIds.length;
   }
 
+  int get downloadedChaptersCount {
+    init();
+    return _downloadedChapterKeys.length;
+  }
+
   double get estimatedStorageMb {
     init();
     final setMb = _downloadedSetIds.length * 2.5;
     final bookMb = _downloadedBookIds.length * 4.0;
-    return double.parse((setMb + bookMb).toStringAsFixed(1));
+    final chapMb = _downloadedChapterKeys.length * 0.8;
+    return double.parse((setMb + bookMb + chapMb).toStringAsFixed(1));
   }
 
   Future<void> clearAllOfflineCache() async {
     init();
     _downloadedSetIds.clear();
     _downloadedBookIds.clear();
+    _downloadedChapterKeys.clear();
     _saveState();
     notifyListeners();
   }
