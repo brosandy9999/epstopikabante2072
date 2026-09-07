@@ -26,11 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       CloudSyncService.instance.pullFromCloud(silent: true).catchError((_) => false);
-      if (kIsWeb) {
-        Future.delayed(const Duration(milliseconds: 1400), () {
-          if (mounted) _showAppDownloadPopup();
-        });
-      }
+      // Note: web download popup intentionally removed — web users go directly to login
     });
   }
 
