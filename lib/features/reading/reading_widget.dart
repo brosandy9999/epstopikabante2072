@@ -36,60 +36,28 @@ class ReadingQuestionWidget extends StatelessWidget {
         Expanded(
           flex: 6,
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey.shade300, width: 1.2),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300, width: 1.0),
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))],
             ),
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Section Tag
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1E3A8A),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            LanguageService.instance.readingSectionText(),
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          LanguageService.instance.trText(ne: "प्रश्न प्रकार: ", en: "Question Type: ", ko: "문제 유형: "),
-                          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey.shade600, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-
                     // Main Question Instruction Text
                     Text(
                       question.questionText,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, height: 1.35),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Visual Illustration / Passage Box
-                    Text(
-                      LanguageService.instance.trText(
-                        ne: "📌 प्रश्न विवरण तथा सामग्री:",
-                        en: "📌 Question Material & Passage:",
-                        ko: "📌 지문 및 문제 자료:",
-                      ),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E3A8A)),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, height: 1.35, color: Color(0xFF0F172A)),
                     ),
                     const SizedBox(height: 8),
+
+                    // Visual Illustration / Passage Box
                     _buildQuestionMaterial(question.questionId, question.questionText),
                   ],
                 ),
@@ -98,7 +66,7 @@ class ReadingQuestionWidget extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
 
         // ==========================================
         // RIGHT PANE: 4 Multiple-Choice Options
@@ -106,17 +74,17 @@ class ReadingQuestionWidget extends StatelessWidget {
         Expanded(
           flex: 5,
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey.shade300, width: 1.2),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300, width: 1.0),
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))],
             ),
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -125,11 +93,11 @@ class ReadingQuestionWidget extends StatelessWidget {
                       children: [
                         const Text(
                           "[선택지] 맞는 것을 고르십시오",
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
                         ),
                         if (selectedOptionIndex != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(color: Colors.blue.shade100, borderRadius: BorderRadius.circular(4)),
                             child: Text(
                               "선택: ${selectedOptionIndex! + 1}번",
@@ -138,56 +106,56 @@ class ReadingQuestionWidget extends StatelessWidget {
                           )
                       ],
                     ),
-                    const Divider(height: 14),
+                    const SizedBox(height: 6),
 
                     // 4 Options Stacked Vertically
                     ...List.generate(options.length, (index) {
                       final isSelected = selectedOptionIndex == index;
-                      const circledNumbers = ["\u2460", "\u2461", "\u2462", "\u2463"];
+                      const circledNumbers = ["①", "②", "③", "④"];
                       final numLabel = index < circledNumbers.length ? circledNumbers[index] : "${index + 1}";
 
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
+                        margin: const EdgeInsets.only(bottom: 6),
                         child: Material(
                           color: isSelected ? const Color(0xFFEFF6FF) : Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(6),
                           child: InkWell(
                             onTap: () => onOptionSelected(index),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
                                   color: isSelected ? const Color(0xFF2563EB) : Colors.grey.shade300,
-                                  width: isSelected ? 2.2 : 1.1,
+                                  width: isSelected ? 2.0 : 1.0,
                                 ),
                               ),
                               child: Row(
                                 children: [
-                                  // Circled Number or Radio
+                                  // Circled Number
                                   Container(
-                                    width: 30,
-                                    height: 30,
+                                    width: 24,
+                                    height: 24,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: isSelected ? const Color(0xFF1E3A8A) : Colors.white,
                                       border: Border.all(
                                         color: isSelected ? const Color(0xFF1E3A8A) : Colors.grey.shade400,
-                                        width: 1.4,
+                                        width: 1.2,
                                       ),
                                     ),
                                     child: Text(
                                       numLabel,
                                       style: TextStyle(
-                                        fontSize: 15,
+                                        fontSize: 13,
                                         fontWeight: FontWeight.bold,
                                         color: isSelected ? Colors.white : Colors.black87,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 8),
 
                                   // Option Text & Media
                                   Expanded(
@@ -198,7 +166,7 @@ class ReadingQuestionWidget extends StatelessWidget {
                                           Text(
                                             options[index],
                                             style: TextStyle(
-                                              fontSize: 15,
+                                              fontSize: 14,
                                               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                               color: isSelected ? const Color(0xFF1E3A8A) : Colors.black87,
                                             ),
@@ -207,9 +175,9 @@ class ReadingQuestionWidget extends StatelessWidget {
                                           if (index < (question as UniversalQuestion).imageOptions.length &&
                                               (question as UniversalQuestion).imageOptions[index] != null &&
                                               (question as UniversalQuestion).imageOptions[index]!.trim().isNotEmpty) ...[
-                                            const SizedBox(height: 6),
+                                            const SizedBox(height: 4),
                                             Container(
-                                              constraints: const BoxConstraints(maxHeight: 110),
+                                              constraints: const BoxConstraints(maxHeight: 90),
                                               decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(6),
                                                 border: Border.all(color: Colors.grey.shade300),
@@ -224,13 +192,13 @@ class ReadingQuestionWidget extends StatelessWidget {
                                           if (index < (question as UniversalQuestion).audioOptions.length &&
                                               (question as UniversalQuestion).audioOptions[index] != null &&
                                               (question as UniversalQuestion).audioOptions[index]!.trim().isNotEmpty) ...[
-                                            const SizedBox(height: 6),
+                                            const SizedBox(height: 4),
                                             InkWell(
                                               onTap: () => AudioPlaybackService.instance.playAudioUrl(
                                                   (question as UniversalQuestion).audioOptions[index]!.trim()),
                                               borderRadius: BorderRadius.circular(20),
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                                 decoration: BoxDecoration(
                                                   color: Colors.blue.shade50,
                                                   borderRadius: BorderRadius.circular(20),
@@ -239,7 +207,7 @@ class ReadingQuestionWidget extends StatelessWidget {
                                                 child: Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    const Icon(Icons.play_circle_fill, size: 16, color: Color(0xFF1E3A8A)),
+                                                    const Icon(Icons.play_circle_fill, size: 14, color: Color(0xFF1E3A8A)),
                                                     const SizedBox(width: 4),
                                                     Text(
                                                       LanguageService.instance.trText(
@@ -247,7 +215,7 @@ class ReadingQuestionWidget extends StatelessWidget {
                                                         en: 'Play Audio',
                                                         ko: '오디오 듣기',
                                                       ),
-                                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
                                                     ),
                                                   ],
                                                 ),
@@ -260,7 +228,7 @@ class ReadingQuestionWidget extends StatelessWidget {
                                   ),
 
                                   if (isSelected)
-                                    const Icon(Icons.check_circle, color: Color(0xFF2563EB), size: 22),
+                                    const Icon(Icons.check_circle, color: Color(0xFF2563EB), size: 18),
                                 ],
                               ),
                             ),

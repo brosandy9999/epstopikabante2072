@@ -145,17 +145,17 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
         Expanded(
           flex: 6,
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey.shade300, width: 1.2),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300, width: 1.0),
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))],
             ),
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -163,20 +163,20 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                     Row(
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                           decoration: BoxDecoration(
                             color: const Color(0xFFD97706),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
                             LanguageService.instance.listeningSectionText(),
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         if (widget.question is UniversalQuestion && (widget.question as UniversalQuestion).isAudioOnly)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                             decoration: BoxDecoration(
                               color: const Color(0xFFC2410C),
                               borderRadius: BorderRadius.circular(4),
@@ -184,29 +184,29 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.audiotrack, color: Colors.white, size: 12),
-                                const SizedBox(width: 4),
+                                const Icon(Icons.audiotrack, color: Colors.white, size: 11),
+                                const SizedBox(width: 3),
                                 Text(
                                   LanguageService.instance.trText(
                                     ne: 'केवल अडियो ट्र्याक',
                                     en: 'Strict Audio Only',
                                     ko: '오디오 전용 문항',
                                   ),
-                                  style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
                           ),
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
 
                     // Question Instruction Text
                     Text(
                       widget.question.questionText,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, height: 1.35),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, height: 1.35, color: Color(0xFF0F172A)),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
 
                     // Speaker Icon centered below the question
                     Center(
@@ -225,21 +225,21 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                             customBorder: const CircleBorder(),
                             onTap: isLocked ? null : _startContinuousAudioLoop,
                             child: Container(
-                              padding: const EdgeInsets.all(14),
+                              padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: isLocked
                                       ? Colors.grey.shade400
                                       : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF3B82F6)),
-                                  width: 2.2,
+                                  width: 2.0,
                                 ),
                               ),
                               child: Icon(
                                 isLocked
                                     ? Icons.lock_rounded
                                     : (isPlaying ? Icons.volume_up_rounded : Icons.play_arrow_rounded),
-                                size: 36,
+                                size: 28,
                                 color: isLocked
                                     ? Colors.grey.shade500
                                     : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF1E3A8A)),
@@ -249,7 +249,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
 
                     // Playback status text
                     Center(
@@ -284,7 +284,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                                         ko: "🔊 오디오 듣기 (클릭 시 2회 연속 재생)",
                                       ))),
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.bold,
                           color: isLocked
                               ? Colors.grey.shade600
@@ -299,7 +299,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
           ),
         ),
 
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
 
         // ==========================================
         // RIGHT PANE: 4 Multiple-Choice Options
@@ -307,17 +307,17 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
         Expanded(
           flex: 5,
           child: Container(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey.shade300, width: 1.2),
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade300, width: 1.0),
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))],
             ),
             child: SingleChildScrollView(
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.only(bottom: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -326,11 +326,11 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                       children: [
                         const Text(
                           "[선택지] 맞는 것을 고르십시오",
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFFD97706)),
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFD97706)),
                         ),
                         if (widget.selectedOptionIndex != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
                             child: Text(
                               "선택: ${widget.selectedOptionIndex! + 1}번",
@@ -339,56 +339,56 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                           )
                       ],
                     ),
-                    const Divider(height: 14),
+                    const SizedBox(height: 6),
 
                     // 4 Options Stacked Vertically
                     ...List.generate(options.length, (index) {
                       final isSelected = widget.selectedOptionIndex == index;
-                      const circledNumbers = ["\u2460", "\u2461", "\u2462", "\u2463"];
+                      const circledNumbers = ["①", "②", "③", "④"];
                       final numLabel = index < circledNumbers.length ? circledNumbers[index] : "${index + 1}";
 
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
+                        margin: const EdgeInsets.only(bottom: 6),
                         child: Material(
                           color: isSelected ? const Color(0xFFFFFBEB) : Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(6),
                           child: InkWell(
                             onTap: () => widget.onOptionSelected(index),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
                                   color: isSelected ? const Color(0xFFD97706) : Colors.grey.shade300,
-                                  width: isSelected ? 2.2 : 1.1,
+                                  width: isSelected ? 2.0 : 1.0,
                                 ),
                               ),
                               child: Row(
                                 children: [
                                   // Circled Number or Radio
                                   Container(
-                                    width: 30,
-                                    height: 30,
+                                    width: 24,
+                                    height: 24,
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: isSelected ? const Color(0xFFD97706) : Colors.white,
                                       border: Border.all(
                                         color: isSelected ? const Color(0xFFD97706) : Colors.grey.shade400,
-                                        width: 1.4,
+                                        width: 1.2,
                                       ),
                                     ),
                                     child: Text(
                                       numLabel,
                                       style: TextStyle(
-                                        fontSize: 15,
+                                        fontSize: 13,
                                         fontWeight: FontWeight.bold,
                                         color: isSelected ? Colors.white : Colors.black87,
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  const SizedBox(width: 8),
 
                                   // Option Text & Media
                                   Expanded(
@@ -399,7 +399,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                                           Text(
                                             options[index],
                                             style: TextStyle(
-                                              fontSize: 15,
+                                              fontSize: 14,
                                               fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                               color: isSelected ? const Color(0xFF92400E) : Colors.black87,
                                             ),
@@ -408,9 +408,9 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                                           if (index < (widget.question as UniversalQuestion).imageOptions.length &&
                                               (widget.question as UniversalQuestion).imageOptions[index] != null &&
                                               (widget.question as UniversalQuestion).imageOptions[index]!.trim().isNotEmpty) ...[
-                                            const SizedBox(height: 6),
+                                            const SizedBox(height: 4),
                                             Container(
-                                              constraints: const BoxConstraints(maxHeight: 110),
+                                              constraints: const BoxConstraints(maxHeight: 85),
                                               decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(6),
                                                 border: Border.all(color: Colors.grey.shade300),
@@ -425,30 +425,30 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                                           if (index < (widget.question as UniversalQuestion).audioOptions.length &&
                                               (widget.question as UniversalQuestion).audioOptions[index] != null &&
                                               (widget.question as UniversalQuestion).audioOptions[index]!.trim().isNotEmpty) ...[
-                                            const SizedBox(height: 6),
+                                            const SizedBox(height: 4),
                                             InkWell(
                                               onTap: () => AudioPlaybackService.instance.playAudioUrl(
                                                   (widget.question as UniversalQuestion).audioOptions[index]!.trim()),
-                                              borderRadius: BorderRadius.circular(20),
+                                              borderRadius: BorderRadius.circular(16),
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                                 decoration: BoxDecoration(
                                                   color: Colors.amber.shade50,
-                                                  borderRadius: BorderRadius.circular(20),
+                                                  borderRadius: BorderRadius.circular(16),
                                                   border: Border.all(color: Colors.amber.shade300),
                                                 ),
                                                 child: Row(
                                                   mainAxisSize: MainAxisSize.min,
                                                   children: [
-                                                    const Icon(Icons.play_circle_fill, size: 16, color: Color(0xFFD97706)),
-                                                    const SizedBox(width: 4),
+                                                    const Icon(Icons.play_circle_fill, size: 14, color: Color(0xFFD97706)),
+                                                    const SizedBox(width: 3),
                                                     Text(
                                                       LanguageService.instance.trText(
                                                         ne: 'अडियो सुन्नुहोस्',
                                                         en: 'Play Audio',
                                                         ko: '오디오 듣기',
                                                       ),
-                                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                                                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
                                                     ),
                                                   ],
                                                 ),
@@ -461,7 +461,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                                   ),
 
                                   if (isSelected)
-                                    const Icon(Icons.check_circle, color: Color(0xFFD97706), size: 22),
+                                    const Icon(Icons.check_circle, color: Color(0xFFD97706), size: 18),
                                 ],
                               ),
                             ),
