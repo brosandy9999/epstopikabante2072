@@ -249,4 +249,34 @@ class FileUploadService {
     }
     return completer.future;
   }
+
+  /// JSON ब्याकअप फाइल डिभाइसबाट छानेर सिधै String को रूपमा पढ्ने
+  Future<String?> pickJsonFileContent() async {
+    final completer = Completer<String?>();
+    try {
+      final input = html.FileUploadInputElement()
+        ..accept = '.json,application/json';
+      input.click();
+      input.onChange.listen((e) {
+        final files = input.files;
+        if (files == null || files.isEmpty) {
+          if (!completer.isCompleted) completer.complete(null);
+          return;
+        }
+        final file = files[0];
+        final reader = html.FileReader();
+        reader.readAsText(file);
+        reader.onLoadEnd.listen((_) {
+          final text = reader.result as String?;
+          if (!completer.isCompleted) completer.complete(text);
+        });
+        reader.onError.listen((_) {
+          if (!completer.isCompleted) completer.complete(null);
+        });
+      });
+    } catch (_) {
+      if (!completer.isCompleted) completer.complete(null);
+    }
+    return completer.future;
+  }
 }

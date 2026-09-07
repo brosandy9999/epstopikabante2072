@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/language_service.dart';
 import '../../core/services/file_upload_service.dart';
+import '../../core/services/download_helper.dart';
 import '../../core/widgets/smart_image_widget.dart';
 import '../authentication/login_screen.dart';
 
@@ -1055,9 +1056,9 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
           ),
           const SizedBox(height: 16),
 
-          // Direct Transfer / Instant Backup
+          // Direct Transfer / Instant 1-Click JSON Backup & Restore
           Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.indigo.shade100)),
             child: Padding(
               padding: const EdgeInsets.all(14),
               child: Column(
@@ -1065,22 +1066,131 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.qr_code_2_rounded, size: 18, color: Color(0xFF1E3A8A)),
+                      const Icon(Icons.security_rounded, size: 20, color: Color(0xFF1E3A8A)),
                       const SizedBox(width: 8),
-                      Text(LanguageService.instance.isEnglish ? 'Direct Backup & Restore' : (LanguageService.instance.isKorean ? '직접 백업 및 복원' : 'प्रत्यक्ष ब्याकअप तथा पुनर्स्थापना'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: '💾 सम्पूर्ण डाटा ब्याकअप र पुनर्स्थापना (Permanent Backup)',
+                          en: '💾 Full Data Backup & Restore',
+                          ko: '💾 전체 데이터 백업 및 복원',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    LanguageService.instance.trText(ne: 'यदि इन्टरनेट कमजोर भएमा कम्प्युटरबाट सबै प्रश्नहरूको ब्याकअप निकालेर मोबाइलमा १ सेकेन्डमै सिङ्क गर्न सकिन्छ।', en: 'If internet is slow, export questions backup from PC and sync to mobile instantly.', ko: '인터넷이 불안정한 경우 PC에서 백업을 생성하여 모바일로 즉시 동기화할 수 있습니다.'),
-                    style: TextStyle(fontSize: 11, color: Colors.black54, height: 1.4),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.blue.shade200),
+                    ),
+                    child: Text(
+                      LanguageService.instance.trText(
+                        ne: '💡 नयाँ कोड अपडेट वा ब्राउजर क्यास क्लिन भए पनि तपाईंको डाटा सुरक्षित राख्न १-क्लिकमा ब्याकअप फाइल (.json) डाउनलोड गर्नुहोस्। पछि नयाँ डिभाइसमा पनि सिधै अपलोड गरी सबै विद्यार्थी र प्रश्नहरू तुरुन्तै ल्याउन सकिन्छ।',
+                        en: '💡 To ensure zero data loss during updates or cache resets, download a complete .json backup file with 1 click. You can restore it instantly on any device.',
+                        ko: '💡 코드 업데이트 또는 브라우저 캐시 초기화 시에도 데이터를 안전하게 보관하기 위해 1클릭으로 .json 백업 파일을 다운로드하세요.',
+                      ),
+                      style: TextStyle(fontSize: 11, color: Colors.blue.shade900, height: 1.4),
+                    ),
                   ),
                   const SizedBox(height: 12),
+
+                  // 1-Click Download & Upload Action Buttons
                   Row(
                     children: [
-                      OutlinedButton.icon(
-                        icon: const Icon(Icons.copy_all, size: 16),
-                        label: Text(LanguageService.instance.isEnglish ? 'Generate Backup Code' : (LanguageService.instance.isKorean ? '백업 코드 생성' : 'ब्याकअप कोड बनाउनुहोस्')),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1E3A8A),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          icon: const Icon(Icons.file_download_rounded, size: 18),
+                          label: Text(
+                            LanguageService.instance.trText(
+                              ne: '📥 ब्याकअप डाउनलोड (.json)',
+                              en: '📥 Download Backup (.json)',
+                              ko: '📥 백업 파일 다운로드 (.json)',
+                            ),
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            final now = DateTime.now();
+                            final dateStr = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+                            final filename = 'eps_topik_full_backup_$dateStr.json';
+                            final jsonStr = sync.exportBackupJson();
+                            triggerJsonFileDownload(filename, jsonStr);
+                            setState(() {
+                              _isSuccess = true;
+                              _statusMessage = LanguageService.instance.trText(
+                                ne: '✅ $filename सफलतापूर्वक डाउनलोड भयो! यसलाई सुरक्षित राख्नुहोस्।',
+                                en: '✅ $filename successfully downloaded! Keep it safe.',
+                                ko: '✅ $filename 다운로드가 완료되었습니다!',
+                              );
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0F766E),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          icon: const Icon(Icons.file_upload_rounded, size: 18),
+                          label: Text(
+                            LanguageService.instance.trText(
+                              ne: '📤 ब्याकअप फाइल अपलोड',
+                              en: '📤 Upload Backup File',
+                              ko: '📤 백업 파일 업로드',
+                            ),
+                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () async {
+                            final content = await FileUploadService.instance.pickJsonFileContent();
+                            if (content != null && content.trim().isNotEmpty) {
+                              final ok = sync.importBackupJson(content.trim());
+                              setState(() {
+                                _isSuccess = ok;
+                                _statusMessage = ok
+                                    ? LanguageService.instance.trText(
+                                        ne: '✅ सम्पूर्ण विद्यार्थी, एडमिन, प्रश्न र किताबहरू सफलतापूर्वक पुनर्स्थापना (Restore) भयो!',
+                                        en: '✅ All candidates, admins, questions & books successfully restored!',
+                                        ko: '✅ 모든 수험생, 관리자, 문항 및 교재가 성공적으로 복원되었습니다!',
+                                      )
+                                    : LanguageService.instance.trText(
+                                        ne: '❌ अमान्य वा बिग्रिएको ब्याकअप फाइल!',
+                                        en: '❌ Invalid backup file!',
+                                        ko: '❌ 유효하지 않은 백업 파일입니다!',
+                                      );
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Manual Text Copy / Paste Fallback Option
+                  Row(
+                    children: [
+                      TextButton.icon(
+                        icon: const Icon(Icons.copy_all, size: 15),
+                        label: Text(
+                          LanguageService.instance.trText(
+                            ne: '📋 कोड कपी गर्नुहोस्',
+                            en: '📋 Copy Code',
+                            ko: '📋 코드 복사',
+                          ),
+                          style: const TextStyle(fontSize: 11),
+                        ),
                         onPressed: () {
                           final jsonStr = sync.exportBackupJson();
                           showDialog(
@@ -1102,10 +1212,16 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                         },
                       ),
                       const Spacer(),
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.indigo, foregroundColor: Colors.white),
-                        icon: const Icon(Icons.file_download_outlined, size: 16),
-                        label: Text(LanguageService.instance.isEnglish ? 'Import' : (LanguageService.instance.isKorean ? '가져오기' : 'इम्पोर्ट गर्नुहोस्')),
+                      TextButton.icon(
+                        icon: const Icon(Icons.paste_rounded, size: 15),
+                        label: Text(
+                          LanguageService.instance.trText(
+                            ne: '📥 कोड पेस्ट गर्नुहोस्',
+                            en: '📥 Paste Code',
+                            ko: '📥 코드 붙여넣기',
+                          ),
+                          style: const TextStyle(fontSize: 11),
+                        ),
                         onPressed: () {
                           final textCtrl = TextEditingController();
                           showDialog(
@@ -1125,7 +1241,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                                     Navigator.pop(c);
                                     setState(() {
                                       _isSuccess = ok;
-                                      _statusMessage = ok ? LanguageService.instance.trText(ne: '✅ सबै प्रश्न र डेटा मोबाइलमा सिङ्क भयो!', en: '✅ All questions and data synced to mobile!', ko: '✅ 모든 문항과 데이터가 기기에 동기화되었습니다!') : LanguageService.instance.trText(ne: '❌ अमान्य डेटा!', en: '❌ Invalid backup data!', ko: '❌ 유효하지 않은 데이터입니다!');
+                                      _statusMessage = ok ? LanguageService.instance.trText(ne: '✅ सबै प्रश्न र डेटा सिङ्क भयो!', en: '✅ All questions and data synced!', ko: '✅ 모든 문항과 데이터가 동기화되었습니다!') : LanguageService.instance.trText(ne: '❌ अमान्य डेटा!', en: '❌ Invalid backup data!', ko: '❌ 유효하지 않은 데이터입니다!');
                                     });
                                   },
                                   child: Text(LanguageService.instance.trText(ne: 'सिङ्क गर्नुहोस्', en: 'Sync Now', ko: '동기화 실행')),

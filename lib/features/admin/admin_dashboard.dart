@@ -119,6 +119,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 },
               ),
               IconButton(
+                icon: const Icon(Icons.cloud_sync_rounded, color: Colors.tealAccent),
+                tooltip: LanguageService.instance.trText(
+                  ne: 'क्लाउड सिङ्क तथा ब्याकअप',
+                  en: 'Cloud Sync & Backup',
+                  ko: '클라우드 동기화 및 백업',
+                ),
+                onPressed: () => showUniversalSettingsDialog(context),
+              ),
+              IconButton(
                 icon: const Icon(Icons.settings),
                 tooltip: LanguageService.instance.trText(ne: 'सेटिङ', en: 'Settings', ko: '설정'),
                 onPressed: () => showUniversalSettingsDialog(context),

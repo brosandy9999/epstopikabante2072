@@ -34,6 +34,7 @@ class StudyMaterialService extends ChangeNotifier {
 
   void addBook(StudyBook book) {
     getAllBooks();
+    _booksList!.removeWhere((b) => b.id == book.id);
     _booksList!.insert(0, book);
     _saveBooksToStorage();
   }
@@ -46,7 +47,8 @@ class StudyMaterialService extends ChangeNotifier {
 
   List<StudyBook>? _loadBooksFromStorage() {
     try {
-      final jsonStr = StorageService.instance.getString(_keyBooks);
+      final jsonStr = StorageService.instance.getString(_keyBooks) ??
+          StorageService.instance.getString('${_keyBooks}_backup');
       if (jsonStr == null || jsonStr.isEmpty) return null;
       final List decoded = jsonDecode(jsonStr);
       return decoded.map((e) => StudyBook.fromJson(Map<String, dynamic>.from(e))).toList();
@@ -59,7 +61,9 @@ class StudyMaterialService extends ChangeNotifier {
     if (_booksList == null) return;
     try {
       final list = _booksList!.map((b) => b.toJson()).toList();
-      StorageService.instance.setString(_keyBooks, jsonEncode(list));
+      final encoded = jsonEncode(list);
+      StorageService.instance.setString(_keyBooks, encoded);
+      StorageService.instance.setString('${_keyBooks}_backup', encoded);
       CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
@@ -148,6 +152,7 @@ class StudyMaterialService extends ChangeNotifier {
 
   void addDictionaryWord(DictionaryWord word) {
     getAllDictionaryWords();
+    _dictionaryList!.removeWhere((w) => w.id == word.id);
     _dictionaryList!.insert(0, word);
     _saveDictionaryToStorage();
   }
@@ -160,7 +165,8 @@ class StudyMaterialService extends ChangeNotifier {
 
   List<DictionaryWord>? _loadDictionaryFromStorage() {
     try {
-      final jsonStr = StorageService.instance.getString(_keyDict);
+      final jsonStr = StorageService.instance.getString(_keyDict) ??
+          StorageService.instance.getString('${_keyDict}_backup');
       if (jsonStr == null || jsonStr.isEmpty) return null;
       final List decoded = jsonDecode(jsonStr);
       return decoded.map((e) => DictionaryWord.fromJson(Map<String, dynamic>.from(e))).toList();
@@ -173,7 +179,9 @@ class StudyMaterialService extends ChangeNotifier {
     if (_dictionaryList == null) return;
     try {
       final list = _dictionaryList!.map((w) => w.toJson()).toList();
-      StorageService.instance.setString(_keyDict, jsonEncode(list));
+      final encoded = jsonEncode(list);
+      StorageService.instance.setString(_keyDict, encoded);
+      StorageService.instance.setString('${_keyDict}_backup', encoded);
       CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
@@ -297,6 +305,7 @@ class StudyMaterialService extends ChangeNotifier {
 
   void addVisualFlashcard(VisualFlashcard card) {
     getAllVisualFlashcards();
+    _visualCardsList!.removeWhere((c) => c.id == card.id);
     _visualCardsList!.insert(0, card);
     _saveVisualCardsToStorage();
   }
@@ -318,7 +327,8 @@ class StudyMaterialService extends ChangeNotifier {
 
   List<VisualFlashcard>? _loadVisualCardsFromStorage() {
     try {
-      final jsonStr = StorageService.instance.getString(_keyVisualCards);
+      final jsonStr = StorageService.instance.getString(_keyVisualCards) ??
+          StorageService.instance.getString('${_keyVisualCards}_backup');
       if (jsonStr == null || jsonStr.isEmpty) return null;
       final List decoded = jsonDecode(jsonStr);
       return decoded.map((e) => VisualFlashcard.fromJson(Map<String, dynamic>.from(e))).toList();
@@ -331,7 +341,9 @@ class StudyMaterialService extends ChangeNotifier {
     if (_visualCardsList == null) return;
     try {
       final list = _visualCardsList!.map((c) => c.toJson()).toList();
-      StorageService.instance.setString(_keyVisualCards, jsonEncode(list));
+      final encoded = jsonEncode(list);
+      StorageService.instance.setString(_keyVisualCards, encoded);
+      StorageService.instance.setString('${_keyVisualCards}_backup', encoded);
       CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {

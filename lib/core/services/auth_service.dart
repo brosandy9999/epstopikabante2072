@@ -255,7 +255,8 @@ class AuthService extends ChangeNotifier {
 
   void _loadCustomUsers() {
     try {
-      final superAdminJson = StorageService.instance.getString('auth_super_admin_user');
+      final superAdminJson = StorageService.instance.getString('auth_super_admin_user') ??
+          StorageService.instance.getString('auth_super_admin_user_backup');
       if (superAdminJson != null && superAdminJson.isNotEmpty) {
         final parsed = AppUser.fromJson(jsonDecode(superAdminJson));
         _superAdmin.username = parsed.username;
@@ -264,33 +265,51 @@ class AuthService extends ChangeNotifier {
         _superAdmin.mobileNumber = parsed.mobileNumber;
         if (parsed.profilePhoto != null) _superAdmin.profilePhoto = parsed.profilePhoto;
       }
-      final adminJson = StorageService.instance.getString('auth_admin_user');
+      final adminJson = StorageService.instance.getString('auth_admin_user') ??
+          StorageService.instance.getString('auth_admin_user_backup');
       if (adminJson != null && adminJson.isNotEmpty) {
         _admin = AppUser.fromJson(jsonDecode(adminJson));
       }
-      final instAdminsJson = StorageService.instance.getString('auth_institute_admins_list');
+      final instAdminsJson = StorageService.instance.getString('auth_institute_admins_list') ??
+          StorageService.instance.getString('auth_institute_admins_list_backup');
       if (instAdminsJson != null && instAdminsJson.isNotEmpty) {
         final List list = jsonDecode(instAdminsJson);
         _instituteAdmins.clear();
         _instituteAdmins.addAll(list.map((e) => AppUser.fromJson(Map<String, dynamic>.from(e))));
       }
-      final studentsJson = StorageService.instance.getString('auth_students_list');
+      final studentsJson = StorageService.instance.getString('auth_students_list') ??
+          StorageService.instance.getString('auth_students_list_backup');
       if (studentsJson != null && studentsJson.isNotEmpty) {
         final List list = jsonDecode(studentsJson);
-        _students.clear();
-        _students.addAll(list.map((e) => AppUser.fromJson(Map<String, dynamic>.from(e))));
+        if (list.isNotEmpty) {
+          _students.clear();
+          _students.addAll(list.map((e) => AppUser.fromJson(Map<String, dynamic>.from(e))));
+        }
       }
     } catch (_) {}
   }
 
   void _saveCustomUsers() {
     try {
-      StorageService.instance.setString('auth_super_admin_user', jsonEncode(_superAdmin.toJson()));
-      StorageService.instance.setString('auth_admin_user', jsonEncode(_admin.toJson()));
-      StorageService.instance.setString('auth_institute_admins_list', jsonEncode(_instituteAdmins.map((e) => e.toJson()).toList()));
-      final list = _students.map((e) => e.toJson()).toList();
-      StorageService.instance.setString('auth_students_list', jsonEncode(list));
+      final superAdminStr = jsonEncode(_superAdmin.toJson());
+      final adminStr = jsonEncode(_admin.toJson());
+      final instAdminsStr = jsonEncode(_instituteAdmins.map((e) => e.toJson()).toList());
+      final studentsList = _students.map((e) => e.toJson()).toList();
+      final studentsStr = jsonEncode(studentsList);
+
+      // Save to primary storage
+      StorageService.instance.setString('auth_super_admin_user', superAdminStr);
+      StorageService.instance.setString('auth_admin_user', adminStr);
+      StorageService.instance.setString('auth_institute_admins_list', instAdminsStr);
+      StorageService.instance.setString('auth_students_list', studentsStr);
       StorageService.instance.saveUsers(_students);
+
+      // Redundant immutable backup layer to prevent loss on cache flush / code redeploy
+      StorageService.instance.setString('auth_super_admin_user_backup', superAdminStr);
+      StorageService.instance.setString('auth_admin_user_backup', adminStr);
+      StorageService.instance.setString('auth_institute_admins_list_backup', instAdminsStr);
+      StorageService.instance.setString('auth_students_list_backup', studentsStr);
+
       CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
     } catch (_) {}
   }
@@ -302,54 +321,55 @@ class AuthService extends ChangeNotifier {
   }
 
   /// Intelligent Non-Destructive Cloud Merge:
-  /// Preserves locally registered / updated candidates and adds new ones (Never Deletes Local Users)
+  /// NEVER deletes or resets local admin/superadmin credentials or registered students!
   void mergeUsersFromCloud(List<AppUser> remoteUsers) {
     bool hasChanges = false;
     for (final rUser in remoteUsers) {
       if (rUser.role == UserRole.student) {
-        final localIdx = _students.indexWhere((s) => s.id == rUser.id || s.username.toLowerCase() == rUser.username.toLowerCase());
+        final localIdx = _students.indexWhere((s) =>
+            s.id == rUser.id ||
+            s.username.toLowerCase() == rUser.username.toLowerCase() ||
+            (s.mobileNumber != null && s.mobileNumber!.isNotEmpty && s.mobileNumber == rUser.mobileNumber));
         if (localIdx == -1) {
           _students.add(rUser);
           hasChanges = true;
         } else {
-          // Preserve local student credentials, update metadata if newer
+          // If local student exists, never overwrite custom local passwords or details
           final localStudent = _students[localIdx];
-          if (localStudent.password == rUser.password || localStudent.password.isEmpty) {
+          if (localStudent.password.isEmpty && rUser.password.isNotEmpty) {
             _students[localIdx] = rUser;
             hasChanges = true;
           }
         }
       } else if (rUser.role == UserRole.admin) {
-        if (_admin.id == rUser.id || _admin.username.toLowerCase() == rUser.username.toLowerCase()) {
-          _admin = rUser;
-          hasChanges = true;
-        } else {
-          final instIdx = _instituteAdmins.indexWhere((a) => a.id == rUser.id || a.username.toLowerCase() == rUser.username.toLowerCase());
-          if (instIdx == -1) {
-            _instituteAdmins.add(rUser);
-            hasChanges = true;
-          } else {
-            _instituteAdmins[instIdx] = rUser;
+        // Protect local admin against being reset to default initial credentials
+        final isLocalAdminDefault = _admin.password == 'admin123' && _admin.username == 'admin';
+        if (isLocalAdminDefault) {
+          if (_admin.id == rUser.id || _admin.username.toLowerCase() == rUser.username.toLowerCase()) {
+            _admin = rUser;
             hasChanges = true;
           }
         }
-      } else if (rUser.role == UserRole.superAdmin) {
-        if (_superAdmin.id == rUser.id || _superAdmin.username.toLowerCase() == rUser.username.toLowerCase()) {
-          _superAdmin = rUser;
+        // Additional institute admins
+        final instIdx = _instituteAdmins.indexWhere((a) => a.id == rUser.id || a.username.toLowerCase() == rUser.username.toLowerCase());
+        if (instIdx == -1 && rUser.id != 'ADMIN_001') {
+          _instituteAdmins.add(rUser);
           hasChanges = true;
+        }
+      } else if (rUser.role == UserRole.superAdmin) {
+        // Protect local superAdmin against being reset to default initial credentials
+        final isLocalSuperDefault = _superAdmin.password == 'admin123' && _superAdmin.username == 'superadmin';
+        if (isLocalSuperDefault) {
+          if (_superAdmin.id == rUser.id || _superAdmin.username.toLowerCase() == rUser.username.toLowerCase()) {
+            _superAdmin = rUser;
+            hasChanges = true;
+          }
         }
       }
     }
 
     if (hasChanges) {
-      try {
-        StorageService.instance.setString('auth_super_admin_user', jsonEncode(_superAdmin.toJson()));
-        StorageService.instance.setString('auth_admin_user', jsonEncode(_admin.toJson()));
-        StorageService.instance.setString('auth_institute_admins_list', jsonEncode(_instituteAdmins.map((e) => e.toJson()).toList()));
-        final list = _students.map((e) => e.toJson()).toList();
-        StorageService.instance.setString('auth_students_list', jsonEncode(list));
-        StorageService.instance.saveUsers(_students);
-      } catch (_) {}
+      _saveCustomUsers();
       notifyListeners();
     }
   }
@@ -504,7 +524,7 @@ class AuthService extends ChangeNotifier {
       _instituteAdmins[idx].instituteName = instituteName.trim();
     } else {
       final newAdmin = AppUser(
-        id: 'ADMIN_',
+        id: 'ADMIN_${DateTime.now().millisecondsSinceEpoch}',
         username: cleanUser,
         password: cleanPass,
         name: name.trim(),
@@ -644,14 +664,15 @@ class AuthService extends ChangeNotifier {
     if (idx != -1) {
       _currentUser = _students[idx];
     } else {
-      final newId = 'STU_';
+      final nowMs = DateTime.now().millisecondsSinceEpoch;
+      final newId = 'STU_$nowMs';
       final newStudent = AppUser(
         id: newId,
         username: cleanUser,
         password: 'google_oauth_user',
         name: displayName.isNotEmpty ? displayName : 'Google परीक्षार्थी',
-        registrationNo: 'REG-',
-        mobileNumber: '98',
+        registrationNo: 'REG-${nowMs.toString().substring(7)}',
+        mobileNumber: '98${nowMs.toString().substring(5)}',
         batch: '2026 Batch A (बिहानी सत्र)',
         sector: '제조업 (Manufacturing)',
         status: 'सक्रिय (Active)',
@@ -675,13 +696,14 @@ class AuthService extends ChangeNotifier {
     if (idx != -1) {
       _currentUser = _students[idx];
     } else {
-      final newId = 'STU_';
+      final nowMs = DateTime.now().millisecondsSinceEpoch;
+      final newId = 'STU_$nowMs';
       final newStudent = AppUser(
         id: newId,
-        username: 'user_',
+        username: 'user_${nowMs.toString().substring(7)}',
         password: 'mobile_otp_user',
-        name: 'मोबाइल परीक्षार्थी ()',
-        registrationNo: 'REG-',
+        name: 'मोबाइल परीक्षार्थी ($cleanMobile)',
+        registrationNo: 'REG-${nowMs.toString().substring(7)}',
         mobileNumber: cleanMobile,
         batch: '2026 Batch A (बिहानी सत्र)',
         sector: '제조업 (Manufacturing)',
@@ -723,10 +745,11 @@ class AuthService extends ChangeNotifier {
 
     if (existsInStudents || existsInAdmins) return false;
 
-    final newId = 'STU_';
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    final newId = 'STU_$nowMs';
     final regNo = registrationNo != null && registrationNo.trim().isNotEmpty
         ? registrationNo.trim()
-        : 'REG-';
+        : 'REG-${nowMs.toString().substring(7)}';
 
     final instId = _currentUser?.instituteId ?? 'inst_01';
     final instName = _currentUser?.instituteName ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट';
@@ -847,13 +870,17 @@ class AuthService extends ChangeNotifier {
     final instName = _currentUser?.instituteName ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट';
     final instLogo = _currentUser?.instituteLogo ?? 'assets/images/institute_logo_default.png';
 
-    final newId = 'STU_';
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    final newId = 'STU_$nowMs';
+    final regNo = registrationNo != null && registrationNo.trim().isNotEmpty
+        ? registrationNo.trim()
+        : 'REG-${nowMs.toString().substring(7)}';
     _students.add(AppUser(
       id: newId,
       username: cleanUser,
       password: cleanPass,
       name: name.trim(),
-      registrationNo: registrationNo?.trim(),
+      registrationNo: regNo,
       mobileNumber: cleanMobile,
       batch: batch,
       sector: sector,

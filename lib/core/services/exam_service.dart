@@ -214,7 +214,7 @@ class ExamHistoryService {
 
 class ExamService {
   Future<ExamSessionModel> startExam(String studentId, String testPackageId, int totalDurationSeconds) async {
-    final sessionId = 'SESSION_';
+    final sessionId = 'SESSION_${DateTime.now().millisecondsSinceEpoch}';
     final startTime = DateTime.now();
     return ExamSessionModel(
       sessionId: sessionId,

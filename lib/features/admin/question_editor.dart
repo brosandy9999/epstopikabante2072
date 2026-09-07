@@ -5,7 +5,6 @@ import '../question_engine/question_template.dart';
 import '../../core/services/file_upload_service.dart';
 import '../../core/services/audio_playback_service.dart';
 import '../../core/services/language_service.dart';
-import '../../core/widgets/smart_image_widget.dart';
 import '../../core/widgets/app_exit_dialog.dart';
 
 /// Phase 11: Question Editor (रुल २९)
@@ -377,13 +376,14 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                     foregroundColor: Colors.white,
                   ),
                 ),
-              )
+              ),
             ],
           ),
-            ),
-          ),
-        );
-      },
+        ),
+      ),
+    ),
+  );
+},
     );
   }
 }

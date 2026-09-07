@@ -215,7 +215,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
               onPressed: () {
                 if (titleCtrl.text.trim().isEmpty) return;
                 final newBook = StudyBook(
-                  id: 'book_',
+                  id: 'book_${DateTime.now().millisecondsSinceEpoch}',
                   title: titleCtrl.text.trim(),
                   subtitle: subtitleCtrl.text.trim(),
                   editionType: editionType,

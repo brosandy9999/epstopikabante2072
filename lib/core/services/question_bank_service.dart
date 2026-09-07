@@ -38,7 +38,8 @@ class QuestionBankService extends ChangeNotifier {
     if (_customSetsLoaded) return;
     _customSetsLoaded = true;
     try {
-      final rawJson = StorageService.instance.getString('custom_mock_sets');
+      final rawJson = StorageService.instance.getString('custom_mock_sets') ??
+          StorageService.instance.getString('custom_mock_sets_backup');
       if (rawJson != null && rawJson.isNotEmpty) {
         final List decoded = jsonDecode(rawJson);
         _customSets.clear();
@@ -54,7 +55,9 @@ class QuestionBankService extends ChangeNotifier {
   void _saveCustomSets() {
     try {
       final list = _customSets.map((s) => s.toJson()).toList();
-      StorageService.instance.setString('custom_mock_sets', jsonEncode(list));
+      final encoded = jsonEncode(list);
+      StorageService.instance.setString('custom_mock_sets', encoded);
+      StorageService.instance.setString('custom_mock_sets_backup', encoded);
       StorageService.instance.saveCustomQuestions(list);
       CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
     } catch (_) {}

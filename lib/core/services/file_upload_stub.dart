@@ -44,4 +44,8 @@ class FileUploadService {
   Future<UploadedFilePayload?> pasteImageFromClipboard() async {
     return null;
   }
+
+  Future<String?> pickJsonFileContent() async {
+    return null;
+  }
 }

@@ -38,6 +38,7 @@ class StorageService {
     try {
       final List<Map<String, dynamic>> list = attempts.map((a) => a.toJson()).toList();
       final String jsonStr = jsonEncode(list);
+      await _prefs?.setString('${_keyExamAttempts}_backup', jsonStr);
       return await _prefs?.setString(_keyExamAttempts, jsonStr) ?? false;
     } catch (e) {
       debugPrint('[StorageService] Failed to save exam attempts: ');
@@ -47,7 +48,10 @@ class StorageService {
 
   List<ExamAttemptRecord>? loadExamAttempts() {
     try {
-      final String? jsonStr = _prefs?.getString(_keyExamAttempts);
+      String? jsonStr = _prefs?.getString(_keyExamAttempts);
+      if (jsonStr == null || jsonStr.isEmpty) {
+        jsonStr = _prefs?.getString('${_keyExamAttempts}_backup');
+      }
       if (jsonStr == null || jsonStr.isEmpty) return null;
       final dynamic decoded = jsonDecode(jsonStr);
       if (decoded is List) {
@@ -68,6 +72,7 @@ class StorageService {
     if (_prefs == null) await init();
     try {
       final String jsonStr = jsonEncode(questions);
+      await _prefs?.setString('${_keyCustomQuestions}_backup', jsonStr);
       return await _prefs?.setString(_keyCustomQuestions, jsonStr) ?? false;
     } catch (e) {
       debugPrint('[StorageService] Failed to save custom questions: ');
@@ -77,7 +82,10 @@ class StorageService {
 
   List<Map<String, dynamic>>? loadCustomQuestions() {
     try {
-      final String? jsonStr = _prefs?.getString(_keyCustomQuestions);
+      String? jsonStr = _prefs?.getString(_keyCustomQuestions);
+      if (jsonStr == null || jsonStr.isEmpty) {
+        jsonStr = _prefs?.getString('${_keyCustomQuestions}_backup');
+      }
       if (jsonStr == null || jsonStr.isEmpty) return null;
       final dynamic decoded = jsonDecode(jsonStr);
       if (decoded is List) {
@@ -97,6 +105,7 @@ class StorageService {
     try {
       final List<Map<String, dynamic>> list = users.map((u) => u.toJson()).toList();
       final String jsonStr = jsonEncode(list);
+      await _prefs?.setString('${_keyUsers}_backup', jsonStr);
       return await _prefs?.setString(_keyUsers, jsonStr) ?? false;
     } catch (e) {
       debugPrint('[StorageService] Failed to save users: ');
@@ -106,7 +115,10 @@ class StorageService {
 
   List<AppUser>? loadUsers() {
     try {
-      final String? jsonStr = _prefs?.getString(_keyUsers);
+      String? jsonStr = _prefs?.getString(_keyUsers);
+      if (jsonStr == null || jsonStr.isEmpty) {
+        jsonStr = _prefs?.getString('${_keyUsers}_backup');
+      }
       if (jsonStr == null || jsonStr.isEmpty) return null;
       final dynamic decoded = jsonDecode(jsonStr);
       if (decoded is List) {
