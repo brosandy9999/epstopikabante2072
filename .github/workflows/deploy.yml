@@ -19,8 +19,11 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build web --release --base-href "/epstopikabante2072/"
+      - run: touch ./build/web/.nojekyll
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./build/web
+          enable_jekyll: false
+          force_orphan: true
