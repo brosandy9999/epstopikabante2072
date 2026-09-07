@@ -681,31 +681,26 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     }
 
     final allQs = _currentSet.questions; // up to 40 questions
-    final reading  = allQs.take(20).toList();
-    final listening = allQs.skip(20).take(20).toList();
 
-    // Dynamic pagination: Distribute Reading across 4 Pages (Pages 2, 3, 4, 5)
-    // and Listening across 3 Pages (Pages 6, 7, 8) by calculating content heights
-    final readingPages = _partitionInto4Pages(reading, hasBanner: true);
-    final listeningPages = _partitionInto3Pages(listening, hasBanner: true, hasEndBanner: true);
+    int listeningStartIndex = -1;
+    for (int i = 0; i < allQs.length; i++) {
+      final q = allQs[i];
+      final isL = (q is UniversalQuestion && q.isListening) ||
+                  (q is ListeningAudioQuestion) ||
+                  (q is ListeningImageOptionsQuestion) ||
+                  (i >= 20);
+      if (isL && listeningStartIndex == -1) {
+        listeningStartIndex = i;
+        break;
+      }
+    }
+    if (listeningStartIndex == -1) listeningStartIndex = 20;
 
-    final r1 = readingPages[0];
-    final r2 = readingPages[1];
-    final r3 = readingPages[2];
-    final r4 = readingPages[3];
-
-    final l1 = listeningPages[0];
-    final l2 = listeningPages[1];
-    final l3 = listeningPages[2];
-
-    final int r1Start = 1;
-    final int r2Start = r1Start + r1.length;
-    final int r3Start = r2Start + r2.length;
-    final int r4Start = r3Start + r3.length;
-
-    final int l1Start = r4Start + r4.length;
-    final int l2Start = l1Start + l1.length;
-    final int l3Start = l2Start + l2.length;
+    final pages = PaperExamHtmlBuilder.partitionAcross7Pages(
+      allQs,
+      listeningStartIndex,
+      hasSectionQr: _listeningSectionQrUrl != null && _listeningSectionQrUrl!.isNotEmpty,
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFF1E293B),
@@ -791,57 +786,29 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                 _page(1, _buildPage1Cover()),
                 _gap,
 
-                // ── PAGE 2: READING PART 1 ───────────────────────────────
-                _page(2, _buildQPage(
-                  questions: r1,
-                  startNumber: r1Start,
-                  isReadingStart: true,
-                )),
-                _gap,
-
-                // ── PAGE 3: READING PART 2 ───────────────────────────────
-                _page(3, _buildQPage(
-                  questions: r2,
-                  startNumber: r2Start,
-                )),
-                _gap,
-
-                // ── PAGE 4: READING PART 3 ───────────────────────────────
-                _page(4, _buildQPage(
-                  questions: r3,
-                  startNumber: r3Start,
-                )),
-                _gap,
-
-                // ── PAGE 5: READING PART 4 ───────────────────────────────
-                _page(5, _buildQPage(
-                  questions: r4,
-                  startNumber: r4Start,
-                )),
-                _gap,
-
-                // ── PAGE 6: LISTENING PART 1 ─────────────────────────────
-                _page(6, _buildQPage(
-                  questions: l1,
-                  startNumber: l1Start,
-                  isListeningStart: true,
-                  listeningSectionQrUrl: _listeningSectionQrUrl,
-                )),
-                _gap,
-
-                // ── PAGE 7: LISTENING PART 2 ─────────────────────────────
-                _page(7, _buildQPage(
-                  questions: l2,
-                  startNumber: l2Start,
-                )),
-                _gap,
-
-                // ── PAGE 8: LISTENING PART 3 (last) ──────────────────────
-                _page(8, _buildQPage(
-                  questions: l3,
-                  startNumber: l3Start,
-                  isLastPage: true,
-                )),
+                // ── PAGES 2–8: 7 CONTINUOUS QUESTION PAGES ───────────────
+                ...List.generate(7, (p) {
+                  final pageQs = pages[p];
+                  final pageNum = p + 2;
+                  int startIdx = 0;
+                  for (int k = 0; k < p; k++) {
+                    startIdx += pages[k].length;
+                  }
+                  return Column(
+                    children: [
+                      _page(
+                        pageNum,
+                        _buildContinuousQPage(
+                          pageQuestions: pageQs,
+                          startQuestionIndex: startIdx,
+                          listeningStartIndex: listeningStartIndex,
+                          isLastPage: (p == 6),
+                        ),
+                      ),
+                      if (p < 6) _gap,
+                    ],
+                  );
+                }),
               ],
             ),
           ),
@@ -852,186 +819,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
 
   static const Widget _gap = SizedBox(height: 32);
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // ─────────────────────────────────────────────────────────────────────────
-  // DYNAMIC PAGINATION ALGORITHM (4 Reading + 3 Listening = 7 question pages + 1 Cover = 8 total)
-  // ─────────────────────────────────────────────────────────────────────────
-  List<List<QuestionTemplate>> _partitionInto4Pages(List<QuestionTemplate> questions, {required bool hasBanner}) {
-    if (questions.isEmpty) return [[], [], [], []];
-    if (questions.length <= 4) {
-      final res = <List<QuestionTemplate>>[];
-      for (var q in questions) {
-        res.add([q]);
-      }
-      while (res.length < 4) {
-        res.add([]);
-      }
-      return res;
-    }
 
-    final n = questions.length;
-    final heights = questions.map((q) => _estimateQuestionHeight(q)).toList();
-
-    // A4 height budget (px)
-    final double b1 = hasBanner ? 770.0 : 860.0;
-    const double b2 = 860.0;
-    const double b3 = 860.0;
-    const double b4 = 860.0;
-
-    int bestI = (n / 4).round().clamp(1, n - 3);
-    int bestJ = (2 * n / 4).round().clamp(bestI + 1, n - 2);
-    int bestK = (3 * n / 4).round().clamp(bestJ + 1, n - 1);
-    double bestScore = double.infinity;
-
-    for (int i = 1; i < n - 2; i++) {
-      for (int j = i + 1; j < n - 1; j++) {
-        for (int k = j + 1; k < n; k++) {
-          double h1 = 0;
-          for (int m = 0; m < i; m++) { h1 += heights[m]; }
-          double h2 = 0;
-          for (int m = i; m < j; m++) { h2 += heights[m]; }
-          double h3 = 0;
-          for (int m = j; m < k; m++) { h3 += heights[m]; }
-          double h4 = 0;
-          for (int m = k; m < n; m++) { h4 += heights[m]; }
-
-          final r1 = h1 / b1;
-          final r2 = h2 / b2;
-          final r3 = h3 / b3;
-          final r4 = h4 / b4;
-
-          final maxRatio = [r1, r2, r3, r4].reduce((a, b) => a > b ? a : b);
-          final variance = (r1 - r2).abs() + (r2 - r3).abs() + (r3 - r4).abs() +
-                           (r1 - r3).abs() + (r1 - r4).abs() + (r2 - r4).abs();
-          final score = maxRatio * 100.0 + variance * 10.0;
-
-          if (score < bestScore) {
-            bestScore = score;
-            bestI = i;
-            bestJ = j;
-            bestK = k;
-          }
-        }
-      }
-    }
-
-    return [
-      questions.sublist(0, bestI),
-      questions.sublist(bestI, bestJ),
-      questions.sublist(bestJ, bestK),
-      questions.sublist(bestK),
-    ];
-  }
-
-  List<List<QuestionTemplate>> _partitionInto3Pages(
-    List<QuestionTemplate> questions, {
-    required bool hasBanner,
-    bool hasEndBanner = false,
-  }) {
-    if (questions.isEmpty) return [[], [], []];
-    if (questions.length <= 3) {
-      final res = <List<QuestionTemplate>>[];
-      for (var q in questions) {
-        res.add([q]);
-      }
-      while (res.length < 3) {
-        res.add([]);
-      }
-      return res;
-    }
-
-    final n = questions.length;
-    final heights = questions.map((q) => _estimateQuestionHeight(q)).toList();
-
-    // A4 height budget (px)
-    final double b1 = hasBanner ? 770.0 : 860.0;
-    const double b2 = 860.0;
-    final double b3 = hasEndBanner ? 800.0 : 860.0;
-
-    int bestI = (n / 3).round().clamp(1, n - 2);
-    int bestJ = (2 * n / 3).round().clamp(bestI + 1, n - 1);
-    double bestScore = double.infinity;
-
-    for (int i = 1; i < n - 1; i++) {
-      for (int j = i + 1; j < n; j++) {
-        double h1 = 0;
-        for (int k = 0; k < i; k++) { h1 += heights[k]; }
-        double h2 = 0;
-        for (int k = i; k < j; k++) { h2 += heights[k]; }
-        double h3 = 0;
-        for (int k = j; k < n; k++) { h3 += heights[k]; }
-
-        final r1 = h1 / b1;
-        final r2 = h2 / b2;
-        final r3 = h3 / b3;
-        final maxRatio = [r1, r2, r3].reduce((a, b) => a > b ? a : b);
-        final variance = (r1 - r2).abs() + (r2 - r3).abs() + (r1 - r3).abs();
-        final score = maxRatio * 100.0 + variance * 10.0;
-
-        if (score < bestScore) {
-          bestScore = score;
-          bestI = i;
-          bestJ = j;
-        }
-      }
-    }
-
-    return [
-      questions.sublist(0, bestI),
-      questions.sublist(bestI, bestJ),
-      questions.sublist(bestJ),
-    ];
-  }
-
-  double _estimateQuestionHeight(QuestionTemplate q) {
-    double h = 30.0; // Badge & Title
-    final rawText = q.questionText.trim();
-    final (_, passage) = _splitQuestionPrompt(rawText);
-
-    final imgUrl = (q is UniversalQuestion) ? q.questionImageUrl
-        : (q is ReadingImageQuestion) ? q.imageAssetPath : null;
-
-    final bool hasMaterial = (passage != null && passage.isNotEmpty) ||
-        (imgUrl != null && imgUrl.isNotEmpty);
-
-    if (hasMaterial) {
-      h += 18.0;
-      if (passage != null && passage.isNotEmpty) {
-        final lines = (passage.length / 45.0).ceil();
-        h += lines * 18.0;
-      }
-      if (imgUrl != null && imgUrl.isNotEmpty) {
-        h += 110.0;
-      }
-    }
-
-    List<String> textOpts = [];
-    List<String?> imgOpts = [];
-    if (q is UniversalQuestion) { textOpts = q.textOptions; imgOpts = q.imageOptions; }
-    else if (q is ReadingTextQuestion) { textOpts = q.textOptions; }
-    else if (q is ReadingImageQuestion) { textOpts = q.textOptions; }
-    else if (q is ListeningAudioQuestion) { textOpts = q.textOptions; }
-    else if (q is ListeningImageOptionsQuestion) { imgOpts = q.imageOptionPaths; }
-
-    final bool hasImageOpts = imgOpts.isNotEmpty && imgOpts.any((x) => x != null && x.isNotEmpty);
-    if (hasImageOpts) {
-      h += 110.0;
-    } else {
-      final cleaned = List.generate(4, (i) => i < textOpts.length ? textOpts[i].trim() : '');
-      final hasNewlines = cleaned.any((o) => o.contains('\n'));
-      final maxLen = cleaned.fold<int>(0, (max, o) => o.length > max ? o.length : max);
-      if (!hasNewlines && maxLen <= 11) {
-        h += 24.0;
-      } else if (!hasNewlines && maxLen <= 26) {
-        h += 48.0;
-      } else {
-        h += 92.0;
-      }
-    }
-
-    h += 14.0; // padding
-    return h;
-  }
 
   (String, String?) _splitQuestionPrompt(String rawText) {
     var text = rawText.trim();
@@ -1275,46 +1063,79 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PAGES 2–7 — SINGLE COLUMN HRD-STYLE QUESTION PAGES
+  // PAGES 2–8 — 7 CONTINUOUS SINGLE COLUMN HRD-STYLE QUESTION PAGES
   // ─────────────────────────────────────────────────────────────────────────
-  Widget _buildQPage({
-    required List<QuestionTemplate> questions,
-    required int startNumber,
-    bool isReadingStart = false,
-    bool isListeningStart = false,
+  Widget _buildContinuousQPage({
+    required List<QuestionTemplate> pageQuestions,
+    required int startQuestionIndex,
+    required int listeningStartIndex,
     bool isLastPage = false,
-    String? listeningSectionQrUrl,
   }) {
+    if (pageQuestions.isEmpty) {
+      return const SizedBox();
+    }
+
+    final endQuestionIndex = startQuestionIndex + pageQuestions.length - 1;
+    final String runningHeaderTitle;
+    if (endQuestionIndex < listeningStartIndex) {
+      runningHeaderTitle = '읽기 (Reading)';
+    } else if (startQuestionIndex >= listeningStartIndex) {
+      runningHeaderTitle = '듣기 (Listening)';
+    } else {
+      runningHeaderTitle = '읽기 & 듣기 (Reading & Listening)';
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Running header
-        _runningHeader(isListeningStart || (!isReadingStart && startNumber > 20) ? '듣기 (Listening)' : '읽기 (Reading)'),
+        _runningHeader(runningHeaderTitle),
         const SizedBox(height: 12),
 
-        // Section start banner
-        if (isReadingStart) ...[
-          _sectionBanner('읽기 영역 (Reading)  :  1번 ~ 20번  /  50점',
-              '아래 내용을 읽고 물음에 맞는 가장 알맞은 것을 ①②③④ 중에서 고르십시오. / Q1–Q20 सम्म पढेर सही उत्तर ①②③④ मा छान्नुहोस्।'),
-          const SizedBox(height: 14),
-        ] else if (isListeningStart) ...[
-          _sectionBanner(
-            '듣기 영역 (Listening)  :  21번 ~ 40번  /  50점',
-            '다음을 듣고 알맞은 것을 ①②③④ 중에서 고르십시오. / Q21–Q40 सम्म सुनेर सही उत्तर ①②③④ मा छान्नुहोस्।',
-            qrUrl: listeningSectionQrUrl,
-          ),
-          const SizedBox(height: 14),
-        ],
+        // Questions & Dynamic Section Banners
+        ...pageQuestions.asMap().entries.expand((e) {
+          final localIdx = e.key;
+          final globalIdx = startQuestionIndex + localIdx;
+          final qNo = globalIdx + 1;
+          final q = e.value;
 
-        // Questions — single column, HRD style
-        ...questions.asMap().entries.map((e) {
-          final qNo = startNumber + e.key;
+          final widgets = <Widget>[];
+
+          // 1. Reading Section Banner at question #1 (globalIdx == 0)
+          if (globalIdx == 0) {
+            widgets.add(
+              _sectionBanner(
+                '읽기 영역 (Reading)  :  1번 ~ 20번  /  50점',
+                '아래 내용을 읽고 물음에 맞는 가장 알맞은 것을 ①②③④ 중에서 고르십시오. / Q1–Q20 सम्म पढेर सही उत्तर ①②③④ मा छान्नुहोस्।',
+              ),
+            );
+            widgets.add(const SizedBox(height: 14));
+          }
+
+          // 2. Listening Section Banner right before listening starts (globalIdx == listeningStartIndex)
+          if (globalIdx == listeningStartIndex) {
+            widgets.add(
+              _sectionBanner(
+                '듣기 영역 (Listening)  :  21번 ~ 40번  /  50점',
+                '다음을 듣고 알맞은 것을 ①②③④ 중에서 고르십시오. / Q21–Q40 सम्म सुनेर सही उत्तर ①②③④ मा छान्नुहोस्।',
+                qrUrl: _listeningSectionQrUrl,
+              ),
+            );
+            widgets.add(const SizedBox(height: 14));
+          }
+
+          // 3. Question Item
           final qrUrl = _questionQrCodes['$qNo'] ??
-              ((e.value is UniversalQuestion) ? (e.value as UniversalQuestion).questionQrCodeUrl : null);
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 14),
-            child: _hrdQuestion(qNo, e.value, qrUrl: qrUrl),
+              ((q is UniversalQuestion) ? q.questionQrCodeUrl : null);
+
+          widgets.add(
+            Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: _hrdQuestion(qNo, q, qrUrl: qrUrl),
+            ),
           );
+
+          return widgets;
         }),
 
         // End of exam banner on last page
@@ -1419,6 +1240,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     else if (q is ListeningImageOptionsQuestion) { imgOpts = q.imageOptionPaths; }
 
     final bool hasImageOpts = imgOpts.isNotEmpty && imgOpts.any((x) => x != null && x.isNotEmpty);
+    final bool isSideBySide = (imgUrl != null && imgUrl.isNotEmpty && !hasImageOpts && (passage == null || passage.length <= 80));
     final bool hasMaterial = (passage != null && passage.isNotEmpty) ||
         (imgUrl != null && imgUrl.isNotEmpty);
 
@@ -1479,103 +1301,147 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
           ],
         ]),
 
-        // ── Rounded Corner Rectangular Border Box ─────────────────────
-        // Houses Paragraphs, Dialogues, Single Word Questions, or Images
-        if (hasMaterial) ...[
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(top: 6, bottom: 4),
-            padding: EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: isSingleWord ? 11 : 8,
-            ),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF9FAFB),
-              border: Border.all(color: Colors.black87, width: 1.2),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Column(
-              crossAxisAlignment: isSingleWord ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+        if (isSideBySide) ...[
+          // ── Side-by-Side: Picture on Left, Options on Right ──
+          Padding(
+            padding: const EdgeInsets.only(left: 34, top: 6, bottom: 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Paragraph / Passage / Words
-                if (passage != null && passage.isNotEmpty)
-                  isSingleWord
-                      ? Center(
-                          child: Text(
-                            passage,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        )
-                      : Text(
-                          passage,
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            height: 1.55,
-                            color: Colors.black87,
-                          ),
-                        ),
-
-                // Image inside rounded border box
-                if (imgUrl != null && imgUrl.isNotEmpty) ...[
-                  if (passage != null && passage.isNotEmpty) const SizedBox(height: 6),
-                  Center(
-                    child: Container(
-                      constraints: const BoxConstraints(maxHeight: 110, maxWidth: 280),
-                      child: SmartImageWidget(imageSource: imgUrl, fit: BoxFit.contain),
-                    ),
+                // Left Column: Picture Box
+                Container(
+                  width: 240,
+                  constraints: const BoxConstraints(maxHeight: 110),
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    border: Border.all(color: Colors.black87, width: 1.2),
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                ],
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (passage != null && passage.isNotEmpty) ...[
+                        Text(
+                          passage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
+                        ),
+                        const SizedBox(height: 4),
+                      ],
+                      Flexible(
+                        child: Container(
+                          constraints: const BoxConstraints(maxHeight: 95, maxWidth: 225),
+                          child: SmartImageWidget(imageSource: imgUrl, fit: BoxFit.contain),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 18),
+                // Right Column: Options based on length
+                Expanded(
+                  child: _buildDynamicTextOptions(textOpts, isSideBySide: true),
+                ),
               ],
             ),
           ),
+        ] else ...[
+          // ── Standard Stacked Layout: Material on Top, Options Below ──
+          if (hasMaterial) ...[
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(left: 36, top: 6, bottom: 4),
+              padding: EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: isSingleWord ? 11 : 8,
+              ),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                border: Border.all(color: Colors.black87, width: 1.2),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Column(
+                crossAxisAlignment: isSingleWord ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+                children: [
+                  // Paragraph / Passage / Words
+                  if (passage != null && passage.isNotEmpty)
+                    isSingleWord
+                        ? Center(
+                            child: Text(
+                              passage,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            passage,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              height: 1.55,
+                              color: Colors.black87,
+                            ),
+                          ),
+
+                  // Image inside rounded border box
+                  if (imgUrl != null && imgUrl.isNotEmpty) ...[
+                    if (passage != null && passage.isNotEmpty) const SizedBox(height: 6),
+                    Center(
+                      child: Container(
+                        constraints: const BoxConstraints(maxHeight: 110, maxWidth: 280),
+                        child: SmartImageWidget(imageSource: imgUrl, fit: BoxFit.contain),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 4),
+
+          if (hasImageOpts)
+            Container(
+              margin: const EdgeInsets.only(left: 36),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade400),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, crossAxisSpacing: 8, mainAxisSpacing: 8, childAspectRatio: 1.6),
+                itemCount: 4,
+                itemBuilder: (ctx, i) {
+                  final img = i < imgOpts.length ? imgOpts[i] : null;
+                  return Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(4)),
+                    child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Text(nums[i], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                      if (img != null && img.isNotEmpty)
+                        Expanded(child: SmartImageWidget(imageSource: img, fit: BoxFit.contain)),
+                    ]),
+                  );
+                },
+              ),
+            )
+          else
+            _buildDynamicTextOptions(textOpts, isSideBySide: false),
         ],
-
-        // ── Options ──────────────────────────────────────────────────
-        const SizedBox(height: 4),
-
-        if (hasImageOpts)
-          // Image options: 2×2 grid inside a border box
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade400),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, crossAxisSpacing: 8, mainAxisSpacing: 8, childAspectRatio: 1.6),
-              itemCount: 4,
-              itemBuilder: (ctx, i) {
-                final img = i < imgOpts.length ? imgOpts[i] : null;
-                return Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(4)),
-                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    Text(nums[i], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                    if (img != null && img.isNotEmpty)
-                      Expanded(child: SmartImageWidget(imageSource: img, fit: BoxFit.contain)),
-                  ]),
-                );
-              },
-            ),
-          )
-        else
-          // Dynamic text options: 1 column / 2 columns / 4 columns based on option length
-          _buildDynamicTextOptions(textOpts),
       ],
     );
   }
 
-  Widget _buildDynamicTextOptions(List<String> textOpts) {
+  Widget _buildDynamicTextOptions(List<String> textOpts, {bool isSideBySide = false}) {
     const nums = ['①', '②', '③', '④'];
     final cleaned = List.generate(4, (i) => i < textOpts.length ? textOpts[i].trim() : '');
 
@@ -1586,18 +1452,22 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     final maxLen = cleaned.fold<int>(0, (max, o) => o.length > max ? o.length : max);
     final count = cleaned.where((o) => o.isNotEmpty).length;
 
-    // Determine layout columns:
-    // 4 columns: very short options (e.g. single words / vocabulary, maxLen <= 11) -> 1 row (① ② ③ ④)
-    // 2 columns: medium options (e.g. short sentences / phrases, maxLen <= 26) -> 2 rows × 2 cols (① ② / ③ ④)
-    // 1 column: long options / long sentences / newlines -> 4 rows × 1 col
     int colCount = 1;
-    if (!hasNewlines && count > 0) {
-      if (count == 4 && maxLen <= 11) {
-        colCount = 4;
-      } else if (maxLen <= 26) {
+    if (isSideBySide) {
+      if (!hasNewlines && count == 4 && maxLen <= 8) {
         colCount = 2;
       } else {
         colCount = 1;
+      }
+    } else {
+      if (!hasNewlines && count > 0) {
+        if (count == 4 && maxLen <= 11) {
+          colCount = 4;
+        } else if (maxLen <= 26) {
+          colCount = 2;
+        } else {
+          colCount = 1;
+        }
       }
     }
 
@@ -1629,9 +1499,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       );
     }
 
+    final padLeft = isSideBySide ? 0.0 : 36.0;
+
     if (colCount == 4) {
       return Padding(
-        padding: const EdgeInsets.only(left: 36, top: 4),
+        padding: EdgeInsets.only(left: padLeft, top: 4),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1647,14 +1519,14 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
       );
     } else if (colCount == 2) {
       return Padding(
-        padding: const EdgeInsets.only(left: 36, top: 4),
+        padding: EdgeInsets.only(left: padLeft, top: 4),
         child: Column(
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(child: buildOptionItem(0)),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 Expanded(child: buildOptionItem(1)),
               ],
             ),
@@ -1663,7 +1535,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(child: buildOptionItem(2)),
-                const SizedBox(width: 16),
+                const SizedBox(width: 14),
                 Expanded(child: buildOptionItem(3)),
               ],
             ),
@@ -1673,7 +1545,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     } else {
       // 1 column (vertical list)
       return Padding(
-        padding: const EdgeInsets.only(left: 36, top: 4),
+        padding: EdgeInsets.only(left: padLeft, top: 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(4, (i) {

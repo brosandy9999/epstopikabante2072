@@ -9,31 +9,28 @@ class PaperExamHtmlBuilder {
     String? customSectionQr,
   }) {
     final allQs = testSet.questions;
-    final reading = allQs.take(20).toList();
-    final listening = allQs.skip(20).take(20).toList();
 
-    // Partition Reading across 4 Pages (Pages 2, 3, 4, 5)
-    final rPages = _partitionInto4(reading, hasBanner: true);
-    // Partition Listening across 3 Pages (Pages 6, 7, 8)
-    final lPages = _partitionInto3(listening, hasBanner: true, hasEndBanner: true);
+    // Detect where listening begins (e.g. index 20 for Q21)
+    int listeningStartIndex = -1;
+    for (int i = 0; i < allQs.length; i++) {
+      final q = allQs[i];
+      final isL = (q is UniversalQuestion && q.isListening) ||
+                  (q is ListeningAudioQuestion) ||
+                  (q is ListeningImageOptionsQuestion) ||
+                  (i >= 20);
+      if (isL && listeningStartIndex == -1) {
+        listeningStartIndex = i;
+        break;
+      }
+    }
+    if (listeningStartIndex == -1) listeningStartIndex = 20;
 
-    final r1 = rPages[0];
-    final r2 = rPages[1];
-    final r3 = rPages[2];
-    final r4 = rPages[3];
-
-    final l1 = lPages[0];
-    final l2 = lPages[1];
-    final l3 = lPages[2];
-
-    final int r1Start = 1;
-    final int r2Start = r1Start + r1.length;
-    final int r3Start = r2Start + r2.length;
-    final int r4Start = r3Start + r3.length;
-
-    final int l1Start = r4Start + r4.length;
-    final int l2Start = l1Start + l1.length;
-    final int l3Start = l2Start + l2.length;
+    final effectiveSectionQr = customSectionQr ?? testSet.listeningSectionQrUrl;
+    final pages = partitionAcross7Pages(
+      allQs,
+      listeningStartIndex,
+      hasSectionQr: effectiveSectionQr != null && effectiveSectionQr.isNotEmpty,
+    );
 
     final institute = testSet.instituteName ?? 'Official Test Center';
 
@@ -264,6 +261,43 @@ class PaperExamHtmlBuilder {
       display: block;
       margin: 4px auto;
       object-fit: contain;
+    }
+
+    /* Side-by-side layout for picture questions (Picture Left, Options Right) */
+    .q-side-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-left: 28px;
+      margin-top: 4px;
+    }
+    .q-side-media {
+      flex: 0 0 250px;
+      max-width: 250px;
+    }
+    .q-side-media .material-box {
+      margin: 0 !important;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 85px;
+      background: #fafafa;
+    }
+    .q-side-media img {
+      max-height: 105px;
+      max-width: 235px;
+      object-fit: contain;
+      margin: 2px auto;
+      display: block;
+    }
+    .q-side-options {
+      flex: 1;
+    }
+    .q-side-options .options-container {
+      margin-left: 0 !important;
+      margin-top: 0 !important;
     }
 
     /* Options */
@@ -516,26 +550,28 @@ class PaperExamHtmlBuilder {
     <!-- PAGE 1: COVER -->
     ${_buildCoverPageHtml(testSet, institute)}
 
-    <!-- PAGE 2: READING 1 -->
-    ${_buildQPageHtml(testSet, r1, r1Start, 2, institute, isReadingStart: true)}
-
-    <!-- PAGE 3: READING 2 -->
-    ${_buildQPageHtml(testSet, r2, r2Start, 3, institute)}
-
-    <!-- PAGE 4: READING 3 -->
-    ${_buildQPageHtml(testSet, r3, r3Start, 4, institute)}
-
-    <!-- PAGE 5: READING 4 -->
-    ${_buildQPageHtml(testSet, r4, r4Start, 5, institute)}
-
-    <!-- PAGE 6: LISTENING 1 -->
-    ${_buildQPageHtml(testSet, l1, l1Start, 6, institute, isListeningStart: true, qrCodes: customQrCodes, sectionQrUrl: customSectionQr)}
-
-    <!-- PAGE 7: LISTENING 2 -->
-    ${_buildQPageHtml(testSet, l2, l2Start, 7, institute, qrCodes: customQrCodes)}
-
-    <!-- PAGE 8: LISTENING 3 (LAST) -->
-    ${_buildQPageHtml(testSet, l3, l3Start, 8, institute, isLastPage: true, qrCodes: customQrCodes)}
+    <!-- PAGES 2–8: 7 CONTINUOUS QUESTION PAGES -->
+    ${() {
+      final sb = StringBuffer();
+      int currentQIndex = 0;
+      for (int p = 0; p < 7; p++) {
+        final pageQs = pages[p];
+        final pageNum = p + 2;
+        sb.writeln(_buildContinuousQPageHtml(
+          testSet: testSet,
+          pageQuestions: pageQs,
+          startQuestionIndex: currentQIndex,
+          listeningStartIndex: listeningStartIndex,
+          pageNum: pageNum,
+          institute: institute,
+          isLastPage: (p == 6),
+          qrCodes: customQrCodes,
+          sectionQrUrl: customSectionQr,
+        ));
+        currentQIndex += pageQs.length;
+      }
+      return sb.toString();
+    }()}
   </div>
 
   <script>
@@ -624,23 +660,31 @@ class PaperExamHtmlBuilder {
     ''';
   }
 
-  static String _buildQPageHtml(
-    MockTestSet testSet,
-    List<QuestionTemplate> questions,
-    int startNumber,
-    int pageNum,
-    String institute, {
-    bool isReadingStart = false,
-    bool isListeningStart = false,
+  static String _buildContinuousQPageHtml({
+    required MockTestSet testSet,
+    required List<QuestionTemplate> pageQuestions,
+    required int startQuestionIndex,
+    required int listeningStartIndex,
+    required int pageNum,
+    required String institute,
     bool isLastPage = false,
     Map<String, String>? qrCodes,
     String? sectionQrUrl,
   }) {
-    final sectionTitle = (isListeningStart || (!isReadingStart && startNumber > 20))
-        ? '듣기 (Listening)'
-        : '읽기 (Reading)';
-
     final effectiveSectionQr = sectionQrUrl ?? testSet.listeningSectionQrUrl;
+
+    // Check which sections are represented on this page
+    final bool hasReading = pageQuestions.asMap().entries.any((e) => (startQuestionIndex + e.key) < listeningStartIndex);
+    final bool hasListening = pageQuestions.asMap().entries.any((e) => (startQuestionIndex + e.key) >= listeningStartIndex);
+
+    final String sectionTitle;
+    if (hasReading && hasListening) {
+      sectionTitle = '읽기 & 듣기 (Reading & Listening)';
+    } else if (hasListening) {
+      sectionTitle = '듣기 (Listening)';
+    } else {
+      sectionTitle = '읽기 (Reading)';
+    }
 
     final sb = StringBuffer();
     sb.writeln('<div class="pbt-page">');
@@ -654,51 +698,56 @@ class PaperExamHtmlBuilder {
       </div>
     ''');
 
-    // Section Banner
-    if (isReadingStart) {
-      sb.writeln('''
-        <div class="section-banner">
-          <div class="section-banner-content">
-            <div class="section-banner-title">읽기 영역 (Reading) : 1번 ~ 20번 / 50점</div>
-            <div class="section-banner-desc">아래 내용을 읽고 물음에 맞는 가장 알맞은 것을 ①②③④ 중에서 고르십시오.</div>
-          </div>
-        </div>
-      ''');
-    } else if (isListeningStart) {
-      sb.writeln('''
-        <div class="section-banner">
-          <div class="section-banner-content">
-            <div class="section-banner-title">듣기 영역 (Listening) : 21번 ~ 40번 / 50점</div>
-            <div class="section-banner-desc">다음을 듣고 알맞은 것을 ①②③④ 중에서 고르십시오. (듣기 대본은 시험지에 제공되지 않습니다.)</div>
-          </div>
-          ${effectiveSectionQr != null && effectiveSectionQr.isNotEmpty ? '''
-          <div class="section-banner-qr">
-            <img src="${_esc(effectiveSectionQr)}" alt="Full Audio QR" />
-            <span class="banner-qr-label">🎧 전체 듣기 (Full Audio)</span>
-          </div>
-          ''' : ''}
-        </div>
-      ''');
-    }
-
     // Questions List
     sb.writeln('<div class="questions-list">');
-    for (int i = 0; i < questions.length; i++) {
-      final q = questions[i];
-      final no = startNumber + i;
+    for (int i = 0; i < pageQuestions.length; i++) {
+      final q = pageQuestions[i];
+      final globalIdx = startQuestionIndex + i;
+      final qNo = globalIdx + 1;
 
+      // 1. Reading Section Start Banner (at Q1)
+      if (globalIdx == 0 && listeningStartIndex > 0) {
+        sb.writeln('''
+          <div class="section-banner">
+            <div class="section-banner-content">
+              <div class="section-banner-title">읽기 영역 (Reading) : 1번 ~ $listeningStartIndex번 / 50점</div>
+              <div class="section-banner-desc">아래 내용을 읽고 물음에 맞는 가장 알맞은 것을 ①②③④ 중에서 고르십시오.</div>
+            </div>
+          </div>
+        ''');
+      }
+
+      // 2. Listening Section Start Banner (right after reading ends and listening starts)
+      if (globalIdx == listeningStartIndex) {
+        sb.writeln('''
+          <div class="section-banner" style="margin-top: ${i == 0 ? 0 : 10}px; margin-bottom: 10px;">
+            <div class="section-banner-content">
+              <div class="section-banner-title">듣기 영역 (Listening) : ${listeningStartIndex + 1}번 ~ ${testSet.questions.length}번 / 50점</div>
+              <div class="section-banner-desc">다음을 듣고 알맞은 것을 ①②③④ 중에서 고르십시오. (듣기 대본은 시험지에 제공되지 않습니다.)</div>
+            </div>
+            ${effectiveSectionQr != null && effectiveSectionQr.isNotEmpty ? '''
+            <div class="section-banner-qr">
+              <img src="${_esc(effectiveSectionQr)}" alt="Full Audio QR" />
+              <span class="banner-qr-label">🎧 전체 듣기 (Full Audio)</span>
+            </div>
+            ''' : ''}
+          </div>
+        ''');
+      }
+
+      // 3. Single Question
       String? qQr;
       if (qrCodes != null) {
-        qQr = qrCodes[q.questionId] ?? qrCodes['$no'];
+        qQr = qrCodes[q.questionId] ?? qrCodes['$qNo'];
       }
       if (qQr == null && testSet.listeningQrCodes != null) {
-        qQr = testSet.listeningQrCodes![q.questionId] ?? testSet.listeningQrCodes!['$no'];
+        qQr = testSet.listeningQrCodes![q.questionId] ?? testSet.listeningQrCodes!['$qNo'];
       }
       if (qQr == null && q is UniversalQuestion && q.questionQrCodeUrl != null && q.questionQrCodeUrl!.isNotEmpty) {
         qQr = q.questionQrCodeUrl;
       }
 
-      sb.writeln(_buildSingleQuestionHtml(no, q, qrCodeUrl: qQr));
+      sb.writeln(_buildSingleQuestionHtml(qNo, q, qrCodeUrl: qQr));
     }
     sb.writeln('</div>'); // questions-list
 
@@ -741,6 +790,7 @@ class PaperExamHtmlBuilder {
     else if (q is ListeningImageOptionsQuestion) { imgOpts = q.imageOptionPaths; }
 
     final bool hasImageOpts = imgOpts.isNotEmpty && imgOpts.any((x) => x != null && x.isNotEmpty);
+    final bool isSideBySide = (imgUrl != null && imgUrl.isNotEmpty && !hasImageOpts && (passage == null || passage.length <= 80));
     final bool hasMaterial = (passage != null && passage.isNotEmpty) || (imgUrl != null && imgUrl.isNotEmpty);
 
     final bool isSingleWord = passage != null &&
@@ -768,42 +818,60 @@ class PaperExamHtmlBuilder {
       </div>
     ''');
 
-    // Material Box
-    if (hasMaterial) {
-      final boxClass = isSingleWord ? 'material-box single-word' : 'material-box paragraph';
-      sb.writeln('<div class="$boxClass">');
+    if (isSideBySide) {
+      // ── Side-by-Side: Picture on Left, Options on Right ──
+      sb.writeln('<div class="q-side-row">');
+      sb.writeln('<div class="q-side-media">');
+      sb.writeln('<div class="material-box">');
       if (passage != null && passage.isNotEmpty) {
-        sb.writeln(_esc(passage));
+        sb.writeln('<div style="font-weight: 700; font-size: 11.5px; margin-bottom: 3px; text-align: center; color: #0f172a;">${_esc(passage)}</div>');
       }
-      if (imgUrl != null && imgUrl.isNotEmpty) {
-        sb.writeln('<img src="${_esc(imgUrl)}" alt="Question Image" />');
-      }
+      sb.writeln('<img src="${_esc(imgUrl)}" alt="Question Image" />');
       sb.writeln('</div>');
-    }
+      sb.writeln('</div>'); // q-side-media
 
-    // Options
-    if (hasImageOpts) {
-      sb.writeln('<div class="img-opts-grid">');
-      const nums = ['①', '②', '③', '④'];
-      for (int i = 0; i < 4; i++) {
-        final img = i < imgOpts.length ? imgOpts[i] : null;
-        sb.writeln('''
-          <div class="img-opt-box">
-            <span class="opt-num">${nums[i]}</span>
-            ${img != null && img.isNotEmpty ? '<img src="${_esc(img)}" alt="Option $i" />' : ''}
-          </div>
-        ''');
-      }
-      sb.writeln('</div>');
+      sb.writeln('<div class="q-side-options">');
+      sb.writeln(_buildTextOptionsHtml(textOpts, isSideBySide: true));
+      sb.writeln('</div>'); // q-side-options
+      sb.writeln('</div>'); // q-side-row
     } else {
-      sb.writeln(_buildTextOptionsHtml(textOpts));
+      // ── Standard Stacked Layout: Material on Top, Options Below ──
+      if (hasMaterial) {
+        final boxClass = isSingleWord ? 'material-box single-word' : 'material-box paragraph';
+        sb.writeln('<div class="$boxClass">');
+        if (passage != null && passage.isNotEmpty) {
+          sb.writeln(_esc(passage));
+        }
+        if (imgUrl != null && imgUrl.isNotEmpty) {
+          sb.writeln('<img src="${_esc(imgUrl)}" alt="Question Image" />');
+        }
+        sb.writeln('</div>');
+      }
+
+      // Options
+      if (hasImageOpts) {
+        sb.writeln('<div class="img-opts-grid">');
+        const nums = ['①', '②', '③', '④'];
+        for (int i = 0; i < 4; i++) {
+          final img = i < imgOpts.length ? imgOpts[i] : null;
+          sb.writeln('''
+            <div class="img-opt-box">
+              <span class="opt-num">${nums[i]}</span>
+              ${img != null && img.isNotEmpty ? '<img src="${_esc(img)}" alt="Option $i" />' : ''}
+            </div>
+          ''');
+        }
+        sb.writeln('</div>');
+      } else {
+        sb.writeln(_buildTextOptionsHtml(textOpts, isSideBySide: false));
+      }
     }
 
     sb.writeln('</div>'); // q-item
     return sb.toString();
   }
 
-  static String _buildTextOptionsHtml(List<String> textOpts) {
+  static String _buildTextOptionsHtml(List<String> textOpts, {bool isSideBySide = false}) {
     const nums = ['①', '②', '③', '④'];
     final cleaned = List.generate(4, (i) => i < textOpts.length ? textOpts[i].trim() : '');
 
@@ -812,13 +880,24 @@ class PaperExamHtmlBuilder {
     final count = cleaned.where((o) => o.isNotEmpty).length;
 
     int colCount = 1;
-    if (!hasNewlines && count > 0) {
-      if (count == 4 && maxLen <= 11) {
-        colCount = 4;
-      } else if (maxLen <= 26) {
+    if (isSideBySide) {
+      // In side-by-side right column:
+      // If options are short (maxLen <= 8, e.g. single vocabulary words), 2 columns (① ② / ③ ④)
+      // Otherwise (sentences or longer), 1 column (① \n ② \n ③ \n ④)
+      if (!hasNewlines && count == 4 && maxLen <= 8) {
         colCount = 2;
       } else {
         colCount = 1;
+      }
+    } else {
+      if (!hasNewlines && count > 0) {
+        if (count == 4 && maxLen <= 11) {
+          colCount = 4;
+        } else if (maxLen <= 26) {
+          colCount = 2;
+        } else {
+          colCount = 1;
+        }
       }
     }
 
@@ -861,17 +940,20 @@ class PaperExamHtmlBuilder {
     return (text, null);
   }
 
-  static List<List<QuestionTemplate>> _partitionInto4(
-    List<QuestionTemplate> questions, {
-    bool hasBanner = false,
+  static List<List<QuestionTemplate>> partitionAcross7Pages(
+    List<QuestionTemplate> questions,
+    int listeningStartIndex, {
+    bool hasSectionQr = false,
   }) {
-    if (questions.isEmpty) return [[], [], [], []];
-    if (questions.length <= 4) {
+    if (questions.isEmpty) {
+      return List.generate(7, (_) => <QuestionTemplate>[]);
+    }
+    if (questions.length <= 7) {
       final res = <List<QuestionTemplate>>[];
       for (var q in questions) {
         res.add([q]);
       }
-      while (res.length < 4) {
+      while (res.length < 7) {
         res.add([]);
       }
       return res;
@@ -880,109 +962,71 @@ class PaperExamHtmlBuilder {
     final n = questions.length;
     final heights = questions.map((q) => _estimateHeight(q)).toList();
 
-    final double b1 = hasBanner ? 770.0 : 860.0;
-    const double b2 = 860.0;
-    const double b3 = 860.0;
-    const double b4 = 860.0;
+    double pageCost(int i, int j, int p) {
+      if (j <= i) return 1e9;
+      double h = 0;
+      for (int k = i; k < j; k++) {
+        h += heights[k];
+      }
+      if (p == 0 && listeningStartIndex > 0) {
+        h += 65.0; // Reading banner
+      }
+      if (i <= listeningStartIndex && listeningStartIndex < j && listeningStartIndex > 0) {
+        h += (hasSectionQr ? 85.0 : 65.0);
+      }
+      if (p == 6) {
+        h += 45.0; // Exam end banner
+      }
 
-    int bestI = (n / 4).round().clamp(1, n - 3);
-    int bestJ = (2 * n / 4).round().clamp(bestI + 1, n - 2);
-    int bestK = (3 * n / 4).round().clamp(bestJ + 1, n - 1);
-    double bestScore = double.infinity;
+      const budget = 860.0;
+      final ratio = h / budget;
+      final diff = ratio - 0.82;
+      double penalty = diff * diff * 100.0;
+      if (ratio > 1.0) {
+        penalty += (ratio - 1.0) * 10000.0;
+      }
+      return penalty;
+    }
 
-    for (int i = 1; i < n - 2; i++) {
-      for (int j = i + 1; j < n - 1; j++) {
-        for (int k = j + 1; k < n; k++) {
-          double h1 = 0;
-          for (int m = 0; m < i; m++) { h1 += heights[m]; }
-          double h2 = 0;
-          for (int m = i; m < j; m++) { h2 += heights[m]; }
-          double h3 = 0;
-          for (int m = j; m < k; m++) { h3 += heights[m]; }
-          double h4 = 0;
-          for (int m = k; m < n; m++) { h4 += heights[m]; }
+    final dp = List.generate(7, (_) => List.filled(n + 1, 1e12));
+    final parent = List.generate(7, (_) => List.filled(n + 1, 0));
 
-          final r1 = h1 / b1;
-          final r2 = h2 / b2;
-          final r3 = h3 / b3;
-          final r4 = h4 / b4;
+    for (int i = 1; i <= n - 6; i++) {
+      dp[0][i] = pageCost(0, i, 0);
+    }
 
-          final maxRatio = [r1, r2, r3, r4].reduce((a, b) => a > b ? a : b);
-          final variance = (r1 - r2).abs() + (r2 - r3).abs() + (r3 - r4).abs() +
-                           (r1 - r3).abs() + (r1 - r4).abs() + (r2 - r4).abs();
-          final score = maxRatio * 100.0 + variance * 10.0;
-
-          if (score < bestScore) {
-            bestScore = score;
-            bestI = i;
-            bestJ = j;
-            bestK = k;
+    for (int p = 1; p < 7; p++) {
+      final minI = p + 1;
+      final maxI = (p == 6) ? n : (n - (6 - p));
+      for (int i = minI; i <= maxI; i++) {
+        for (int k = p; k < i; k++) {
+          if (dp[p - 1][k] >= 1e11) continue;
+          final c = pageCost(k, i, p);
+          final total = dp[p - 1][k] + c;
+          if (total < dp[p][i]) {
+            dp[p][i] = total;
+            parent[p][i] = k;
           }
         }
       }
     }
 
-    return [
-      questions.sublist(0, bestI),
-      questions.sublist(bestI, bestJ),
-      questions.sublist(bestJ, bestK),
-      questions.sublist(bestK),
-    ];
-  }
-
-  static List<List<QuestionTemplate>> _partitionInto3(
-    List<QuestionTemplate> questions, {
-    bool hasBanner = false,
-    bool hasEndBanner = false,
-  }) {
-    if (questions.isEmpty) return [[], [], []];
-    if (questions.length <= 3) {
-      final res = <List<QuestionTemplate>>[];
-      for (var q in questions) { res.add([q]); }
-      while (res.length < 3) { res.add([]); }
-      return res;
+    final splitPoints = List.filled(8, 0);
+    splitPoints[7] = n;
+    int curr = n;
+    for (int p = 6; p >= 1; p--) {
+      curr = parent[p][curr];
+      splitPoints[p] = curr;
     }
+    splitPoints[0] = 0;
 
-    final n = questions.length;
-    final heights = questions.map((q) => _estimateHeight(q)).toList();
-
-    final double b1 = hasBanner ? 770.0 : 860.0;
-    const double b2 = 860.0;
-    final double b3 = hasEndBanner ? 800.0 : 860.0;
-
-    int bestI = (n / 3).round().clamp(1, n - 2);
-    int bestJ = (2 * n / 3).round().clamp(bestI + 1, n - 1);
-    double bestScore = double.infinity;
-
-    for (int i = 1; i < n - 1; i++) {
-      for (int j = i + 1; j < n; j++) {
-        double h1 = 0;
-        for (int k = 0; k < i; k++) { h1 += heights[k]; }
-        double h2 = 0;
-        for (int k = i; k < j; k++) { h2 += heights[k]; }
-        double h3 = 0;
-        for (int k = j; k < n; k++) { h3 += heights[k]; }
-
-        final r1 = h1 / b1;
-        final r2 = h2 / b2;
-        final r3 = h3 / b3;
-        final maxRatio = [r1, r2, r3].reduce((a, b) => a > b ? a : b);
-        final variance = (r1 - r2).abs() + (r2 - r3).abs() + (r1 - r3).abs();
-        final score = maxRatio * 100.0 + variance * 10.0;
-
-        if (score < bestScore) {
-          bestScore = score;
-          bestI = i;
-          bestJ = j;
-        }
-      }
+    final result = <List<QuestionTemplate>>[];
+    for (int p = 0; p < 7; p++) {
+      final start = splitPoints[p];
+      final end = splitPoints[p + 1];
+      result.add(questions.sublist(start, end));
     }
-
-    return [
-      questions.sublist(0, bestI),
-      questions.sublist(bestI, bestJ),
-      questions.sublist(bestJ),
-    ];
+    return result;
   }
 
   static double _estimateHeight(QuestionTemplate q) {
@@ -993,35 +1037,48 @@ class PaperExamHtmlBuilder {
     final imgUrl = (q is UniversalQuestion) ? q.questionImageUrl
         : (q is ReadingImageQuestion) ? q.imageAssetPath : null;
 
-    final bool hasMaterial = (passage != null && passage.isNotEmpty) || (imgUrl != null && imgUrl.isNotEmpty);
-
-    if (hasMaterial) {
-      h += 16.0;
-      if (passage != null && passage.isNotEmpty) {
-        final lines = (passage.length / 45.0).ceil();
-        h += lines * 16.0;
-      }
-      if (imgUrl != null && imgUrl.isNotEmpty) {
-        h += 95.0;
-      }
-    }
-
     List<String> textOpts = [];
-    if (q is UniversalQuestion) { textOpts = q.textOptions; }
+    List<String?> imgOpts = [];
+    if (q is UniversalQuestion) { textOpts = q.textOptions; imgOpts = q.imageOptions; }
     else if (q is ReadingTextQuestion) { textOpts = q.textOptions; }
     else if (q is ReadingImageQuestion) { textOpts = q.textOptions; }
     else if (q is ListeningAudioQuestion) { textOpts = q.textOptions; }
+    else if (q is ListeningImageOptionsQuestion) { imgOpts = q.imageOptionPaths; }
+
+    final bool hasImageOpts = imgOpts.isNotEmpty && imgOpts.any((x) => x != null && x.isNotEmpty);
+    final bool isSideBySide = (imgUrl != null && imgUrl.isNotEmpty && !hasImageOpts && (passage == null || passage.length <= 80));
 
     final cleaned = List.generate(4, (i) => i < textOpts.length ? textOpts[i].trim() : '');
     final hasNewlines = cleaned.any((o) => o.contains('\n'));
     final maxLen = cleaned.fold<int>(0, (max, o) => o.length > max ? o.length : max);
 
-    if (!hasNewlines && maxLen <= 11) {
-      h += 20.0;
-    } else if (!hasNewlines && maxLen <= 26) {
-      h += 40.0;
+    if (isSideBySide) {
+      double optionsH = (!hasNewlines && maxLen <= 8) ? 44.0 : 88.0;
+      h += (optionsH > 105.0 ? optionsH : 105.0) + 6.0;
     } else {
-      h += 75.0;
+      final bool hasMaterial = (passage != null && passage.isNotEmpty) || (imgUrl != null && imgUrl.isNotEmpty);
+      if (hasMaterial) {
+        h += 16.0;
+        if (passage != null && passage.isNotEmpty) {
+          final lines = (passage.length / 45.0).ceil();
+          h += lines * 16.0;
+        }
+        if (imgUrl != null && imgUrl.isNotEmpty) {
+          h += 95.0;
+        }
+      }
+
+      if (hasImageOpts) {
+        h += 110.0;
+      } else {
+        if (!hasNewlines && maxLen <= 11) {
+          h += 20.0;
+        } else if (!hasNewlines && maxLen <= 26) {
+          h += 40.0;
+        } else {
+          h += 75.0;
+        }
+      }
     }
 
     h += 12.0;

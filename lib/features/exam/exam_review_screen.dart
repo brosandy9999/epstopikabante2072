@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../question_engine/question_template.dart';
 import '../../core/services/question_bank_service.dart';
 import '../../core/services/language_service.dart';
+import '../../core/services/audio_playback_service.dart';
+import '../../core/widgets/smart_image_widget.dart';
 
 enum ReviewFilter { all, correct, incorrect, unanswered }
 
@@ -28,6 +30,12 @@ class ExamReviewScreen extends StatefulWidget {
 
 class _ExamReviewScreenState extends State<ExamReviewScreen> {
   ReviewFilter _selectedFilter = ReviewFilter.all;
+
+  @override
+  void dispose() {
+    AudioPlaybackService.instance.stop();
+    super.dispose();
+  }
   late final Map<String, QuestionAnswerInfo> _answerKeys;
 
   @override
@@ -314,6 +322,21 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                                   );
                                 }
 
+                                String? optImg;
+                                String? optAudio;
+                                if (q is UniversalQuestion) {
+                                  if (optIdx < q.imageOptions.length && q.imageOptions[optIdx] != null && q.imageOptions[optIdx]!.trim().isNotEmpty) {
+                                    optImg = q.imageOptions[optIdx]!.trim();
+                                  }
+                                  if (optIdx < q.audioOptions.length && q.audioOptions[optIdx] != null && q.audioOptions[optIdx]!.trim().isNotEmpty) {
+                                    optAudio = q.audioOptions[optIdx]!.trim();
+                                  }
+                                } else if (q is ListeningImageOptionsQuestion) {
+                                  if (optIdx < q.imageOptionPaths.length && q.imageOptionPaths[optIdx].trim().isNotEmpty) {
+                                    optImg = q.imageOptionPaths[optIdx].trim();
+                                  }
+                                }
+
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 8),
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -323,13 +346,56 @@ class _ExamReviewScreenState extends State<ExamReviewScreen> {
                                     border: Border.all(color: optBorderColor, width: (isCorrectChoice || isUserChoice) ? 2 : 1),
                                   ),
                                   child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
                                       Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: textColor)),
                                       const SizedBox(width: 10),
                                       Expanded(
-                                        child: Text(
-                                          options[optIdx].trim().isNotEmpty ? options[optIdx] : "${optIdx + 1}번",
-                                          style: TextStyle(fontSize: 15, fontWeight: (isCorrectChoice || isUserChoice) ? FontWeight.bold : FontWeight.normal, color: textColor),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              options[optIdx].trim().isNotEmpty ? options[optIdx] : "${optIdx + 1}번",
+                                              style: TextStyle(fontSize: 15, fontWeight: (isCorrectChoice || isUserChoice) ? FontWeight.bold : FontWeight.normal, color: textColor),
+                                            ),
+                                            if (optImg != null) ...[
+                                              const SizedBox(height: 6),
+                                              Container(
+                                                height: 60,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(color: Colors.grey.shade300),
+                                                  borderRadius: BorderRadius.circular(4),
+                                                ),
+                                                child: SmartImageWidget(imageSource: optImg, height: 55, fit: BoxFit.contain),
+                                              ),
+                                            ],
+                                            if (optAudio != null) ...[
+                                              const SizedBox(height: 6),
+                                              InkWell(
+                                                onTap: () => AudioPlaybackService.instance.playAudioUrl(optAudio!),
+                                                borderRadius: BorderRadius.circular(16),
+                                                child: Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.amber.shade50,
+                                                    borderRadius: BorderRadius.circular(16),
+                                                    border: Border.all(color: Colors.amber.shade300),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    children: [
+                                                      const Icon(Icons.play_circle_fill, size: 16, color: Color(0xFFD97706)),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        lang.trText(ne: 'विकल्प अडियो सुन्नुहोस्', en: 'Play Option Audio', ko: '보기 오디오 재생'),
+                                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ],
                                         ),
                                       ),
                                       if (badge != null) badge,

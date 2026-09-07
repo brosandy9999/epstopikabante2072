@@ -1040,6 +1040,75 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 child: SmartImageWidget(imageSource: optionImgCtrls[index].text, height: 45, fit: BoxFit.contain),
                               ),
                             ],
+                            const SizedBox(height: 6),
+                            // Option Audio Section (अडियो अपलोड / लिङ्क)
+                            Row(
+                              children: [
+                                OutlinedButton.icon(
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: const Color(0xFFEA580C),
+                                    side: BorderSide(color: Colors.orange.shade300),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                  ),
+                                  onPressed: () async {
+                                    final uploaded = await FileUploadService.instance.pickAudioFile();
+                                    if (uploaded != null) {
+                                      setDialogState(() {
+                                        optionAudioCtrls[index].text = uploaded.bestUrl;
+                                      });
+                                    }
+                                  },
+                                  icon: const Icon(Icons.audiotrack, size: 14),
+                                  label: Text(
+                                    LanguageService.instance.trText(
+                                      ne: 'विकल्प अडियो',
+                                      en: 'Option Audio',
+                                      ko: '보기 오디오',
+                                    ),
+                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: TextField(
+                                    controller: optionAudioCtrls[index],
+                                    onChanged: (_) => setDialogState(() {}),
+                                    decoration: InputDecoration(
+                                      hintText: LanguageService.instance.trText(
+                                        ne: 'अडियो URL वा MP3 फाइल (अप्सनको लागि)',
+                                        en: 'Audio URL or MP3 file for option',
+                                        ko: '보기용 오디오 URL 또는 파일',
+                                      ),
+                                      border: const OutlineInputBorder(),
+                                      isDense: true,
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                      suffixIcon: optionAudioCtrls[index].text.isNotEmpty
+                                          ? const Icon(Icons.music_note, color: Colors.orange, size: 16)
+                                          : null,
+                                    ),
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                ),
+                                if (optionAudioCtrls[index].text.isNotEmpty) ...[
+                                  const SizedBox(width: 4),
+                                  IconButton(
+                                    icon: const Icon(Icons.play_circle_fill, color: Colors.green, size: 20),
+                                    tooltip: LanguageService.instance.trText(ne: 'अडियो सुन्नुहोस्', en: 'Play Audio', ko: '오디오 재생'),
+                                    onPressed: () {
+                                      AudioPlaybackService.instance.playAudioUrl(optionAudioCtrls[index].text.trim());
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline, color: Colors.red, size: 18),
+                                    tooltip: LanguageService.instance.trText(ne: 'अडियो हटाउनुहोस्', en: 'Remove Audio', ko: '오디오 삭제'),
+                                    onPressed: () => setDialogState(() {
+                                      optionAudioCtrls[index].clear();
+                                      AudioPlaybackService.instance.stop();
+                                    }),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ],
                         ),
                       );
