@@ -944,7 +944,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                   TextField(
                     controller: _firebaseUrlCtrl,
                     decoration: InputDecoration(
-                      hintText: 'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/data/eps_sync_data.json',
+                      hintText: 'https://topik-abante-default-rtdb.firebaseio.com',
                       prefixIcon: const Icon(Icons.link, size: 18),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                       isDense: true,

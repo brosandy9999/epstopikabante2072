@@ -34,18 +34,14 @@ class CloudSyncService extends ChangeNotifier {
   Timer? _autoSyncTimer;
 
   // Master Raw & Live GitHub Sync Repositories with zero-cache timestamps
-  static const String defaultGitHubSyncUrl =
-      'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/data/eps_sync_data.json';
+  static const String defaultFirebaseRtdbUrl = 'https://topik-abante-default-rtdb.firebaseio.com';
 
-  static const String defaultGitHubPagesSyncUrl =
-      'https://brosandy9999.github.io/epstopikabante2072/data/eps_sync_data.json';
-
-  String _cloudEndpoint = defaultGitHubSyncUrl;
+  String _cloudEndpoint = defaultFirebaseRtdbUrl;
   String get cloudEndpoint => _cloudEndpoint;
 
   String formatEndpointUrl(String raw) {
     var trimmed = raw.trim();
-    if (trimmed.isEmpty) return defaultGitHubSyncUrl;
+    if (trimmed.isEmpty) return defaultFirebaseRtdbUrl;
     if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
       trimmed = 'https://$trimmed';
     }
@@ -68,15 +64,15 @@ class CloudSyncService extends ChangeNotifier {
     }
   }
 
-  void resetToDefaultGitHubSync() {
-    _cloudEndpoint = defaultGitHubSyncUrl;
+  void resetToDefaultFirebaseSync() {
+    _cloudEndpoint = defaultFirebaseRtdbUrl;
     StorageService.instance.setString('eps_cloud_endpoint', _cloudEndpoint);
     notifyListeners();
   }
 
   bool get hasConfiguredCloud => _cloudEndpoint.isNotEmpty;
   bool get isCustomCloudServer =>
-      !_cloudEndpoint.contains('github.com') &&
+      !_cloudEndpoint.contains('firebaseio.com') &&
       !_cloudEndpoint.contains('githubusercontent.com');
 
   void init() {
@@ -84,7 +80,7 @@ class CloudSyncService extends ChangeNotifier {
     if (savedUrl != null && savedUrl.isNotEmpty) {
       _cloudEndpoint = savedUrl;
     } else {
-      _cloudEndpoint = defaultGitHubSyncUrl;
+      _cloudEndpoint = defaultFirebaseRtdbUrl;
       StorageService.instance.setString('eps_cloud_endpoint', _cloudEndpoint);
     }
     final lastTimeStr = StorageService.instance.getString('eps_last_sync_time');
@@ -404,7 +400,7 @@ class CloudSyncService extends ChangeNotifier {
     return rtdbSuccess;
   }
 
-  /// Pull latest updates from Cloud endpoints into local app (with zero-cache headers)
+  /// Pull latest updates from Cloud endpoints into local app (Firebase Realtime Database)
   Future<bool> pullFromCloud({bool silent = true}) async {
     if (!silent) {
       _state = SyncState.syncing;
@@ -412,7 +408,7 @@ class CloudSyncService extends ChangeNotifier {
       notifyListeners();
     }
 
-    // ── 1. Try Firebase RTDB first (fastest, most up-to-date) ──────
+    // ── 1. Pull directly from Firebase Realtime Database ─────────────
     try {
       final rtdbPayload = await FirebaseRtdbSyncService.instance.pullData();
       if (rtdbPayload != null && rtdbPayload.isNotEmpty) {
@@ -430,25 +426,11 @@ class CloudSyncService extends ChangeNotifier {
       debugPrint('[CloudSync] Firebase RTDB pull error: $e');
     }
 
-    // ── 2. Fallback to GitHub sync URLs ────────────────────────
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final List<String> endpointsToTry = [];
-
-    if (_cloudEndpoint.isNotEmpty) {
+    // ── 2. Fallback to custom cloud endpoint if configured ───────────
+    if (isCustomCloudServer && _cloudEndpoint.isNotEmpty) {
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
       final sep = _cloudEndpoint.contains('?') ? '&' : '?';
-      endpointsToTry.add('$_cloudEndpoint${sep}_t=$timestamp');
-    }
-
-    final fb1 = '$defaultGitHubSyncUrl?_t=$timestamp';
-    final fb2 = '$defaultGitHubPagesSyncUrl?_t=$timestamp';
-    final fb3 = 'https://topik-abante.web.app/data/eps_sync_data.json?_t=$timestamp';
-    final fb4 = 'data/eps_sync_data.json?_t=$timestamp';
-    if (!endpointsToTry.contains(fb3)) endpointsToTry.add(fb3);
-    if (!endpointsToTry.contains(fb4)) endpointsToTry.add(fb4);
-    if (!endpointsToTry.contains(fb1)) endpointsToTry.add(fb1);
-    if (!endpointsToTry.contains(fb2)) endpointsToTry.add(fb2);
-
-    for (final url in endpointsToTry) {
+      final url = '$_cloudEndpoint${sep}_t=$timestamp';
       try {
         final response = await http.get(
           Uri.parse(url),
@@ -474,15 +456,15 @@ class CloudSyncService extends ChangeNotifier {
           }
         }
       } catch (e) {
-        debugPrint('[CloudSync] Pull error from $url: $e');
+        debugPrint('[CloudSync] Pull error from custom server: $e');
       }
     }
 
     if (!silent) {
       _lastError = LanguageService.instance.trText(
-        ne: 'क्लाउड सिङ्क असफल: इन्टरनेट वा सर्भर उपलब्ध छैन।',
-        en: 'Cloud sync failed: No internet or server unreachable.',
-        ko: '클라우드 동기화 실패: 인터넷 또는 서버 연결 불가.',
+        ne: 'Firebase सिङ्क असफल: इन्टरनेट वा डेटाबेस उपलब्ध छैन।',
+        en: 'Firebase sync failed: No internet or database unreachable.',
+        ko: 'Firebase 동기화 실패: 인터넷 또는 데이터베이스 연결 불가.',
       );
       _state = SyncState.offline;
       notifyListeners();
