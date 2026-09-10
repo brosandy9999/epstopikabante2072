@@ -23,25 +23,19 @@ jobs:
         with:
           channel: 'stable'
           cache: true
-      - run: flutter pub get
-      - name: Build Split-per-ABI Release APKs
-        run: flutter build apk --release --split-per-abi
-      - name: Stage APKs in Web directory
-        run: |
-          mkdir -p ./web/apk
-          cp ./build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ./web/apk/eps_topik_ubt_2026.apk
-          cp ./build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ./web/apk/app-arm64-v8a-release.apk
-          cp ./build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk ./web/apk/app-armeabi-v7a-release.apk
+      - name: Install dependencies
+        run: flutter pub get
       - name: Build Web Application
         run: flutter build web --release --base-href "/epstopikabante2072/"
-      - name: Finalize Web Deployment Bundle
+      - name: Stage APKs and static assets in Web Bundle
         run: |
           mkdir -p ./build/web/apk
-          cp ./build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ./build/web/apk/eps_topik_ubt_2026.apk
-          cp ./build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ./build/web/apk/app-arm64-v8a-release.apk
-          cp ./build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk ./build/web/apk/app-armeabi-v7a-release.apk
+          cp -r ./web/apk/* ./build/web/apk/ 2>/dev/null || true
+          cp ./apk/eps_topik_ubt_2026.apk ./build/web/apk/ 2>/dev/null || true
+          cp ./apk/eps_topik_latest.apk ./build/web/apk/ 2>/dev/null || true
+          cp ./apk/eps_topik_armv7.apk ./build/web/apk/ 2>/dev/null || true
           touch ./build/web/.nojekyll
-          cp ./web/_config.yml ./build/web/_config.yml
+          cp ./web/_config.yml ./build/web/_config.yml 2>/dev/null || true
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
