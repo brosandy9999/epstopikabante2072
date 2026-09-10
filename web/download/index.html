@@ -11,16 +11,14 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: #0F172A; color: #F8FAFC; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .card { background: #1E293B; border: 1px solid #334155; border-radius: 20px; padding: 28px 20px; max-width: 460px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+    .card { background: #1E293B; border: 1px solid #334155; border-radius: 20px; padding: 32px 24px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
     .spinner { width: 48px; height: 48px; border: 4px solid rgba(56, 189, 248, 0.2); border-top-color: #38BDF8; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     h2 { font-size: 19px; font-weight: 700; margin-bottom: 8px; color: #FFFFFF; }
-    p { font-size: 13px; color: #94A3B8; margin-bottom: 16px; line-height: 1.4; }
+    p { font-size: 13px; color: #94A3B8; margin-bottom: 20px; line-height: 1.4; }
     .device-badge { display: inline-block; background: #064E3B; color: #34D399; border: 1px solid #10B981; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-bottom: 16px; }
-    .btn-manual { display: inline-block; background: #16A34A; color: white; padding: 12px 20px; border-radius: 12px; font-size: 13px; font-weight: 700; text-decoration: none; margin-top: 8px; }
-    .links-grid { margin-top: 20px; text-align: left; background: #0F172A; padding: 12px; border-radius: 10px; font-size: 11.5px; }
-    .links-grid a { color: #38BDF8; text-decoration: none; display: block; padding: 5px 0; border-bottom: 1px solid #1E293B; }
-    .links-grid a:last-child { border-bottom: none; }
+    .btn-manual { display: inline-block; width: 100%; background: #16A34A; color: white; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+    .btn-manual:hover { background: #15803D; }
   </style>
 </head>
 <body>
@@ -28,26 +26,17 @@
     <div class="spinner"></div>
     <div class="device-badge" id="deviceBadge">🔍 डिभाइस पहिचान गर्दै...</div>
     <h2>APK डाउनलोड सुरु हुँदैछ...</h2>
-    <p id="statusText">तपाईंको डिभाइस अनुसार उपयुक्त APK डाउनलोड लिङ्कमा रिडाइरेक्ट गरिँदैछ।</p>
+    <p id="statusText">तपाईंको डिभाइस अनुसार उपयुक्त APK स्वतः डाउनलोड हुँदैछ।</p>
 
-    <a href="#" class="btn-manual" id="manualBtn">📥 सिधै डाउनलोड गर्नुहोस्</a>
-
-    <div class="links-grid">
-      <div style="color: #64748B; font-weight: 600; margin-bottom: 4px;">म्यानुअल डाउनलोड लिङ्कहरू:</div>
-      <a href="https://brosandy9999.github.io/epstopikabante2072/apk/app-armeabi-v7a-release.apk">📱 Samsung Galaxy Tab A (32-bit • 18.5 MB)</a>
-      <a href="https://brosandy9999.github.io/epstopikabante2072/apk/app-arm64-v8a-release.apk">⚡ Android Phone (64-bit • 20.7 MB)</a>
-      <a href="https://brosandy9999.github.io/epstopikabante2072/apk/eps_topik_ubt_2026.apk">🌐 Universal All-in-One (57.5 MB)</a>
-    </div>
+    <a href="#" class="btn-manual" id="manualBtn">📥 डाउनलोड सुरु भएन भने यहाँ थिच्नुहोस्</a>
   </div>
 
   <script>
     (function() {
       const TAB_32_URL = "https://brosandy9999.github.io/epstopikabante2072/apk/app-armeabi-v7a-release.apk";
       const PHONE_64_URL = "https://brosandy9999.github.io/epstopikabante2072/apk/app-arm64-v8a-release.apk";
-      const UNIVERSAL_URL = "https://brosandy9999.github.io/epstopikabante2072/apk/eps_topik_ubt_2026.apk";
 
       const ua = (navigator.userAgent || "").toLowerCase();
-      const platform = (navigator.platform || "").toLowerCase();
 
       // Detection logic
       const isSamsungTab = ua.includes("sm-t") || ua.includes("sm-x") || ua.includes("gt-p") || ua.includes("gt-n") ||
@@ -64,9 +53,8 @@
       }
 
       document.getElementById("deviceBadge").innerText = "🎯 पहिचान: " + deviceLabel;
-      document.getElementById("statusText").innerText = deviceLabel + " डाउनलोड सुरु भएको छैन भने तलको बटन थिच्नुहोस्।";
       document.getElementById("manualBtn").href = targetUrl;
-      document.getElementById("manualBtn").innerText = "📥 " + deviceLabel + " डाउनलोड";
+      document.getElementById("manualBtn").innerText = "📥 " + deviceLabel + " डाउनलोड गर्नुहोस्";
 
       // Immediate Automatic Redirect
       window.location.replace(targetUrl);
