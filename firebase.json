@@ -5,7 +5,6 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
-      "**/apk/**",
       "**/*.apk",
       "**/*.exe"
     ],
@@ -29,6 +28,22 @@
       }
     ],
     "rewrites": [
+      {
+        "source": "/download",
+        "destination": "/download.html"
+      },
+      {
+        "source": "/download/**",
+        "destination": "/download.html"
+      },
+      {
+        "source": "/apk",
+        "destination": "/download.html"
+      },
+      {
+        "source": "/apk/**",
+        "destination": "/download.html"
+      },
       {
         "source": "**",
         "destination": "/index.html"
