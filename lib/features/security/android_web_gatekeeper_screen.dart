@@ -195,78 +195,199 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
 
                         const SizedBox(height: 24),
 
-                        // Primary Action 1: Download APK Button
-                        Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF16A34A).withOpacity(0.4),
-                                blurRadius: 20,
-                                offset: const Offset(0, 6),
+                                                // Smart Device Auto-Detection Banner
+                        Builder(
+                          builder: (context) {
+                            final detected = getDetectedApkInfo();
+                            final isTab = detected.architecture == DetectedAndroidArchitecture.samsungTab32Bit;
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF064E3B).withOpacity(0.6),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFF10B981), width: 1.2),
                               ),
-                            ],
-                          ),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF16A34A),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              elevation: 0,
-                            ),
-                            onPressed: () {
-                              triggerApkDownload();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    LanguageService.instance.trText(
-                                      ne: '📥 Android APK डाउनलोड सुरु भयो! कृपया डाउनलोड फोल्डर हेर्नुहोस्।',
-                                      en: '📥 Download started! Please check your downloads folder.',
-                                      ko: '📥 APK 다운로드가 시작되었습니다. 다운로드 폴더를 확인해 주세요.',
+                              child: Row(
+                                children: [
+                                  Icon(isTab ? Icons.tablet_android_rounded : Icons.smartphone_rounded, color: const Color(0xFF34D399), size: 22),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          LanguageService.instance.trText(
+                                            ne: '🎯 डिभाइस पहिचान: ${detected.deviceLabel}',
+                                            en: '🎯 Detected: ${detected.deviceLabel}',
+                                            ko: '🎯 기기 자동 감지: ${detected.deviceLabel}',
+                                          ),
+                                          style: const TextStyle(color: Color(0xFF34D399), fontWeight: FontWeight.bold, fontSize: 12),
+                                        ),
+                                        Text(
+                                          LanguageService.instance.trText(
+                                            ne: 'तपाईंको डिभाइसलाई उपयुक्त ${detected.sizeText} को कम्प्रेस गरिएको APK तयार छ।',
+                                            en: 'Compressed ${detected.sizeText} APK is optimized for your device.',
+                                            ko: '이 기기에 최적화된 ${detected.sizeText} 압축 APK가 준비되었습니다.',
+                                          ),
+                                          style: const TextStyle(color: Color(0xFFA7F3D0), fontSize: 11),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  backgroundColor: const Color(0xFF16A34A),
-                                  duration: const Duration(seconds: 5),
-                                ),
-                              );
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.download_for_offline_rounded, size: 28),
-                                const SizedBox(width: 12),
-                                Flexible(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        LanguageService.instance.trText(
-                                          ne: 'आधिकारिक Android App (APK) डाउनलोड गर्नुहोस्',
-                                          en: 'Download Official Android App (APK)',
-                                          ko: '공식 안드로이드 APK 다운로드 (19.5 MB)',
-                                        ),
-                                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                        LanguageService.instance.trText(
-                                          ne: '१९.५ MB • छिटो डाउनलोड • १००% सुरक्षित',
-                                          en: '19.5 MB • Fast Download • 100% Safe & Offline Ready',
-                                          ko: '19.5 MB • 빠른 다운로드 • 100% 오프라인 지원',
-                                        ),
-                                        style: const TextStyle(fontSize: 11, color: Colors.white70),
-                                      ),
-                                    ],
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+
+                        // Primary Action 1: Auto-Detect Smart Download Button
+                        Builder(
+                          builder: (context) {
+                            final detected = getDetectedApkInfo();
+                            final isKorean = LanguageService.instance.isKorean;
+                            final isEnglish = LanguageService.instance.isEnglish;
+                            final label = isKorean
+                                ? '${detected.titleKo} 다운로드 (${detected.sizeText})'
+                                : (isEnglish
+                                    ? 'Download ${detected.titleEn} (${detected.sizeText})'
+                                    : '${detected.titleNe} APK डाउनलोड (${detected.sizeText})');
+
+                            return Container(
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF16A34A).withOpacity(0.4),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 6),
                                   ),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF16A34A),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                  elevation: 0,
                                 ),
-                              ],
-                            ),
-                          ),
+                                onPressed: () {
+                                  triggerApkDownload(detected.downloadUrl);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        LanguageService.instance.trText(
+                                          ne: '📥 ${detected.titleNe} (${detected.sizeText}) डाउनलोड सुरु भयो!',
+                                          en: '📥 ${detected.titleEn} (${detected.sizeText}) download started!',
+                                          ko: '📥 ${detected.titleKo} (${detected.sizeText}) 다운로드가 시작되었습니다!',
+                                        ),
+                                      ),
+                                      backgroundColor: const Color(0xFF16A34A),
+                                      duration: const Duration(seconds: 5),
+                                    ),
+                                  );
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.download_for_offline_rounded, size: 28),
+                                    const SizedBox(width: 12),
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            label,
+                                            style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                            LanguageService.instance.trText(
+                                              ne: 'डिभाइस अनुसार स्वचालित छनोट • १००% सुरक्षित तथा हल-रेडी',
+                                              en: 'Auto-selected for your device • 100% Safe & Offline Ready',
+                                              ko: '기기 맞춤형 자동 선택 • 100% 안전 및 오프라인 지원',
+                                            ),
+                                            style: const TextStyle(fontSize: 11, color: Colors.white70),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 12),
+
+                        // Manual Architecture Selector Options
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E293B).withOpacity(0.7),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: const Color(0xFF334155)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                LanguageService.instance.trText(
+                                  ne: 'अन्य डिभाइस वा संस्करणहरू सिधै डाउनलोड गर्नुहोस्:',
+                                  en: 'Direct downloads for other devices:',
+                                  ko: '기기별 직접 다운로드 링크:',
+                                ),
+                                style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11.5, fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  // Tab A 32-bit button
+                                  OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: const Color(0xFF34D399),
+                                      side: const BorderSide(color: Color(0xFF059669)),
+                                      visualDensity: VisualDensity.compact,
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    ),
+                                    icon: const Icon(Icons.tablet_android, size: 16),
+                                    label: const Text('Samsung Tab A (32-bit • 18.5 MB)', style: TextStyle(fontSize: 11)),
+                                    onPressed: () => triggerApkDownload(kGithubApkTabA32BitUrl),
+                                  ),
+                                  // Phone 64-bit button
+                                  OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: const Color(0xFF38BDF8),
+                                      side: const BorderSide(color: Color(0xFF0284C7)),
+                                      visualDensity: VisualDensity.compact,
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    ),
+                                    icon: const Icon(Icons.phone_android, size: 16),
+                                    label: const Text('Android Phone (64-bit • 20.7 MB)', style: TextStyle(fontSize: 11)),
+                                    onPressed: () => triggerApkDownload(kGithubApkPhone64BitUrl),
+                                  ),
+                                  // Universal FAT APK button
+                                  OutlinedButton.icon(
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: const Color(0xFFFBBF24),
+                                      side: const BorderSide(color: Color(0xFFD97706)),
+                                      visualDensity: VisualDensity.compact,
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    ),
+                                    icon: const Icon(Icons.all_inclusive, size: 16),
+                                    label: const Text('Universal (All-in-One • 57.5 MB)', style: TextStyle(fontSize: 11)),
+                                    onPressed: () => triggerApkDownload(kGithubApkUniversalUrl),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
 
                         // Secondary Action 2: Open Installed App
                         SizedBox(
