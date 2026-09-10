@@ -1,3 +1,4 @@
+import 'features/authentication/institute_splash_screen.dart';
 import 'features/security/android_web_gatekeeper_screen.dart';
 import 'core/services/platform_detector.dart';
 // android_web_gatekeeper_screen removed from startup — web now goes to LoginScreen directly
@@ -36,6 +37,7 @@ import 'features/super_admin/super_admin_dashboard.dart';
 
 import 'core/services/cloud_sync_service.dart';
 import 'core/services/update_service.dart';
+import 'core/services/firebase_rtdb_sync_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,13 +67,16 @@ Future<void> main() async {
     ExamHistoryService.instance.loadFromStorage(savedAttempts);
   }
 
-  // 6. Initialize CloudSyncService and auto-sync in background if configured
+  // 6. Initialize CloudSyncService and load bundled computer dataset
   CloudSyncService.instance.init();
-  if (CloudSyncService.instance.hasConfiguredCloud) {
-    CloudSyncService.instance.pullFromCloud().catchError((_) => false);
-  }
+  await CloudSyncService.instance.loadBundledDataAsset();
 
-  // 7. Initialize UpdateService (auto-checks for new releases and updates)
+  // 7. Initialize Firebase RTDB Sync (no token needed — anonymous auth is automatic)
+  //    Then pull latest data so new-device installs get all content immediately.
+  await FirebaseRtdbSyncService.instance.init();
+  CloudSyncService.instance.pullFromCloud(silent: true).catchError((_) => false);
+
+  // 8. Initialize UpdateService (auto-checks for new releases and updates)
   UpdateService.instance.init();
 
   runApp(const EpsTopikApp());
@@ -80,10 +85,26 @@ Future<void> main() async {
 class EpsTopikApp extends StatelessWidget {
   const EpsTopikApp({super.key});
 
+  Widget _getInitialHomeScreen() {
+    if (isAndroidWeb) {
+      return const AndroidWebGatekeeperScreen();
+    }
+
+    final currentUser = AuthService.instance.currentUser;
+    if (currentUser != null &&
+        currentUser.role == UserRole.student &&
+        !currentUser.isPendingApproval &&
+        !currentUser.isExpired) {
+      return InstituteSplashScreen(student: currentUser);
+    }
+
+    return const LoginScreen();
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: LanguageService.instance,
+      listenable: Listenable.merge([LanguageService.instance, AuthService.instance]),
       builder: (context, _) {
         return MaterialApp(
           title: 'EPS-TOPIK UBT',
@@ -93,7 +114,7 @@ class EpsTopikApp extends StatelessWidget {
             scaffoldBackgroundColor: const Color(0xFFF3F4F6),
             useMaterial3: true,
           ),
-          home: isAndroidWeb ? const AndroidWebGatekeeperScreen() : const LoginScreen(),
+          home: _getInitialHomeScreen(),
         );
       },
     );

@@ -7,13 +7,35 @@ bool get isAndroidWeb {
   try {
     final ua = html.window.navigator.userAgent.toLowerCase();
     final platform = (html.window.navigator.platform ?? '').toLowerCase();
+    final appVersion = (html.window.navigator.appVersion ?? '').toLowerCase();
     final maxTouch = html.window.navigator.maxTouchPoints ?? 0;
     final screenW = html.window.screen?.width ?? 1200;
+    final screenH = html.window.screen?.height ?? 800;
     final innerW = html.window.innerWidth ?? 1200;
 
-    // 1. Explicit Android check in user-agent, platform, or OEM identifiers
+    // 1. Check iOS first
+    final isIOS = ua.contains('iphone') ||
+        ua.contains('ipad') ||
+        ua.contains('ipod') ||
+        (platform.contains('mac') && maxTouch > 1);
+    if (isIOS) return false;
+
+    // 2. Check Genuine Desktop OS with 0 touch points
+    final isWindowsDesktop = (ua.contains('windows') || platform.contains('win')) && maxTouch == 0;
+    final isMacDesktop = (ua.contains('macintosh') || platform.contains('mac')) && maxTouch == 0;
+    final isLinuxDesktop = (platform.contains('linux') || ua.contains('linux')) &&
+        !ua.contains('android') &&
+        !platform.contains('android') &&
+        maxTouch == 0;
+
+    if (isWindowsDesktop || isMacDesktop || isLinuxDesktop) {
+      return false;
+    }
+
+    // 3. Android and all mobile touch indicators
     if (ua.contains('android') ||
         platform.contains('android') ||
+        appVersion.contains('android') ||
         platform.contains('linux arm') ||
         platform.contains('linux aarch64') ||
         ua.contains('samsung') ||
@@ -24,23 +46,10 @@ bool get isAndroidWeb {
         ua.contains('realme') ||
         ua.contains('oneplus') ||
         ua.contains('huawei') ||
-        ua.contains('pixel')) {
-      return true;
-    }
-
-    // 2. Exclude genuine desktop operating systems with no touch
-    final isIOS = ua.contains('iphone') || ua.contains('ipad') || ua.contains('ipod') || (platform.contains('mac') && maxTouch > 1);
-    final isWindowsDesktop = (ua.contains('windows') || platform.contains('win')) && maxTouch == 0;
-    final isMacDesktop = (ua.contains('macintosh') || platform.contains('mac')) && maxTouch == 0;
-
-    if (isWindowsDesktop || isMacDesktop || isIOS) {
-      return false;
-    }
-
-    // 3. Touch screen mobile device (mobile phone browser or desktop-site mode on phone)
-    if (ua.contains('mobile') ||
+        ua.contains('pixel') ||
+        ua.contains('mobile') ||
         ua.contains('phone') ||
-        (maxTouch > 0 && (screenW < 980 || innerW < 980))) {
+        (maxTouch > 0 && (screenW < 1000 || innerW < 1000 || screenH < 1000))) {
       return true;
     }
   } catch (_) {}

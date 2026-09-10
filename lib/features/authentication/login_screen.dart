@@ -1,3 +1,5 @@
+import '../../core/models/institute_model.dart';
+import '../../core/services/storage_service.dart';
 import '../../core/services/cloud_sync_service.dart';
 import '../../core/services/language_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -8,7 +10,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../main.dart'; // To access StudentDashboard and AdminDashboard
 import '../../core/services/auth_service.dart';
+import '../../core/services/institute_service.dart';
+import '../../core/services/firebase_google_auth_service.dart';
+import '../../core/services/whatsapp_otp_service.dart';
 import '../super_admin/super_admin_dashboard.dart';
+import 'approval_pending_screen.dart';
 
 /// Unified Authentication Screen with Auto Role Detection (Admin & Student)
 /// Supports 1-Click Google Sign-In, Mobile Number OTP Login,
@@ -21,14 +27,51 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  String _activeInstituteId = 'inst_01';
+
   @override
   void initState() {
     super.initState();
+    _loadSavedInstitute();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (isAndroidWeb) {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AndroidWebGatekeeperScreen()),
+          );
+        }
+        return;
+      }
       CloudSyncService.instance.pullFromCloud(silent: true).catchError((_) => false);
-      // Note: web download popup intentionally removed — web users go directly to login
     });
   }
+
+  void _loadSavedInstitute() {
+    try {
+      final savedId = StorageService.instance.getString('eps_last_active_institute_id') ??
+                      StorageService.instance.getString('eps_selected_institute_id');
+      if (savedId != null && savedId.isNotEmpty) {
+        final institutes = InstituteService.instance.getAllInstitutes();
+        if (institutes.any((i) => i.id == savedId)) {
+          setState(() {
+            _activeInstituteId = savedId;
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  void _selectInstitute(String instituteId) {
+    setState(() {
+      _activeInstituteId = instituteId;
+    });
+    try {
+      StorageService.instance.setString('eps_last_active_institute_id', instituteId);
+      StorageService.instance.setString('eps_selected_institute_id', instituteId);
+    } catch (_) {}
+  }
+
 
 
   final _idController = TextEditingController();
@@ -86,6 +129,11 @@ class _LoginScreenState extends State<LoginScreen> {
           context,
           MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
         );
+      } else if (user.isPendingApproval) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: user)),
+        );
       } else {
         Navigator.pushReplacement(
           context,
@@ -99,9 +147,485 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  /// 1-Click Google Sign-In Flow
-  void _showGoogleSignInDialog() {
-    final customEmailCtrl = TextEditingController();
+  /// Official Firebase Google Sign-In Flow
+  Future<void> _handleGoogleSignIn() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 22),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 15)],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(strokeWidth: 3, color: Colors.red),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                LanguageService.instance.trText(
+                  ne: 'Google लगइन विन्डो खुल्दैछ...',
+                  en: 'Connecting to Google Sign-In...',
+                  ko: 'Google 로그인 연결 중...',
+                ),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: Colors.black87),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                LanguageService.instance.trText(
+                  ne: 'कृपया पपअप विन्डोमा आफ्नो Google खाता छान्नुहोस्',
+                  en: 'Please choose your Google account in popup',
+                  ko: '팝업 창에서 구글 계정을 선택해 주세요',
+                ),
+                style: const TextStyle(fontSize: 11, color: Colors.black54),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    try {
+      final res = await FirebaseGoogleAuthService.instance.signInWithGoogle();
+      if (mounted) Navigator.of(context, rootNavigator: true).pop(); // dismiss loader
+
+      if (res['success'] == true) {
+        final email = (res['email'] as String?) ?? '';
+        final displayName = (res['displayName'] as String?) ?? '';
+        final photoUrl = res['photoUrl'] as String?;
+        final uid = res['uid'] as String?;
+
+        if (email.isNotEmpty) {
+          _processGoogleAuthResult(
+            email: email,
+            displayName: displayName,
+            photoUrl: photoUrl,
+            googleUid: uid,
+          );
+        }
+      } else {
+        final errMsg = (res['message'] as String?) ?? 'Google Sign-In हुन सकेन।';
+        if (mounted) {
+          _showGoogleFallbackDialog(errMsg);
+        }
+      }
+    } catch (e) {
+      if (mounted) Navigator.of(context, rootNavigator: true).pop();
+      if (mounted) {
+        _showGoogleFallbackDialog(e.toString());
+      }
+    }
+  }
+
+  /// Process Google Auth: Checks if student already exists or needs Institute selection registration
+  void _processGoogleAuthResult({
+    required String email,
+    required String displayName,
+    String? photoUrl,
+    String? googleUid,
+  }) {
+    final cleanEmail = email.trim().toLowerCase();
+    final cleanUser = cleanEmail.split('@')[0];
+
+    // Check existing student in local list
+    final existingUser = AuthService.instance.students.cast<AppUser?>().firstWhere(
+      (s) => s != null && (
+        s.username.toLowerCase() == cleanUser ||
+        (s.registrationNo != null && s.registrationNo!.toLowerCase() == cleanEmail) ||
+        (googleUid != null && s.id == googleUid)
+      ),
+      orElse: () => null,
+    );
+
+    if (existingUser != null) {
+      // Existing user: direct login
+      final user = AuthService.instance.loginWithGoogle(
+        email: cleanEmail,
+        displayName: displayName,
+        photoUrl: photoUrl,
+        googleUid: googleUid,
+      );
+
+      if (user.isPendingApproval) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: user)),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => StudentDashboardScreen(student: user)),
+        );
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            LanguageService.instance.trText(
+              ne: '🎉 Google मार्फत स्वागत छ, ${user.name}!',
+              en: '🎉 Welcome back via Google, ${user.name}!',
+              ko: '🎉 Google 로그인 환영합니다, ${user.name}님!',
+            ),
+          ),
+          backgroundColor: Colors.teal,
+        ),
+      );
+    } else {
+      // New Google User: Show Institute Selection & Registration Modal
+      _showGoogleInstituteRegistrationDialog(
+        email: cleanEmail,
+        name: displayName.isNotEmpty ? displayName : cleanUser,
+        photoUrl: photoUrl,
+        googleUid: googleUid,
+      );
+    }
+  }
+
+  /// Google New Registration Dialog with Institute Selection
+  void _showGoogleInstituteRegistrationDialog({
+    required String email,
+    required String name,
+    String? photoUrl,
+    String? googleUid,
+  }) {
+    final nameCtrl = TextEditingController(text: name);
+    final phoneCtrl = TextEditingController();
+    
+    final institutes = InstituteService.instance.getAllInstitutes();
+    String selectedInstituteId = institutes.isNotEmpty ? institutes.first.id : 'inst_01';
+    String selectedBatch = _batchesList.first;
+    String selectedSector = _sectorsList.first;
+    String regError = '';
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          final currentInst = institutes.firstWhere(
+            (i) => i.id == selectedInstituteId,
+            orElse: () => institutes.first,
+          );
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            titlePadding: EdgeInsets.zero,
+            title: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF1E3A8A), Color(0xFF0F766E)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                    child: const Icon(Icons.school_rounded, color: Color(0xFF1E3A8A), size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          LanguageService.instance.trText(
+                            ne: 'Google दर्ता तथा इन्स्टिच्युट छनोट',
+                            en: 'Google Registration & Institute Choice',
+                            ko: '구글 신규 회원가입 및 학원 선택',
+                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
+                        ),
+                        Text(
+                          LanguageService.instance.trText(
+                            ne: 'कृपया आफ्नो इन्स्टिच्युट छानेर दर्ता पूरा गर्नुहोस्',
+                            en: 'Select your institute to complete registration',
+                            ko: '소속 학원을 선택하여 회원가입을 완료하세요',
+                          ),
+                          style: const TextStyle(fontSize: 11, color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            content: SizedBox(
+              width: 440,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Verified Google Account Banner
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      margin: const EdgeInsets.only(bottom: 14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.verified_user_rounded, color: Color(0xFF16A34A), size: 20),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  LanguageService.instance.trText(ne: 'प्रमाणित Google खाता:', en: 'Verified Google Account:', ko: '인증된 구글 계정:'),
+                                  style: const TextStyle(fontSize: 10.5, color: Color(0xFF64748B), fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  email,
+                                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    if (regError.isNotEmpty)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red.shade200),
+                        ),
+                        child: Text(regError, style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+
+                    // Full Name
+                    TextField(
+                      controller: nameCtrl,
+                      decoration: InputDecoration(
+                        labelText: LanguageService.instance.trText(ne: 'पूरा नाम (Full Name)*', en: 'Full Name*', ko: '성명*'),
+                        prefixIcon: const Icon(Icons.badge_outlined, color: Color(0xFF1E3A8A)),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Mobile Number (WhatsApp)
+                    TextField(
+                      controller: phoneCtrl,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: LanguageService.instance.trText(ne: 'मोबाइल नम्बर (Mobile / WhatsApp)', en: 'Mobile / WhatsApp (Optional)', ko: '휴대폰 번호 (선택)'),
+                        hintText: 'e.g. 9841234567',
+                        prefixIcon: const Icon(Icons.phone_android_rounded, color: Color(0xFF1E3A8A)),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Institute Selector
+                    Text(
+                      LanguageService.instance.trText(ne: 'आफ्नो इन्स्टिच्युट छान्नुहोस्:*', en: 'Select Your Institute:*', ko: '소속 학원 선택:*'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E3A8A)),
+                    ),
+                    const SizedBox(height: 6),
+                    DropdownButtonFormField<String>(
+                      value: selectedInstituteId,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        prefixIcon: const Icon(Icons.apartment_rounded, color: Color(0xFF0F766E)),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      ),
+                      items: institutes.map((inst) {
+                        return DropdownMenuItem<String>(
+                          value: inst.id,
+                          child: Text(inst.name, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        );
+                      }).toList(),
+                      onChanged: (val) {
+                        if (val != null) {
+                          setDialogState(() {
+                            selectedInstituteId = val;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Job Sector & Batch
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(LanguageService.instance.trText(ne: 'क्षेत्र (Sector):', en: 'Sector:', ko: '직종:'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              DropdownButtonFormField<String>(
+                                value: selectedSector,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                ),
+                                items: _sectorsList.map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontSize: 11)))).toList(),
+                                onChanged: (v) => setDialogState(() => selectedSector = v ?? selectedSector),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(LanguageService.instance.trText(ne: 'सत्र (Batch):', en: 'Batch:', ko: '반/기수:'), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 4),
+                              DropdownButtonFormField<String>(
+                                value: selectedBatch,
+                                isExpanded: true,
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                ),
+                                items: _batchesList.map((b) => DropdownMenuItem(value: b, child: Text(b, style: const TextStyle(fontSize: 11)))).toList(),
+                                onChanged: (v) => setDialogState(() => selectedBatch = v ?? selectedBatch),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 14),
+
+                    // Institute Admin Approval Notice Box
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFFFDE68A)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.info_outline, color: Color(0xFFB45309), size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              LanguageService.instance.trText(
+                                ne: 'दर्ता पूरा गरेपछि तपाईंको ID ${currentInst.name} का इन्स्टिच्युट एडमिनले सक्रिय (Active) गरिदिनुहुनेछ।',
+                                en: 'After registration, ${currentInst.name} admin will activate your student ID.',
+                                ko: '가입 후 ${currentInst.name} 관리자가 학생 계정을 승인/활성화합니다.',
+                              ),
+                              style: const TextStyle(fontSize: 11.5, color: Color(0xFF92400E), height: 1.35),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(LanguageService.instance.tr('cancel')),
+              ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0F766E),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                icon: const Icon(Icons.how_to_reg_rounded, size: 18),
+                label: Text(
+                  LanguageService.instance.trText(
+                    ne: 'दर्ता पूरा गरी स्वीकृति अनुरोध पठाउनुहोस्',
+                    en: 'Submit Registration & Request Approval',
+                    ko: '가입 신청 및 승인 요청',
+                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                onPressed: () {
+                  final finalName = nameCtrl.text.trim();
+                  if (finalName.isEmpty) {
+                    setDialogState(() {
+                      regError = LanguageService.instance.trText(
+                        ne: 'कृपया आफ्नो पूरा नाम भर्नुहोस्!',
+                        en: 'Please enter your full name!',
+                        ko: '성명을 입력해 주세요!',
+                      );
+                    });
+                    return;
+                  }
+
+                  Navigator.pop(ctx);
+
+                  final user = AuthService.instance.loginWithGoogle(
+                    email: email,
+                    displayName: finalName,
+                    photoUrl: photoUrl,
+                    googleUid: googleUid,
+                    instituteId: currentInst.id,
+                    instituteName: currentInst.name,
+                    mobileNumber: phoneCtrl.text.trim().isNotEmpty ? phoneCtrl.text.trim() : null,
+                    batch: selectedBatch,
+                    sector: selectedSector,
+                  );
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: user)),
+                  );
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        LanguageService.instance.trText(
+                          ne: '🎉 Google दर्ता सफल भयो! तपाईंको आईडी ${currentInst.name} मा स्वीकृतिको लागि पठाइयो।',
+                          en: '🎉 Registration submitted! Pending approval from ${currentInst.name}.',
+                          ko: '🎉 가입 신청 완료! ${currentInst.name} 승인 대기 중입니다.',
+                        ),
+                      ),
+                      backgroundColor: Colors.teal,
+                      duration: const Duration(seconds: 5),
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  /// Gmail Fallback Dialog when Firebase Console Google Provider is not enabled
+  void _showGoogleFallbackDialog(String? reason) {
+    final emailCtrl = TextEditingController();
+    final nameCtrl = TextEditingController();
 
     showDialog(
       context: context,
@@ -111,90 +635,109 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             const Icon(Icons.g_mobiledata, color: Colors.red, size: 30),
             const SizedBox(width: 8),
-            Text(
-              LanguageService.instance.trText(
-                ne: 'Google खाता छान्नुहोस्',
-                en: 'Select Google Account',
-                ko: 'Google 계정 선택',
+            Expanded(
+              child: Text(
+                LanguageService.instance.trText(
+                  ne: 'Google / Gmail मार्फत लगइन',
+                  en: 'Sign in with Google / Gmail',
+                  ko: 'Google / Gmail 로그인',
+                ),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
             ),
           ],
         ),
         content: SizedBox(
-          width: 400,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                LanguageService.instance.trText(
-                  ne: 'EPS-TOPIK प्रणालीमा लगइन गर्न आफ्नो Google खाता रोज्नुहोस्:',
-                  en: 'Choose your Google account to log into EPS-TOPIK system:',
-                  ko: 'EPS-TOPIK 시스템 로그인을 위한 구글 계정을 선택해 주세요:',
+          width: 420,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  margin: const EdgeInsets.only(bottom: 14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF6FF),
+                    border: Border.all(color: const Color(0xFFBFDBFE)),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.info_outline, color: Color(0xFF1E3A8A), size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          LanguageService.instance.trText(
+                            ne: 'आफ्नो वास्तविक Gmail ठेगाना हालेर EPS-TOPIK परीक्षा प्रणालीमा सुरक्षित लगइन वा दर्ता गर्नुहोस्:',
+                            en: 'Enter your Gmail address to securely sign into EPS-TOPIK system:',
+                            ko: 'Gmail 계정을 입력하여 EPS-TOPIK 시스템에 안전하게 로그인하세요:',
+                          ),
+                          style: const TextStyle(fontSize: 11.5, color: Color(0xFF1E3A8A), height: 1.3),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                style: const TextStyle(fontSize: 13, color: Colors.black54),
-              ),
-              const SizedBox(height: 16),
-              
-              // Google Account Option 1
-              ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.grey.shade200)),
-                leading: const CircleAvatar(backgroundColor: Colors.blue, child: Text('R', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                title: const Text('राम बहादुर (Ram Bahadur)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                subtitle: const Text('ram.bahadur@gmail.com', style: TextStyle(fontSize: 12)),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _executeGoogleLogin('ram.bahadur@gmail.com', 'राम बहादुर');
-                },
-              ),
-              const SizedBox(height: 10),
-
-              // Google Account Option 2
-              ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.grey.shade200)),
-                leading: const CircleAvatar(backgroundColor: Colors.purple, child: Text('S', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                title: const Text('सीता शर्मा (Sita Sharma)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                subtitle: const Text('sita.sharma@gmail.com', style: TextStyle(fontSize: 12)),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _executeGoogleLogin('sita.sharma@gmail.com', 'सीता शर्मा');
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Custom Gmail Input
-              Text(
-                LanguageService.instance.trText(
-                  ne: 'वा अन्य Gmail खाता प्रयोग गर्नुहोस्:',
-                  en: 'Or enter another Gmail account:',
-                  ko: '또는 다른 Gmail 계정 직접 입력:',
+                TextField(
+                  controller: emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    labelText: LanguageService.instance.trText(ne: 'Gmail ठेगाना (Email)*', en: 'Gmail Address*', ko: 'Gmail 이메일*'),
+                    hintText: 'e.g. sujan123@gmail.com',
+                    prefixIcon: const Icon(Icons.mail_outline, color: Colors.red),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
                 ),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
-              ),
-              const SizedBox(height: 6),
-              TextField(
-                controller: customEmailCtrl,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecoration(
-                  hintText: 'your_email@gmail.com',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.arrow_forward, color: Color(0xFF1E3A8A)),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: nameCtrl,
+                  decoration: InputDecoration(
+                    labelText: LanguageService.instance.trText(ne: 'विद्यार्थीको नाम (ऐच्छिक)', en: 'Candidate Name (Optional)', ko: '성명 (선택)'),
+                    hintText: 'e.g. सुजन श्रेष्ठ (Sujan Shrestha)',
+                    prefixIcon: const Icon(Icons.badge_outlined),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E3A8A),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    icon: const Icon(Icons.login),
+                    label: Text(
+                      LanguageService.instance.tr('sign_in'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
                     onPressed: () {
-                      final email = customEmailCtrl.text.trim();
-                      if (email.isNotEmpty && email.contains('@')) {
-                        Navigator.pop(ctx);
-                        _executeGoogleLogin(email, email.split('@')[0]);
+                      final email = emailCtrl.text.trim().toLowerCase();
+                      if (!email.contains('@') || !email.contains('.')) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(LanguageService.instance.trText(
+                              ne: 'कृपया सही Gmail ठेगाना भर्नुहोस्!',
+                              en: 'Please enter a valid Gmail address!',
+                              ko: '올바른 Gmail 주소를 입력해 주세요!',
+                            )),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                        return;
                       }
+                      Navigator.pop(ctx);
+                      final name = nameCtrl.text.trim().isNotEmpty ? nameCtrl.text.trim() : email.split('@')[0];
+                      _processGoogleAuthResult(email: email, displayName: name);
                     },
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         actions: [
@@ -207,220 +750,385 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _executeGoogleLogin(String email, String name) {
-    final user = AuthService.instance.loginWithGoogle(email: email, displayName: name);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => StudentDashboardScreen(student: user)),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          LanguageService.instance.trText(
-            ne: '🎉 Google मार्फत स्वागत छ, ${user.name}!',
-            en: '🎉 Welcome via Google, ${user.name}!',
-            ko: '🎉 Google 로그인 환영합니다, ${user.name}님!',
-          ),
-        ),
-        backgroundColor: Colors.teal,
-      ),
-    );
-  }
-
-  /// Direct Mobile OTP Login Flow
+  /// Direct WhatsApp OTP Login Flow
   void _showMobileOtpDialog() {
     final phoneCtrl = TextEditingController();
     final otpCtrl = TextEditingController();
+    final nameCtrl = TextEditingController();
+
+    final institutes = InstituteService.instance.getAllInstitutes();
+    String selectedInstituteId = institutes.isNotEmpty ? institutes.first.id : 'inst_01';
+
     String generatedOtp = '';
     bool otpSent = false;
+    bool isSending = false;
     String error = '';
+    String infoMessage = '';
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-          title: Row(
-            children: [
-              const Icon(Icons.phone_android_rounded, color: Color(0xFF0F766E), size: 24),
-              const SizedBox(width: 8),
-              Text(
-                LanguageService.instance.trText(
-                  ne: 'मोबाइल नम्बरबाट लगइन',
-                  en: 'Login with Mobile OTP',
-                  ko: '휴대폰 번호 OTP 로그인',
-                ),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        builder: (ctx, setDialogState) {
+          final currentInst = institutes.firstWhere(
+            (i) => i.id == selectedInstituteId,
+            orElse: () => institutes.first,
+          );
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            titlePadding: EdgeInsets.zero,
+            title: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              decoration: const BoxDecoration(
+                color: Color(0xFF25D366),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-            ],
-          ),
-          content: SizedBox(
-            width: 380,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (error.isNotEmpty)
+              child: Row(
+                children: [
                   Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(8)),
-                    child: Text(error, style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                    child: const Icon(Icons.chat_bubble_rounded, color: Color(0xFF25D366), size: 20),
                   ),
-                if (!otpSent) ...[
-                  Text(
-                    LanguageService.instance.trText(
-                      ne: 'तपाईंको १० अङ्कको मोबाइल नम्बर हाल्नुहोस्:',
-                      en: 'Enter your 10-digit mobile number:',
-                      ko: '휴대폰 번호를 입력해 주세요:',
-                    ),
-                    style: const TextStyle(fontSize: 13, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: phoneCtrl,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: LanguageService.instance.trText(ne: 'मोबाइल नम्बर', en: 'Mobile Number', ko: '휴대폰 번호'),
-                      hintText: 'e.g. 9812345678',
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.phone),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 44,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F766E), foregroundColor: Colors.white),
-                      onPressed: () {
-                        final phone = phoneCtrl.text.trim();
-                        if (phone.length < 8) {
-                          setDialogState(() => error = LanguageService.instance.trText(
-                            ne: 'कृपया सही मोबाइल नम्बर भर्नुहोस्!',
-                            en: 'Please enter a valid mobile number!',
-                            ko: '올바른 휴대폰 번호를 입력해 주세요!',
-                          ));
-                          return;
-                        }
-                        // Generate mock 4-digit OTP
-                        final rng = Random();
-                        generatedOtp = (1000 + rng.nextInt(9000)).toString();
-                        otpCtrl.text = generatedOtp; // Auto-fill for seamless user experience
-                        setDialogState(() {
-                          otpSent = true;
-                          error = '';
-                        });
-                      },
-                      icon: const Icon(Icons.send, size: 18),
-                      label: Text(
-                        LanguageService.instance.trText(
-                          ne: 'OTP कोड पठाउनुहोस्',
-                          en: 'Send OTP Code',
-                          ko: '인증번호 발송',
-                        ),
-                      ),
-                    ),
-                  ),
-                ] else ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.green.shade200)),
-                    child: Row(
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.mark_email_read_outlined, color: Colors.green, size: 22),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            LanguageService.instance.trText(
-                              ne: 'मोबाइल ${phoneCtrl.text} मा OTP पठाइयो! (परीक्षण कोड: $generatedOtp)',
-                              en: 'OTP sent to ${phoneCtrl.text}! (Demo Code: $generatedOtp)',
-                              ko: '${phoneCtrl.text}로 OTP 발송 완료! (테스트 코드: $generatedOtp)',
-                            ),
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.green),
+                        Text(
+                          LanguageService.instance.trText(
+                            ne: 'WhatsApp OTP लगइन / दर्ता',
+                            en: 'WhatsApp OTP Login / Register',
+                            ko: 'WhatsApp OTP 로그인 / 가입',
                           ),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
+                        ),
+                        Text(
+                          LanguageService.instance.trText(
+                            ne: 'मोबाइल नम्बरमा आधिकारिक ६ अङ्कको OTP कोड',
+                            en: 'Official 6-digit OTP code to mobile number',
+                            ko: '휴대폰으로 발송되는 6자리 공식 인증코드',
+                          ),
+                          style: const TextStyle(fontSize: 10.5, color: Colors.white70),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  TextField(
-                    controller: otpCtrl,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: LanguageService.instance.trText(
-                        ne: '४ अङ्कको OTP कोड प्रविष्ट गर्नुहोस्',
-                        en: 'Enter 4-digit OTP code',
-                        ko: '4자리 인증번호 입력',
+                ],
+              ),
+            ),
+            content: SizedBox(
+              width: 420,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (error.isNotEmpty)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.red.shade200)),
+                        child: Text(error, style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
                       ),
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.lock_clock),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 44,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
-                      onPressed: () {
-                        final entered = otpCtrl.text.trim();
-                        if (entered != generatedOtp) {
-                          setDialogState(() => error = LanguageService.instance.trText(
-                            ne: 'गलत OTP कोड! कृपया फेरि प्रयास गर्नुहोस्।',
-                            en: 'Invalid OTP code! Please try again.',
-                            ko: '잘못된 인증번호입니다. 다시 시도해 주세요.',
-                          ));
-                          return;
-                        }
-                        final student = AuthService.instance.loginWithMobileOtp(mobileNumber: phoneCtrl.text.trim());
-                        if (student != null) {
-                          Navigator.pop(ctx);
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => StudentDashboardScreen(student: student)),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                LanguageService.instance.trText(
-                                  ne: '📱 मोबाइल लगइन सफल भयो! स्वागत छ ${student.name}',
-                                  en: '📱 Mobile login successful! Welcome ${student.name}',
-                                  ko: '📱 모바일 로그인 완료! 환영합니다 ${student.name}님',
-                                ),
-                              ),
-                              backgroundColor: Colors.teal,
-                            ),
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.check_circle, size: 18),
-                      label: Text(
+
+                    if (!otpSent) ...[
+                      Text(
                         LanguageService.instance.trText(
-                          ne: 'सत्यापन गरी लगइन गर्नुहोस्',
-                          en: 'Verify & Login',
-                          ko: '인증 완료 및 로그인',
+                          ne: 'आफ्नो १० अङ्कको WhatsApp भएको मोबाइल नम्बर हाल्नुहोस्:',
+                          en: 'Enter your 10-digit WhatsApp mobile number:',
+                          ko: 'WhatsApp이 등록된 휴대폰 번호를 입력하세요:',
+                        ),
+                        style: const TextStyle(fontSize: 12.5, color: Colors.black87, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: phoneCtrl,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          labelText: LanguageService.instance.trText(ne: 'मोबाइल नम्बर (Mobile Number)*', en: 'Mobile Number*', ko: '휴대폰 번호*'),
+                          hintText: 'e.g. 9851234567',
+                          prefixIcon: const Icon(Icons.phone_android_rounded, color: Color(0xFF25D366)),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ],
+                      const SizedBox(height: 12),
+
+                      // Optional Name (for new candidates)
+                      TextField(
+                        controller: nameCtrl,
+                        decoration: InputDecoration(
+                          labelText: LanguageService.instance.trText(ne: 'विद्यार्थीको नाम (नयाँ भएमा ऐच्छिक)', en: 'Candidate Name (Optional if new)', ko: '성명 (신규 등록 시)'),
+                          hintText: 'e.g. सुजन श्रेष्ठ (Sujan Shrestha)',
+                          prefixIcon: const Icon(Icons.person_outline_rounded),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Institute Selection
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0FDFA),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFF99F6E4)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              LanguageService.instance.trText(ne: 'सोसिएसन इन्स्टिच्युट (Institute):', en: 'Institute Association:', ko: '소속 학원:'),
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11.5, color: Color(0xFF0F766E)),
+                            ),
+                            const SizedBox(height: 6),
+                            DropdownButtonFormField<String>(
+                              value: selectedInstituteId,
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                fillColor: Colors.white,
+                                filled: true,
+                              ),
+                              items: institutes.map((inst) => DropdownMenuItem(
+                                value: inst.id,
+                                child: Text(
+                                  '${inst.name} (${inst.address})',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              )).toList(),
+                              onChanged: (val) {
+                                if (val != null) {
+                                  setDialogState(() => selectedInstituteId = val);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 46,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF25D366),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: isSending
+                              ? null
+                              : () async {
+                                  final phone = phoneCtrl.text.trim();
+                                  if (phone.length < 8) {
+                                    setDialogState(() => error = LanguageService.instance.trText(
+                                      ne: 'कृपया सही मोबाइल नम्बर भर्नुहोस्!',
+                                      en: 'Please enter a valid mobile number!',
+                                      ko: '올바른 휴대폰 번호를 입력해 주세요!',
+                                    ));
+                                    return;
+                                  }
+
+                                  setDialogState(() {
+                                    isSending = true;
+                                    error = '';
+                                  });
+
+                                  final result = await WhatsAppOtpService.instance.sendOtp(phone);
+                                  setDialogState(() {
+                                    isSending = false;
+                                    if (result['success'] == true) {
+                                      otpSent = true;
+                                      generatedOtp = result['otp'] ?? '';
+                                      infoMessage = result['message'] ?? 'WhatsApp मा OTP पठाइयो!';
+                                      if (result['isSimulated'] == true && generatedOtp.isNotEmpty) {
+                                        otpCtrl.text = generatedOtp; // Auto-fill in demo mode
+                                      }
+                                    } else {
+                                      error = result['message'] ?? 'OTP पठाउन सकिएन';
+                                    }
+                                  });
+                                },
+                          icon: isSending
+                              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : const Icon(Icons.send_rounded, size: 18),
+                          label: Text(
+                            isSending
+                                ? LanguageService.instance.trText(ne: 'पठाउँदैछ...', en: 'Sending...', ko: '발송 중...')
+                                : LanguageService.instance.trText(
+                                    ne: '💬 WhatsApp OTP कोड पठाउनुहोस्',
+                                    en: '💬 Send WhatsApp OTP Code',
+                                    ko: '💬 WhatsApp OTP 발송',
+                                  ),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                        ),
+                      ),
+                    ] else ...[
+                      // STEP 2: OTP VERIFICATION
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0FDF4),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFBBF7D0)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.mark_chat_read_rounded, color: Color(0xFF16A34A), size: 24),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                infoMessage.isNotEmpty
+                                    ? infoMessage
+                                    : LanguageService.instance.trText(
+                                        ne: 'मोबाइल ${phoneCtrl.text} मा ६ अङ्कको OTP पठाइयो!',
+                                        en: '6-digit OTP sent to ${phoneCtrl.text}!',
+                                        ko: '${phoneCtrl.text}로 6자리 OTP가 발송되었습니다!',
+                                      ),
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF15803D), height: 1.3),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+
+                      TextField(
+                        controller: otpCtrl,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 8),
+                        decoration: InputDecoration(
+                          labelText: LanguageService.instance.trText(
+                            ne: '६ अङ्कको OTP कोड प्रविष्ट गर्नुहोस्',
+                            en: 'Enter 6-digit OTP code',
+                            ko: '6자리 인증번호 입력',
+                          ),
+                          hintText: '------',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          prefixIcon: const Icon(Icons.lock_clock, color: Color(0xFF25D366)),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Resend option
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton.icon(
+                            icon: const Icon(Icons.refresh, size: 14),
+                            label: Text(
+                              LanguageService.instance.trText(ne: 'पुनः कोड पठाउनुहोस्', en: 'Resend Code', ko: '재발송'),
+                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: () async {
+                              final res = await WhatsAppOtpService.instance.sendOtp(phoneCtrl.text.trim());
+                              setDialogState(() {
+                                if (res['success'] == true) {
+                                  generatedOtp = res['otp'] ?? '';
+                                  infoMessage = res['message'] ?? 'नयाँ कोड पठाइयो';
+                                  if (res['isSimulated'] == true && generatedOtp.isNotEmpty) {
+                                    otpCtrl.text = generatedOtp;
+                                  }
+                                }
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 46,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1E3A8A),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: () {
+                            final entered = otpCtrl.text.trim();
+                            final isValid = WhatsAppOtpService.instance.verifyOtp(phoneCtrl.text.trim(), entered);
+
+                            if (!isValid) {
+                              setDialogState(() => error = LanguageService.instance.trText(
+                                ne: '❌ गलत वा म्याद सकिएको OTP कोड! कृपया फेरि प्रयास गर्नुहोस्।',
+                                en: '❌ Invalid or expired OTP code! Please try again.',
+                                ko: '❌ 잘못되었거나 만료된 인증번호입니다. 다시 시도해 주세요.',
+                              ));
+                              return;
+                            }
+
+                            final student = AuthService.instance.loginWithMobileOtp(
+                              mobileNumber: phoneCtrl.text.trim(),
+                              name: nameCtrl.text.trim().isNotEmpty ? nameCtrl.text.trim() : null,
+                              instituteId: currentInst.id,
+                              instituteName: currentInst.name,
+                            );
+
+                            if (student != null) {
+                              Navigator.pop(ctx);
+                              if (student.isPendingApproval) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: student)),
+                                );
+                              } else {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => StudentDashboardScreen(student: student)),
+                                );
+                              }
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    LanguageService.instance.trText(
+                                      ne: '🎉 WhatsApp OTP प्रमाणीकरण सफल भयो! स्वागत छ ${student.name}',
+                                      en: '🎉 WhatsApp OTP verified successfully! Welcome ${student.name}',
+                                      ko: '🎉 WhatsApp OTP 인증 완료! 환영합니다 ${student.name}님',
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.teal,
+                                ),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.check_circle_rounded, size: 18),
+                          label: Text(
+                            LanguageService.instance.trText(
+                              ne: 'सत्यापन गरी लगइन गर्नुहोस्',
+                              en: 'Verify & Login',
+                              ko: '인증 완료 및 로그인',
+                            ),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(LanguageService.instance.tr('cancel')),
-            ),
-          ],
-        ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(LanguageService.instance.tr('cancel')),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  /// Registration Dialog (नयाँ खाता दर्ता)
+  /// Registration Dialog (नयाँ खाता दर्ता - इन्स्टिच्युट छनोट सहित)
   void _showRegisterDialog() {
     final nameCtrl = TextEditingController();
     final phoneCtrl = TextEditingController();
@@ -428,6 +1136,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final userCtrl = TextEditingController();
     final passCtrl = TextEditingController();
     final confirmPassCtrl = TextEditingController();
+
+    final institutes = InstituteService.instance.getAllInstitutes();
+    String selectedInstituteId = institutes.isNotEmpty ? institutes.first.id : 'inst_01';
     String selectedBatch = _batchesList.first;
     String selectedSector = _sectorsList.first;
     String error = '';
@@ -435,194 +1146,272 @@ class _LoginScreenState extends State<LoginScreen> {
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Row(
-            children: [
-              const Icon(Icons.person_add_alt_1_rounded, color: Color(0xFF1E3A8A), size: 24),
-              const SizedBox(width: 10),
-              Text(
-                LanguageService.instance.trText(
-                  ne: 'नयाँ विद्यार्थी दर्ता',
-                  en: 'New Student Registration',
-                  ko: '새 수험생 등록',
+        builder: (ctx, setDialogState) {
+          final currentInst = institutes.firstWhere(
+            (i) => i.id == selectedInstituteId,
+            orElse: () => institutes.first,
+          );
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Row(
+              children: [
+                const Icon(Icons.person_add_alt_1_rounded, color: Color(0xFF1E3A8A), size: 24),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    LanguageService.instance.trText(
+                      ne: 'नयाँ विद्यार्थी दर्ता (इन्स्टिच्युट छनोट)',
+                      en: 'New Student Registration',
+                      ko: '새 수험생 등록 (학원 선택)',
+                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: SizedBox(
-              width: 440,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (error.isNotEmpty)
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: SizedBox(
+                width: 460,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (error.isNotEmpty)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.red.shade200)),
+                        child: Text(error, style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
+                      ),
+
+                    // Institute Selection Field
                     Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.red.shade200)),
-                      child: Text(error, style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold)),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0FDFA),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF99F6E4)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.school, size: 18, color: Color(0xFF0F766E)),
+                              const SizedBox(width: 6),
+                              Text(
+                                LanguageService.instance.trText(
+                                  ne: 'आफ्नो इन्स्टिच्युट छनोट गर्नुहोस्*',
+                                  en: 'Select Your Institute*',
+                                  ko: '소속 학원 선택*',
+                                ),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F766E)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<String>(
+                            value: selectedInstituteId,
+                            isExpanded: true,
+                            decoration: const InputDecoration(
+                              isDense: true,
+                              border: OutlineInputBorder(),
+                              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                              fillColor: Colors.white,
+                              filled: true,
+                            ),
+                            items: institutes.map((inst) => DropdownMenuItem(
+                              value: inst.id,
+                              child: Text(
+                                '${inst.name} (${inst.address})',
+                                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            )).toList(),
+                            onChanged: (val) {
+                              if (val != null) {
+                                setDialogState(() => selectedInstituteId = val);
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            LanguageService.instance.trText(
+                              ne: '📌 दर्ता भएपछि ${currentInst.name} को एडमिनले स्वीकृत गरेपछि मात्र खाता सक्रिय हुनेछ।',
+                              en: '📌 Account will be activated after approval from ${currentInst.name} admin.',
+                              ko: '📌 등록 후 ${currentInst.name} 관리자의 승인 후에 정식 활성화됩니다.',
+                            ),
+                            style: const TextStyle(fontSize: 11, color: Color(0xFF0F766E), height: 1.3),
+                          ),
+                        ],
+                      ),
                     ),
-                  TextField(
-                    controller: nameCtrl,
-                    decoration: InputDecoration(
-                      labelText: LanguageService.instance.trText(ne: 'पूरा नाम*', en: 'Full Name*', ko: '성명*'),
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.badge_outlined),
+
+                    const SizedBox(height: 14),
+
+                    TextField(
+                      controller: nameCtrl,
+                      decoration: InputDecoration(
+                        labelText: LanguageService.instance.trText(ne: 'पूरा नाम*', en: 'Full Name*', ko: '성명*'),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.badge_outlined),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: phoneCtrl,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: LanguageService.instance.trText(ne: 'मोबाइल नम्बर*', en: 'Mobile Number*', ko: '휴대폰 번호*'),
-                      hintText: 'e.g. 9812345678',
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.phone_android_outlined),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: phoneCtrl,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: LanguageService.instance.trText(ne: 'मोबाइल नम्बर*', en: 'Mobile Number*', ko: '휴대폰 번호*'),
+                        hintText: 'e.g. 9812345678',
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.phone_android_outlined),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: regCtrl,
-                    decoration: InputDecoration(
-                      labelText: LanguageService.instance.trText(ne: 'दर्ता / सिम्बोल नम्बर', en: 'Registration / Symbol No', ko: '수험번호 / 등록번호'),
-                      hintText: LanguageService.instance.trText(ne: 'वैकल्पिक (e.g. 01234575)', en: 'Optional (e.g. 01234575)', ko: '선택 사항'),
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.pin_outlined),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: regCtrl,
+                      decoration: InputDecoration(
+                        labelText: LanguageService.instance.trText(ne: 'दर्ता / सिम्बोल नम्बर', en: 'Registration / Symbol No', ko: '수험번호 / 등록번호'),
+                        hintText: LanguageService.instance.trText(ne: 'वैकल्पिक (e.g. 01234575)', en: 'Optional (e.g. 01234575)', ko: '선택 사항'),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.pin_outlined),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: userCtrl,
-                    decoration: InputDecoration(
-                      labelText: LanguageService.instance.trText(ne: 'प्रयोगकर्ता नाम (Username)*', en: 'Username*', ko: '아이디(Username)*'),
-                      hintText: 'e.g. ram123',
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.account_circle_outlined),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: userCtrl,
+                      decoration: InputDecoration(
+                        labelText: LanguageService.instance.trText(ne: 'प्रयोगकर्ता नाम (Username)*', en: 'Username*', ko: '아이디(Username)*'),
+                        hintText: 'e.g. ram123',
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.account_circle_outlined),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: passCtrl,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: LanguageService.instance.trText(ne: 'पासवर्ड*', en: 'Password*', ko: '비밀번호*'),
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.lock_outline),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: passCtrl,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: LanguageService.instance.trText(ne: 'पासवर्ड*', en: 'Password*', ko: '비밀번호*'),
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.lock_outline),
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: confirmPassCtrl,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            labelText: LanguageService.instance.trText(ne: 'कन्फर्म पासवर्ड*', en: 'Confirm Password*', ko: '비밀번호 확인*'),
-                            border: const OutlineInputBorder(),
-                            prefixIcon: const Icon(Icons.lock_reset_outlined),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: confirmPassCtrl,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: LanguageService.instance.trText(ne: 'कन्फर्म पासवर्ड*', en: 'Confirm Password*', ko: '비밀번호 확인*'),
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.lock_reset_outlined),
+                            ),
                           ),
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: selectedBatch,
+                      decoration: InputDecoration(
+                        labelText: LanguageService.instance.trText(ne: 'ब्याच*', en: 'Batch*', ko: '반/기수*'),
+                        border: const OutlineInputBorder(),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    value: selectedBatch,
-                    decoration: InputDecoration(
-                      labelText: LanguageService.instance.trText(ne: 'ब्याच*', en: 'Batch*', ko: '반/기수*'),
-                      border: const OutlineInputBorder(),
+                      items: _batchesList.map((b) => DropdownMenuItem(value: b, child: Text(LanguageService.instance.batchText(b), style: const TextStyle(fontSize: 13)))).toList(),
+                      onChanged: (val) => setDialogState(() => selectedBatch = val!),
                     ),
-                    items: _batchesList.map((b) => DropdownMenuItem(value: b, child: Text(LanguageService.instance.batchText(b), style: const TextStyle(fontSize: 13)))).toList(),
-                    onChanged: (val) => setDialogState(() => selectedBatch = val!),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    value: selectedSector,
-                    decoration: InputDecoration(
-                      labelText: LanguageService.instance.trText(ne: 'औद्योगिक क्षेत्र', en: 'Industry Sector', ko: '업종 분야'),
-                      border: const OutlineInputBorder(),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      value: selectedSector,
+                      decoration: InputDecoration(
+                        labelText: LanguageService.instance.trText(ne: 'औद्योगिक क्षेत्र', en: 'Industry Sector', ko: '업종 분야'),
+                        border: const OutlineInputBorder(),
+                      ),
+                      items: _sectorsList.map((s) => DropdownMenuItem(value: s, child: Text(LanguageService.instance.sectorText(s), style: const TextStyle(fontSize: 13)))).toList(),
+                      onChanged: (val) => setDialogState(() => selectedSector = val!),
                     ),
-                    items: _sectorsList.map((s) => DropdownMenuItem(value: s, child: Text(LanguageService.instance.sectorText(s), style: const TextStyle(fontSize: 13)))).toList(),
-                    onChanged: (val) => setDialogState(() => selectedSector = val!),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text(LanguageService.instance.tr('cancel')),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
-              onPressed: () {
-                if (nameCtrl.text.trim().isEmpty || phoneCtrl.text.trim().isEmpty || userCtrl.text.trim().isEmpty || passCtrl.text.trim().isEmpty) {
-                  setDialogState(() => error = LanguageService.instance.trText(
-                    ne: 'कृपया सबै आवश्यक (*) विवरणहरू भर्नुहोस्!',
-                    en: 'Please fill in all required (*) fields!',
-                    ko: '모든 필수(*) 항목을 입력해 주세요!',
-                  ));
-                  return;
-                }
-                if (passCtrl.text.trim() != confirmPassCtrl.text.trim()) {
-                  setDialogState(() => error = LanguageService.instance.trText(
-                    ne: 'पासवर्ड र कन्फर्म पासवर्ड मिलेन!',
-                    en: 'Passwords do not match!',
-                    ko: '비밀번호가 일치하지 않습니다!',
-                  ));
-                  return;
-                }
-                final ok = AuthService.instance.registerStudent(
-                  name: nameCtrl.text.trim(),
-                  username: userCtrl.text.trim(),
-                  mobileNumber: phoneCtrl.text.trim(),
-                  registrationNo: regCtrl.text.trim().isEmpty ? null : regCtrl.text.trim(),
-                  password: passCtrl.text.trim(),
-                  batch: selectedBatch,
-                  sector: selectedSector,
-                );
-                if (ok) {
-                  Navigator.pop(ctx);
-                  final newUser = AuthService.instance.currentUser;
-                  if (newUser != null) {
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(LanguageService.instance.tr('cancel')),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E3A8A),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                ),
+                onPressed: () {
+                  if (nameCtrl.text.trim().isEmpty || phoneCtrl.text.trim().isEmpty || userCtrl.text.trim().isEmpty || passCtrl.text.trim().isEmpty) {
+                    setDialogState(() => error = LanguageService.instance.trText(
+                      ne: 'कृपया सबै आवश्यक (*) विवरणहरू भर्नुहोस्!',
+                      en: 'Please fill in all required (*) fields!',
+                      ko: '모든 필수(*) 항목을 입력해 주세요!',
+                    ));
+                    return;
+                  }
+                  if (passCtrl.text.trim() != confirmPassCtrl.text.trim()) {
+                    setDialogState(() => error = LanguageService.instance.trText(
+                      ne: 'पासवर्ड र कन्फर्म पासवर्ड मिलेन!',
+                      en: 'Passwords do not match!',
+                      ko: '비밀번호가 일치하지 않습니다!',
+                    ));
+                    return;
+                  }
+                  final newStudent = AuthService.instance.registerStudentWithInstitute(
+                    name: nameCtrl.text.trim(),
+                    username: userCtrl.text.trim(),
+                    mobileNumber: phoneCtrl.text.trim(),
+                    registrationNo: regCtrl.text.trim().isEmpty ? null : regCtrl.text.trim(),
+                    password: passCtrl.text.trim(),
+                    instituteId: currentInst.id,
+                    instituteName: currentInst.name,
+                    batch: selectedBatch,
+                    sector: selectedSector,
+                  );
+                  if (newStudent != null) {
+                    Navigator.pop(ctx);
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => StudentDashboardScreen(student: newUser)),
+                      MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: newStudent)),
                     );
-                  }
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        LanguageService.instance.trText(
-                          ne: '✅ खाता सफलतापूर्वक सिर्जना भयो! स्वागत छ!',
-                          en: '✅ Account successfully created! Welcome!',
-                          ko: '✅ 계정이 성공적으로 등록되었습니다! 환영합니다!',
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          LanguageService.instance.trText(
+                            ne: '🎉 दर्ता सफलतापूर्वक सम्पन्न भयो! तपाईंको खाता स्वीकृतिको प्रतीक्षामा छ।',
+                            en: '🎉 Registered successfully! Account is pending institute approval.',
+                            ko: '🎉 등록이 완료되었습니다! 학원 관리자의 승인을 기다려 주세요.',
+                          ),
                         ),
+                        backgroundColor: Colors.teal,
                       ),
-                      backgroundColor: Colors.teal,
-                    ),
-                  );
-                } else {
-                  setDialogState(() => error = LanguageService.instance.trText(
-                    ne: 'यो Username वा मोबाइल नम्बर पहिले नै दर्ता भइसकेको छ!',
-                    en: 'Username or Mobile Number is already registered!',
-                    ko: '이미 등록된 아이디 또는 휴대폰 번호입니다!',
-                  ));
-                }
-              },
-              child: Text(LanguageService.instance.trText(ne: 'दर्ता गर्नुहोस्', en: 'Register', ko: '회원가입')),
-            ),
-          ],
-        ),
+                    );
+                  } else {
+                    setDialogState(() => error = LanguageService.instance.trText(
+                      ne: 'यो Username वा मोबाइल नम्बर पहिले नै दर्ता भइसकेको छ!',
+                      en: 'Username or Mobile Number is already registered!',
+                      ko: '이미 등록된 아이디 또는 휴대폰 번호입니다!',
+                    ));
+                  }
+                },
+                child: Text(LanguageService.instance.trText(ne: 'दर्ता गर्नुहोस्', en: 'Register', ko: '회원가입')),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -914,9 +1703,9 @@ class _LoginScreenState extends State<LoginScreen> {
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               LanguageService.instance.trText(
-                ne: 'अहिले वेबसाइटमै चलाउँछु (Later)',
-                en: 'Continue on Web (Later)',
-                ko: '웹에서 계속하기 (나중에)',
+                ne: 'बन्द गर्नुहोस् (Close)',
+                en: 'Close',
+                ko: '닫기',
               ),
               style: const TextStyle(color: Colors.black54),
             ),
@@ -1119,35 +1908,200 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                  // Institute Emblem & Branding
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1E3A8A).withOpacity(0.08),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFF1E3A8A).withOpacity(0.2), width: 2),
-                    ),
-                    child: const Icon(Icons.school_rounded, size: 44, color: Color(0xFF1E3A8A)),
+                  // Dynamic Institute Emblem & Branding Header
+                  Builder(
+                    builder: (context) {
+                      final institutes = InstituteService.instance.getAllInstitutes();
+                      final activeInst = institutes.firstWhere(
+                        (i) => i.id == _activeInstituteId,
+                        orElse: () => institutes.isNotEmpty
+                            ? institutes.first
+                            : InstituteProfile(
+                                id: 'inst_01',
+                                name: 'ग्लोबल कोरियन भाषा इन्स्टिच्युट',
+                                code: 'GLOBAL_KTM',
+                                logoUrl: '',
+                                phone: '9851234567',
+                                email: 'contact@globalinstitute.edu.np',
+                                address: 'बागबजार, काठमाडौं',
+                                aboutUs: '',
+                                allowedSetsQuota: 5,
+                                validityExpiry: DateTime.now().add(const Duration(days: 365)),
+                                maxStudentsQuota: 200,
+                                isActive: true,
+                              ),
+                      );
+
+                      return Column(
+                        children: [
+                          // Institute Logo Avatar with Glow Effect
+                          Container(
+                            width: 72,
+                            height: 72,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF1E3A8A), Color(0xFF0F766E)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF1E3A8A).withOpacity(0.35),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                              border: Border.all(color: Colors.white, width: 2.5),
+                            ),
+                            child: ClipOval(
+                              child: activeInst.logoUrl.isNotEmpty
+                                  ? Image.asset(
+                                      activeInst.logoUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (ctx, err, stack) => Center(
+                                        child: Text(
+                                          activeInst.name.isNotEmpty ? activeInst.name[0] : '🏢',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 28,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        activeInst.name.isNotEmpty ? activeInst.name[0] : '🏢',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 28,
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Institute Name
+                          Text(
+                            activeInst.name,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0F172A),
+                              letterSpacing: 0.2,
+                              height: 1.25,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+
+                          // Institute Address & Phone
+                          Text(
+                            activeInst.address + (activeInst.phone.isNotEmpty ? ' • 📞 ${activeInst.phone}' : ''),
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                          ),
+                          const SizedBox(height: 8),
+
+                          // Official UBT Training Partner Badge & Switcher Dropdown
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF1E3A8A).withOpacity(0.06),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: const Color(0xFF1E3A8A).withOpacity(0.18)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.verified, size: 14, color: Color(0xFF2563EB)),
+                                const SizedBox(width: 4),
+                                Text(
+                                  LanguageService.instance.trText(
+                                    ne: 'आधिकारिक UBT परीक्षा केन्द्र',
+                                    en: 'Official UBT Exam Center',
+                                    ko: '공식 UBT 시험 센터',
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF1E3A8A),
+                                  ),
+                                ),
+                                if (institutes.length > 1) ...[
+                                  const SizedBox(width: 6),
+                                  PopupMenuButton<String>(
+                                    tooltip: LanguageService.instance.trText(
+                                      ne: 'इन्स्टिच्युट छान्नुहोस्',
+                                      en: 'Switch Institute',
+                                      ko: '학원 변경',
+                                    ),
+                                    onSelected: (instId) => _selectInstitute(instId),
+                                    itemBuilder: (ctx) => institutes.map((inst) {
+                                      final isSelected = inst.id == activeInst.id;
+                                      return PopupMenuItem<String>(
+                                        value: inst.id,
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              isSelected ? Icons.check_circle_rounded : Icons.apartment_rounded,
+                                              size: 16,
+                                              color: isSelected ? const Color(0xFF2563EB) : Colors.grey,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                inst.name,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                                  color: isSelected ? const Color(0xFF1E3A8A) : Colors.black87,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: Colors.grey.shade300),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            LanguageService.instance.trText(ne: 'फेर्नुहोस्', en: 'Switch', ko: '변경'),
+                                            style: const TextStyle(fontSize: 10, color: Color(0xFF2563EB), fontWeight: FontWeight.bold),
+                                          ),
+                                          const Icon(Icons.arrow_drop_down, size: 14, color: Color(0xFF2563EB)),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                        ],
+                      );
+                    },
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    "EPS-TOPIK KOREA",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A), letterSpacing: 0.5),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    LanguageService.instance.tr('app_subtitle'),
-                    style: const TextStyle(fontSize: 12, color: Colors.black54),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
 
                   // 1-Click Google Sign-In Button
                   SizedBox(
                     width: double.infinity,
                     height: 46,
                     child: OutlinedButton.icon(
-                      onPressed: _showGoogleSignInDialog,
+                      onPressed: _handleGoogleSignIn,
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.white,
                         side: BorderSide(color: Colors.grey.shade300, width: 1.2),

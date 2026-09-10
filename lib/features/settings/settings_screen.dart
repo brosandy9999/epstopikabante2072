@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/services/language_service.dart';
 import '../../core/services/storage_service.dart';
 import '../../core/services/auth_service.dart';
+import '../../core/services/whatsapp_otp_service.dart';
+import 'universal_settings_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -324,7 +326,92 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 28),
 
             // -----------------------------------------------------------
-            // 5. CACHE & RESET (डाटा व्यवस्थापन)
+            // 5. WHATSAPP OTP GATEWAY SETTINGS (व्हाट्सएप ओटीपी गेटवे)
+            // -----------------------------------------------------------
+            _buildSectionHeader(Icons.chat_bubble_outline, LanguageService.instance.trText(ne: 'WhatsApp OTP Gateway सेवा', en: 'WhatsApp OTP Gateway Service', ko: 'WhatsApp OTP 게이트웨이')),
+            const SizedBox(height: 12),
+            Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF25D366).withOpacity(0.12),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.mark_chat_read, color: Color(0xFF25D366), size: 22),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                WhatsAppOtpService.instance.getConfig().isEnabled
+                                    ? LanguageService.instance.trText(ne: 'WhatsApp OTP सेवा सक्रिय (Active)', en: 'WhatsApp OTP Service Active', ko: 'WhatsApp OTP 활성화')
+                                    : LanguageService.instance.trText(ne: 'WhatsApp OTP सेवा निष्क्रिय (Disabled)', en: 'WhatsApp OTP Disabled', ko: 'WhatsApp OTP 비활성화'),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: WhatsAppOtpService.instance.getConfig().isEnabled ? const Color(0xFF15803D) : Colors.black87,
+                                ),
+                              ),
+                              Text(
+                                'प्रदायक: ${WhatsAppOtpService.instance.getConfig().provider.displayName}',
+                                style: const TextStyle(fontSize: 11, color: Colors.blueGrey),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    Text(
+                      LanguageService.instance.trText(
+                        ne: 'विद्यार्थी लगइन, दर्ता वा पासवर्ड रिसेट गर्दा WhatsApp मार्फत ६ अङ्कको आधिकारिक OTP पठाउन API गेटवे कन्फिगर गर्नुहोस्:',
+                        en: 'Configure WhatsApp Gateway API to dispatch 6-digit OTP codes for candidate login & signup:',
+                        ko: '수험생 로그인 및 회원가입 시 6자리 WhatsApp OTP를 발송하도록 게이트웨이를 설정합니다:',
+                      ),
+                      style: const TextStyle(fontSize: 12, color: Colors.black54, height: 1.4),
+                    ),
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => showUniversalSettingsDialog(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF25D366),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        icon: const Icon(Icons.settings_suggest_rounded, size: 18),
+                        label: Text(
+                          LanguageService.instance.trText(
+                            ne: '⚙️ गेटवे कन्फिगर तथा टेस्ट गर्नुहोस् (Configure & Test)',
+                            en: '⚙️ Configure & Test Gateway',
+                            ko: '⚙️ 게이트웨이 설정 및 테스트',
+                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            // -----------------------------------------------------------
+            // 6. CACHE & RESET (डाटा व्यवस्थापन)
             // -----------------------------------------------------------
             _buildSectionHeader(Icons.storage, langService.tr('offline_storage')),
             const SizedBox(height: 12),

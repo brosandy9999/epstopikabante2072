@@ -388,6 +388,10 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
   Widget _buildSetCard(MockTestSet set) {
     final bestAttempt = ExamHistoryService.instance.getBestAttempt(set.id);
     final lang = LanguageService.instance;
+    final u = AuthService.instance.currentUser;
+    final bool isStudent = u != null && u.role == UserRole.student;
+    final bool hasExplicitSets = isStudent && u.unlockedSetIds.isNotEmpty;
+    final bool isUnlockedForStudent = !hasExplicitSets || u.unlockedSetIds.contains(set.id);
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -406,21 +410,58 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: const Color(0xFF93C5FD)),
-                ),
-                child: Text(
-                  set.sector,
-                  style: const TextStyle(
-                    color: Color(0xFF1E3A8A),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: const Color(0xFF93C5FD)),
+                    ),
+                    child: Text(
+                      set.sector,
+                      style: const TextStyle(
+                        color: Color(0xFF1E3A8A),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
-                ),
+                  if (hasExplicitSets) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isUnlockedForStudent ? Colors.green.shade50 : Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: isUnlockedForStudent ? Colors.green.shade300 : Colors.amber.shade400),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isUnlockedForStudent ? Icons.lock_open_rounded : Icons.lock_rounded,
+                            size: 12,
+                            color: isUnlockedForStudent ? Colors.green.shade800 : Colors.amber.shade900,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            isUnlockedForStudent
+                                ? lang.trText(ne: 'तोकिएको सेट', en: 'Assigned', ko: '배정됨')
+                                : lang.trText(ne: 'इन्स्टिच्युट लक', en: 'Locked', ko: '잠김'),
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.bold,
+                              color: isUnlockedForStudent ? Colors.green.shade900 : Colors.amber.shade900,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
               ),
               if (bestAttempt != null)
                 Container(

@@ -27,8 +27,51 @@ class StudyMaterialService extends ChangeNotifier {
   // -------------------------------------------------------------
   // 1. UNLIMITED BOOKS (असीमित नयाँ र पुराना किताबहरू)
   // -------------------------------------------------------------
+    static const String _keyCleanSlateStudy = 'eps_clean_slate_study_v1';
+
+  bool isCleanSlateMode() {
+    try {
+      return StorageService.instance.getString(_keyCleanSlateStudy) == 'true';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void setCleanSlateMode(bool enable) {
+    try {
+      StorageService.instance.setString(_keyCleanSlateStudy, enable ? 'true' : 'false');
+    } catch (_) {}
+    _booksList = null;
+    notifyListeners();
+  }
+
+  void clearAllBooks() {
+    _booksList = [];
+    _saveBooksToStorage();
+    setCleanSlateMode(true);
+    notifyListeners();
+  }
+
+  void clearAllStudyMaterials() {
+    _booksList = [];
+    _dictionaryList = [];
+    _visualCardsList = [];
+    _notices = [];
+    _grammarList = [];
+    _videoList = [];
+    _saveBooksToStorage();
+    setCleanSlateMode(true);
+    notifyListeners();
+  }
+
+  void restoreSampleBooks() {
+    setCleanSlateMode(false);
+    _booksList = null;
+    notifyListeners();
+  }
+
   List<StudyBook> getAllBooks() {
-    _booksList ??= _loadBooksFromStorage() ?? _getDefaultBooks();
+    _booksList ??= _loadBooksFromStorage() ?? (isCleanSlateMode() ? <StudyBook>[] : _getDefaultBooks());
     return List.unmodifiable(_booksList!);
   }
 

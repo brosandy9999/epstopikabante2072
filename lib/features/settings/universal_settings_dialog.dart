@@ -7,6 +7,7 @@ import '../../core/services/language_service.dart';
 import '../../core/services/file_upload_service.dart';
 import '../../core/services/download_helper.dart';
 import '../../core/widgets/smart_image_widget.dart';
+import '../../core/services/whatsapp_otp_service.dart';
 import '../authentication/login_screen.dart';
 
 void showUniversalSettingsDialog(BuildContext context) {
@@ -42,6 +43,17 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
   bool _obscureNew = true;
   bool _obscureConfirm = true;
 
+  // WhatsApp OTP Gateway fields
+  late WhatsAppGatewayProvider _gatewayProvider;
+  late bool _gatewayEnabled;
+  late TextEditingController _gatewayApiUrlCtrl;
+  late TextEditingController _gatewayInstanceIdCtrl;
+  late TextEditingController _gatewayApiTokenCtrl;
+  late TextEditingController _gatewayTemplateCtrl;
+  late TextEditingController _gatewaySenderPhoneCtrl;
+  final TextEditingController _gatewayTestPhoneCtrl = TextEditingController(text: '9851234567');
+  bool _isTestingGateway = false;
+
   String _statusMessage = '';
   bool _isSuccess = false;
 
@@ -52,13 +64,23 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     final user = AuthService.instance.currentUser ?? AuthService.instance.students.first;
     _nameController = TextEditingController(text: user.name);
     _mobileController = TextEditingController(text: user.mobileNumber ?? '');
     _photoUrlController = TextEditingController(text: user.profilePhoto ?? '');
     _selectedAvatar = user.profilePhoto;
     _firebaseUrlCtrl = TextEditingController(text: CloudSyncService.instance.cloudEndpoint);
+
+    // Load WhatsApp Gateway configuration
+    final waConfig = WhatsAppOtpService.instance.getConfig();
+    _gatewayProvider = waConfig.provider;
+    _gatewayEnabled = waConfig.isEnabled;
+    _gatewayApiUrlCtrl = TextEditingController(text: waConfig.apiUrl);
+    _gatewayInstanceIdCtrl = TextEditingController(text: waConfig.instanceId);
+    _gatewayApiTokenCtrl = TextEditingController(text: waConfig.apiToken);
+    _gatewayTemplateCtrl = TextEditingController(text: waConfig.messageTemplate);
+    _gatewaySenderPhoneCtrl = TextEditingController(text: waConfig.senderPhone);
   }
 
   @override
@@ -71,6 +93,12 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
     _newPwController.dispose();
     _confirmPwController.dispose();
     _firebaseUrlCtrl.dispose();
+    _gatewayApiUrlCtrl.dispose();
+    _gatewayInstanceIdCtrl.dispose();
+    _gatewayApiTokenCtrl.dispose();
+    _gatewayTemplateCtrl.dispose();
+    _gatewaySenderPhoneCtrl.dispose();
+    _gatewayTestPhoneCtrl.dispose();
     super.dispose();
   }
 
@@ -272,6 +300,7 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                   Tab(icon: const Icon(Icons.lock_reset, size: 16), text: '🔑 ${langService.tr('change_password')}'),
                   Tab(icon: const Icon(Icons.tune, size: 16), text: '⚙️ ${langService.tr('mode_preference')}'),
                   Tab(icon: const Icon(Icons.sync, size: 16), text: '🔄 ${langService.tr('cloud_sync')}'),
+                  Tab(icon: const Icon(Icons.chat, size: 16), text: '💬 WhatsApp OTP'),
                   Tab(icon: const Icon(Icons.info_outline, size: 16), text: '📦 ${langService.tr('system_info')}'),
                 ],
               ),
@@ -319,7 +348,10 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
                   // TAB 5: 🔄 MOBILE & CLOUD SYNC
                   _buildSyncTab(),
 
-                  // TAB 6: 📦 DATA & SYSTEM INFO
+                  // TAB 6: 💬 WHATSAPP OTP GATEWAY SETTINGS
+                  _buildWhatsAppGatewayTab(),
+
+                  // TAB 7: 📦 DATA & SYSTEM INFO
                   _buildDataAndInfoTab(),
                 ],
               ),
@@ -1262,7 +1294,433 @@ class _UniversalSettingsDialogState extends State<UniversalSettingsDialog> with 
     );
   }
 
-  // 📦 TAB 6: DATA, STORAGE, AUTO-UPDATE & APP INFO
+  // 💬 TAB 6: WHATSAPP OTP GATEWAY SETTINGS
+  Widget _buildWhatsAppGatewayTab() {
+    final langService = LanguageService.instance;
+    final otpService = WhatsAppOtpService.instance;
+
+    String guideText = '';
+    switch (_gatewayProvider) {
+      case WhatsAppGatewayProvider.ultraMsg:
+        guideText = '💡 UltraMsg (ultramsg.com): Instance ID (जस्तै: instance12345) र Token हाल्नुहोस्। तत्काल WhatsApp सन्देश जान्छ।';
+        break;
+      case WhatsAppGatewayProvider.greenApi:
+        guideText = '💡 Green API (green-api.com): IdInstance र ApiTokenInstance हाल्नुहोस्। भरपर्दो र द्रुत गतिको सेवा।';
+        break;
+      case WhatsAppGatewayProvider.metaCloudApi:
+        guideText = '💡 Meta Cloud API (developers.facebook.com): Phone Number ID लाई Instance ID मा र System User Token लाई API Token मा राख्नुहोस्।';
+        break;
+      case WhatsAppGatewayProvider.wati:
+        guideText = '💡 WATI API (wati.io): WATI Bearer Access Token र API Endpoint राख्नुहोस्।';
+        break;
+      case WhatsAppGatewayProvider.twilio:
+        guideText = '💡 Twilio (twilio.com): Account SID लाई Instance ID मा र Auth Token लाई Token मा राख्नुहोस्।';
+        break;
+      case WhatsAppGatewayProvider.customWebhook:
+        guideText = '💡 Custom Backend Webhook: आफ्नो सर्भरको POST API URL राख्नुहोस्। {phone, otp, message} पेलोड प्राप्त हुनेछ।';
+        break;
+      case WhatsAppGatewayProvider.directLink:
+        guideText = '💡 Direct wa.me Link: विद्यार्थीलाई सिधै WhatsApp च्याट लिङ्क खोली प्रमाणिकरण गराउँछ।';
+        break;
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 6),
+          Text(
+            langService.trText(
+              ne: 'WhatsApp OTP गेटवे कन्फिगरेसन:',
+              en: 'WhatsApp OTP Gateway Configuration:',
+              ko: 'WhatsApp OTP 게이트웨이 설정:',
+            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+          ),
+          const SizedBox(height: 10),
+
+          // Status & Enable/Disable Switch Card
+          Card(
+            color: _gatewayEnabled ? const Color(0xFFF0FDF4) : Colors.grey.shade50,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: _gatewayEnabled ? const Color(0xFF22C55E) : Colors.grey.shade300,
+                width: 1.5,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              child: SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                activeColor: const Color(0xFF25D366),
+                title: Row(
+                  children: [
+                    const Icon(Icons.mark_chat_read_rounded, color: Color(0xFF25D366), size: 22),
+                    const SizedBox(width: 8),
+                    Text(
+                      langService.trText(
+                        ne: 'WhatsApp OTP प्रमाणीकरण सेवा',
+                        en: 'WhatsApp OTP Authentication Service',
+                        ko: 'WhatsApp OTP 인증 서비스',
+                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ],
+                ),
+                subtitle: Text(
+                  _gatewayEnabled
+                      ? langService.trText(
+                          ne: '🟢 सक्रिय छ • विद्यार्थी लगइन तथा दर्तामा WhatsApp OTP पठाइनेछ',
+                          en: '🟢 Active • OTP will be dispatched via WhatsApp during login & signup',
+                          ko: '🟢 활성화됨 • 로그인 및 가입 시 WhatsApp으로 OTP 발송',
+                        )
+                      : langService.trText(
+                          ne: '⚪ निष्क्रिय (डेमो/परीक्षण मोडमा चल्नेछ)',
+                          en: '⚪ Disabled (Running in demo/simulation mode)',
+                          ko: '⚪ 비활성화 (데모/테스트 모드로 작동)',
+                        ),
+                  style: TextStyle(fontSize: 11, color: _gatewayEnabled ? const Color(0xFF15803D) : Colors.black54),
+                ),
+                value: _gatewayEnabled,
+                onChanged: (val) {
+                  setState(() => _gatewayEnabled = val);
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Provider Selector Card
+          Card(
+            elevation: 1,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.teal.shade100)),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.hub_rounded, size: 18, color: Color(0xFF0F766E)),
+                      const SizedBox(width: 8),
+                      Text(
+                        langService.trText(
+                          ne: 'गेटवे प्रदायक (Gateway Provider) छान्नुहोस्:',
+                          en: 'Select Gateway Provider:',
+                          ko: '게이트웨이 제공업체 선택:',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0F766E)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<WhatsAppGatewayProvider>(
+                    value: _gatewayProvider,
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      fillColor: Colors.white,
+                      filled: true,
+                    ),
+                    items: WhatsAppGatewayProvider.values.map((p) => DropdownMenuItem(
+                      value: p,
+                      child: Row(
+                        children: [
+                          const Icon(Icons.chat_bubble_outline, size: 16, color: Color(0xFF25D366)),
+                          const SizedBox(width: 8),
+                          Text(p.displayName, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    )).toList(),
+                    onChanged: (p) {
+                      if (p != null) {
+                        setState(() {
+                          _gatewayProvider = p;
+                          _gatewayApiUrlCtrl.text = p.defaultUrl;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0FDFA),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFCCFBF1)),
+                    ),
+                    child: Text(
+                      guideText,
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF0F766E), height: 1.4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // API Credentials Form Card
+          Card(
+            elevation: 1,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.vpn_key_rounded, size: 18, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 8),
+                      Text(
+                        langService.trText(
+                          ne: 'API विवरण तथा टोकन (API Credentials):',
+                          en: 'API Credentials & Tokens:',
+                          ko: 'API 인증 정보 및 토큰:',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1E3A8A)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+
+                  // API Endpoint URL
+                  TextField(
+                    controller: _gatewayApiUrlCtrl,
+                    decoration: InputDecoration(
+                      labelText: langService.trText(ne: 'API Base URL', en: 'API Base URL', ko: 'API 기본 URL'),
+                      hintText: 'https://api.ultramsg.com',
+                      prefixIcon: const Icon(Icons.link_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    ),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Instance ID / Account SID
+                  TextField(
+                    controller: _gatewayInstanceIdCtrl,
+                    decoration: InputDecoration(
+                      labelText: langService.trText(
+                        ne: 'Instance ID / Account ID / Phone Number ID',
+                        en: 'Instance ID / Account ID / Phone Number ID',
+                        ko: '인스턴스 ID / 계정 ID / 전화번호 ID',
+                      ),
+                      hintText: 'e.g. instance102934',
+                      prefixIcon: const Icon(Icons.fingerprint_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    ),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // API Token / Secret
+                  TextField(
+                    controller: _gatewayApiTokenCtrl,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: langService.trText(ne: 'API Token / Secret Key', en: 'API Token / Secret Key', ko: 'API 토큰 / 시크릿 키'),
+                      hintText: 'Token / Auth Bearer',
+                      prefixIcon: const Icon(Icons.lock_outline_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    ),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Sender Phone (optional)
+                  TextField(
+                    controller: _gatewaySenderPhoneCtrl,
+                    decoration: InputDecoration(
+                      labelText: langService.trText(ne: 'पठाउने नम्बर (Sender Phone/Twilio No - ऐच्छिक)', en: 'Sender Phone / Twilio Number (Optional)', ko: '발신 번호 (선택 사항)'),
+                      hintText: '+14155238886 वा खाली राख्नुहोस्',
+                      prefixIcon: const Icon(Icons.phone_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    ),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Message Template
+                  TextField(
+                    controller: _gatewayTemplateCtrl,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      labelText: langService.trText(ne: 'WhatsApp सन्देश ढाँचा (Message Template)', en: 'WhatsApp Message Template', ko: 'WhatsApp 메시지 템플릿'),
+                      hintText: 'तपाईंको EPS-TOPIK लगइन OTP कोड: {{OTP}} हो।',
+                      helperText: '💡 नोट: {{OTP}} लेखिएको ठाउँमा स्वतः ६ अङ्कको कोड बस्नेछ।',
+                      helperStyle: const TextStyle(fontSize: 10, color: Colors.teal),
+                      prefixIcon: const Icon(Icons.message_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    ),
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Save Gateway Configuration Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: 42,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF25D366),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      icon: const Icon(Icons.save_rounded, size: 18),
+                      label: Text(
+                        langService.trText(
+                          ne: '💾 WhatsApp गेटवे सेटिङ सेभ गर्नुहोस्',
+                          en: '💾 Save WhatsApp Gateway Config',
+                          ko: '💾 WhatsApp 게이트웨이 설정 저장',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                      onPressed: () async {
+                        final newConfig = WhatsAppGatewayConfig(
+                          provider: _gatewayProvider,
+                          isEnabled: _gatewayEnabled,
+                          apiUrl: _gatewayApiUrlCtrl.text.trim().isNotEmpty ? _gatewayApiUrlCtrl.text.trim() : _gatewayProvider.defaultUrl,
+                          instanceId: _gatewayInstanceIdCtrl.text.trim(),
+                          apiToken: _gatewayApiTokenCtrl.text.trim(),
+                          messageTemplate: _gatewayTemplateCtrl.text.trim().isNotEmpty
+                              ? _gatewayTemplateCtrl.text.trim()
+                              : 'तपाईंको EPS-TOPIK लगइन प्रमाणीकरण OTP कोड: {{OTP}} हो। यो कोड ५ मिनेटसम्म मात्र मान्य रहनेछ।',
+                          senderPhone: _gatewaySenderPhoneCtrl.text.trim(),
+                        );
+                        await otpService.saveConfig(newConfig);
+                        setState(() {
+                          _isSuccess = true;
+                          _statusMessage = langService.trText(
+                            ne: '✅ WhatsApp OTP Gateway सेटिङ सफलतापूर्वक सुरक्षित भयो!',
+                            en: '✅ WhatsApp OTP Gateway configuration saved successfully!',
+                            ko: '✅ WhatsApp OTP 게이트웨이 설정이 성공적으로 저장되었습니다!',
+                          );
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // ⚡ Live Test OTP Dispatcher Card
+          Card(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.amber.shade300)),
+            color: const Color(0xFFFFFBEB),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.send_to_mobile_rounded, size: 18, color: Color(0xFFB45309)),
+                      const SizedBox(width: 8),
+                      Text(
+                        langService.trText(
+                          ne: '⚡ प्रत्यक्ष परीक्षण गर्नुहोस् (Live Test OTP):',
+                          en: '⚡ Send Test WhatsApp OTP:',
+                          ko: '⚡ 실시간 테스트 OTP 발송:',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFFB45309)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    langService.trText(
+                      ne: 'आफ्नो WhatsApp भएको १० अङ्कको मोबाइल नम्बर हाली परीक्षण कोड पठाएर हेर्नुहोस्:',
+                      en: 'Enter your WhatsApp mobile number to verify message dispatch:',
+                      ko: 'WhatsApp이 설치된 휴대폰 번호를 입력하여 발송 상태를 확인하세요:',
+                    ),
+                    style: const TextStyle(fontSize: 11, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _gatewayTestPhoneCtrl,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            hintText: 'e.g. 9851234567',
+                            prefixIcon: const Icon(Icons.phone_android_rounded, size: 18),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                            isDense: true,
+                            fillColor: Colors.white,
+                            filled: true,
+                          ),
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0F766E),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        icon: _isTestingGateway
+                            ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                            : const Icon(Icons.send_rounded, size: 16),
+                        label: Text(
+                          _isTestingGateway
+                              ? langService.trText(ne: 'पठाउँदैछ...', en: 'Sending...', ko: '발송 중...')
+                              : langService.trText(ne: 'Test OTP पठाउनुहोस्', en: 'Send Test OTP', ko: '테스트 발송'),
+                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: _isTestingGateway
+                            ? null
+                            : () async {
+                                final phone = _gatewayTestPhoneCtrl.text.trim();
+                                if (phone.length < 8) {
+                                  setState(() {
+                                    _isSuccess = false;
+                                    _statusMessage = langService.trText(
+                                      ne: '❌ कृपया कम्तिमा १० अङ्कको सही मोबाइल नम्बर हाल्नुहोस्!',
+                                      en: '❌ Please enter a valid mobile number!',
+                                      ko: '❌ 올바른 휴대폰 번호를 입력해 주세요!',
+                                    );
+                                  });
+                                  return;
+                                }
+
+                                setState(() => _isTestingGateway = true);
+                                final res = await WhatsAppOtpService.instance.sendOtp(phone);
+                                setState(() {
+                                  _isTestingGateway = false;
+                                  _isSuccess = res['success'] == true;
+                                  _statusMessage = res['message'] ?? 'OTP पठाइयो';
+                                });
+                              },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+        ],
+      ),
+    );
+  }
+
+  // 📦 TAB 7: DATA, STORAGE, AUTO-UPDATE & APP INFO
   Widget _buildDataAndInfoTab() {
     return ListenableBuilder(
       listenable: UpdateService.instance,

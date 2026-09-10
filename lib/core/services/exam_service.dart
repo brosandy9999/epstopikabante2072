@@ -85,10 +85,22 @@ class ExamHistoryService {
   final List<ExamAttemptRecord> _attempts = [];
 
   void _initFromStorageOrSeed() {
-    _seedInitialAttempts();
+    try {
+      final saved = StorageService.instance.loadExamAttempts();
+      if (saved != null) {
+        _attempts.clear();
+        _attempts.addAll(saved);
+        return;
+      }
+    } catch (_) {}
   }
 
-  /// Initialize and load saved attempts from persistent offline storage (Non-Destructive)
+  void clearAllExamAttempts() {
+    _attempts.clear();
+    StorageService.instance.saveExamAttempts(_attempts);
+  }
+
+  /// Initialize/// Initialize and load saved attempts from persistent offline storage (Non-Destructive)
   void loadFromStorage(List<ExamAttemptRecord> savedAttempts) {
     if (savedAttempts.isNotEmpty) {
       mergeAttemptsFromCloud(savedAttempts);

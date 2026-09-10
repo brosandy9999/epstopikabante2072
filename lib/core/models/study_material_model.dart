@@ -381,6 +381,30 @@ class BookAudioTrack {
     this.pageNumber,
   });
 
+  BookAudioTrack copyWith({
+    String? id,
+    int? chapterNo,
+    String? label,
+    String? sectionType,
+    String? audioUrl,
+    String? transcript,
+    double? posX,
+    double? posY,
+    int? pageNumber,
+  }) {
+    return BookAudioTrack(
+      id: id ?? this.id,
+      chapterNo: chapterNo ?? this.chapterNo,
+      label: label ?? this.label,
+      sectionType: sectionType ?? this.sectionType,
+      audioUrl: audioUrl ?? this.audioUrl,
+      transcript: transcript ?? this.transcript,
+      posX: posX ?? this.posX,
+      posY: posY ?? this.posY,
+      pageNumber: pageNumber ?? this.pageNumber,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'chapterNo': chapterNo,
@@ -416,6 +440,7 @@ class StudyBook {
   final String description;
   final String pdfUrl;
   final Map<String, String> chapterPdfs; // Map chapter number to PDF or page image URL
+  final Map<String, String> chapterTitles; // Map chapter number to custom title/name
   final List<String> highlightTopics;
   final List<BookAudioTrack> audioTracks;
   final DateTime createdAt;
@@ -430,10 +455,57 @@ class StudyBook {
     required this.description,
     this.pdfUrl = '',
     this.chapterPdfs = const {},
+    this.chapterTitles = const {},
     required this.highlightTopics,
     this.audioTracks = const [],
     required this.createdAt,
   });
+
+  StudyBook copyWith({
+    String? id,
+    String? title,
+    String? subtitle,
+    String? editionType,
+    String? level,
+    int? chaptersCount,
+    String? description,
+    String? pdfUrl,
+    Map<String, String>? chapterPdfs,
+    Map<String, String>? chapterTitles,
+    List<String>? highlightTopics,
+    List<BookAudioTrack>? audioTracks,
+    DateTime? createdAt,
+  }) {
+    return StudyBook(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      subtitle: subtitle ?? this.subtitle,
+      editionType: editionType ?? this.editionType,
+      level: level ?? this.level,
+      chaptersCount: chaptersCount ?? this.chaptersCount,
+      description: description ?? this.description,
+      pdfUrl: pdfUrl ?? this.pdfUrl,
+      chapterPdfs: chapterPdfs ?? this.chapterPdfs,
+      chapterTitles: chapterTitles ?? this.chapterTitles,
+      highlightTopics: highlightTopics ?? this.highlightTopics,
+      audioTracks: audioTracks ?? this.audioTracks,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  String getChapterTitle(int chapterNo) {
+    if (chapterTitles.containsKey('$chapterNo') && chapterTitles['$chapterNo']!.isNotEmpty) {
+      return chapterTitles['$chapterNo']!;
+    }
+    // Default known chapter titles
+    if (chapterNo == 1) return '안녕하세요 (Hello / नमस्कार)';
+    if (chapterNo == 2) return '여기가 사무실이에요 (This is the office)';
+    if (chapterNo == 3) return '한국어 표준교재 (Korean Textbook)';
+    if (chapterNo == 6) return '저는 투안입니다 (I am Thuan)';
+    if (chapterNo == 11) return '사과 다섯 개 주세요 (Please give 5 apples)';
+    if (chapterNo == 48) return '안전모를 착용하세요 (Wear safety helmet)';
+    return '제${chapterNo}과 (Chapter $chapterNo)';
+  }
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -445,6 +517,7 @@ class StudyBook {
         'description': description,
         'pdfUrl': pdfUrl,
         'chapterPdfs': chapterPdfs,
+        'chapterTitles': chapterTitles,
         'highlightTopics': highlightTopics,
         'audioTracks': audioTracks.map((t) => t.toJson()).toList(),
         'createdAt': createdAt.toIso8601String(),
@@ -677,6 +750,7 @@ class StudyBook {
         description: json['description'] ?? '',
         pdfUrl: json['pdfUrl'] ?? '',
         chapterPdfs: (json['chapterPdfs'] as Map?)?.map((k, v) => MapEntry(k.toString(), v.toString())) ?? const {},
+        chapterTitles: (json['chapterTitles'] as Map?)?.map((k, v) => MapEntry(k.toString(), v.toString())) ?? const {},
         highlightTopics: List<String>.from(json['highlightTopics'] ?? []),
         audioTracks: (json['audioTracks'] as List?)
                 ?.map((e) => BookAudioTrack.fromJson(Map<String, dynamic>.from(e)))

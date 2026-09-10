@@ -1,3 +1,4 @@
+import 'firebase_rtdb_sync_service.dart';
 import 'cloud_sync_service.dart';
 import 'language_service.dart';
 import 'exam_service.dart';
@@ -55,6 +56,11 @@ class AppUser {
     if (validityExpiry == null) return false;
     return DateTime.now().isAfter(validityExpiry!);
   }
+
+  bool get isPendingApproval =>
+      status.contains('प्रतीक्षारत') ||
+      status.toLowerCase().contains('pending') ||
+      status.contains('स्वीकृति पर्खिरहेको');
 
   int get daysRemaining {
     if (validityExpiry == null) return 999;
@@ -181,64 +187,19 @@ class AuthService extends ChangeNotifier {
   final List<AppUser> _instituteAdmins = [];
 
   // Registered Students List with Batches, Sectors, Quotas, and Calendar Expiry
-  final List<AppUser> _students = [
-    AppUser(
-      id: 'STU_001',
-      username: 'student',
-      password: 'student123',
-      name: 'राम बहादुर (Ram Bahadur)',
-      registrationNo: '01234567',
-      mobileNumber: '9841234567',
-      batch: '2026 Batch A (बिहानी सत्र)',
-      sector: '제조업 (Manufacturing)',
-      status: 'सक्रिय (Active)',
-      role: UserRole.student,
-      allowedSetsQuota: 10,
-      validityExpiry: DateTime.now().add(const Duration(days: 45)),
-    ),
-    AppUser(
-      id: 'STU_002',
-      username: 'sita',
-      password: 'student123',
-      name: 'सीता शर्मा (Sita Sharma)',
-      registrationNo: '01234568',
-      mobileNumber: '9841234568',
-      batch: '2026 Batch A (बिहानी सत्र)',
-      sector: '농축산 (Agriculture)',
-      status: 'सक्रिय (Active)',
-      role: UserRole.student,
-      allowedSetsQuota: 15,
-      validityExpiry: DateTime.now().add(const Duration(days: 60)),
-    ),
-    AppUser(
-      id: 'STU_003',
-      username: 'kiran',
-      password: 'student123',
-      name: 'किरण गुरुङ (Kiran Gurung)',
-      registrationNo: '01234569',
-      mobileNumber: '9841234569',
-      batch: '2026 Batch B (दिवा सत्र)',
-      sector: '제조업 (Manufacturing)',
-      status: 'सक्रिय (Active)',
-      role: UserRole.student,
-      allowedSetsQuota: 5,
-      validityExpiry: DateTime.now().add(const Duration(days: 30)),
-    ),
-    AppUser(
-      id: 'STU_004',
-      username: 'anita',
-      password: 'student123',
-      name: 'अनिता तामाङ (Anita Tamang)',
-      registrationNo: '01234570',
-      mobileNumber: '9841234570',
-      batch: '2026 Batch C (साँझ सत्र)',
-      sector: '건설업 (Construction)',
-      status: 'सक्रिय (Active)',
-      role: UserRole.student,
-      allowedSetsQuota: -1, // Unlimited
-      validityExpiry: DateTime.now().add(const Duration(days: 90)),
-    ),
-  ];
+  final List<AppUser> _students = [];
+
+  void clearAllStudents() {
+    _students.clear();
+    _saveCustomUsers();
+    notifyListeners();
+  }
+
+  void deleteStudent(String studentId) {
+    _students.removeWhere((s) => s.id == studentId || s.username.toLowerCase() == studentId.toLowerCase());
+    _saveCustomUsers();
+    notifyListeners();
+  }
 
   AppUser get superAdmin => _superAdmin;
   AppUser get admin => _admin;
@@ -334,10 +295,26 @@ class AuthService extends ChangeNotifier {
           _students.add(rUser);
           hasChanges = true;
         } else {
-          // If local student exists, never overwrite custom local passwords or details
           final localStudent = _students[localIdx];
+          // Always sync status, quota, batch, validity if remote updated
+          if (localStudent.status != rUser.status ||
+              localStudent.allowedSetsQuota != rUser.allowedSetsQuota ||
+              localStudent.batch != rUser.batch ||
+              localStudent.validityExpiry != rUser.validityExpiry) {
+            _students[localIdx].status = rUser.status;
+            _students[localIdx].allowedSetsQuota = rUser.allowedSetsQuota;
+            _students[localIdx].batch = rUser.batch;
+            _students[localIdx].validityExpiry = rUser.validityExpiry;
+            if (_currentUser?.id == localStudent.id) {
+              _currentUser!.status = rUser.status;
+              _currentUser!.allowedSetsQuota = rUser.allowedSetsQuota;
+              _currentUser!.batch = rUser.batch;
+              _currentUser!.validityExpiry = rUser.validityExpiry;
+            }
+            hasChanges = true;
+          }
           if (localStudent.password.isEmpty && rUser.password.isNotEmpty) {
-            _students[localIdx] = rUser;
+            _students[localIdx].password = rUser.password;
             hasChanges = true;
           }
         }
@@ -651,68 +628,117 @@ class AuthService extends ChangeNotifier {
     );
   }
 
-  /// Direct 1-Click Google Sign-In
-  AppUser loginWithGoogle({required String email, required String displayName}) {
+  /// Direct Official Google Sign-In & Registration
+  AppUser loginWithGoogle({
+    required String email,
+    required String displayName,
+    String? photoUrl,
+    String? googleUid,
+    String? instituteId,
+    String? instituteName,
+    String? mobileNumber,
+    String? batch,
+    String? sector,
+  }) {
     final cleanEmail = email.trim().toLowerCase();
     final cleanUser = cleanEmail.split('@')[0];
 
     final idx = _students.indexWhere((u) =>
       u.username.toLowerCase() == cleanUser ||
-      (u.registrationNo?.toLowerCase() == cleanEmail)
+      (u.registrationNo?.toLowerCase() == cleanEmail) ||
+      (googleUid != null && u.id == googleUid)
     );
 
     if (idx != -1) {
-      _currentUser = _students[idx];
+      final existing = _students[idx];
+      if (displayName.isNotEmpty && (existing.name.isEmpty || existing.name.contains('परीक्षार्थी'))) {
+        existing.name = displayName;
+      }
+      if (photoUrl != null && photoUrl.isNotEmpty && (existing.profilePhoto == null || existing.profilePhoto!.isEmpty)) {
+        existing.profilePhoto = photoUrl;
+      }
+      if (mobileNumber != null && mobileNumber.isNotEmpty && (existing.mobileNumber == null || existing.mobileNumber!.isEmpty)) {
+        existing.mobileNumber = mobileNumber;
+      }
+      if (instituteId != null && instituteId.isNotEmpty) {
+        existing.instituteId = instituteId;
+        existing.instituteName = instituteName ?? existing.instituteName;
+      }
+      _currentUser = existing;
+      _saveCustomUsers();
     } else {
       final nowMs = DateTime.now().millisecondsSinceEpoch;
-      final newId = 'STU_$nowMs';
+      final newId = googleUid ?? 'STU_$nowMs';
+      final effectiveInstId = instituteId ?? 'inst_01';
+      final effectiveInstName = instituteName ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट';
       final newStudent = AppUser(
         id: newId,
         username: cleanUser,
         password: 'google_oauth_user',
         name: displayName.isNotEmpty ? displayName : 'Google परीक्षार्थी',
         registrationNo: 'REG-${nowMs.toString().substring(7)}',
-        mobileNumber: '98${nowMs.toString().substring(5)}',
-        batch: '2026 Batch A (बिहानी सत्र)',
-        sector: '제조업 (Manufacturing)',
-        status: 'सक्रिय (Active)',
+        mobileNumber: mobileNumber,
+        batch: batch ?? '2026 Batch A (बिहानी सत्र)',
+        sector: sector ?? '제조업 (Manufacturing)',
+        status: 'प्रतीक्षारत (Pending Approval)', // Google registered student requires Institute Admin approval
         role: UserRole.student,
+        instituteId: effectiveInstId,
+        instituteName: effectiveInstName,
+        profilePhoto: photoUrl,
+        allowedSetsQuota: 10,
+        validityExpiry: DateTime.now().add(const Duration(days: 60)),
       );
       _students.add(newStudent);
       _currentUser = newStudent;
       _saveCustomUsers();
     }
 
+    CloudSyncService.instance.pushToCloud();
+    CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
     notifyListeners();
     return _currentUser!;
   }
 
-  /// Direct Mobile OTP Sign-In
-  AppUser? loginWithMobileOtp({required String mobileNumber}) {
+  /// Direct Mobile OTP Sign-In & Verification
+  AppUser? loginWithMobileOtp({
+    required String mobileNumber,
+    String? name,
+    String? instituteId,
+    String? instituteName,
+    String? batch,
+    String? sector,
+  }) {
     final cleanMobile = mobileNumber.trim();
     if (cleanMobile.length < 8) return null;
 
-    final idx = _students.indexWhere((u) => u.mobileNumber == cleanMobile);
+    final idx = _students.indexWhere((u) => u.mobileNumber == cleanMobile || (cleanMobile.length == 10 && u.mobileNumber != null && u.mobileNumber!.endsWith(cleanMobile)));
     if (idx != -1) {
       _currentUser = _students[idx];
     } else {
       final nowMs = DateTime.now().millisecondsSinceEpoch;
       final newId = 'STU_$nowMs';
+      final effectiveInstId = instituteId ?? 'inst_01';
+      final effectiveInstName = instituteName ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट';
       final newStudent = AppUser(
         id: newId,
         username: 'user_${nowMs.toString().substring(7)}',
         password: 'mobile_otp_user',
-        name: 'मोबाइल परीक्षार्थी ($cleanMobile)',
+        name: (name != null && name.trim().isNotEmpty) ? name.trim() : 'मोबाइल परीक्षार्थी ($cleanMobile)',
         registrationNo: 'REG-${nowMs.toString().substring(7)}',
         mobileNumber: cleanMobile,
-        batch: '2026 Batch A (बिहानी सत्र)',
-        sector: '제조업 (Manufacturing)',
-        status: 'सक्रिय (Active)',
+        batch: batch ?? '2026 Batch A (बिहानी सत्र)',
+        sector: sector ?? '제조업 (Manufacturing)',
+        status: (instituteId != null && instituteId.isNotEmpty) ? 'प्रतीक्षारत (Pending Approval)' : 'सक्रिय (Active)',
         role: UserRole.student,
+        instituteId: effectiveInstId,
+        instituteName: effectiveInstName,
+        allowedSetsQuota: 10,
+        validityExpiry: DateTime.now().add(const Duration(days: 60)),
       );
       _students.add(newStudent);
       _currentUser = newStudent;
       _saveCustomUsers();
+      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
     }
 
     notifyListeners();
@@ -773,6 +799,110 @@ class AuthService extends ChangeNotifier {
 
     _students.add(newStudent);
     _currentUser = newStudent;
+    _saveCustomUsers();
+    notifyListeners();
+    return true;
+  }
+
+  /// Self-Registration with Institute Selection (Status: Pending Approval)
+  AppUser? registerStudentWithInstitute({
+    required String name,
+    required String username,
+    required String password,
+    required String mobileNumber,
+    required String instituteId,
+    required String instituteName,
+    String? instituteLogo,
+    String? registrationNo,
+    String batch = '2026 Batch A (बिहानी सत्र)',
+    String sector = '제조업 (Manufacturing)',
+  }) {
+    final cleanUser = username.trim();
+    final cleanPass = password.trim();
+    final cleanMobile = mobileNumber.trim();
+
+    if (cleanUser.isEmpty || cleanPass.isEmpty) return null;
+
+    final existsInStudents = _students.any((s) =>
+      s.username.toLowerCase() == cleanUser.toLowerCase() ||
+      (cleanMobile.isNotEmpty && s.mobileNumber == cleanMobile)
+    );
+    final existsInAdmins = _admin.username.toLowerCase() == cleanUser.toLowerCase() ||
+      _superAdmin.username.toLowerCase() == cleanUser.toLowerCase() ||
+      _instituteAdmins.any((a) => a.username.toLowerCase() == cleanUser.toLowerCase());
+
+    if (existsInStudents || existsInAdmins) return null;
+
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    final newId = 'STU_$nowMs';
+    final regNo = registrationNo != null && registrationNo.trim().isNotEmpty
+        ? registrationNo.trim()
+        : 'REG-${nowMs.toString().substring(7)}';
+
+    final newStudent = AppUser(
+      id: newId,
+      username: cleanUser,
+      password: cleanPass,
+      name: name.trim(),
+      registrationNo: regNo,
+      mobileNumber: cleanMobile,
+      batch: batch,
+      sector: sector,
+      status: 'प्रतीक्षारत (Pending Approval)',
+      role: UserRole.student,
+      instituteId: instituteId,
+      instituteName: instituteName,
+      instituteLogo: instituteLogo ?? 'assets/images/institute_logo_default.png',
+      allowedSetsQuota: 10,
+      validityExpiry: DateTime.now().add(const Duration(days: 60)),
+    );
+
+    _students.add(newStudent);
+    _currentUser = newStudent;
+    _saveCustomUsers();
+    notifyListeners();
+    return newStudent;
+  }
+
+  /// Approve a student from the Institute Admin
+  bool approveStudent({
+    required String studentId,
+    String? batch,
+    int? allowedSetsQuota,
+    DateTime? validityExpiry,
+  }) {
+    final idx = _students.indexWhere((s) => s.id == studentId || s.username.toLowerCase() == studentId.toLowerCase());
+    if (idx == -1) return false;
+
+    _students[idx].status = 'सक्रिय (Active)';
+    if (batch != null && batch.trim().isNotEmpty) {
+      _students[idx].batch = batch.trim();
+    }
+    if (allowedSetsQuota != null) {
+      _students[idx].allowedSetsQuota = allowedSetsQuota;
+    }
+    if (validityExpiry != null) {
+      _students[idx].validityExpiry = validityExpiry;
+    }
+
+    if (_currentUser != null && (_currentUser!.id == studentId || _currentUser!.username.toLowerCase() == studentId.toLowerCase())) {
+      _currentUser!.status = 'सक्रिय (Active)';
+      if (batch != null && batch.trim().isNotEmpty) _currentUser!.batch = batch.trim();
+      if (allowedSetsQuota != null) _currentUser!.allowedSetsQuota = allowedSetsQuota;
+      if (validityExpiry != null) _currentUser!.validityExpiry = validityExpiry;
+    }
+
+    _saveCustomUsers();
+    notifyListeners();
+    return true;
+  }
+
+  /// Reject / Delete a pending registration
+  bool rejectStudent(String studentId) {
+    final idx = _students.indexWhere((s) => s.id == studentId || s.username.toLowerCase() == studentId.toLowerCase());
+    if (idx == -1) return false;
+
+    _students.removeAt(idx);
     _saveCustomUsers();
     notifyListeners();
     return true;
@@ -1068,7 +1198,76 @@ class AuthService extends ChangeNotifier {
       return false;
     }
 
-    // 2. Check Set Quota
+    // 2. Check Set Specific Unlock Permission (Admin-Assigned Sets)
+    if (setId != null && setId.isNotEmpty && u.unlockedSetIds.isNotEmpty && !u.unlockedSetIds.contains(setId)) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.lock_rounded, color: Colors.orange, size: 26),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  LanguageService.instance.trText(
+                    ne: "यो सेट तपाईंलाई तोकिएको छैन!",
+                    en: "Set Not Assigned!",
+                    ko: "미배정 모의고사 세트!",
+                  ),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFFB45309)),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.amber.shade300),
+                ),
+                child: Text(
+                  LanguageService.instance.trText(
+                    ne: "🔒 यो प्रश्न सेट तपाईंको इन्स्टिच्युट (${u.instituteName}) का एडमिनले तपाईंलाई तोक्नुभएको छैन।",
+                    en: "🔒 This question set has not been assigned to you by your institute (${u.instituteName}) admin.",
+                    ko: "🔒 본 모의고사 세트는 소속 학원(${u.instituteName}) 관리자에 의해 배정되지 않았습니다.",
+                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.amber.shade900, fontSize: 13),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                LanguageService.instance.trText(
+                  ne: "यो प्रश्न सेट अनलक गराउन कृपया आफ्नो इन्स्टिच्युट एडमिनसँग सम्पर्क गरी पहुँच अनुमति लिनुहोस्।",
+                  en: "Please contact your Institute admin to unlock and assign this question set to your account.",
+                  ko: "해당 세트를 응시하시려면 학원 관리자에게 세트 배정을 요청해 주세요.",
+                ),
+                style: const TextStyle(fontSize: 13, height: 1.4),
+              ),
+            ],
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1E3A8A),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(LanguageService.instance.trText(ne: "बुझें (Understood)", en: "Understood", ko: "확인")),
+            ),
+          ],
+        ),
+      );
+      return false;
+    }
+
+    // 3. Check Set Quota
     if (!u.isUnlimitedQuota) {
       final completed = ExamHistoryService.instance.getCompletedSetsCountForStudent(u.username);
       if (completed >= u.allowedSetsQuota) {
@@ -1137,10 +1336,19 @@ class AuthService extends ChangeNotifier {
     return true;
   }
 
-  void deleteStudent(String studentId) {
-    _students.removeWhere((s) => s.id == studentId);
-    _saveCustomUsers();
-    CloudSyncService.instance.pushToCloud();
-    notifyListeners();
+  
+
+  void updateStudentUnlockedSets(String studentId, List<String> setIds) {
+    final idx = _students.indexWhere((s) => s.id == studentId || s.username.toLowerCase() == studentId.toLowerCase());
+    if (idx != -1) {
+      _students[idx].unlockedSetIds = setIds;
+      if (_currentUser != null && (_currentUser!.id == studentId || _currentUser!.username.toLowerCase() == studentId.toLowerCase())) {
+        _currentUser!.unlockedSetIds = setIds;
+      }
+      _saveCustomUsers();
+      CloudSyncService.instance.pushToCloud();
+      notifyListeners();
+    }
   }
+
 }

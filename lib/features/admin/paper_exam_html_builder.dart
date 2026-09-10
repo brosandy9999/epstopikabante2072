@@ -145,7 +145,7 @@ class PaperExamHtmlBuilder {
       width: 210mm;
       min-height: 297mm;
       max-height: 297mm;
-      padding: 14mm 16mm 12mm 16mm;
+      padding: 12mm 15mm 10mm 15mm;
       background: #ffffff;
       box-shadow: 0 8px 24px rgba(0,0,0,0.25);
       display: flex;
@@ -160,23 +160,49 @@ class PaperExamHtmlBuilder {
       flex-direction: column;
     }
 
-    /* Running Header */
+    /* Running Header with Logo */
     .running-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1.5px solid #000;
-      padding-bottom: 4px;
+      border-bottom: 1.5px solid #0f172a;
+      padding-bottom: 5px;
       margin-bottom: 8px;
+    }
+    .running-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      overflow: hidden;
+    }
+    .header-mini-logo {
+      height: 22px;
+      width: auto;
+      max-width: 38px;
+      object-fit: contain;
+      border-radius: 3px;
     }
     .running-header-title {
       font-size: 11px;
       font-weight: 700;
       color: #1e3a8a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .running-header-sub {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-size: 10px;
-      color: #64748b;
+      color: #475569;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .header-inst-name {
+      color: #0f172a;
+      font-weight: 700;
     }
 
     /* Section Banner */
@@ -188,7 +214,7 @@ class PaperExamHtmlBuilder {
       color: #ffffff;
       padding: 6px 12px;
       border-radius: 4px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       gap: 12px;
     }
     .section-banner-content {
@@ -230,12 +256,11 @@ class PaperExamHtmlBuilder {
       white-space: nowrap;
     }
 
-    /* Questions container */
+    /* Questions container - Uniform clean spacing */
     .questions-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      flex: 1;
     }
 
     /* Question Item */
@@ -259,21 +284,21 @@ class PaperExamHtmlBuilder {
     .q-badge {
       background: #1e3a8a;
       color: #ffffff;
-      font-size: 11.5px;
+      font-size: 12.5px;
       font-weight: 900;
-      min-width: 22px;
-      height: 22px;
+      min-width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 3px;
+      border-radius: 4px;
       flex-shrink: 0;
       margin-top: 1px;
     }
     .q-text {
-      font-size: 12.5px;
+      font-size: 13.5px;
       font-weight: 700;
-      line-height: 1.35;
+      line-height: 1.4;
       color: #0f172a;
     }
     .q-qr-box {
@@ -309,52 +334,61 @@ class PaperExamHtmlBuilder {
       border: 1.2px solid #0f172a;
       border-radius: 6px;
       background: #fafafa;
-      padding: 7px 12px;
+      padding: 6px 10px;
       margin: 2px 0 2px 28px;
     }
     .material-box.single-word {
       text-align: center;
-      font-size: 13.5px;
+      font-size: 14px;
       font-weight: 700;
       letter-spacing: 0.5px;
-      padding: 8px 12px;
+      padding: 6px 10px;
     }
     .material-box.paragraph {
       text-align: left;
-      font-size: 11.5px;
-      line-height: 1.5;
+      font-size: 13.5px;
+      line-height: 1.45;
       color: #1e293b;
       white-space: pre-line;
+      padding: 6px 10px;
     }
     .material-box.chart-box {
-      margin: 4px 0 6px 28px;
-      padding: 8px 12px;
+      margin: 2px 0 3px 28px;
+      padding: 2px;
       text-align: center;
       background: #ffffff;
       border: 1.5px solid #1e3a8a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .material-box img {
-      max-height: ${(145 * imageScale).round()}px;
-      max-width: ${(460 * imageScale).clamp(260, 620).round()}px;
+      max-height: ${(155 * imageScale).round()}px;
+      width: 100%;
+      max-width: 100%;
       display: block;
-      margin: 4px auto;
+      margin: 0 auto;
       object-fit: contain;
+      border-radius: 4px;
     }
     .material-box.chart-box img {
-      max-height: ${(165 * imageScale).round()}px;
-      max-width: ${(480 * imageScale).clamp(300, 640).round()}px;
+      max-height: ${(175 * imageScale).round()}px;
+      width: 100%;
+      max-width: 100%;
       display: block;
-      margin: 4px auto;
+      margin: 0 auto;
       object-fit: contain;
+      border-radius: 4px;
     }
 
     /* Side-by-side layout for picture questions (Picture Left, Options Right) */
     .q-side-row {
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 16px;
       margin-left: 28px;
-      margin-top: 4px;
+      margin-top: 3px;
     }
     .q-side-media {
       flex: 0 0 ${(240 * imageScale).clamp(190, 310).round()}px;
@@ -362,7 +396,7 @@ class PaperExamHtmlBuilder {
     }
     .q-side-media .material-box {
       margin: 0 !important;
-      padding: 6px 8px;
+      padding: 3px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -371,11 +405,13 @@ class PaperExamHtmlBuilder {
       background: #fafafa;
     }
     .q-side-media img {
-      max-height: ${(105 * imageScale).round()}px;
-      max-width: ${(235 * imageScale).round()}px;
+      max-height: ${(110 * imageScale).round()}px;
+      max-width: 100%;
+      width: 100%;
       object-fit: contain;
-      margin: 2px auto;
+      margin: 0 auto;
       display: block;
+      border-radius: 4px;
     }
     .q-side-options {
       flex: 1;
@@ -410,55 +446,119 @@ class PaperExamHtmlBuilder {
       display: flex;
       align-items: flex-start;
       gap: 4px;
-      font-size: 11.5px;
-      line-height: 1.35;
+      font-size: 13.5px;
+      line-height: 1.4;
       color: #1e293b;
     }
     .opt-num {
-      font-weight: 700;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: #0f172a;
       flex-shrink: 0;
     }
     .opt-text {
+      font-size: 13.5px;
       flex: 1;
     }
 
-    /* Image options - 4 columns in 1 single row */
+    /* Image options - Large, Crisp 4 Columns filling full width */
     .img-opts-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      border: 1px solid #cbd5e1;
-      padding: 6px;
-      border-radius: 4px;
+      gap: 10px;
+      border: 1.2px solid #cbd5e1;
+      padding: 8px;
+      border-radius: 6px;
       margin-left: 28px;
-      margin-top: 3px;
+      margin-top: 4px;
+      background: #f8fafc;
     }
     .img-opt-box {
-      border: 1px solid #e2e8f0;
-      border-radius: 4px;
-      padding: 4px;
+      border: 1.2px solid #cbd5e1;
+      border-radius: 5px;
+      padding: 6px 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      height: 82px;
+      justify-content: space-between;
+      height: ${(120 * imageScale).clamp(95, 145).round()}px;
       background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .img-opt-box .opt-num {
+      font-size: 12px;
+      font-weight: 800;
+      color: #1e3a8a;
+      margin-bottom: 2px;
     }
     .img-opt-box img {
-      max-height: 58px;
+      max-height: ${(92 * imageScale).clamp(72, 115).round()}px;
       max-width: 100%;
       object-fit: contain;
     }
 
-    /* Page Footer */
+    /* Blind Listening / Audio Only Questions OMR Choice Row */
+    .blind-listening-box {
+      margin-left: 28px;
+      margin-top: 4px;
+      padding: 6px 12px;
+      background: #f8fafc;
+      border: 1.2px dashed #94a3b8;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .blind-listen-note {
+      font-size: 10.5px;
+      color: #475569;
+      font-weight: 700;
+    }
+    .blind-omr-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .blind-omr-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .omr-bubble {
+      font-size: 13.5px;
+      font-weight: 900;
+      color: #1e3a8a;
+    }
+    .omr-label {
+      font-size: 10.5px;
+      color: #64748b;
+    }
+
+    /* Page Footer with Logo & Info */
     .pbt-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 6px;
-      font-size: 8.5px;
-      color: #64748b;
-      margin-top: 8px;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 5px;
+      font-size: 9px;
+      color: #475569;
+      margin-top: 6px;
+    }
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .footer-mini-logo {
+      height: 18px;
+      width: auto;
+      max-width: 32px;
+      object-fit: contain;
+      border-radius: 2px;
     }
     .page-pill {
       font-size: 10px;
@@ -466,6 +566,10 @@ class PaperExamHtmlBuilder {
       border: 1px solid #cbd5e1;
       padding: 1px 8px;
       border-radius: 3px;
+      color: #0f172a;
+    }
+    .footer-right {
+      font-weight: 700;
       color: #0f172a;
     }
 
@@ -481,24 +585,26 @@ class PaperExamHtmlBuilder {
       margin-top: 8px;
     }
 
-    /* Cover Institute Header & Branding */
+    /* Cover Institute Header & Large Branding */
     .cover-inst-header {
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 8px;
+      gap: 18px;
+      margin-bottom: 12px;
     }
     .inst-logo-box {
-      width: 58px;
-      height: 58px;
-      border-radius: 6px;
-      border: 1.5px solid #1e3a8a;
+      width: 90px;
+      height: 90px;
+      border-radius: 8px;
+      border: 2px solid #1e3a8a;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       background: #ffffff;
       flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 4px;
     }
     .inst-logo-img {
       max-width: 100%;
@@ -516,11 +622,11 @@ class PaperExamHtmlBuilder {
       color: #ffffff;
     }
     .inst-logo-fallback .logo-icon {
-      font-size: 20px;
+      font-size: 32px;
       line-height: 1;
     }
     .inst-logo-fallback .logo-txt {
-      font-size: 8px;
+      font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.5px;
       margin-top: 2px;
@@ -529,18 +635,18 @@ class PaperExamHtmlBuilder {
       flex: 1;
     }
     .inst-kor-top {
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 800;
       color: #1e3a8a;
       letter-spacing: 0.3px;
     }
     .inst-eng-sub {
-      font-size: 9px;
+      font-size: 9.5px;
       color: #64748b;
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
     .inst-name {
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 900;
       color: #0f172a;
       letter-spacing: 0.5px;
@@ -548,26 +654,28 @@ class PaperExamHtmlBuilder {
       line-height: 1.25;
     }
     .inst-info {
-      font-size: 9.5px;
+      font-size: 10px;
       color: #475569;
-      margin-top: 3px;
+      margin-top: 4px;
       line-height: 1.35;
+      font-weight: 500;
     }
     .inst-pbt-badge {
       border: 2px solid #1e3a8a;
-      border-radius: 4px;
-      padding: 4px 10px;
+      border-radius: 6px;
+      padding: 6px 12px;
       text-align: center;
       color: #1e3a8a;
       flex-shrink: 0;
+      background: #eff6ff;
     }
     .inst-pbt-badge .pbt-b1 {
-      font-size: 13px;
+      font-size: 15px;
       font-weight: 900;
       line-height: 1.1;
     }
     .inst-pbt-badge .pbt-b2 {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 800;
       line-height: 1.1;
     }
@@ -582,8 +690,8 @@ class PaperExamHtmlBuilder {
     .cover-top {
       text-align: center;
       border-bottom: 2px solid #0f172a;
-      padding-bottom: 12px;
-      margin-bottom: 14px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
     }
     .cover-badge {
       display: inline-block;
@@ -624,14 +732,14 @@ class PaperExamHtmlBuilder {
       font-size: 11px;
       font-weight: 700;
       padding: 5px 10px;
-      margin-top: 14px;
+      margin-top: 12px;
       margin-bottom: 8px;
     }
     .candidate-grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
       gap: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .form-box {
       border: 1.2px solid #0f172a;
@@ -659,7 +767,7 @@ class PaperExamHtmlBuilder {
       font-size: 11px;
       font-weight: 700;
       padding: 5px 10px;
-      margin-top: 10px;
+      margin-top: 8px;
     }
     .rules-box {
       background: #f8fafc;
@@ -699,7 +807,7 @@ class PaperExamHtmlBuilder {
       font-size: 10px;
       color: #1e3a8a;
       font-weight: 600;
-      margin-top: 12px;
+      margin-top: 10px;
     }
 
     /* Print media rules */
@@ -766,6 +874,7 @@ class PaperExamHtmlBuilder {
           listeningStartIndex: listeningStartIndex,
           pageNum: pageNum,
           institute: institute,
+          logoUrl: customInstituteLogo,
           isLastPage: (p == 6),
           qrCodes: customQrCodes,
           sectionQrUrl: customSectionQr,
@@ -889,9 +998,14 @@ class PaperExamHtmlBuilder {
       </div>
 
       <div class="pbt-footer">
-        <div>EPS-TOPIK PBT  |  한국산업인력공단</div>
+        <div class="footer-left">
+          ${(logoUrl != null && logoUrl.trim().isNotEmpty)
+              ? '<img src="$logoUrl" class="footer-mini-logo" alt="Logo" />'
+              : ''}
+          <span>EPS-TOPIK PBT  |  한국산업인력공단</span>
+        </div>
         <div class="page-pill">- 1 -</div>
-        <div>${_esc(institute)}</div>
+        <div class="footer-right">${_esc(institute)}</div>
       </div>
     </div>
     ''';
@@ -904,6 +1018,7 @@ class PaperExamHtmlBuilder {
     required int listeningStartIndex,
     required int pageNum,
     required String institute,
+    String? logoUrl,
     bool isLastPage = false,
     Map<String, String>? qrCodes,
     String? sectionQrUrl,
@@ -930,11 +1045,20 @@ class PaperExamHtmlBuilder {
     sb.writeln('<div class="pbt-page">');
     sb.writeln('<div class="page-body">');
 
-    // Running Header
+    // Running Header with Institute Mini Logo
     sb.writeln('''
       <div class="running-header">
-        <div class="running-header-title">${_esc(testSet.title)}  •  $sectionTitle</div>
-        <div class="running-header-sub">EPS-TOPIK PBT 지필 모의고사</div>
+        <div class="running-header-left">
+          ${(logoUrl != null && logoUrl.trim().isNotEmpty)
+              ? '<img src="$logoUrl" class="header-mini-logo" alt="Logo" />'
+              : ''}
+          <div class="running-header-title">${_esc(testSet.title)}  •  $sectionTitle</div>
+        </div>
+        <div class="running-header-sub">
+          <span class="header-inst-name">${_esc(institute)}</span>
+          <span>•</span>
+          <span>EPS-TOPIK PBT</span>
+        </div>
       </div>
     ''');
 
@@ -960,7 +1084,7 @@ class PaperExamHtmlBuilder {
       // 2. Listening Section Start Banner (right after reading ends and listening starts)
       if (globalIdx == listeningStartIndex) {
         sb.writeln('''
-          <div class="section-banner" style="margin-top: ${i == 0 ? 0 : 10}px; margin-bottom: 10px;">
+          <div class="section-banner" style="margin-top: ${i == 0 ? 0 : 8}px; margin-bottom: 8px;">
             <div class="section-banner-content">
               <div class="section-banner-title">듣기 영역 (Listening) : ${listeningStartIndex + 1}번 ~ ${testSet.questions.length}번 / 50점</div>
               <div class="section-banner-desc">다음을 듣고 알맞은 것을 ①②③④ 중에서 고르십시오. (듣기 대본은 시험지에 제공되지 않습니다.)</div>
@@ -1006,14 +1130,19 @@ class PaperExamHtmlBuilder {
       ''');
     }
 
-    sb.writeln('</div>'); // top wrapper
+    sb.writeln('</div>'); // page-body
 
-    // Footer
+    // Footer with mini logo
     sb.writeln('''
       <div class="pbt-footer">
-        <div>EPS-TOPIK PBT  |  한국산업인력공단</div>
+        <div class="footer-left">
+          ${(logoUrl != null && logoUrl.trim().isNotEmpty)
+              ? '<img src="$logoUrl" class="footer-mini-logo" alt="Logo" />'
+              : ''}
+          <span>EPS-TOPIK PBT  |  한국산업인력공단</span>
+        </div>
         <div class="page-pill">- $pageNum -</div>
-        <div>${_esc(institute)}</div>
+        <div class="footer-right">${_esc(institute)}</div>
       </div>
     ''');
 
@@ -1056,6 +1185,9 @@ class PaperExamHtmlBuilder {
         !passage.contains('나:') &&
         passage.length <= 40;
 
+    final cleaned = List.generate(4, (i) => i < textOpts.length ? textOpts[i].trim() : '');
+    final bool isBlindListening = !hasImageOpts && cleaned.every((o) => o.isEmpty);
+
     final sb = StringBuffer();
     sb.writeln('<div class="q-item">');
 
@@ -1096,8 +1228,8 @@ class PaperExamHtmlBuilder {
       if (hasMaterial) {
         final boxClass = isChartNotice ? 'material-box chart-box' : isSingleWord ? 'material-box single-word' : 'material-box paragraph';
         sb.writeln('<div class="$boxClass">');
-        if (passage != null && passage.isNotEmpty) {
-          sb.writeln(_esc(passage));
+        if (passage != null && passage.trim().isNotEmpty) {
+          sb.writeln(_esc(passage.trim()));
         }
         if (imgUrl != null && imgUrl.isNotEmpty) {
           sb.writeln('<img src="${_esc(imgUrl)}" alt="Question Image" />');
@@ -1114,11 +1246,24 @@ class PaperExamHtmlBuilder {
           sb.writeln('''
             <div class="img-opt-box">
               <span class="opt-num">${nums[i]}</span>
-              ${img != null && img.isNotEmpty ? '<img src="${_esc(img)}" alt="Option $i" />' : ''}
+              ${img != null && img.isNotEmpty ? '<img src="${_esc(img)}" alt="Option $i" />' : '<span style="color:#94a3b8;font-size:10px;">(이미지 없음)</span>'}
             </div>
           ''');
         }
         sb.writeln('</div>');
+      } else if (isBlindListening) {
+        // Blind listening / pure audio question - Render clear OMR Choice Row
+        sb.writeln('''
+          <div class="blind-listening-box">
+            <span class="blind-listen-note">🎧 [방송을 잘 듣고 알맞은 번호를 고르십시오] (Audio Only)</span>
+            <div class="blind-omr-row">
+              <div class="blind-omr-item"><span class="omr-bubble">①</span><span class="omr-label">( 1 )</span></div>
+              <div class="blind-omr-item"><span class="omr-bubble">②</span><span class="omr-label">( 2 )</span></div>
+              <div class="blind-omr-item"><span class="omr-bubble">③</span><span class="omr-label">( 3 )</span></div>
+              <div class="blind-omr-item"><span class="omr-bubble">④</span><span class="omr-label">( 4 )</span></div>
+            </div>
+          </div>
+        ''');
       } else {
         sb.writeln(_buildTextOptionsHtml(textOpts, isSideBySide: false));
       }
@@ -1138,9 +1283,6 @@ class PaperExamHtmlBuilder {
 
     int colCount = 1;
     if (isSideBySide) {
-      // In side-by-side right column:
-      // If options are short (maxLen <= 8, e.g. single vocabulary words), 2 columns (① ② / ③ ④)
-      // Otherwise (sentences or longer), 1 column (① \n ② \n ③ \n ④)
       if (!hasNewlines && count == 4 && maxLen <= 8) {
         colCount = 2;
       } else {
@@ -1240,13 +1382,13 @@ class PaperExamHtmlBuilder {
         h += heights[k];
       }
       if (p == 0 && listeningStartIndex > 0) {
-        h += 50.0; // Reading banner
+        h += 45.0; // Reading banner
       }
       if (i <= listeningStartIndex && listeningStartIndex < j && listeningStartIndex > 0) {
-        h += (hasSectionQr ? (55.0 + 20.0 * qrScale) : 55.0);
+        h += (hasSectionQr ? (50.0 + 18.0 * qrScale) : 48.0);
       }
       if (p == 6) {
-        h += 35.0; // Exam end banner
+        h += 30.0; // Exam end banner
       }
 
       final count = j - i;
@@ -1339,6 +1481,7 @@ class PaperExamHtmlBuilder {
     final cleaned = List.generate(4, (i) => i < textOpts.length ? textOpts[i].trim() : '');
     final hasNewlines = cleaned.any((o) => o.contains('\n'));
     final maxLen = cleaned.fold<int>(0, (max, o) => o.length > max ? o.length : max);
+    final bool isBlindListening = !hasImageOpts && cleaned.every((o) => o.isEmpty);
 
     if (qText.length > 50) {
       h += 16.0;
@@ -1362,7 +1505,9 @@ class PaperExamHtmlBuilder {
       }
 
       if (hasImageOpts) {
-        h += 75.0 * imageScale;
+        h += 128.0 * imageScale;
+      } else if (isBlindListening) {
+        h += 38.0;
       } else {
         if (!hasNewlines && maxLen <= 11) {
           h += 18.0;
@@ -1385,7 +1530,7 @@ class PaperExamHtmlBuilder {
       }
     }
 
-    h += 8.0;
+    h += 10.0;
     return h;
   }
 

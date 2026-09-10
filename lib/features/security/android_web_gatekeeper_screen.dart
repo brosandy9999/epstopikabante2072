@@ -1,3 +1,4 @@
+import '../../core/services/platform_detector.dart';
 import '../authentication/login_screen.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/language_service.dart';
@@ -14,7 +15,7 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: showBackButton,
+      canPop: !isAndroidWeb && showBackButton,
       child: ListenableBuilder(
         listenable: LanguageService.instance,
         builder: (context, _) => Scaffold(
@@ -528,32 +529,53 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
 
                         const SizedBox(height: 14),
 
-                        // Option to continue in web browser
-                        TextButton.icon(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => const LoginScreen()),
-                            );
-                          },
-                          icon: const Icon(Icons.language_rounded, size: 16, color: Color(0xFF38BDF8)),
-                          label: Text(
-                            LanguageService.instance.trText(
-                              ne: '🌐 मोबाइल वेब ब्राउजरमै लगइन गर्नुहोस् (Continue in Web Browser)',
-                              en: '🌐 Continue in Web Browser (Web Login)',
-                              ko: '🌐 모바일 웹에서 계속하기 (웹 로그인)',
-                            ),
-                            style: const TextStyle(
-                              color: Color(0xFF38BDF8),
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w600,
-                              decoration: TextDecoration.underline,
-                            ),
+                        // Security Notice Banner (Strict Android Lock - No web bypass on Android)
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade900.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.amber.shade600, width: 1.2),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.lock_rounded, color: Colors.amber, size: 22),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  LanguageService.instance.trText(
+                                    ne: '🔒 एन्ड्रोइड मोबाइलमा कडा परीक्षा हल (Strict Exam Mode), एन्टी-चीट र अडियो इन्जिनको सुरक्षाका लागि आधिकारिक APK एप अनिवार्य गरिएको छ।',
+                                    en: '🔒 Official Android APK is required on Android devices for Strict Exam Mode and Offline Audio support.',
+                                    ko: '🔒 안드로이드 기기에서는 엄격한 시험 모드 및 음원 지원을 위해 공식 APK 설치가 필수입니다.',
+                                  ),
+                                  style: const TextStyle(color: Color(0xFFFDE68A), fontSize: 11.5, height: 1.35, fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 
-                        const SizedBox(height: 12),
-
+                        if (showBackButton)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: TextButton.icon(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(Icons.arrow_back_rounded, size: 18, color: Color(0xFF38BDF8)),
+                              label: Text(
+                                LanguageService.instance.trText(
+                                  ne: '← पछाडि फर्कनुहोस् (Back)',
+                                  en: '← Go Back',
+                                  ko: '← 뒤로 가기',
+                                ),
+                                style: const TextStyle(
+                                  color: Color(0xFF38BDF8),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
                         // App Footer Notice
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -699,4 +721,3 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
     );
   }
 }
-

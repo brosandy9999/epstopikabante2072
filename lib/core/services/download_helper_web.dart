@@ -1,22 +1,37 @@
 import 'dart:html' as html;
 
-/// APK is hosted on GitHub Releases & raw master repo
-const _apkUrl = 'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/apk/eps_topik_ubt_2026.apk';
-
+/// APK download helper for Web clients
 void triggerApkDownload() {
-  final anchor = html.AnchorElement(href: _apkUrl)
-    ..setAttribute('download', 'eps_topik_ubt_2026.apk')
-    ..setAttribute('target', '_blank')
-    ..style.display = 'none';
-  html.document.body?.children.add(anchor);
-  anchor.click();
-  anchor.remove();
+  try {
+    final href = html.window.location.href.toLowerCase();
+    String apkPath;
+
+    if (href.contains('github.io')) {
+      apkPath = 'https://brosandy9999.github.io/epstopikabante2072/apk/eps_topik_ubt_2026.apk';
+    } else if (href.contains('firebaseapp.com') || href.contains('web.app')) {
+      apkPath = 'https://topik-abante.web.app/apk/eps_topik_ubt_2026.apk';
+    } else {
+      apkPath = 'apk/eps_topik_ubt_2026.apk';
+    }
+
+    final anchor = html.AnchorElement(href: apkPath)
+      ..setAttribute('download', 'eps_topik_ubt_2026.apk')
+      ..setAttribute('target', '_blank')
+      ..setAttribute('rel', 'noopener noreferrer')
+      ..style.display = 'none';
+
+    html.document.body?.children.add(anchor);
+    anchor.click();
+    anchor.remove();
+  } catch (e) {
+    html.window.open('apk/eps_topik_ubt_2026.apk', '_blank');
+  }
 }
 
 void tryLaunchInstalledAndroidApp() {
   try {
-    // Android Intent URI to launch installed app package directly from browser
-    html.window.location.href = 'intent://open#Intent;scheme=epstopik;package=com.example.eps_topik_app;end';
+    html.window.location.href =
+        'intent://open#Intent;scheme=epstopik;package=com.example.eps_topik_app;end';
   } catch (_) {
     triggerApkDownload();
   }

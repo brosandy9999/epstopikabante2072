@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import 'storage_service.dart';
 import 'question_bank_service.dart';
@@ -10,6 +11,7 @@ import 'exam_service.dart';
 import 'study_material_service.dart';
 import 'institute_service.dart';
 import 'language_service.dart';
+import 'firebase_rtdb_sync_service.dart';
 import '../models/mock_test_model.dart';
 import '../models/study_material_model.dart';
 import '../models/institute_model.dart';
@@ -90,11 +92,33 @@ class CloudSyncService extends ChangeNotifier {
       _lastSyncTime = DateTime.tryParse(lastTimeStr);
     }
 
+    // Auto-load bundled dataset from asset on init
+    loadBundledDataAsset().catchError((_) => false);
+
     // Start background periodic auto-sync (every 90 seconds)
     _autoSyncTimer?.cancel();
     _autoSyncTimer = Timer.periodic(const Duration(seconds: 90), (_) {
       pullFromCloud(silent: true).catchError((_) => false);
     });
+  }
+
+  /// Ingests the bundled master dataset from local asset on app bootstrap
+  Future<bool> loadBundledDataAsset() async {
+    try {
+      final jsonString = await rootBundle.loadString('data/eps_sync_data.json');
+      if (jsonString.isNotEmpty) {
+        final Map<String, dynamic> payload = jsonDecode(jsonString);
+        final success = ingestSyncPayload(payload);
+        if (success) {
+          // Push to Firebase RTDB so cloud server matches local computer
+          FirebaseRtdbSyncService.instance.pushData(payload).catchError((_) => false);
+        }
+        return success;
+      }
+    } catch (e) {
+      debugPrint('[CloudSync] Bundled asset load notice: $e');
+    }
+    return false;
   }
 
   @override
@@ -337,6 +361,13 @@ class CloudSyncService extends ChangeNotifier {
 
     final payload = generateFullSyncPayload();
 
+    // ── 1. Push to Firebase RTDB (primary, no token needed from user) ──
+    bool rtdbSuccess = false;
+    try {
+      rtdbSuccess = await FirebaseRtdbSyncService.instance.pushData(payload);
+    } catch (_) {}
+
+    // ── 2. Push to custom server if configured ───────────────────
     if (isCustomCloudServer) {
       try {
         final response = await http.put(
@@ -356,24 +387,21 @@ class CloudSyncService extends ChangeNotifier {
           return true;
         } else {
           _lastError = 'सर्भर प्रतिक्रिया कोड: ${response.statusCode}';
-          _state = SyncState.error;
+          if (!rtdbSuccess) _state = SyncState.error;
           notifyListeners();
-          return false;
         }
       } catch (e) {
         _lastError = 'क्लाउड सिङ्क असफल: $e';
-        _state = SyncState.offline;
+        if (!rtdbSuccess) _state = SyncState.offline;
         notifyListeners();
-        return false;
       }
-    } else {
-      // Local/GitHub storage snapshot updated
-      _lastSyncTime = DateTime.now();
-      StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
-      _state = SyncState.synced;
-      notifyListeners();
-      return true;
     }
+
+    _lastSyncTime = DateTime.now();
+    StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+    _state = SyncState.synced;
+    notifyListeners();
+    return rtdbSuccess;
   }
 
   /// Pull latest updates from Cloud endpoints into local app (with zero-cache headers)
@@ -384,6 +412,25 @@ class CloudSyncService extends ChangeNotifier {
       notifyListeners();
     }
 
+    // ── 1. Try Firebase RTDB first (fastest, most up-to-date) ──────
+    try {
+      final rtdbPayload = await FirebaseRtdbSyncService.instance.pullData();
+      if (rtdbPayload != null && rtdbPayload.isNotEmpty) {
+        final success = ingestSyncPayload(rtdbPayload);
+        if (success) {
+          _lastSyncTime = DateTime.now();
+          StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+          _state = SyncState.synced;
+          _lastError = null;
+          notifyListeners();
+          return true;
+        }
+      }
+    } catch (e) {
+      debugPrint('[CloudSync] Firebase RTDB pull error: $e');
+    }
+
+    // ── 2. Fallback to GitHub sync URLs ────────────────────────
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final List<String> endpointsToTry = [];
 
@@ -394,6 +441,10 @@ class CloudSyncService extends ChangeNotifier {
 
     final fb1 = '$defaultGitHubSyncUrl?_t=$timestamp';
     final fb2 = '$defaultGitHubPagesSyncUrl?_t=$timestamp';
+    final fb3 = 'https://topik-abante.web.app/data/eps_sync_data.json?_t=$timestamp';
+    final fb4 = 'data/eps_sync_data.json?_t=$timestamp';
+    if (!endpointsToTry.contains(fb3)) endpointsToTry.add(fb3);
+    if (!endpointsToTry.contains(fb4)) endpointsToTry.add(fb4);
     if (!endpointsToTry.contains(fb1)) endpointsToTry.add(fb1);
     if (!endpointsToTry.contains(fb2)) endpointsToTry.add(fb2);
 

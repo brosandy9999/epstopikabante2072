@@ -1647,6 +1647,47 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                                 icon: Icon(set.isLiveExam ? Icons.cancel_outlined : Icons.flash_on, size: 14),
                                 label: Text(set.isLiveExam ? LanguageService.instance.trText(ne: 'लाइभ हटाउनुहोस्', en: 'Remove Live', ko: '라이브 해제') : LanguageService.instance.trText(ne: '🔴 लाइभ परीक्षा', en: '🔴 Live Exam', ko: '🔴 라이브 설정'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                               ),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.red.shade700,
+                                  side: BorderSide(color: Colors.red.shade300),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (c) => AlertDialog(
+                                      title: Text(LanguageService.instance.trText(ne: 'सेट हटाउने पुष्टि', en: 'Confirm Delete Set', ko: '세트 삭제 확인')),
+                                      content: Text(LanguageService.instance.trText(
+                                        ne: 'के तपाईं निश्चित रूपमा "${set.title}" सेट हटाउन चाहनुहुन्छ?',
+                                        en: 'Are you sure you want to delete "${set.title}"?',
+                                        ko: '"${set.title}" 세트를 정말 삭제하시겠습니까?',
+                                      )),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(c),
+                                          child: Text(LanguageService.instance.trText(ne: 'रद्द गर्नुहोस्', en: 'Cancel', ko: '취소')),
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                                          onPressed: () {
+                                            QuestionBankService.instance.deleteMockSet(set.id);
+                                            Navigator.pop(c);
+                                            setState(() {});
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text(LanguageService.instance.trText(ne: 'सेट हटाइयो!', en: 'Set deleted!', ko: '세트가 삭제되었습니다!')), backgroundColor: Colors.red),
+                                            );
+                                          },
+                                          child: Text(LanguageService.instance.trText(ne: 'हटाउनुहोस्', en: 'Delete', ko: '삭제')),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.delete_outline, size: 14),
+                                label: Text(LanguageService.instance.trText(ne: 'हटाउनुहोस्', en: 'Delete', ko: '삭제'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                              ),
                             ],
                           ),
                         ],

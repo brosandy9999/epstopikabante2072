@@ -65,52 +65,134 @@ class QuestionBankService extends ChangeNotifier {
     notifyListeners();
   }
 
+    static const String _keyDeletedSets = 'eps_deleted_sets_v1';
+  static const String _keyCleanSlateMode = 'eps_clean_slate_mode_v1';
+
+  bool isCleanSlateMode() {
+    try {
+      return StorageService.instance.getString(_keyCleanSlateMode) == 'true';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void setCleanSlateMode(bool enable) {
+    try {
+      StorageService.instance.setString(_keyCleanSlateMode, enable ? 'true' : 'false');
+    } catch (_) {}
+    _cachedSets = null;
+    notifyListeners();
+  }
+
+  List<String> _getDeletedSetIds() {
+    try {
+      final str = StorageService.instance.getString(_keyDeletedSets);
+      if (str != null && str.isNotEmpty) {
+        final List decoded = jsonDecode(str);
+        return decoded.map((e) => e.toString()).toList();
+      }
+    } catch (_) {}
+    return [];
+  }
+
+  void _saveDeletedSetIds(List<String> ids) {
+    try {
+      StorageService.instance.setString(_keyDeletedSets, jsonEncode(ids));
+    } catch (_) {}
+  }
+
+  void deleteMockSet(String setId) {
+    getAllMockSets();
+    final deleted = _getDeletedSetIds();
+    if (!deleted.contains(setId)) {
+      deleted.add(setId);
+      _saveDeletedSetIds(deleted);
+    }
+    _customSets.removeWhere((s) => s.id == setId);
+    _saveCustomSets();
+    _cachedSets?.removeWhere((s) => s.id == setId);
+    notifyListeners();
+  }
+
+  void clearAllSampleSets() {
+    final deleted = _getDeletedSetIds();
+    for (final id in ['set_01', 'set_02', 'set_03', 'set_04', 'set_05']) {
+      if (!deleted.contains(id)) deleted.add(id);
+    }
+    _saveDeletedSetIds(deleted);
+    setCleanSlateMode(true);
+    _cachedSets = null;
+    notifyListeners();
+  }
+
+  void clearAllMockSets() {
+    _customSets.clear();
+    _saveCustomSets();
+    clearAllSampleSets();
+  }
+
+  void restoreSampleSets() {
+    _saveDeletedSetIds([]);
+    setCleanSlateMode(false);
+    _cachedSets = null;
+    notifyListeners();
+  }
+
   List<MockTestSet> getAllMockSets() {
     _ensureCustomSetsLoaded();
-    _cachedSets ??= [
-      MockTestSet(
-        id: 'set_01',
-        title: '제1회 EPS-TOPIK 실전 모의고사',
-        sector: '제조업 (Manufacturing)',
-        description: 'उत्पादनमूलक क्षेत्रका लागि आधारभूत शब्दावली, कारखाना सुरक्षा, औजार र कार्यस्थल संवाद समावेश ४० प्रश्नहरूको आधिकारिक सेट।',
-        questions: _getSet1Questions(),
-        answerKeys: _getSet1Answers(),
-      ),
-      MockTestSet(
-        id: 'set_02',
-        title: '제2회 농축산업 실전 모의고사',
-        sector: '농축산업 (Agriculture & Livestock)',
-        description: 'कृषि, तरकारी खेती, पशुपालन, बालीनाली र मौसमी कार्यसँग सम्बन्धित विशिष्ट प्रश्नहरूको नमुना सेट।',
-        questions: _getSet2Questions(),
-        answerKeys: _getSet2Answers(),
-      ),
-      MockTestSet(
-        id: 'set_03',
-        title: '제3회 건설 및 현장안전 모의고사',
-        sector: '건설/안전 (Construction & Safety)',
-        description: 'निर्माण क्षेत्र, गह्रौं उपकरण, सुरक्षा पोशाक र औद्योगिक दुर्घटना रोकथाम सम्बन्धी वास्तविक परीक्षा सेट।',
-        questions: _getSet3Questions(),
-        answerKeys: _getSet3Answers(),
-      ),
-      MockTestSet(
-        id: 'set_04',
-        title: '제4회 직장생활 및 한국문화 모의고사',
-        sector: '일반/문화 (Workplace Culture & Etiquette)',
-        description: 'कोरियाली चाडपर्व, बिदा, तलब भुक्तानी, बैंक, अस्पताल र दैनिक जीवनयापन संवाद सम्बन्धी महत्वपूर्ण सेट।',
-        questions: _getSet4Questions(),
-        answerKeys: _getSet4Answers(),
-      ),
-      MockTestSet(
-        id: 'set_05',
-        title: '제5회 최종 실전 종합 모의고사',
-        sector: '실전 종합 (Final Real Exam Simulation)',
-        description: 'HRD Korea को वास्तविक परीक्षा स्तर अनुसार तयार पारिएको ४० प्रश्नहरूको अन्तिम नमुना सेट।',
-        questions: _getSet5Questions(),
-        answerKeys: _getSet5Answers(),
-      ),
-    ];
+    final deletedIds = _getDeletedSetIds();
+    final cleanSlate = isCleanSlateMode();
+
+    if (!cleanSlate) {
+      _cachedSets ??= [
+        MockTestSet(
+          id: 'set_01',
+          title: '제1회 EPS-TOPIK 실전 모의고사',
+          sector: '제조업 (Manufacturing)',
+          description: 'उत्पादनमूलक क्षेत्रका लागि आधारभूत शब्दावली, कारखाना सुरक्षा, औजार र कार्यस्थल संवाद समावेश ४० प्रश्नहरूको आधिकारिक सेट।',
+          questions: _getSet1Questions(),
+          answerKeys: _getSet1Answers(),
+        ),
+        MockTestSet(
+          id: 'set_02',
+          title: '제2회 농축산업 실전 모의고사',
+          sector: '농축산업 (Agriculture & Livestock)',
+          description: 'कृषि, तरकारी खेती, पशुपालन, बालीनाली र मौसमी कार्यसँग सम्बन्धित विशिष्ट प्रश्नहरूको नमुना सेट।',
+          questions: _getSet2Questions(),
+          answerKeys: _getSet2Answers(),
+        ),
+        MockTestSet(
+          id: 'set_03',
+          title: '제3회 건설 및 현장안전 모의고사',
+          sector: '건설/안전 (Construction & Safety)',
+          description: 'निर्माण क्षेत्र, गह्रौं उपकरण, सुरक्षा पोशाक र औद्योगिक दुर्घटना रोकथाम सम्बन्धी वास्तविक परीक्षा सेट।',
+          questions: _getSet3Questions(),
+          answerKeys: _getSet3Answers(),
+        ),
+        MockTestSet(
+          id: 'set_04',
+          title: '제4회 직장생활 및 한국문화 모의고사',
+          sector: '일반/문화 (Workplace Culture & Etiquette)',
+          description: 'कोरियाली चाडपर्व, बिदा, तलब भुक्तानी, बैंक, अस्पताल र दैनिक जीवनयापन संवाद सम्बन्धी महत्वपूर्ण सेट।',
+          questions: _getSet4Questions(),
+          answerKeys: _getSet4Answers(),
+        ),
+        MockTestSet(
+          id: 'set_05',
+          title: '제5회 최종 실전 종합 모의고사',
+          sector: '실전 종합 (Final Real Exam Simulation)',
+          description: 'HRD Korea को वास्तविक परीक्षा स्तर अनुसार तयार पारिएको ४० प्रश्नहरूको अन्तिम नमुना सेट।',
+          questions: _getSet5Questions(),
+          answerKeys: _getSet5Answers(),
+        ),
+      ];
+    } else {
+      _cachedSets = [];
+    }
+
     final combined = <MockTestSet>[];
-    for (final s in _cachedSets!) {
+    for (final s in (_cachedSets ?? <MockTestSet>[])) {
+      if (deletedIds.contains(s.id)) continue;
       final override = _customSets.firstWhere(
         (c) => c.id == s.id,
         orElse: () => s,
@@ -118,7 +200,8 @@ class QuestionBankService extends ChangeNotifier {
       combined.add(override);
     }
     for (final c in _customSets) {
-      if (!_cachedSets!.any((s) => s.id == c.id)) {
+      if (deletedIds.contains(c.id)) continue;
+      if (!(_cachedSets?.any((s) => s.id == c.id) ?? false)) {
         combined.add(c);
       }
     }
@@ -194,6 +277,8 @@ class QuestionBankService extends ChangeNotifier {
       _saveCustomSets();
     }
   }
+
+  void updateMockSet(MockTestSet set) => addOrUpdateMockSet(set);
 
   void addOrUpdateMockSet(MockTestSet set) {
     getAllMockSets();
@@ -812,17 +897,5 @@ class QuestionBankService extends ChangeNotifier {
     }
   }
 
-  void deleteMockSet(String setId) {
-    _ensureCustomSetsLoaded();
-    _customSets.removeWhere((s) => s.id == setId);
-    _saveCustomSets();
-  }
-
-  /// Update entire mock test set (e.g. listening QR codes, metadata, questions)
-  void updateMockSet(MockTestSet updatedSet) {
-    _ensureCustomSetsLoaded();
-    _customSets.removeWhere((s) => s.id == updatedSet.id);
-    _customSets.add(updatedSet);
-    _saveCustomSets();
-  }
+  
 }

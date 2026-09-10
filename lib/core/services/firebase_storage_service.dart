@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,7 +11,7 @@ class FirebaseStorageService {
       FirebaseStorageService._internal();
   FirebaseStorageService._internal();
 
-  static const String _bucket = 'topik-abante.appspot.com';
+  static const String _bucket = 'topik-abante.firebasestorage.app';
   static const String _baseUrl =
       'https://firebasestorage.googleapis.com/v0/b/$_bucket/o';
 

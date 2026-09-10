@@ -1,3 +1,5 @@
+import '../../core/services/exam_service.dart';
+import '../../core/services/study_material_service.dart';
 import 'package:flutter/material.dart';
 import '../settings/universal_settings_dialog.dart';
 import '../../core/models/institute_model.dart';
@@ -129,6 +131,15 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
                     ko: '클라우드 동기화 및 백업',
                   ),
                   onPressed: () => showUniversalSettingsDialog(context),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.cleaning_services_rounded, color: Colors.orangeAccent),
+                  tooltip: LanguageService.instance.trText(
+                    ne: 'डाटाबेस तथा नमुना डाटा व्यवस्थापन (Clean Slate)',
+                    en: 'Clean Slate & Database Tools',
+                    ko: '데이터베이스 정리 및 관리',
+                  ),
+                  onPressed: _showCleanDatabaseDialog,
                 ),
                 IconButton(
                   icon: const Icon(Icons.settings),
@@ -451,6 +462,22 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
                                   ),
                                 ),
                                 const Spacer(),
+                                // Assign Sets Button
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF0F766E),
+                                    foregroundColor: Colors.white,
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                                  onPressed: () => _showAssignSetsToInstituteDialog(inst),
+                                  icon: const Icon(Icons.checklist_rounded, size: 14),
+                                  label: Text(LanguageService.instance.trText(
+                                    ne: '🎯 सेट तोक्नुहोस् (${inst.assignedSetIds.length})',
+                                    en: '🎯 Assign Sets (${inst.assignedSetIds.length})',
+                                    ko: '🎯 세트 배정 (${inst.assignedSetIds.length})',
+                                  )),
+                                ),
+                                const SizedBox(width: 6),
                                 // Change Quota Button
                                 OutlinedButton.icon(
                                   onPressed: () => _showChangeQuotaDialog(inst),
@@ -1019,4 +1046,407 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
       ),
     );
   }
+
+  void _showAssignSetsToInstituteDialog(InstituteProfile inst) {
+    final allSets = QuestionBankService.instance.getAllMockSets();
+    final selectedSetIds = Set<String>.from(inst.assignedSetIds);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          titlePadding: EdgeInsets.zero,
+          title: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: const BoxDecoration(
+              color: Color(0xFF0F172A),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.checklist_rounded, color: Colors.amber, size: 24),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: 'प्रश्न सेट छनोट तथा सक्रियता (Assign Sets)',
+                          en: 'Assign & Activate Question Sets',
+                          ko: '문제 세트 배정 및 활성화',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
+                      ),
+                      Text(
+                        inst.name,
+                        style: const TextStyle(fontSize: 11, color: Colors.white70),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          content: SizedBox(
+            width: 520,
+            height: 440,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Info banner & bulk actions
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.blue.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, size: 18, color: Color(0xFF1E3A8A)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          LanguageService.instance.trText(
+                            ne: 'यस इन्स्टिच्युटका विद्यार्थीले यहाँ छानिएका सेटहरू मात्र परीक्षा दिन पाउनेछन्। (${selectedSetIds.length} सेट छानियो)',
+                            en: 'Students of this institute can only access selected sets. (${selectedSetIds.length} selected)',
+                            ko: '해당 학원의 수험생은 선택된 세트만 응시할 수 있습니다. (${selectedSetIds.length}개 선택)',
+                          ),
+                          style: const TextStyle(fontSize: 11.5, color: Color(0xFF1E3A8A), fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      icon: const Icon(Icons.select_all, size: 16),
+                      label: Text(LanguageService.instance.trText(ne: 'सबै छान्नुहोस्', en: 'Select All', ko: '전체 선택'), style: const TextStyle(fontSize: 12)),
+                      onPressed: () {
+                        setDialogState(() {
+                          selectedSetIds.addAll(allSets.map((s) => s.id));
+                        });
+                      },
+                    ),
+                    TextButton.icon(
+                      icon: const Icon(Icons.deselect, size: 16, color: Colors.red),
+                      label: Text(LanguageService.instance.trText(ne: 'सबै हटाउनुहोस्', en: 'Deselect All', ko: '전체 해제'), style: const TextStyle(fontSize: 12, color: Colors.red)),
+                      onPressed: () {
+                        setDialogState(() {
+                          selectedSetIds.clear();
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const Divider(height: 10),
+                // Sets list with checkboxes
+                Expanded(
+                  child: allSets.isEmpty
+                      ? Center(
+                          child: Text(
+                            LanguageService.instance.trText(ne: 'कुनै पनि प्रश्न सेट उपलब्ध छैन', en: 'No question sets available', ko: '등록된 문제 세트가 없습니다'),
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      : ListView.separated(
+                          itemCount: allSets.length,
+                          separatorBuilder: (_, __) => const Divider(height: 1),
+                          itemBuilder: (ctx, idx) {
+                            final set = allSets[idx];
+                            final isChecked = selectedSetIds.contains(set.id);
+
+                            return CheckboxListTile(
+                              value: isChecked,
+                              dense: true,
+                              activeColor: const Color(0xFF0F766E),
+                              title: Text(
+                                set.title,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: isChecked ? const Color(0xFF0F766E) : Colors.black87,
+                                ),
+                              ),
+                              subtitle: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(set.sector, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${set.questions.length} ${LanguageService.instance.trText(ne: "प्रश्नहरू", en: "Questions", ko: "문항")}',
+                                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                  ),
+                                ],
+                              ),
+                              onChanged: (bool? val) {
+                                setDialogState(() {
+                                  if (val == true) {
+                                    selectedSetIds.add(set.id);
+                                  } else {
+                                    selectedSetIds.remove(set.id);
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(LanguageService.instance.tr('cancel')),
+            ),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F766E),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              icon: const Icon(Icons.save, size: 16),
+              label: Text(
+                LanguageService.instance.trText(
+                  ne: 'सेटहरू सुरक्षित गर्नुहोस् (${selectedSetIds.length})',
+                  en: 'Save Sets (${selectedSetIds.length})',
+                  ko: '세트 저장 (${selectedSetIds.length})',
+                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                final list = selectedSetIds.toList();
+                InstituteService.instance.assignSetsToInstitute(inst.id, list);
+                Navigator.pop(ctx);
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      LanguageService.instance.trText(
+                        ne: '✅ ${inst.name} का लागि ${list.length} वटा सेटहरू सफलतापूर्वक तोकियो!',
+                        en: '✅ Successfully assigned ${list.length} sets to ${inst.name}!',
+                        ko: '✅ ${inst.name}에 ${list.length}개 세트가 성공적으로 배정되었습니다!',
+                      ),
+                    ),
+                    backgroundColor: Colors.teal,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showCleanDatabaseDialog() {
+    final lang = LanguageService.instance;
+    final isCleanSlate = QuestionBankService.instance.isCleanSlateMode();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: Colors.orange.shade50, borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.cleaning_services_rounded, color: Colors.orange, size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      lang.trText(ne: 'डाटाबेस तथा नमुना डाटा नियन्त्रण', en: 'Database & Seed Data Tools', ko: '데이터베이스 및 샘플 데이터 관리'),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      lang.trText(ne: 'सफा डाटाबेस (Clean Slate) वा नमुना डाटा व्यवस्थापन', en: 'Clean Slate Mode or Sample Data Reset', ko: '클린 슬레이트 모드 또는 샘플 데이터 정리'),
+                      style: const TextStyle(fontSize: 11, color: Colors.black54),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 520,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Status Banner
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: isCleanSlate ? Colors.green.shade50 : Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: isCleanSlate ? Colors.green.shade300 : Colors.blue.shade300),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(isCleanSlate ? Icons.check_circle_rounded : Icons.info_outline, color: isCleanSlate ? Colors.green : const Color(0xFF1E3A8A), size: 22),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            isCleanSlate
+                                ? lang.trText(
+                                    ne: '✨ Clean Slate सक्रिय छ: पुराना कुनै पनि नमुना प्रश्न वा विद्यार्थी देखिने छैनन्। तपाईंले Admin Panel बाट थपेको नयाँ डाटा मात्र देखिन्छ।',
+                                    en: '✨ Clean Slate Active: No default sample questions or students appear. Only Admin-created data is displayed.',
+                                    ko: '✨ 클린 슬레이트 활성화됨: 기본 샘플 문제/학생이 표시되지 않으며, 관리자가 등록한 데이터만 표시됩니다.',
+                                  )
+                                : lang.trText(
+                                    ne: 'ℹ️ हाल डिफल्ट नमुना प्रश्नहरू (Set 1-5) प्रणालीमा समावेश छन्। तपाईंले तलको बटनबाट पुराना नमुना डाटा हटाएर पूर्ण सफा बनाउन सक्नुहुन्छ।',
+                                    en: 'ℹ️ Default sample questions (Set 1-5) are currently loaded. You can clear them below for a completely fresh start.',
+                                    ko: 'ℹ️ 현재 기본 샘플 문제(1-5회)가 포함되어 있습니다. 아래 버튼을 통해 정리할 수 있습니다.',
+                                  ),
+                            style: TextStyle(fontSize: 11.5, color: isCleanSlate ? Colors.green.shade900 : const Color(0xFF1E3A8A), height: 1.3),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Option 1: Master Clean Slate (Remove All Dummy Data)
+                  ListTile(
+                    tileColor: const Color(0xFFFEF3C7),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.amber.shade400)),
+                    leading: const Icon(Icons.auto_delete_rounded, color: Colors.orange, size: 28),
+                    title: Text(
+                      lang.trText(ne: '🧹 पूर्ण Clean Slate (सबै नमुना डाटा हटाउनुहोस्)', en: '🧹 Full Clean Slate (Clear All Sample Data)', ko: '🧹 전체 클린 슬레이트 (모든 샘플 데이터 삭제)'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF92400E)),
+                    ),
+                    subtitle: Text(
+                      lang.trText(
+                        ne: 'डिफल्ट ५ वटा सेट, नमुना विद्यार्थी र नमुना परीक्षा नतिजा सबै हटाई नयाँ डाटा मात्र राख्ने।',
+                        en: 'Clears default 5 sets, dummy students, and dummy attempts. Keeps real admin data only.',
+                        ko: '기본 5개 세트, 더미 학생, 시험 기록을 정리하고 실제 관리자 데이터만 유지합니다.',
+                      ),
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF78350F)),
+                    ),
+                    onTap: () {
+                      QuestionBankService.instance.clearAllSampleSets();
+                      AuthService.instance.clearAllStudents();
+                      ExamHistoryService.instance.clearAllExamAttempts();
+                      StudyMaterialService.instance.clearAllBooks();
+                      Navigator.pop(ctx);
+                      setState(() {});
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(lang.trText(ne: '✨ सबै पुराना नमुना डाटाहरू हटाइयो! अब नयाँ थपिएका डाटाहरू मात्र देखिनेछन्।', en: '✨ All sample data cleared! Database is now clean slate.', ko: '✨ 모든 샘플 데이터가 삭제되었습니다! 클린 슬레이트 완료.')),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Option 2: Clear Dummy Students Only
+                  ListTile(
+                    tileColor: Colors.grey.shade50,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.grey.shade300)),
+                    leading: const Icon(Icons.people_outline, color: Colors.blueGrey),
+                    title: Text(
+                      lang.trText(ne: '🗑️ नमुना विद्यार्थीहरू मात्र हटाउनुहोस्', en: '🗑️ Clear Dummy Students Only', ko: '🗑️ 더미 학생만 삭제'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
+                    ),
+                    subtitle: Text(
+                      lang.trText(ne: 'नयाँ दर्ता भएका वा एडमिनले थपेका विद्यार्थीहरू बाहेक पुराना नमुना नाम हटाउने।', en: 'Removes dummy sample accounts, keeping newly registered students.', ko: '신규 등록 학생을 제외한 샘플 학생 계정 삭제.'),
+                      style: const TextStyle(fontSize: 10.5, color: Colors.black54),
+                    ),
+                    onTap: () {
+                      AuthService.instance.clearAllStudents();
+                      Navigator.pop(ctx);
+                      setState(() {});
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(lang.trText(ne: '✅ नमुना विद्यार्थीहरू हटाइयो!', en: '✅ Dummy students cleared!', ko: '✅ 더미 학생 삭제 완료!')), backgroundColor: Colors.teal),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Option 3: Clear Dummy Exam Records
+                  ListTile(
+                    tileColor: Colors.grey.shade50,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.grey.shade300)),
+                    leading: const Icon(Icons.history_edu, color: Colors.blueGrey),
+                    title: Text(
+                      lang.trText(ne: '🗑️ परीक्षा नतिजा इतिहास खाली गर्नुहोस्', en: '🗑️ Reset Exam Results History', ko: '🗑️ 시험 결과 기록 초기화'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
+                    ),
+                    subtitle: Text(
+                      lang.trText(ne: 'परीक्षा नतिजा तालिका शून्य बनाउने (नयाँ विद्यार्थीको वास्तविक परीक्षा मात्र रेकर्ड हुनेछ)।', en: 'Resets exam attempt history so only new test attempts are recorded.', ko: '시험 응시 기록을 초기화하여 실제 응시 데이터만 기록.'),
+                      style: const TextStyle(fontSize: 10.5, color: Colors.black54),
+                    ),
+                    onTap: () {
+                      ExamHistoryService.instance.clearAllExamAttempts();
+                      Navigator.pop(ctx);
+                      setState(() {});
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(lang.trText(ne: '✅ परीक्षा नतिजा इतिहास सफा गरियो!', en: '✅ Exam history reset!', ko: '✅ 시험 결과 기록 초기화 완료!')), backgroundColor: Colors.teal),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Option 4: Restore Sample Data (Optional Fallback)
+                  ListTile(
+                    tileColor: Colors.blue.shade50,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide(color: Colors.blue.shade200)),
+                    leading: const Icon(Icons.restore, color: Color(0xFF1E3A8A)),
+                    title: Text(
+                      lang.trText(ne: '🔄 डिफल्ट नमुना प्रश्नहरू पुनः ल्याउनुहोस्', en: '🔄 Restore Default Sample Sets', ko: '🔄 기본 샘플 문제 복원'),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Color(0xFF1E3A8A)),
+                    ),
+                    subtitle: Text(
+                      lang.trText(ne: 'कहिलेकाहीं डेमो देखाउनका लागि डिफल्ट ५ वटा सेटहरू पुनः सक्रिय गर्ने।', en: 'Restores the original 5 sample mock test sets for demonstration.', ko: '데모를 위해 기본 5개 모의고사 세트를 복원합니다.'),
+                      style: const TextStyle(fontSize: 10.5, color: Colors.black54),
+                    ),
+                    onTap: () {
+                      QuestionBankService.instance.restoreSampleSets();
+                      StudyMaterialService.instance.restoreSampleBooks();
+                      Navigator.pop(ctx);
+                      setState(() {});
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(lang.trText(ne: '🔄 नमुना प्रश्न सेटहरू पुनर्स्थापना गरियो!', en: '🔄 Sample sets restored!', ko: '🔄 샘플 세트가 복원되었습니다!')), backgroundColor: const Color(0xFF1E3A8A)),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(lang.trText(ne: 'बन्द गर्नुहोस्', en: 'Close', ko: '닫기')),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 }

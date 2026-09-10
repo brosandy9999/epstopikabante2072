@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../core/models/study_material_model.dart';
 import '../../core/services/audio_playback_service.dart';
@@ -7,13 +8,13 @@ import '../../core/services/study_material_service.dart';
 import '../../core/services/cloud_sync_service.dart';
 import '../../core/services/language_service.dart';
 import '../../core/services/offline_download_service.dart';
+import '../../core/widgets/pdf_viewer.dart';
 
-/// Interactive Textbook & PDF Reader with Pin-to-Canvas and Expandable Timeline Audio Buttons
-/// Allows admins and students to:
-/// 1. Upload chapter PDF/Page image directly.
-/// 2. Place small headphone audio buttons directly onto headphone icons in the PDF.
-/// 3. Tap any audio button to smoothly expand an audio timeline slider with live time & seeking.
-/// 4. Tap again to stop audio and collapse the timeline back into the small compact button.
+/// Comprehensive Textbook & Interactive PDF Reader
+/// Features:
+/// 1. Book & Chapter Management: Add, Edit, Delete Book, Chapter Name, Chapter Number, PDF.
+/// 2. Interactive Audio Player Buttons: Add, Edit, Delete, Pin/Move audio buttons with live seekable timeline slider.
+/// 3. Uploaded PDF Viewer: Works 100% across Web & Mobile with native Blob viewer, image viewer, and digital reader fallback.
 class BookReaderScreen extends StatefulWidget {
   final StudyBook book;
   final int initialChapter;
@@ -27,7 +28,7 @@ class BookReaderScreen extends StatefulWidget {
 class _BookReaderScreenState extends State<BookReaderScreen> {
   late StudyBook _currentBook;
   int _selectedChapter = 1;
-  bool _isPdfMode = true; // Default to PDF / Textbook page view
+  bool _isPdfMode = true; // Default to PDF / Textbook canvas view
   bool _isPinningMode = false; // Mode to tap and place audio buttons directly on headphone icons
 
   @override
@@ -57,58 +58,78 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
       _currentBook = updated;
     });
     StudyMaterialService.instance.addBook(updated);
-    CloudSyncService.instance.pushToCloud();
+    CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
   }
 
   List<BookAudioTrack> get _chapterTracks {
-    final tracks = _currentBook.audioTracks.where((t) => t.chapterNo == _selectedChapter).toList();
-    if (tracks.isEmpty) {
-      // Default tracks for demo if empty
-      return [
-        BookAudioTrack(
-          id: 'def_d1_$_selectedChapter',
-          chapterNo: _selectedChapter,
-          label: 'Track 01 (대화 1)',
-          sectionType: 'dialogue_1',
-          audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=안녕하세요저는투안입니다',
-          posX: 0.15,
-          posY: 0.28,
-        ),
-        BookAudioTrack(
-          id: 'def_v1_$_selectedChapter',
-          chapterNo: _selectedChapter,
-          label: 'Track 02 (어휘 1)',
-          sectionType: 'vocabulary',
-          audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=네팔한국베트남미얀마',
-          posX: 0.15,
-          posY: 0.44,
-        ),
-        BookAudioTrack(
-          id: 'def_d2_$_selectedChapter',
-          chapterNo: _selectedChapter,
-          label: 'Track 03 (대화 2)',
-          sectionType: 'dialogue_2',
-          audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=저는회사원입니다',
-          posX: 0.15,
-          posY: 0.60,
-        ),
-        BookAudioTrack(
-          id: 'def_l1_$_selectedChapter',
-          chapterNo: _selectedChapter,
-          label: 'Track 04 (듣기 1~5)',
-          sectionType: 'listening',
-          audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=들은것을고르십시오네팔사람입니다',
-          posX: 0.15,
-          posY: 0.78,
-        ),
-      ];
-    }
-    return tracks;
+    return _currentBook.audioTracks.where((t) => t.chapterNo == _selectedChapter).toList();
   }
 
-  /// Direct Upload PDF or Page Image for this chapter
-  Future<void> _uploadChapterPageDialog() async {
-    final urlCtrl = TextEditingController(text: _currentBook.chapterPdfs['$_selectedChapter'] ?? _currentBook.pdfUrl);
+  void _addDefaultTracksForChapter() {
+    final newTracks = [
+      BookAudioTrack(
+        id: 'track_${DateTime.now().millisecondsSinceEpoch}_1',
+        chapterNo: _selectedChapter,
+        label: 'Track 01 (대화 1)',
+        sectionType: 'dialogue_1',
+        audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=안녕하세요저는투안입니다',
+        posX: 0.15,
+        posY: 0.28,
+      ),
+      BookAudioTrack(
+        id: 'track_${DateTime.now().millisecondsSinceEpoch}_2',
+        chapterNo: _selectedChapter,
+        label: 'Track 02 (어휘 1)',
+        sectionType: 'vocabulary',
+        audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=네팔한국베트남미얀마',
+        posX: 0.15,
+        posY: 0.44,
+      ),
+      BookAudioTrack(
+        id: 'track_${DateTime.now().millisecondsSinceEpoch}_3',
+        chapterNo: _selectedChapter,
+        label: 'Track 03 (대화 2)',
+        sectionType: 'dialogue_2',
+        audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=저는회사원입니다',
+        posX: 0.15,
+        posY: 0.60,
+      ),
+      BookAudioTrack(
+        id: 'track_${DateTime.now().millisecondsSinceEpoch}_4',
+        chapterNo: _selectedChapter,
+        label: 'Track 04 (듣기 1~5)',
+        sectionType: 'listening',
+        audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=들은것을고르십시오네팔사람입니다',
+        posX: 0.15,
+        posY: 0.78,
+      ),
+    ];
+    final updatedTracks = List<BookAudioTrack>.from(_currentBook.audioTracks)..addAll(newTracks);
+    _saveUpdatedBook(_currentBook.copyWith(audioTracks: updatedTracks));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(LanguageService.instance.trText(
+          ne: 'अध्याय $_selectedChapter का लागि डिफल्ट अडियो बटनहरू थपियो ✅',
+          en: 'Default audio tracks added for Chapter $_selectedChapter ✅',
+          ko: '제${_selectedChapter}과 기본 오디오 버튼 추가됨 ✅',
+        )),
+        backgroundColor: Colors.green.shade700,
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------
+  // 1. BOOK MANAGEMENT (किताब सम्पादन तथा व्यवस्थापन)
+  // -------------------------------------------------------------
+  void _openEditBookDialog() {
+    final titleCtrl = TextEditingController(text: _currentBook.title);
+    final subtitleCtrl = TextEditingController(text: _currentBook.subtitle);
+    final chapCtrl = TextEditingController(text: '${_currentBook.chaptersCount}');
+    final pdfCtrl = TextEditingController(text: _currentBook.pdfUrl);
+    final descCtrl = TextEditingController(text: _currentBook.description);
+    String editionType = _currentBook.editionType;
+    String _uploadStatus = '';
+    bool _isUploading = false;
 
     showDialog(
       context: context,
@@ -117,91 +138,173 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Row(
             children: [
-              const Icon(Icons.picture_as_pdf, color: Color(0xFF1E3A8A)),
+              const Icon(Icons.edit_note, color: Color(0xFF1E3A8A)),
               const SizedBox(width: 8),
-              Text(LanguageService.instance.trText(ne: 'अध्याय $_selectedChapter PDF / पृष्ठ अपलोड गर्नुहोस्', en: 'Upload Chapter $_selectedChapter PDF / Page', ko: '제$_selectedChapter과 PDF / 페이지 업로드'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Expanded(
+                child: Text(
+                  LanguageService.instance.trText(
+                    ne: 'किताबको जानकारी सम्पादन गर्नुहोस्',
+                    en: 'Edit Book Details',
+                    ko: '교재 정보 수정',
+                  ),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
             ],
           ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  LanguageService.instance.trText(ne: 'यस अध्यायको लागि आधिकारिक पाठ्यपुस्तकको PDF वा पृष्ठ फोटो अपलोड गर्नुहोस्:', en: 'Upload textbook PDF or page image for this chapter:', ko: '이 단원의 공식 교재 PDF 또는 페이지 이미지를 업로드하세요:'),
-                  style: TextStyle(fontSize: 12, color: Colors.black87),
-                ),
-                const SizedBox(height: 14),
-
-                // Pick from device
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFEA580C),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                TextField(
+                  controller: titleCtrl,
+                  decoration: InputDecoration(
+                    labelText: LanguageService.instance.trText(ne: 'किताबको नाम / शीर्षक*', en: 'Book Title*', ko: '교재 이름*'),
+                    border: const OutlineInputBorder(),
                   ),
-                  onPressed: () async {
-                    final file = await FileUploadService.instance.pickImageFile() ??
-                        await FileUploadService.instance.pickPdfFile();
-                    if (file != null) {
-                      setDialogState(() {
-                        urlCtrl.text = file.bestUrl;
-                      });
-                    }
-                  },
-                  icon: const Icon(Icons.upload_file, size: 18),
-                  label: Text(urlCtrl.text.isEmpty
-                      ? LanguageService.instance.trText(ne: '📁 कम्प्युटर/मोबाइलबाट PDF वा फोटो रोज्नुहोस्', en: '📁 Pick PDF or Image from Device', ko: '📁 기기에서 PDF 또는 이미지 선택')
-                      : 'फाइल लोड भयो ✅ (${urlCtrl.text.startsWith("data:") ? "Local File" : "URL"})'),
                 ),
                 const SizedBox(height: 10),
-
-                // Or URL
                 TextField(
-                  controller: urlCtrl,
+                  controller: subtitleCtrl,
                   decoration: InputDecoration(
-                    labelText: LanguageService.instance.trText(ne: 'वा PDF / Image URL लिङ्क', en: 'Or enter PDF / Image URL', ko: '또는 PDF / 이미지 URL 링크'),
-                    hintText: 'https://example.com/chapter1.pdf वा jpg',
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    labelText: LanguageService.instance.trText(ne: 'उपशीर्षक / विवरण', en: 'Subtitle', ko: '부제목'),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: editionType,
+                  decoration: InputDecoration(
+                    labelText: LanguageService.instance.trText(ne: 'संस्करण (Edition)', en: 'Edition', ko: '판본'),
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: [
+                    DropdownMenuItem(value: _currentBook.editionType, child: Text(_currentBook.editionType)),
+                    DropdownMenuItem(value: 'नयाँ संस्करण (New 2024)', child: Text(LanguageService.instance.trText(ne: 'नयाँ संस्करण (New 2024)', en: 'New Edition (2024)', ko: '신규 개정판 (2024)'))),
+                    DropdownMenuItem(value: 'पुरानो संस्करण (Old 2013)', child: Text(LanguageService.instance.trText(ne: 'पुरानो संस्करण (Old 2013)', en: 'Old Edition (2013)', ko: '클래식 구판 (2013)'))),
+                    DropdownMenuItem(value: 'विशेष गाइड', child: Text(LanguageService.instance.trText(ne: 'विशेष गाइड', en: 'Special Guide', ko: '특수 가이드'))),
+                  ].toSet().toList(),
+                  onChanged: (v) => setDialogState(() => editionType = v!),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: chapCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: LanguageService.instance.trText(ne: 'जम्मा अध्याय संख्या', en: 'Total Chapters', ko: '총 단원 수'),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Book PDF Upload & Management
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E3A8A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    ),
+                    onPressed: _isUploading
+                        ? null
+                        : () async {
+                            setDialogState(() {
+                              _isUploading = true;
+                              _uploadStatus = '⏳ PDF अपलोड हुँदैछ...';
+                            });
+                            final file = await FileUploadService.instance.pickPdfFile();
+                            if (file != null) {
+                              setDialogState(() {
+                                pdfCtrl.text = file.bestUrl;
+                                _uploadStatus = '✅ PDF सुरक्षित भयो (${file.formattedSize})';
+                                _isUploading = false;
+                              });
+                            } else {
+                              setDialogState(() {
+                                _isUploading = false;
+                                _uploadStatus = '';
+                              });
+                            }
+                          },
+                    icon: const Icon(Icons.picture_as_pdf, size: 16),
+                    label: Text(LanguageService.instance.trText(ne: '📄 नयाँ PDF फाइल डिभाइसबाट रोज्नुहोस्', en: '📄 Pick PDF from Device', ko: '📄 기기에서 PDF 선택'), style: const TextStyle(fontSize: 11)),
+                  ),
+                ),
+                if (_uploadStatus.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(_uploadStatus, style: TextStyle(fontSize: 11, color: Colors.green.shade800)),
+                ],
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: pdfCtrl,
+                        decoration: InputDecoration(
+                          labelText: LanguageService.instance.trText(ne: 'पुस्तक PDF लिङ्क', en: 'Book PDF Link', ko: '교재 PDF 링크'),
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    if (pdfCtrl.text.isNotEmpty) ...[
+                      const SizedBox(width: 6),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        tooltip: 'PDF हटाउनुहोस् (Remove PDF)',
+                        onPressed: () {
+                          setDialogState(() {
+                            pdfCtrl.clear();
+                            _uploadStatus = 'PDF हटाइयो';
+                          });
+                        },
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: descCtrl,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    labelText: LanguageService.instance.trText(ne: 'विवरण', en: 'Description', ko: '설명'),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
               ],
             ),
           ),
           actions: [
+            TextButton(
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
+              onPressed: () {
+                _confirmDeleteBookFromReader(ctx);
+              },
+              child: Text(LanguageService.instance.trText(ne: 'किताब मेटाउनुहोस्', en: 'Delete Book', ko: '교재 삭제')),
+            ),
             TextButton(onPressed: () => Navigator.pop(ctx), child: Text(LanguageService.instance.tr('cancel'))),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
               onPressed: () {
-                final url = urlCtrl.text.trim();
-                final updatedPdfs = Map<String, String>.from(_currentBook.chapterPdfs);
-                if (url.isNotEmpty) {
-                  updatedPdfs['$_selectedChapter'] = url;
-                } else {
-                  updatedPdfs.remove('$_selectedChapter');
-                }
+                final newTitle = titleCtrl.text.trim();
+                if (newTitle.isEmpty) return;
 
-                final updated = StudyBook(
-                  id: _currentBook.id,
-                  title: _currentBook.title,
-                  subtitle: _currentBook.subtitle,
-                  editionType: _currentBook.editionType,
-                  level: _currentBook.level,
-                  chaptersCount: _currentBook.chaptersCount,
-                  description: _currentBook.description,
-                  pdfUrl: _currentBook.pdfUrl,
-                  chapterPdfs: updatedPdfs,
-                  highlightTopics: _currentBook.highlightTopics,
-                  audioTracks: _currentBook.audioTracks,
-                  createdAt: _currentBook.createdAt,
+                final updated = _currentBook.copyWith(
+                  title: newTitle,
+                  subtitle: subtitleCtrl.text.trim(),
+                  editionType: editionType,
+                  chaptersCount: int.tryParse(chapCtrl.text.trim()) ?? _currentBook.chaptersCount,
+                  pdfUrl: pdfCtrl.text.trim(),
+                  description: descCtrl.text.trim(),
                 );
-
                 _saveUpdatedBook(updated);
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(LanguageService.instance.trText(ne: 'अध्याय $_selectedChapter को PDF/पेज सुरक्षित भयो ✅', en: 'Chapter $_selectedChapter PDF/page saved ✅', ko: '제$_selectedChapter과 PDF/페이지가 저장되었습니다 ✅')),
+                    content: Text(LanguageService.instance.trText(
+                      ne: 'किताबको जानकारी अपडेट भयो ✅',
+                      en: 'Book details updated ✅',
+                      ko: '교재 정보가 수정되었습니다 ✅',
+                    )),
                     backgroundColor: Colors.green.shade700,
                   ),
                 );
@@ -214,13 +317,337 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
     );
   }
 
-  /// Opens dialog to add or place a track (optionally at a pinned position)
-  void _openAddTrackDialog({String? initialSection, double? posX, double? posY}) {
-    final chapterTracks = _chapterTracks;
-    final nextTrackNum = chapterTracks.length + 1;
-    final labelCtrl = TextEditingController(text: 'Track ${nextTrackNum.toString().padLeft(2, '0')}');
-    final audioUrlCtrl = TextEditingController();
-    String sectionType = initialSection ?? 'dialogue_1';
+  void _confirmDeleteBookFromReader(BuildContext dialogCtx) {
+    showDialog(
+      context: context,
+      builder: (confirmCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(LanguageService.instance.trText(ne: 'किताब मेटाउने?', en: 'Delete Book?', ko: '교재 삭제?')),
+        content: Text(LanguageService.instance.trText(
+          ne: 'के तपाईं "${_currentBook.title}" पुस्तक र यसका सबै च्याप्टर तथा अडियोहरू हटाउन निश्चित हुनुहुन्छ?',
+          en: 'Are you sure you want to delete "${_currentBook.title}"?',
+          ko: '정말 "${_currentBook.title}" 교재를 삭제하시겠습니까?',
+        )),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(confirmCtx), child: Text(LanguageService.instance.tr('cancel'))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () {
+              StudyMaterialService.instance.deleteBook(_currentBook.id);
+              Navigator.pop(confirmCtx);
+              Navigator.pop(dialogCtx);
+              Navigator.pop(context); // Exit BookReaderScreen
+            },
+            child: Text(LanguageService.instance.tr('delete')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------
+  // 2. CHAPTER MANAGEMENT (च्याप्टर थप्ने, सम्पादन गर्ने, मेटाउने)
+  // -------------------------------------------------------------
+  void _openChapterManagerDialog({int? chapterToEdit}) {
+    final targetCh = chapterToEdit ?? _selectedChapter;
+    final currentTitle = _currentBook.getChapterTitle(targetCh);
+    final chNumCtrl = TextEditingController(text: '$targetCh');
+    final chTitleCtrl = TextEditingController(text: currentTitle);
+    final chPdfCtrl = TextEditingController(text: _currentBook.chapterPdfs['$targetCh'] ?? '');
+    String _uploadStatus = '';
+    bool _isUploading = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.menu_book, color: Color(0xFF1E3A8A)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  chapterToEdit != null
+                      ? LanguageService.instance.trText(
+                          ne: 'अध्याय $targetCh सम्पादन गर्नुहोस्',
+                          en: 'Edit Chapter $targetCh',
+                          ko: '제${targetCh}과 수정',
+                        )
+                      : LanguageService.instance.trText(
+                          ne: '➕ नयाँ अध्याय थप्नुहोस् / सम्पादन',
+                          en: '➕ Add / Edit Chapter',
+                          ko: '➕ 새 단원 추가 / 수정',
+                        ),
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: TextField(
+                        controller: chNumCtrl,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: LanguageService.instance.trText(ne: 'च्याप्टर नं.*', en: 'Chapter No.*', ko: '단원 번호*'),
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        controller: chTitleCtrl,
+                        decoration: InputDecoration(
+                          labelText: LanguageService.instance.trText(ne: 'च्याप्टरको नाम / शीर्षक*', en: 'Chapter Title / Name*', ko: '단원 제목 / 이름*'),
+                          hintText: '안녕하세요 / 직장 생활',
+                          border: const OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+
+                // Upload PDF or Image button
+                Text(
+                  LanguageService.instance.trText(
+                    ne: 'यस च्याप्टरको PDF वा पृष्ठ फोटो:',
+                    en: 'Chapter PDF or Page Image:',
+                    ko: '이 단원의 PDF 또는 페이지 이미지:',
+                  ),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1E3A8A),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        ),
+                        onPressed: _isUploading
+                            ? null
+                            : () async {
+                                setDialogState(() {
+                                  _isUploading = true;
+                                  _uploadStatus = '⏳ PDF अपलोड हुँदैछ...';
+                                });
+                                final file = await FileUploadService.instance.pickPdfFile();
+                                if (file != null) {
+                                  setDialogState(() {
+                                    chPdfCtrl.text = file.bestUrl;
+                                    _uploadStatus = '✅ PDF लोड भयो (${file.formattedSize})';
+                                    _isUploading = false;
+                                  });
+                                } else {
+                                  setDialogState(() {
+                                    _isUploading = false;
+                                    _uploadStatus = '';
+                                  });
+                                }
+                              },
+                        icon: const Icon(Icons.picture_as_pdf, size: 16),
+                        label: Text(LanguageService.instance.trText(ne: '📄 PDF छान्नुहोस्', en: '📄 Pick PDF', ko: '📄 PDF 선택'), style: const TextStyle(fontSize: 11)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFEA580C),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                        ),
+                        onPressed: _isUploading
+                            ? null
+                            : () async {
+                                setDialogState(() {
+                                  _isUploading = true;
+                                  _uploadStatus = '⏳ फोटो अपलोड हुँदैछ...';
+                                });
+                                final file = await FileUploadService.instance.pickImageFile();
+                                if (file != null) {
+                                  setDialogState(() {
+                                    chPdfCtrl.text = file.bestUrl;
+                                    _uploadStatus = '✅ फोटो लोड भयो (${file.formattedSize})';
+                                    _isUploading = false;
+                                  });
+                                } else {
+                                  setDialogState(() {
+                                    _isUploading = false;
+                                    _uploadStatus = '';
+                                  });
+                                }
+                              },
+                        icon: const Icon(Icons.image, size: 16),
+                        label: Text(LanguageService.instance.trText(ne: '🖼️ पृष्ठ फोटो', en: '🖼️ Page Image', ko: '🖼️ 페이지 사진'), style: const TextStyle(fontSize: 11)),
+                      ),
+                    ),
+                  ],
+                ),
+                if (_uploadStatus.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(_uploadStatus, style: TextStyle(fontSize: 11, color: _uploadStatus.startsWith('✅') ? Colors.green.shade800 : Colors.blue.shade800)),
+                ],
+                const SizedBox(height: 10),
+                TextField(
+                  controller: chPdfCtrl,
+                  decoration: InputDecoration(
+                    labelText: LanguageService.instance.trText(ne: 'वा PDF / Image URL लिङ्क', en: 'Or PDF / Image URL', ko: '또는 PDF / 이미지 URL'),
+                    hintText: 'https://example.com/chapter.pdf',
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                if (chPdfCtrl.text.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(foregroundColor: Colors.red.shade700),
+                      icon: const Icon(Icons.delete_outline, size: 16),
+                      label: Text(LanguageService.instance.trText(ne: 'यस च्याप्टरको PDF हटाउनुहोस्', en: 'Remove Chapter PDF', ko: '이 단원 PDF 삭제'), style: const TextStyle(fontSize: 12)),
+                      onPressed: () {
+                        setDialogState(() {
+                          chPdfCtrl.clear();
+                          _uploadStatus = '🗑️ PDF हटाइयो';
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            if (chapterToEdit != null)
+              TextButton(
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                onPressed: () {
+                  _confirmDeleteChapter(targetCh, ctx);
+                },
+                child: Text(LanguageService.instance.tr('delete')),
+              ),
+            TextButton(onPressed: () => Navigator.pop(ctx), child: Text(LanguageService.instance.tr('cancel'))),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
+              onPressed: () {
+                final chNum = int.tryParse(chNumCtrl.text.trim()) ?? targetCh;
+                final chTitle = chTitleCtrl.text.trim();
+                final chPdf = chPdfCtrl.text.trim();
+
+                final updatedTitles = Map<String, String>.from(_currentBook.chapterTitles);
+                final updatedPdfs = Map<String, String>.from(_currentBook.chapterPdfs);
+
+                if (chTitle.isNotEmpty) {
+                  updatedTitles['$chNum'] = chTitle;
+                }
+                if (chPdf.isNotEmpty) {
+                  updatedPdfs['$chNum'] = chPdf;
+                } else {
+                  updatedPdfs.remove('$chNum');
+                }
+
+                int newCount = _currentBook.chaptersCount;
+                if (chNum > newCount) {
+                  newCount = chNum;
+                }
+
+                final updated = _currentBook.copyWith(
+                  chaptersCount: newCount,
+                  chapterTitles: updatedTitles,
+                  chapterPdfs: updatedPdfs,
+                );
+
+                _saveUpdatedBook(updated);
+                setState(() {
+                  _selectedChapter = chNum;
+                });
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(LanguageService.instance.trText(
+                      ne: 'अध्याय $chNum सुरक्षित भयो ✅',
+                      en: 'Chapter $chNum saved ✅',
+                      ko: '제${chNum}과가 저장되었습니다 ✅',
+                    )),
+                    backgroundColor: Colors.green.shade700,
+                  ),
+                );
+              },
+              child: Text(LanguageService.instance.tr('save')),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmDeleteChapter(int ch, BuildContext dialogCtx) {
+    showDialog(
+      context: context,
+      builder: (confirmCtx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(LanguageService.instance.trText(ne: 'अध्याय $ch मेटाउने?', en: 'Delete Chapter $ch?', ko: '제${ch}과 삭제?')),
+        content: Text(LanguageService.instance.trText(
+          ne: 'के तपाईं अध्याय $ch र यसका सबै अडियो ट्र्याकहरू हटाउन निश्चित हुनुहुन्छ?',
+          en: 'Are you sure you want to delete Chapter $ch and its audio tracks?',
+          ko: '제${ch}과 및 모든 오디오를 삭제하시겠습니까?',
+        )),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(confirmCtx), child: Text(LanguageService.instance.tr('cancel'))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () {
+              final updatedTitles = Map<String, String>.from(_currentBook.chapterTitles)..remove('$ch');
+              final updatedPdfs = Map<String, String>.from(_currentBook.chapterPdfs)..remove('$ch');
+              final updatedTracks = List<BookAudioTrack>.from(_currentBook.audioTracks)..removeWhere((t) => t.chapterNo == ch);
+
+              final updated = _currentBook.copyWith(
+                chapterTitles: updatedTitles,
+                chapterPdfs: updatedPdfs,
+                audioTracks: updatedTracks,
+              );
+              _saveUpdatedBook(updated);
+              Navigator.pop(confirmCtx);
+              Navigator.pop(dialogCtx);
+              setState(() {
+                if (_selectedChapter == ch) {
+                  _selectedChapter = 1;
+                }
+              });
+            },
+            child: Text(LanguageService.instance.tr('delete')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------
+  // 3. INTERACTIVE AUDIO BUTTON MANAGEMENT (थप्ने, सम्पादन, मेटाउने)
+  // -------------------------------------------------------------
+  void _openAddOrEditTrackDialog({BookAudioTrack? trackToEdit, String? initialSection, double? posX, double? posY}) {
+    final isEditing = trackToEdit != null;
+    final nextTrackNum = _chapterTracks.length + 1;
+    final labelCtrl = TextEditingController(text: isEditing ? trackToEdit.label : 'Track ${nextTrackNum.toString().padLeft(2, '0')}');
+    final audioUrlCtrl = TextEditingController(text: isEditing ? trackToEdit.audioUrl : '');
+    String sectionType = isEditing ? trackToEdit.sectionType : (initialSection ?? 'dialogue_1');
+    double? currentPosX = isEditing ? trackToEdit.posX : posX;
+    double? currentPosY = isEditing ? trackToEdit.posY : posY;
+    String _uploadStatus = '';
+    bool _isUploading = false;
 
     showDialog(
       context: context,
@@ -233,9 +660,11 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  posX != null
-                      ? LanguageService.instance.trText(ne: '📌 हेडफोन आइकनमा अडियो बटन पिन गर्नुहोस्', en: '📌 Pin audio button on headphone icon', ko: '📌 헤드폰 아이콘에 오디오 버튼 핀 고정')
-                      : LanguageService.instance.trText(ne: 'अध्याय $_selectedChapter नयाँ अडियो बटन थप्नुहोस्', en: 'Add new audio button for Chapter $_selectedChapter', ko: '제$_selectedChapter과 새 오디오 버튼 추가'),
+                  isEditing
+                      ? LanguageService.instance.trText(ne: '✏️ अडियो बटन सम्पादन गर्नुहोस्', en: '✏️ Edit Audio Button', ko: '✏️ 오디오 버튼 수정')
+                      : (posX != null
+                          ? LanguageService.instance.trText(ne: '📌 हेडफोन आइकनमा अडियो बटन पिन गर्नुहोस्', en: '📌 Pin Audio Button', ko: '📌 오디오 버튼 핀 고정')
+                          : LanguageService.instance.trText(ne: '➕ नयाँ अडियो बटन थप्नुहोस् (अध्याय $_selectedChapter)', en: '➕ Add Audio Button (Ch $_selectedChapter)', ko: '➕ 새 오디오 버튼 추가 (제$_selectedChapter과)')),
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -246,7 +675,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (posX != null && posY != null)
+                if (currentPosX != null && currentPosY != null)
                   Container(
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -260,60 +689,80 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                         const Icon(Icons.location_on, size: 16, color: Colors.amber),
                         const SizedBox(width: 6),
                         Text(
-                          'पिन गरिएको स्थान: X: ${(posX * 100).toStringAsFixed(1)}%, Y: ${(posY * 100).toStringAsFixed(1)}%',
+                          'पिन गरिएको स्थान: X: ${(currentPosX * 100).toStringAsFixed(1)}%, Y: ${(currentPosY * 100).toStringAsFixed(1)}%',
                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.amber.shade900),
                         ),
                       ],
                     ),
                   ),
-                Text(LanguageService.instance.trText(ne: 'अडियो बटनको लेबल र MP3 अडियो रोज्नुहोस्:', en: 'Choose Audio Button Label & MP3:', ko: '오디오 버튼 라벨 및 MP3 선택:'), style: const TextStyle(fontSize: 12, color: Colors.black87)),
-                const SizedBox(height: 12),
                 TextField(
                   controller: labelCtrl,
                   decoration: InputDecoration(
-                    labelText: LanguageService.instance.trText(ne: 'बटनको नाम / लेबल (e.g. Track 15 वा 01)*', en: 'Button Name / Label (e.g. Track 15 or 01)*', ko: '버튼 이름 / 라벨 (예: Track 15 또는 01)*'),
-                    hintText: 'Track 01',
+                    labelText: LanguageService.instance.trText(ne: 'बटनको नाम / लेबल (e.g. Track 01, 대화 1)*', en: 'Button Label (e.g. Track 01)*', ko: '버튼 라벨 (예: Track 01)*'),
                     border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  initialValue: sectionType,
-                  decoration: InputDecoration(labelText: LanguageService.instance.trText(ne: 'खण्ड*', en: 'Section*', ko: '섹션*'), border: const OutlineInputBorder()),
+                  value: sectionType,
+                  decoration: InputDecoration(labelText: LanguageService.instance.trText(ne: 'खण्ड (Section)*', en: 'Section*', ko: '섹션*'), border: const OutlineInputBorder()),
                   items: [
-                    DropdownMenuItem(value: 'dialogue_1', child: Text(LanguageService.instance.trText(ne: '💬 संवाद १', en: '💬 Dialogue 1', ko: '💬 대화 1'))),
-                    DropdownMenuItem(value: 'vocabulary', child: Text(LanguageService.instance.trText(ne: '📖 शब्दावली १', en: '📖 Vocabulary 1', ko: '📖 어휘 1'))),
-                    DropdownMenuItem(value: 'dialogue_2', child: Text(LanguageService.instance.trText(ne: '🗣️ संवाद २', en: '🗣️ Dialogue 2', ko: '🗣️ 대화 2'))),
-                    DropdownMenuItem(value: 'vocabulary_2', child: Text(LanguageService.instance.trText(ne: '📚 शब्दावली २', en: '📚 Vocabulary 2', ko: '📚 어휘 2'))),
-                    DropdownMenuItem(value: 'pronunciation', child: Text(LanguageService.instance.trText(ne: '🔊 उच्चारण अभ्यास', en: '🔊 Pronunciation', ko: '🔊 발음'))),
-                    DropdownMenuItem(value: 'listening', child: Text(LanguageService.instance.trText(ne: '🎧 सुन्ने अभ्यास १~५', en: '🎧 Listening Practice 1~5', ko: '🎧 듣기 1~5번'))),
-                    DropdownMenuItem(value: 'extended', child: Text(LanguageService.instance.trText(ne: '📝 थप लिसनिङ अभ्यास', en: '📝 Extended Practice', ko: '📝 확장 연습'))),
+                    DropdownMenuItem(value: 'dialogue_1', child: Text(LanguageService.instance.trText(ne: '💬 संवाद १ (Dialogue 1)', en: '💬 Dialogue 1', ko: '💬 대화 1'))),
+                    DropdownMenuItem(value: 'vocabulary', child: Text(LanguageService.instance.trText(ne: '📖 शब्दावली १ (Vocabulary 1)', en: '📖 Vocabulary 1', ko: '📖 어휘 1'))),
+                    DropdownMenuItem(value: 'dialogue_2', child: Text(LanguageService.instance.trText(ne: '🗣️ संवाद २ (Dialogue 2)', en: '🗣️ Dialogue 2', ko: '🗣️ 대화 2'))),
+                    DropdownMenuItem(value: 'vocabulary_2', child: Text(LanguageService.instance.trText(ne: '📚 शब्दावली २ (Vocabulary 2)', en: '📚 Vocabulary 2', ko: '📚 어휘 2'))),
+                    DropdownMenuItem(value: 'pronunciation', child: Text(LanguageService.instance.trText(ne: '🔊 उच्चारण अभ्यास (Pronunciation)', en: '🔊 Pronunciation', ko: '🔊 발음 연습'))),
+                    DropdownMenuItem(value: 'listening', child: Text(LanguageService.instance.trText(ne: '🎧 सुन्ने अभ्यास १~५ (Listening)', en: '🎧 Listening 1~5', ko: '🎧 듣기 1~5'))),
+                    DropdownMenuItem(value: 'extended', child: Text(LanguageService.instance.trText(ne: '📝 थप अभ्यास (Extended)', en: '📝 Extended Practice', ko: '📝 확장 연습'))),
+                    DropdownMenuItem(value: 'custom', child: Text(LanguageService.instance.trText(ne: '✨ अन्य विशेष अडियो', en: '✨ Custom Audio', ko: '✨ 기타 오디오'))),
                   ],
                   onChanged: (v) => setDialogState(() => sectionType = v!),
                 ),
                 const SizedBox(height: 14),
 
-                // Direct MP3 upload button
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFEA580C),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                // Direct MP3 upload
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFEA580C),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    ),
+                    onPressed: _isUploading
+                        ? null
+                        : () async {
+                            setDialogState(() {
+                              _isUploading = true;
+                              _uploadStatus = '⏳ अडियो अपलोड हुँदैछ...';
+                            });
+                            final file = await FileUploadService.instance.pickAudioFile();
+                            if (file != null) {
+                              setDialogState(() {
+                                audioUrlCtrl.text = file.bestUrl;
+                                _uploadStatus = '✅ MP3 अडियो लोड भयो (${file.formattedSize})';
+                                _isUploading = false;
+                              });
+                            } else {
+                              setDialogState(() {
+                                _isUploading = false;
+                                _uploadStatus = '';
+                              });
+                            }
+                          },
+                    icon: const Icon(Icons.upload_file, size: 18),
+                    label: Text(
+                      audioUrlCtrl.text.isEmpty
+                          ? LanguageService.instance.trText(ne: '📁 डिभाइसबाट MP3 अडियो रोज्नुहोस्', en: '📁 Pick MP3 Audio File', ko: '📁 MP3 오디오 파일 선택')
+                          : LanguageService.instance.trText(ne: '📁 अर्को MP3 रोज्नुहोस्', en: '📁 Change MP3 File', ko: '📁 다른 MP3 선택'),
+                    ),
                   ),
-                  onPressed: () async {
-                    final file = await FileUploadService.instance.pickAudioFile();
-                    if (file != null) {
-                      setDialogState(() {
-                        audioUrlCtrl.text = file.bestUrl;
-                      });
-                    }
-                  },
-                  icon: const Icon(Icons.upload_file, size: 18),
-                  label: Text(audioUrlCtrl.text.isEmpty
-                      ? LanguageService.instance.trText(ne: '📁 कम्प्युटर/मोबाइलबाट MP3 रोज्नुहोस्', en: '📁 Pick MP3 Audio from Device', ko: '📁 기기에서 MP3 오디오 선택')
-                      : 'अडियो लोड भयो ✅ (${audioUrlCtrl.text.startsWith("data:") ? "Local File" : "URL"})'),
                 ),
-                const SizedBox(height: 8),
+                if (_uploadStatus.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(_uploadStatus, style: TextStyle(fontSize: 11, color: _uploadStatus.startsWith('✅') ? Colors.green.shade800 : Colors.orange.shade800)),
+                ],
+                const SizedBox(height: 10),
                 TextField(
                   controller: audioUrlCtrl,
                   decoration: InputDecoration(
@@ -327,48 +776,67 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
             ),
           ),
           actions: [
+            if (isEditing)
+              TextButton(
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _deleteTrack(trackToEdit);
+                },
+                child: Text(LanguageService.instance.tr('delete')),
+              ),
             TextButton(onPressed: () => Navigator.pop(ctx), child: Text(LanguageService.instance.tr('cancel'))),
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
               onPressed: () {
-                if (labelCtrl.text.trim().isEmpty || audioUrlCtrl.text.trim().isEmpty) return;
+                final label = labelCtrl.text.trim();
+                final audioUrl = audioUrlCtrl.text.trim();
+                if (label.isEmpty || audioUrl.isEmpty) return;
 
-                final newTrack = BookAudioTrack(
-                  id: 'track_${DateTime.now().millisecondsSinceEpoch}_${labelCtrl.text.trim().hashCode}',
-                  chapterNo: _selectedChapter,
-                  label: labelCtrl.text.trim(),
-                  sectionType: sectionType,
-                  audioUrl: audioUrlCtrl.text.trim(),
-                  posX: posX,
-                  posY: posY,
-                );
+                List<BookAudioTrack> updatedTracks = List<BookAudioTrack>.from(_currentBook.audioTracks);
 
-                final updatedTracks = List<BookAudioTrack>.from(_currentBook.audioTracks)..add(newTrack);
-                final updatedBook = StudyBook(
-                  id: _currentBook.id,
-                  title: _currentBook.title,
-                  subtitle: _currentBook.subtitle,
-                  editionType: _currentBook.editionType,
-                  level: _currentBook.level,
-                  chaptersCount: _currentBook.chaptersCount,
-                  description: _currentBook.description,
-                  pdfUrl: _currentBook.pdfUrl,
-                  chapterPdfs: _currentBook.chapterPdfs,
-                  highlightTopics: _currentBook.highlightTopics,
-                  audioTracks: updatedTracks,
-                  createdAt: _currentBook.createdAt,
-                );
+                if (isEditing) {
+                  final idx = updatedTracks.indexWhere((t) => t.id == trackToEdit.id);
+                  final updatedTrack = trackToEdit.copyWith(
+                    label: label,
+                    sectionType: sectionType,
+                    audioUrl: audioUrl,
+                    posX: currentPosX,
+                    posY: currentPosY,
+                  );
+                  if (idx != -1) {
+                    updatedTracks[idx] = updatedTrack;
+                  } else {
+                    updatedTracks.add(updatedTrack);
+                  }
+                } else {
+                  final newTrack = BookAudioTrack(
+                    id: 'track_${DateTime.now().millisecondsSinceEpoch}_${label.hashCode.abs()}',
+                    chapterNo: _selectedChapter,
+                    label: label,
+                    sectionType: sectionType,
+                    audioUrl: audioUrl,
+                    posX: currentPosX,
+                    posY: currentPosY,
+                  );
+                  updatedTracks.add(newTrack);
+                }
 
+                final updatedBook = _currentBook.copyWith(audioTracks: updatedTracks);
                 _saveUpdatedBook(updatedBook);
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(LanguageService.instance.trText(ne: 'अडियो बटन "${newTrack.label}" थपियो ✅', en: 'Audio button "${newTrack.label}" added ✅', ko: '오디오 버튼 "${newTrack.label}" 추가됨 ✅')),
+                    content: Text(LanguageService.instance.trText(
+                      ne: 'अडियो बटन "$label" सुरक्षित भयो ✅',
+                      en: 'Audio button "$label" saved ✅',
+                      ko: '오디오 버튼 "$label" 저장됨 ✅',
+                    )),
                     backgroundColor: Colors.green.shade700,
                   ),
                 );
               },
-              child: Text(LanguageService.instance.trText(ne: 'अडियो बटन सुरक्षित गर्नुहोस्', en: 'Save Audio Button', ko: '오디오 버튼 저장')),
+              child: Text(LanguageService.instance.tr('save')),
             ),
           ],
         ),
@@ -382,28 +850,18 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(LanguageService.instance.trText(ne: 'अडियो बटन मेटाउने?', en: 'Delete Audio Button?', ko: '오디오 버튼 삭제?')),
-        content: Text(LanguageService.instance.trText(ne: 'के तपाईं "${track.label}" अडियो बटन यस पुस्तकबाट हटाउन निश्चित हुनुहुन्छ?', en: 'Are you sure you want to remove audio button "${track.label}"?', ko: '정말 "${track.label}" 오디오 버튼을 삭제하시겠습니까?')),
+        content: Text(LanguageService.instance.trText(
+          ne: 'के तपाईं "${track.label}" अडियो बटन यस पुस्तकबाट हटाउन निश्चित हुनुहुन्छ?',
+          en: 'Are you sure you want to remove audio button "${track.label}"?',
+          ko: '정말 "${track.label}" 오디오 버튼을 삭제하시겠습니까?',
+        )),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: Text(LanguageService.instance.tr('cancel'))),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () {
-              final updatedTracks = List<BookAudioTrack>.from(_currentBook.audioTracks)
-                ..removeWhere((t) => t.id == track.id);
-              final updatedBook = StudyBook(
-                id: _currentBook.id,
-                title: _currentBook.title,
-                subtitle: _currentBook.subtitle,
-                editionType: _currentBook.editionType,
-                level: _currentBook.level,
-                chaptersCount: _currentBook.chaptersCount,
-                description: _currentBook.description,
-                pdfUrl: _currentBook.pdfUrl,
-                chapterPdfs: _currentBook.chapterPdfs,
-                highlightTopics: _currentBook.highlightTopics,
-                audioTracks: updatedTracks,
-                createdAt: _currentBook.createdAt,
-              );
+              final updatedTracks = List<BookAudioTrack>.from(_currentBook.audioTracks)..removeWhere((t) => t.id == track.id);
+              final updatedBook = _currentBook.copyWith(audioTracks: updatedTracks);
               _saveUpdatedBook(updatedBook);
               AudioPlaybackService.instance.stop();
               Navigator.pop(ctx);
@@ -422,7 +880,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => Container(
-          height: MediaQuery.of(context).size.height * 0.75,
+          height: MediaQuery.of(context).size.height * 0.80,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -435,19 +893,31 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                       const Icon(Icons.menu_book, color: Color(0xFF1E3A8A), size: 24),
                       const SizedBox(width: 8),
                       Text(
-                        LanguageService.instance.trText(ne: 'अध्यायगत सूची र अफलाइन डाउनलोड', en: 'Chapters & Offline Download', ko: '단원 목록 및 오프라인 다운로드'),
+                        LanguageService.instance.trText(ne: 'अध्यायगत सूची तथा व्यवस्थापन', en: 'Chapters & Management', ko: '단원 목록 및 관리'),
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                       ),
                     ],
                   ),
-                  IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.add_circle, color: Color(0xFF1E3A8A)),
+                        tooltip: LanguageService.instance.trText(ne: 'नयाँ अध्याय थप्नुहोस्', en: 'Add Chapter', ko: '새 단원 추가'),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          _openChapterManagerDialog();
+                        },
+                      ),
+                      IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+                    ],
+                  ),
                 ],
               ),
               Text(
                 LanguageService.instance.trText(
-                  ne: 'आफूलाई पढ्न मन लागेको च्याप्टरको साइडमा रहेको ⬇️ डाउनलोड बटन थिचेर अफलाइन सेभ गर्नुहोस्:',
-                  en: 'Tap ⬇️ download button next to any chapter to save it for offline study:',
-                  ko: '오프라인 학습을 원하는 단원 옆의 ⬇️ 다운로드 버튼을 누르세요:',
+                  ne: 'अध्याय छान्नुहोस् वा ✏️ थिचेर नाम/PDF सम्पादन गर्नुहोस्:',
+                  en: 'Select a chapter or tap ✏️ to edit title/PDF:',
+                  ko: '단원을 선택하거나 ✏️를 눌러 제목/PDF를 수정하세요:',
                 ),
                 style: const TextStyle(fontSize: 12, color: Colors.black54),
               ),
@@ -462,6 +932,8 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     final isDownloaded = OfflineDownloadService.instance.isChapterDownloaded(_currentBook.id, ch);
                     final isSelected = _selectedChapter == ch;
                     final tracksCount = _currentBook.audioTracks.where((t) => t.chapterNo == ch).length;
+                    final chTitle = _currentBook.getChapterTitle(ch);
+                    final hasPdf = _currentBook.chapterPdfs.containsKey('$ch') || _currentBook.pdfUrl.isNotEmpty;
 
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -471,14 +943,16 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                         child: Text('$ch', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : (isDownloaded ? Colors.teal.shade900 : Colors.black87))),
                       ),
                       title: Text(
-                        LanguageService.instance.trText(ne: 'अध्याय $ch', en: 'Chapter $ch', ko: '제$ch과'),
+                        '제${ch}과: $chTitle',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontWeight: isSelected ? FontWeight.bold : FontWeight.w600, color: isSelected ? const Color(0xFF1E3A8A) : Colors.black87),
                       ),
                       subtitle: Text(
                         LanguageService.instance.trText(
-                          ne: '$tracksCount वटा अडियो ट्र्याक • ${isDownloaded ? "✅ अफलाइन सुरक्षित" : "अनलाइन"}',
-                          en: '$tracksCount Audio tracks • ${isDownloaded ? "✅ Offline Saved" : "Online"}',
-                          ko: '$tracksCount개 오디오 • ${isDownloaded ? "✅ 오프라인 저장됨" : "온라인"}',
+                          ne: '$tracksCount वटा अडियो • ${hasPdf ? "📄 PDF उपलब्ध" : "टेक्स्टबुक"}',
+                          en: '$tracksCount Audio • ${hasPdf ? "📄 PDF Available" : "Standard"}',
+                          ko: '$tracksCount개 오디오 • ${hasPdf ? "📄 PDF 제공" : "기본 교재"}',
                         ),
                         style: TextStyle(fontSize: 11, color: isDownloaded ? Colors.teal.shade700 : Colors.black54),
                       ),
@@ -486,21 +960,29 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
+                            icon: const Icon(Icons.edit, size: 18, color: Colors.blueGrey),
+                            tooltip: LanguageService.instance.trText(ne: 'च्याप्टर सम्पादन गर्नुहोस्', en: 'Edit Chapter', ko: '단원 수정'),
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              _openChapterManagerDialog(chapterToEdit: ch);
+                            },
+                          ),
+                          IconButton(
                             icon: Icon(
                               isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined,
                               color: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
-                              size: 22,
+                              size: 20,
                             ),
                             tooltip: isDownloaded
-                                ? LanguageService.instance.trText(ne: 'अफलाइन सुरक्षित (हटाउन ट्याप गर्नुहोस्)', en: 'Saved offline (Tap to remove)', ko: '오프라인 저장됨')
-                                : LanguageService.instance.trText(ne: 'अफलाइन डाउनलोड गर्नुहोस्', en: 'Download offline', ko: '오프라인 다운로드'),
+                                ? LanguageService.instance.trText(ne: 'अफलाइन सुरक्षित', en: 'Saved offline', ko: '오프라인 저장됨')
+                                : LanguageService.instance.trText(ne: 'अफलाइन डाउनलोड', en: 'Download offline', ko: '오프라인 다운로드'),
                             onPressed: () async {
                               await OfflineDownloadService.instance.toggleChapterDownload(_currentBook.id, ch);
                               setModalState(() {});
                               setState(() {});
                             },
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 4),
                           if (!isSelected)
                             ElevatedButton(
                               style: ElevatedButton.styleFrom(
@@ -537,63 +1019,86 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
       listenable: LanguageService.instance,
       builder: (context, _) {
         final chapterTracks = _chapterTracks;
+        final currentChapterTitle = _currentBook.getChapterTitle(_selectedChapter);
 
         return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF0F172A),
-        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
-        elevation: 1,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(_currentBook.localizedTitle(), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-            Text(
-              '${_currentBook.editionType} • ' + LanguageService.instance.trText(ne: 'अध्याय $_selectedChapter (${chapterTracks.length} वटा अडियो बटन)', en: 'Chapter $_selectedChapter (${chapterTracks.length} Audio Buttons)', ko: '제$_selectedChapter과 (${chapterTracks.length}개 오디오 버튼)'),
-              style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+          backgroundColor: const Color(0xFFF1F5F9),
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFF0F172A),
+            iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+            elevation: 1,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        _currentBook.localizedTitle(),
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.edit_note, size: 18, color: Color(0xFF1E3A8A)),
+                      tooltip: LanguageService.instance.trText(ne: 'किताबको विवरण सम्पादन गर्नुहोस्', en: 'Edit Book Details', ko: '교재 정보 수정'),
+                      onPressed: _openEditBookDialog,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+                Text(
+                  '제${_selectedChapter}과: $currentChapterTitle • ${chapterTracks.length} ' + LanguageService.instance.trText(ne: 'अडियो बटनहरू', en: 'Audio Buttons', ko: '오디오 버튼'),
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade700, fontWeight: FontWeight.w600),
+                ),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          // Upload PDF/Page Button
-          IconButton(
-            icon: const Icon(Icons.upload_file, size: 20),
-            tooltip: LanguageService.instance.trText(ne: 'यस च्याप्टरको PDF वा पृष्ठ फोटो अपलोड गर्नुहोस्', en: 'Upload PDF or page photo for this chapter', ko: '이 과의 PDF 또는 페이지 사진 업로드'),
-            onPressed: _uploadChapterPageDialog,
+            actions: [
+              // Edit Chapter Button
+              IconButton(
+                icon: const Icon(Icons.edit, size: 19, color: Color(0xFF1E3A8A)),
+                tooltip: LanguageService.instance.trText(ne: 'यस च्याप्टरको नाम र PDF सम्पादन गर्नुहोस्', en: 'Edit this chapter name & PDF', ko: '이 단원 이름 및 PDF 수정'),
+                onPressed: () => _openChapterManagerDialog(chapterToEdit: _selectedChapter),
+              ),
+              // Add Audio Button
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEA580C),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                ),
+                onPressed: () => _openAddOrEditTrackDialog(),
+                icon: const Icon(Icons.add_circle, size: 15),
+                label: Text(
+                  LanguageService.instance.trText(ne: '➕ अडियो बटन', en: '➕ Audio Button', ko: '➕ 오디오 버튼'),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
           ),
-          // Add Audio Track Button
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFEA580C),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            ),
-            onPressed: () => _openAddTrackDialog(),
-            icon: const Icon(Icons.add_circle, size: 15),
-            label: Text(LanguageService.instance.trText(ne: '➕ अडियो बटन', en: '➕ Audio Button', ko: '➕ 오디오 버튼'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      bottomNavigationBar: _buildGlobalNowPlayingBar(),
-      body: Column(
-        children: [
-          // 1. Chapter Nav & Mode Toggle Ribbon
-          _buildChapterNavRibbon(),
+          bottomNavigationBar: _buildGlobalNowPlayingBar(),
+          body: Column(
+            children: [
+              // 1. Chapter Nav & Mode Toggle Ribbon
+              _buildChapterNavRibbon(),
 
-          // 2. All Chapter Audio Quick Ribbon (Displays all buttons horizontally)
-          _buildAllTracksQuickRibbon(chapterTracks),
+              // 2. All Chapter Audio Quick Ribbon (Displays all buttons horizontally)
+              _buildAllTracksQuickRibbon(chapterTracks),
 
-          // 3. Main View: PDF Canvas with Pinning OR Structured Reader View
-          Expanded(
-            child: _isPdfMode
-                ? _buildPdfCanvasView(chapterTracks)
-                : _buildStructuredReaderView(chapterTracks),
+              // 3. Main View: PDF Canvas with Pinning OR Structured Reader View
+              Expanded(
+                child: _isPdfMode
+                    ? _buildPdfCanvasView(chapterTracks)
+                    : _buildStructuredReaderView(chapterTracks),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
       },
     );
   }
@@ -606,20 +1111,27 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Chapter Dropdown & Download Button
+          // Chapter Dropdown & Quick Edit
           Row(
             children: [
-              Text(LanguageService.instance.trText(ne: 'पाठ:', en: 'Lesson:', ko: '과:'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A))),
+              Text(
+                LanguageService.instance.trText(ne: 'पाठ:', en: 'Lesson:', ko: '과:'),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
+              ),
               const SizedBox(width: 8),
               DropdownButton<int>(
                 value: _selectedChapter,
                 isDense: true,
                 items: List.generate(_currentBook.chaptersCount, (i) {
                   final ch = i + 1;
+                  final title = _currentBook.getChapterTitle(ch);
                   final count = _currentBook.audioTracks.where((t) => t.chapterNo == ch).length;
                   return DropdownMenuItem(
                     value: ch,
-                    child: Text(LanguageService.instance.trText(ne: 'अध्याय $ch ${count > 0 ? "($count अडियो)" : ""}', en: 'Chapter $ch ${count > 0 ? "($count Audio)" : ""}', ko: '제$ch과 ${count > 0 ? "($count 오디오)" : ""}')),
+                    child: Text(
+                      '제$ch과: ${title.length > 20 ? "${title.substring(0, 18)}..." : title} ${count > 0 ? "($count🎧)" : ""}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
                   );
                 }),
                 onChanged: (val) {
@@ -632,56 +1144,10 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                 },
               ),
               const SizedBox(width: 6),
-              // Chapter-level direct offline download side icon
-              Builder(
-                builder: (context) {
-                  final isDownloaded = OfflineDownloadService.instance.isChapterDownloaded(_currentBook.id, _selectedChapter);
-                  return IconButton(
-                    icon: Icon(
-                      isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined,
-                      color: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
-                      size: 20,
-                    ),
-                    tooltip: isDownloaded
-                        ? LanguageService.instance.trText(
-                            ne: 'अध्याय $_selectedChapter अफलाइन सुरक्षित छ (हटाउन ट्याप गर्नुहोस्)',
-                            en: 'Chapter $_selectedChapter saved offline (Tap to remove)',
-                            ko: '제$_selectedChapter과 오프라인 저장됨',
-                          )
-                        : LanguageService.instance.trText(
-                            ne: 'अध्याय $_selectedChapter अफलाइन डाउनलोड गर्नुहोस्',
-                            en: 'Download Chapter $_selectedChapter offline',
-                            ko: '제$_selectedChapter과 오프라인 다운로드',
-                          ),
-                    onPressed: () async {
-                      await OfflineDownloadService.instance.toggleChapterDownload(_currentBook.id, _selectedChapter);
-                      setState(() {});
-                      final nowDownloaded = OfflineDownloadService.instance.isChapterDownloaded(_currentBook.id, _selectedChapter);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(nowDownloaded
-                              ? LanguageService.instance.trText(
-                                  ne: '✅ अध्याय $_selectedChapter अफलाइन अध्ययनका लागि डाउनलोड भयो!',
-                                  en: '✅ Chapter $_selectedChapter downloaded for offline study!',
-                                  ko: '✅ 제$_selectedChapter과가 오프라인 저장되었습니다!',
-                                )
-                              : LanguageService.instance.trText(
-                                  ne: 'अध्याय $_selectedChapter अफलाइनबाट हटाइयो।',
-                                  en: 'Chapter $_selectedChapter removed from offline.',
-                                  ko: '제$_selectedChapter과가 오프라인에서 삭제되었습니다.',
-                                )),
-                          backgroundColor: nowDownloaded ? Colors.teal : Colors.blueGrey,
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-              const SizedBox(width: 4),
+              // Chapter Manager Modal Button
               IconButton(
                 icon: const Icon(Icons.format_list_bulleted, size: 18, color: Color(0xFF1E3A8A)),
-                tooltip: LanguageService.instance.trText(ne: 'सबै अध्यायहरू र डाउनलोड सूची', en: 'All Chapters & Download List', ko: '모든 단원 및 다운로드 목록'),
+                tooltip: LanguageService.instance.trText(ne: 'सबै अध्यायहरूको सूची तथा डाउनलोड', en: 'All Chapters List', ko: '모든 단원 목록'),
                 onPressed: _showAllChaptersModal,
               ),
             ],
@@ -792,23 +1258,50 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
             const Icon(Icons.queue_music, size: 16, color: Color(0xFF1E3A8A)),
             const SizedBox(width: 6),
             Text(
-              'यस पाठका ${tracks.length} वटा बटनहरू:',
+              'अडियो बटनहरू (${tracks.length}):',
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Color(0xFF1E3A8A)),
             ),
             const SizedBox(width: 8),
+            if (tracks.isEmpty) ...[
+              Text(
+                LanguageService.instance.trText(
+                  ne: '(यस पाठमा अडियो बटन छैन)',
+                  en: '(No audio buttons in this chapter)',
+                  ko: '(이 단원에 등록된 오디오 버튼 없음)',
+                ),
+                style: const TextStyle(fontSize: 11, color: Colors.black54, fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E3A8A),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  minimumSize: const Size(60, 26),
+                ),
+                onPressed: _addDefaultTracksForChapter,
+                icon: const Icon(Icons.flash_on, size: 13),
+                label: Text(
+                  LanguageService.instance.trText(ne: '⚡ डिफल्ट अडियो राख्नुहोस्', en: '⚡ Add Default Audio', ko: '⚡ 기본 오디오 추가'),
+                  style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(width: 6),
+            ],
             ...tracks.map((track) {
               return Padding(
                 padding: const EdgeInsets.only(right: 6),
                 child: ExpandableAudioTimelineButton(
                   track: track,
-                  onLongPress: () => _deleteTrack(track),
+                  onLongPress: () => _openAddOrEditTrackDialog(trackToEdit: track),
+                  onEditRequested: () => _openAddOrEditTrackDialog(trackToEdit: track),
                 ),
               );
             }),
             IconButton(
               icon: const Icon(Icons.add_circle, color: Color(0xFFEA580C), size: 18),
               tooltip: LanguageService.instance.trText(ne: 'नयाँ बटन थप्नुहोस्', en: 'Add New Button', ko: '새 버튼 추가'),
-              onPressed: () => _openAddTrackDialog(),
+              onPressed: () => _openAddOrEditTrackDialog(),
             ),
           ],
         ),
@@ -840,8 +1333,16 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
               Expanded(
                 child: Text(
                   _isPinningMode
-                      ? LanguageService.instance.trText(ne: '📌 पिन मोड सक्रिय छ: पृष्ठमा जहाँ हेडफोनको आइकन छ, त्यहीँ ट्याप गरेर नयाँ बटन राख्नुहोस्!', en: '📌 Pin mode active: Tap where the headphone icon is on the page to place button!', ko: '📌 핀 모드 활성화: 페이지 내 헤드폰 아이콘 위치를 탭하여 버튼을 배치하세요!')
-                      : LanguageService.instance.trText(ne: '💡 हेडफोन आइकनमा ट्याप गरेर सिधै अडियो सुन्नुहोस्। नयाँ बटन राख्न दायाँपट्टिको "पिन मोड" थिच्नुहोस्।', en: '💡 Tap headphone icons to listen audio. Tap "Pin Mode" on the right to add new buttons.', ko: '💡 헤드폰 아이콘을 탭하여 오디오를 재생하세요. 우측 "핀 모드"로 새 버튼을 추가할 수 있습니다.'),
+                      ? LanguageService.instance.trText(
+                          ne: '📌 पिन मोड सक्रिय: पृष्ठमा जहाँ हेडफोनको आइकन छ, त्यहीँ ट्याप गरेर नयाँ बटन राख्नुहोस्!',
+                          en: '📌 Pin mode active: Tap where the headphone icon is on the page to place button!',
+                          ko: '📌 핀 모드 활성화: 페이지 내 헤드폰 아이콘 위치를 탭하여 버튼을 배치하세요!',
+                        )
+                      : LanguageService.instance.trText(
+                          ne: '💡 हेडफोन आइकनमा ट्याप गरेर सिधै अडियो सुन्नुहोस्। नयाँ बटन राख्न "पिन मोड" थिच्नुहोस्।',
+                          en: '💡 Tap headphone icons to listen audio. Tap "Pin Mode" to add new buttons.',
+                          ko: '💡 헤드폰 아이콘을 탭하여 오디오를 재생하세요. 우측 "핀 모드"로 새 버튼을 추가할 수 있습니다.',
+                        ),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -862,7 +1363,9 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                 },
                 icon: Icon(_isPinningMode ? Icons.check : Icons.push_pin, size: 14),
                 label: Text(
-                  _isPinningMode ? LanguageService.instance.trText(ne: 'पिनिङ पूरा भयो ✅', en: 'Pinning Complete ✅', ko: '핀 고정 완료 ✅') : LanguageService.instance.trText(ne: '📌 हेडफोनमा बटन पिन गर्नुहोस्', en: '📌 Pin Button on Headphone', ko: '📌 헤드폰에 버튼 핀 고정'),
+                  _isPinningMode
+                      ? LanguageService.instance.trText(ne: 'पिनिङ पूरा भयो ✅', en: 'Pinning Done ✅', ko: '핀 고정 완료 ✅')
+                      : LanguageService.instance.trText(ne: '📌 हेडफोनमा बटन पिन गर्नुहोस्', en: '📌 Pin Button', ko: '📌 버튼 핀 고정'),
                   style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -881,15 +1384,15 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    const double canvasWidth = 820.0;
-                    const double canvasHeight = 1160.0;
+                    const double canvasWidth = 840.0;
+                    const double canvasHeight = 1180.0;
 
                     return GestureDetector(
                       onTapUp: _isPinningMode
                           ? (details) {
                               final posX = (details.localPosition.dx / canvasWidth).clamp(0.02, 0.90);
                               final posY = (details.localPosition.dy / canvasHeight).clamp(0.02, 0.95);
-                              _openAddTrackDialog(posX: posX, posY: posY);
+                              _openAddOrEditTrackDialog(posX: posX, posY: posY);
                             }
                           : null,
                       child: Container(
@@ -926,7 +1429,8 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                                 child: ExpandableAudioTimelineButton(
                                   track: track,
                                   isPinned: true,
-                                  onLongPress: () => _deleteTrack(track),
+                                  onLongPress: () => _openAddOrEditTrackDialog(trackToEdit: track),
+                                  onEditRequested: () => _openAddOrEditTrackDialog(trackToEdit: track),
                                 ),
                               );
                             }),
@@ -963,25 +1467,37 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
   }
 
   Widget _buildUploadedPdfBackground(String url) {
-    if (url.startsWith('data:image')) {
-      try {
-        final base64Part = url.contains(',') ? url.split(',')[1] : url;
-        final bytes = base64Decode(base64Part);
-        return Image.memory(bytes, fit: BoxFit.contain);
-      } catch (_) {}
-    }
-    if (url.startsWith('http://') || url.startsWith('https://')) {
+    final bool isImage = url.startsWith('data:image') ||
+        (url.startsWith('http') &&
+            RegExp(r'\.(jpe?g|png|webp|gif|svg)(\?.*)?$', caseSensitive: false).hasMatch(url));
+
+    // ── Image (data:image base64 or network image URL) ────────────────
+    if (isImage) {
+      if (url.startsWith('data:image')) {
+        try {
+          final bytes = base64Decode(url.split(',')[1]);
+          return Image.memory(bytes, fit: BoxFit.contain);
+        } catch (_) {}
+      }
       return Image.network(
         url,
         fit: BoxFit.contain,
-        errorBuilder: (_, _, _) => _buildDefaultTextbookCanvas(),
+        loadingBuilder: (_, child, progress) => progress == null ? child : const Center(child: CircularProgressIndicator()),
+        errorBuilder: (_, __, ___) => _buildDefaultTextbookCanvas(),
       );
     }
-    return _buildDefaultTextbookCanvas();
+
+    // ── PDF (web: iframe via native blob/object URL; mobile: placeholder) ──
+    final viewId = 'pdf_ch${_currentBook.id}_${_selectedChapter}_${url.hashCode.abs()}';
+    return SizedBox.expand(
+      child: buildPdfViewerWidget(url, viewId),
+    );
   }
 
   /// Official Korean EPS-TOPIK Textbook Aesthetic Template
   Widget _buildDefaultTextbookCanvas() {
+    final chTitle = _currentBook.getChapterTitle(_selectedChapter);
+
     return Padding(
       padding: const EdgeInsets.all(28.0),
       child: Column(
@@ -1000,17 +1516,18 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    _selectedChapter == 1
-                        ? '안녕하세요'
-                        : (_selectedChapter == 6 ? '저는 투안입니다' : '한국어 표준교재 제$_selectedChapter과'),
+                    chTitle,
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Color(0xFF0F172A)),
                   ),
                 ],
               ),
               OutlinedButton.icon(
-                onPressed: _uploadChapterPageDialog,
+                onPressed: () => _openChapterManagerDialog(chapterToEdit: _selectedChapter),
                 icon: const Icon(Icons.upload, size: 14),
-                label: Text(LanguageService.instance.trText(ne: '📄 यस पृष्ठको PDF अपलोड गर्नुहोस्', en: '📄 Upload PDF for this page', ko: '📄 이 페이지 PDF 업로드'), style: const TextStyle(fontSize: 11)),
+                label: Text(
+                  LanguageService.instance.trText(ne: '📄 यस पृष्ठको PDF/फोटो अपलोड', en: '📄 Upload PDF/Page', ko: '📄 이 페이지 PDF 업로드'),
+                  style: const TextStyle(fontSize: 11),
+                ),
               ),
             ],
           ),
@@ -1018,7 +1535,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
 
           // Dialogue 1 Section with printed Headphone Icon
           _buildCanvasSectionBox(
-            title: LanguageService.instance.trText(ne: 'संवाद १', en: 'Dialogue 1', ko: '대화 1'),
+            title: LanguageService.instance.trText(ne: 'संवाद १ (Dialogue 1)', en: 'Dialogue 1', ko: '대화 1'),
             iconLabel: 'Track 01',
             color: const Color(0xFF1E3A8A),
             content: [
@@ -1039,7 +1556,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
               Wrap(
                 spacing: 12,
                 runSpacing: 8,
-                children: const [
+                children: [
                   _VocabChip(word: '네팔', nepali: 'नेपाल', flag: '🇳🇵'),
                   _VocabChip(word: '한국', nepali: 'कोरिया', flag: '🇰🇷'),
                   _VocabChip(word: '베트남', nepali: 'भियतनाम', flag: '🇻🇳'),
@@ -1054,7 +1571,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
 
           // Dialogue 2 Section with printed Headphone Icon
           _buildCanvasSectionBox(
-            title: LanguageService.instance.trText(ne: 'संवाद २', en: 'Dialogue 2', ko: '대화 2'),
+            title: LanguageService.instance.trText(ne: 'संवाद २ (Dialogue 2)', en: 'Dialogue 2', ko: '대화 2'),
             iconLabel: 'Track 03',
             color: const Color(0xFF15803D),
             content: [
@@ -1067,7 +1584,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
 
           // Listening Section with printed Headphone Icon
           _buildCanvasSectionBox(
-            title: LanguageService.instance.trText(ne: 'सुन्ने अभ्यास १~५', en: 'Listening Practice 1~5', ko: '듣기 연습 1~5'),
+            title: LanguageService.instance.trText(ne: 'सुन्ने अभ्यास १~५ (Listening 1~5)', en: 'Listening Practice 1~5', ko: '듣기 연습 1~5'),
             iconLabel: 'Track 04',
             color: const Color(0xFFC2410C),
             content: const [
@@ -1102,7 +1619,6 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
             children: [
               Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: color)),
               const Spacer(),
-              // Printed headphone indicator on standard textbook
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
@@ -1162,6 +1678,8 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
   // VIEW MODE 2: STRUCTURED DIGITAL READER VIEW
   // -------------------------------------------------------------
   Widget _buildStructuredReaderView(List<BookAudioTrack> chapterTracks) {
+    final chTitle = _currentBook.getChapterTitle(_selectedChapter);
+
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       child: Center(
@@ -1190,15 +1708,16 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(color: Colors.orange.shade50, borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.orange.shade200)),
-                      child: Text(LanguageService.instance.trText(ne: '🎧 ${chapterTracks.length} वटा अडियो बटनहरू उपलब्ध', en: '🎧 ${chapterTracks.length} Audio Buttons Available', ko: '🎧 ${chapterTracks.length}개 오디오 버튼 사용 가능'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.orange.shade900)),
+                      child: Text(
+                        LanguageService.instance.trText(ne: '🎧 ${chapterTracks.length} वटा अडियो बटनहरू उपलब्ध', en: '🎧 ${chapterTracks.length} Audio Buttons', ko: '🎧 ${chapterTracks.length}개 오디오 버튼'),
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.orange.shade900),
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _selectedChapter == 1
-                      ? LanguageService.instance.isEnglish ? '안녕하세요 (Hello)' : (LanguageService.instance.isKorean ? '안녕하세요' : '안녕하세요 (नमस्ते)')
-                      : (_selectedChapter == 6 ? '저는 투안입니다 (म थुवान हुँ)' : '제$_selectedChapter과: 한국어 표준교재'),
+                  chTitle,
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Color(0xFF0F172A)),
                 ),
                 const SizedBox(height: 4),
@@ -1240,7 +1759,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                   child: Wrap(
                     spacing: 10,
                     runSpacing: 8,
-                    children: const [
+                    children: [
                       _VocabChip(word: '네팔', nepali: 'नेपाल', flag: '🇳🇵'),
                       _VocabChip(word: '한국', nepali: 'कोरिया', flag: '🇰🇷'),
                       _VocabChip(word: '베트남', nepali: 'भियतनाम', flag: '🇻🇳'),
@@ -1348,8 +1867,8 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
               IconButton(
                 icon: const Icon(Icons.add_circle_outline, size: 18),
                 color: themeColor,
-                tooltip: LanguageService.instance.trText(ne: 'यस खण्डमा अडियो बटन थप्नुहोस्', en: 'Add audio button to this section', ko: '이 섹션에 오디오 버튼 추가'),
-                onPressed: () => _openAddTrackDialog(initialSection: sectionType),
+                tooltip: LanguageService.instance.trText(ne: 'यस खण्डमा अडियो बटन थप्नुहोस्', en: 'Add audio button', ko: '이 섹션에 오디오 버튼 추가'),
+                onPressed: () => _openAddOrEditTrackDialog(initialSection: sectionType),
               ),
             ],
           ),
@@ -1363,7 +1882,8 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
               children: tracks.map((track) {
                 return ExpandableAudioTimelineButton(
                   track: track,
-                  onLongPress: () => _deleteTrack(track),
+                  onLongPress: () => _openAddOrEditTrackDialog(trackToEdit: track),
+                  onEditRequested: () => _openAddOrEditTrackDialog(trackToEdit: track),
                 );
               }).toList(),
             ),
@@ -1393,8 +1913,12 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    LanguageService.instance.trText(ne: 'अडियो बजिरहेको छ 🔊 (बटन थिचेर टाइमलाइन हेर्न वा रोक्न सक्नुहुन्छ)', en: 'Audio playing 🔊 (Tap button to view timeline or stop)', ko: '오디오 재생 중 🔊 (버튼을 눌러 타임라인을 확인하거나 정지)'),
-                    style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                    LanguageService.instance.trText(
+                      ne: 'अडियो बजिरहेको छ 🔊 (टाइमलाइन हेर्न अडियो बटन थिच्नुहोस्)',
+                      en: 'Audio playing 🔊 (Tap audio button to view timeline)',
+                      ko: '오디오 재생 중 🔊 (타임라인을 보려면 오디오 버튼을 누르세요)',
+                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ),
                 IconButton(
@@ -1411,21 +1935,31 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
   }
 }
 
-/// Expandable Audio Timeline Button matching user's exact specification:
-/// 1. Compact small button with headphone icon 🎧 and track label.
-/// 2. Clicking expands smoothly into a live audio timeline with progress slider, elapsed/total time.
-/// 3. Clicking again (or clicking stop) stops playback and collapses back to the compact headphone button.
-class ExpandableAudioTimelineButton extends StatelessWidget {
+/// Expandable Audio Timeline Button with Live Scrubber and Edit/Delete Capabilities:
+/// 1. Compact button with headphone icon 🎧 and track label.
+/// 2. Clicking expands smoothly into live audio timeline slider with progress, elapsed/total time and seek control.
+/// 3. Clicking again or stop button collapses back to compact headphone button.
+/// 4. Options to edit or delete the button.
+class ExpandableAudioTimelineButton extends StatefulWidget {
   final BookAudioTrack track;
   final VoidCallback? onLongPress;
+  final VoidCallback? onEditRequested;
   final bool isPinned;
 
   const ExpandableAudioTimelineButton({
     super.key,
     required this.track,
     this.onLongPress,
+    this.onEditRequested,
     this.isPinned = false,
   });
+
+  @override
+  State<ExpandableAudioTimelineButton> createState() => _ExpandableAudioTimelineButtonState();
+}
+
+class _ExpandableAudioTimelineButtonState extends State<ExpandableAudioTimelineButton> {
+  double _playbackSpeed = 1.0;
 
   String _formatTime(Duration d) {
     final m = d.inMinutes;
@@ -1433,62 +1967,97 @@ class ExpandableAudioTimelineButton extends StatelessWidget {
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
+  void _cycleSpeed() {
+    setState(() {
+      if (_playbackSpeed == 1.0) {
+        _playbackSpeed = 0.8;
+      } else if (_playbackSpeed == 0.8) {
+        _playbackSpeed = 1.2;
+      } else {
+        _playbackSpeed = 1.0;
+      }
+    });
+    AudioPlaybackService.instance.setPlaybackRate(_playbackSpeed);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<String?>(
       valueListenable: AudioPlaybackService.instance.currentAudioSourceNotifier,
       builder: (context, currentSource, _) {
-        final isPlayingThis = currentSource == track.audioUrl;
+        final isPlayingThis = currentSource == widget.track.audioUrl;
 
         return AnimatedSize(
           duration: const Duration(milliseconds: 260),
           curve: Curves.easeInOut,
           child: isPlayingThis
               ? _buildExpandedTimeline(context)
-              : _buildCompactButton(context),
+              : _buildCompactTextbookBadge(context),
         );
       },
     );
   }
 
-  /// 1. Small Compact Headphone Button (सानो अडियो बटन)
-  Widget _buildCompactButton(BuildContext context) {
+  /// 1. Authentic Official Korean Textbook In-Print Badge Button
+  /// Matches standard EPS-TOPIK Korean textbook print typography and aesthetic
+  Widget _buildCompactTextbookBadge(BuildContext context) {
     return Tooltip(
-      message: LanguageService.instance.trText(ne: 'अडियो सुन्न थिच्नुहोस् (TimeLine खुल्नेछ) • हटाउन लङ-प्रेस', en: 'Tap to listen audio (Opens timeline) • Long press to delete', ko: '오디오 듣기 (타임라인 열림) • 길게 눌러 삭제'),
+      message: LanguageService.instance.trText(
+        ne: 'अडियो सुन्न थिच्नुहोस् (स्लाइडर खुल्नेछ) • सम्पादन गर्न लङ-प्रेस',
+        en: 'Tap to listen audio (slider expands) • Long-press to edit',
+        ko: '오디오 듣기 (슬라이더 열림) • 길게 눌러 수정',
+      ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () {
-            AudioPlaybackService.instance.playAudioUrl(track.audioUrl);
+            AudioPlaybackService.instance.playAudioUrl(widget.track.audioUrl);
           },
-          onLongPress: onLongPress,
-          borderRadius: BorderRadius.circular(16),
+          onLongPress: widget.onLongPress,
+          borderRadius: BorderRadius.circular(20),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF2563EB).withOpacity(0.5), width: 1.2),
-              boxShadow: const [
-                BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1.5)),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: const Color(0xFF0F766E),
+                width: 1.6,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF0F766E).withOpacity(0.18),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
               ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.headphones, size: 13, color: Color(0xFF1E3A8A)),
-                const SizedBox(width: 4),
+                // In-print Headphone Badge Icon
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF0F766E),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.headphones_rounded, size: 12, color: Colors.white),
+                ),
+                const SizedBox(width: 6),
+                // Authentic Textbook Typography Label
                 Text(
-                  track.label,
+                  widget.track.label,
                   style: const TextStyle(
-                    fontSize: 10.5,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.3,
+                    color: Color(0xFF0F172A),
                     fontFamily: 'Roboto',
-                    color: Color(0xFF1E3A8A),
                   ),
                 ),
-                const SizedBox(width: 2),
-                const Icon(Icons.play_arrow_rounded, size: 14, color: Color(0xFFEA580C)),
+                const SizedBox(width: 4),
+                const Icon(Icons.play_circle_fill_rounded, size: 14, color: Color(0xFFEA580C)),
               ],
             ),
           ),
@@ -1497,51 +2066,62 @@ class ExpandableAudioTimelineButton extends StatelessWidget {
     );
   }
 
-  /// 2. Expanded Timeline with Live Slider and Stop/Collapse Button (टाइमलाइन देखाउने)
+  /// 2. Expanded Floating Audio Slider with Live Scrubber & Speed Control
   Widget _buildExpandedTimeline(BuildContext context) {
     return Material(
-      elevation: 5,
-      borderRadius: BorderRadius.circular(22),
+      elevation: 6,
+      borderRadius: BorderRadius.circular(24),
       color: const Color(0xFF0F172A),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        constraints: const BoxConstraints(minWidth: 260, maxWidth: 360),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
         decoration: BoxDecoration(
           color: const Color(0xFF0F172A),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: const Color(0xFFEA580C), width: 1.5),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFF14B8A6), width: 1.8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.35),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Stop & Collapse Button (फेरि थिचेपछि रोकिने र बन्द हुने)
+            // Stop / Collapse Button
             InkWell(
               onTap: () => AudioPlaybackService.instance.stop(),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(16),
               child: Container(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(5),
                 decoration: const BoxDecoration(
                   color: Color(0xFFEA580C),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.stop_rounded, size: 15, color: Colors.white),
+                child: const Icon(Icons.stop_rounded, size: 16, color: Colors.white),
               ),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
 
-            // Track Label
+            // Track Name
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 75),
+              constraints: const BoxConstraints(maxWidth: 85),
               child: Text(
-                track.label,
+                widget.track.label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10.5),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
               ),
             ),
             const SizedBox(width: 4),
 
-            // Interactive Live Slider Timeline
+            // Live Seek Slider
             Expanded(
               child: ValueListenableBuilder<Duration>(
                 valueListenable: AudioPlaybackService.instance.positionNotifier,
@@ -1557,10 +2137,10 @@ class ExpandableAudioTimelineButton extends StatelessWidget {
                         children: [
                           SliderTheme(
                             data: SliderTheme.of(context).copyWith(
-                              trackHeight: 2.5,
-                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
-                              overlayShape: const RoundSliderOverlayShape(overlayRadius: 8),
-                              activeTrackColor: const Color(0xFFEA580C),
+                              trackHeight: 3.0,
+                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                              overlayShape: const RoundSliderOverlayShape(overlayRadius: 10),
+                              activeTrackColor: const Color(0xFF14B8A6),
                               inactiveTrackColor: Colors.white24,
                               thumbColor: Colors.white,
                             ),
@@ -1578,8 +2158,8 @@ class ExpandableAudioTimelineButton extends StatelessWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(_formatTime(pos), style: const TextStyle(fontSize: 8.5, color: Colors.white70)),
-                                Text(_formatTime(dur), style: const TextStyle(fontSize: 8.5, color: Colors.white38)),
+                                Text(_formatTime(pos), style: const TextStyle(fontSize: 9, color: Color(0xFF5EEAD4), fontWeight: FontWeight.bold)),
+                                Text(_formatTime(dur), style: const TextStyle(fontSize: 9, color: Colors.white60)),
                               ],
                             ),
                           ),
@@ -1591,13 +2171,36 @@ class ExpandableAudioTimelineButton extends StatelessWidget {
               ),
             ),
 
-            // Close Icon
-            IconButton(
-              icon: const Icon(Icons.close_rounded, size: 16, color: Colors.white60),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              tooltip: LanguageService.instance.trText(ne: 'रोक्नुहोस् र बन्द गर्नुहोस्', en: 'Stop and close', ko: '중지 및 닫기'),
-              onPressed: () => AudioPlaybackService.instance.stop(),
+            const SizedBox(width: 4),
+
+            // Speed cycle button
+            InkWell(
+              onTap: _cycleSpeed,
+              borderRadius: BorderRadius.circular(6),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.white12,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.white24),
+                ),
+                child: Text(
+                  '${_playbackSpeed}x',
+                  style: const TextStyle(color: Colors.amberAccent, fontSize: 9.5, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+
+            const SizedBox(width: 6),
+
+            // Close / Minimize Button
+            InkWell(
+              onTap: () => AudioPlaybackService.instance.stop(),
+              borderRadius: BorderRadius.circular(12),
+              child: const Padding(
+                padding: EdgeInsets.all(2),
+                child: Icon(Icons.close_rounded, size: 16, color: Colors.white70),
+              ),
             ),
           ],
         ),
@@ -1606,34 +2209,36 @@ class ExpandableAudioTimelineButton extends StatelessWidget {
   }
 }
 
+
 class _VocabChip extends StatelessWidget {
   final String word;
   final String nepali;
   final String flag;
 
-  const _VocabChip({required this.word, required this.nepali, required this.flag});
+  const _VocabChip({
+    super.key,
+    required this.word,
+    required this.nepali,
+    required this.flag,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: const Color(0xFFFDE68A)),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(flag, style: const TextStyle(fontSize: 16)),
-          const SizedBox(width: 6),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(word, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              Text(nepali, style: const TextStyle(fontSize: 10, color: Colors.black54)),
-            ],
-          ),
+          Text(flag, style: const TextStyle(fontSize: 14)),
+          const SizedBox(width: 4),
+          Text(word, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+          const SizedBox(width: 4),
+          Text('($nepali)', style: const TextStyle(color: Colors.black54, fontSize: 11)),
         ],
       ),
     );

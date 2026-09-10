@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import '../../core/services/orientation_service.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -53,7 +54,8 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     _questions = widget.mockSet?.questions ?? QuestionBankService.instance.getFull40ExamQuestions();
     _startCountdownTimer();
 
-    // 🔄 Support both Portrait and Landscape hardware screen rotation for full mobile flexibility
+    // 🔄 Force immersive fullscreen mode for authentic exam terminal security
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     OrientationService.unlockOrientation();
   }
 
@@ -63,7 +65,8 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     _timer?.cancel();
     _remainingSecondsNotifier.dispose();
 
-    // 🔓 Restore all screen orientations upon exiting the exam hall
+    // 🔓 Restore standard system UI and orientations upon exiting the exam hall
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     OrientationService.unlockOrientation();
     super.dispose();
   }
@@ -629,13 +632,17 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
 
     return ListenableBuilder(
       listenable: LanguageService.instance,
-      builder: (context, _) => PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) {
-          if (didPop) return;
-          _confirmExit();
-        },
-        child: Scaffold(
+      builder: (context, _) => MediaQuery(
+        data: mediaQuery.copyWith(
+          textScaler: TextScaler.linear(LanguageService.instance.textScale),
+        ),
+        child: PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            _confirmExit();
+          },
+          child: Scaffold(
           backgroundColor: const Color(0xFFF1F5F9),
           body: SafeArea(
             child: Column(
@@ -941,8 +948,9 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCurrentQuestion(QuestionTemplate currentQ) {
     final bool isListening = (currentQ is ListeningAudioQuestion) ||

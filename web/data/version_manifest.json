@@ -1,0 +1,11 @@
+{
+  "latestVersion": "2.4.0",
+  "latestBuildNumber": 24,
+  "releaseDate": "2026-09-07",
+  "releaseNotes": "• लिसनिङका सबै ४ विकल्पहरू देखिने बग समाधान\n• UBT परीक्षा हल इन्टरफेस सुधार\n• स्वचालित क्लाउड सिङ्क र द्रुत कार्यसम्पादन",
+  "releaseNotesEn": "• Fixed listening 4-option visibility bug\n• Enhanced UBT Exam Hall UI and audio engine\n• Seamless auto cloud-sync and performance optimizations",
+  "releaseNotesKo": "• 듣기 4개 보기 표시 버그 수정\n• UBT 시험장 UI 및 오디오 연속 재생 개선\n• 실시간 클라우드 자동 동기화 최적화",
+  "apkUrl": "https://topik-abante.web.app/apk/eps_topik_ubt_2026.apk",
+  "webUrl": "https://topik-abante.web.app/",
+  "isMandatory": false
+}

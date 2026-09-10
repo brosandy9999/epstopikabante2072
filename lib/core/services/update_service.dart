@@ -37,7 +37,7 @@ class AppUpdateInfo {
       releaseNotesNe: json['releaseNotes']?.toString() ?? 'नयाँ फिचर तथा कार्यसम्पादन सुधार।',
       releaseNotesEn: json['releaseNotesEn']?.toString() ?? 'New features and bug fixes.',
       releaseNotesKo: json['releaseNotesKo']?.toString() ?? '새로운 기능 및 버그 수정.',
-      apkUrl: json['apkUrl']?.toString() ?? 'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/apk/eps_topik_latest.apk',
+      apkUrl: json['apkUrl']?.toString() ?? 'https://topik-abante.web.app/apk/eps_topik_ubt_2026.apk',
       webUrl: json['webUrl']?.toString() ?? 'https://brosandy9999.github.io/epstopikabante2072/',
       isMandatory: json['isMandatory'] as bool? ?? false,
     );
@@ -58,7 +58,7 @@ class UpdateService extends ChangeNotifier {
   static const int currentBuildNumber = 24;
 
   static const String primaryManifestUrl =
-      'https://brosandy9999.github.io/epstopikabante2072/data/version_manifest.json';
+      'https://topik-abante.web.app/data/version_manifest.json';
   static const String fallbackManifestUrl =
       'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/data/version_manifest.json';
 
@@ -162,7 +162,7 @@ class UpdateService extends ChangeNotifier {
       reloadBrowserPage();
     } else {
       final url = _updateInfo?.apkUrl ??
-          'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/apk/eps_topik_latest.apk';
+          'https://topik-abante.web.app/apk/eps_topik_ubt_2026.apk';
       openBrowserUrl(url);
     }
   }

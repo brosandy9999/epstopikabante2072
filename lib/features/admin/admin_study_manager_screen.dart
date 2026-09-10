@@ -92,8 +92,8 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
         backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add_to_photos),
-        label: Text(lang.trText(ne: 'नयाँ किताब अपलोड गर्नुहोस्', en: 'Upload New Book', ko: '새 교재 업로드')),
-        onPressed: _openAddBookDialog,
+        label: Text(lang.trText(ne: 'नयाँ किताब थप्नुहोस्', en: 'Add New Book', ko: '새 교재 추가')),
+        onPressed: () => _openAddOrEditBookDialog(),
       ),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
@@ -119,39 +119,74 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                         decoration: BoxDecoration(color: isNew ? Colors.blue.shade50 : Colors.amber.shade50, borderRadius: BorderRadius.circular(6)),
                         child: Text(b.localizedEditionType(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isNew ? Colors.blue.shade900 : Colors.amber.shade900)),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.red),
-                        onPressed: () {
-                          StudyMaterialService.instance.deleteBook(b.id);
-                          setState(() {});
-                          CloudSyncService.instance.pushToCloud();
-                        },
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Color(0xFF1E3A8A), size: 20),
+                            tooltip: lang.trText(ne: 'किताब सम्पादन गर्नुहोस्', en: 'Edit Book', ko: '교재 수정'),
+                            onPressed: () => _openAddOrEditBookDialog(bookToEdit: b),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                            tooltip: lang.trText(ne: 'किताब मेटाउनुहोस्', en: 'Delete Book', ko: '교재 삭제'),
+                            onPressed: () {
+                              _confirmDeleteBook(b);
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Text(b.localizedTitle(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F172A))),
+                  Text(b.localizedTitle(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
                   const SizedBox(height: 4),
                   Text(b.localizedSubtitle(), style: const TextStyle(color: Colors.black54, fontSize: 12)),
-                  const SizedBox(height: 6),
-                  Text(
-                    lang.trText(
-                      ne: 'अध्याय:  वटा • लिङ्क: ',
-                      en: 'Chapters:  • Link: ',
-                      ko: '단원: 개 • 링크: ',
-                    ),
-                    style: const TextStyle(fontSize: 11, color: Colors.blueGrey),
-                  ),
                   const SizedBox(height: 8),
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => BookReaderScreen(book: b)),
-                      );
-                    },
-                    icon: const Icon(Icons.menu_book, size: 16),
-                    label: Text(lang.trText(ne: 'अडियोसहित पुस्तक खोल्नुहोस्', en: 'Open Book with Audio', ko: '오디오 포함 교재 열기')),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)),
+                        child: Text(
+                          '📖 ${b.chaptersCount} ' + lang.trText(ne: 'अध्यायहरू', en: 'Chapters', ko: '단원'),
+                          style: const TextStyle(fontSize: 11, color: Colors.blueGrey, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(4)),
+                        child: Text(
+                          '🎧 ${b.audioTracks.length} ' + lang.trText(ne: 'अडियो ट्र्याक', en: 'Audio Tracks', ko: '오디오 트랙'),
+                          style: const TextStyle(fontSize: 11, color: Colors.blueGrey, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      if (b.pdfUrl.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(4)),
+                          child: const Text('📄 PDF Attached', style: TextStyle(fontSize: 11, color: Colors.green, fontWeight: FontWeight.bold)),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => BookReaderScreen(book: b)),
+                            );
+                          },
+                          icon: const Icon(Icons.menu_book, size: 16),
+                          label: Text(lang.trText(ne: 'अडियोसहित पुस्तक र च्याप्टर खोल्नुहोस्', en: 'Open Book & Chapters', ko: '교재 및 단원 열기')),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -162,49 +197,156 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
     );
   }
 
-  void _openAddBookDialog() {
+  void _confirmDeleteBook(StudyBook book) {
     final lang = LanguageService.instance;
-    final titleCtrl = TextEditingController();
-    final subtitleCtrl = TextEditingController();
-    final chapCtrl = TextEditingController(text: '30');
-    final pdfCtrl = TextEditingController(text: 'https://hrdkorea.or.kr/book.pdf');
-    final descCtrl = TextEditingController();
-    String editionType = 'नयाँ संस्करण';
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(lang.trText(ne: 'किताब मेटाउने?', en: 'Delete Book?', ko: '교재 삭제?')),
+        content: Text(lang.trText(
+          ne: 'के तपाईं "${book.title}" पुस्तक र यसका सबै सामग्रीहरू हटाउन निश्चित हुनुहुन्छ?',
+          en: 'Are you sure you want to delete "${book.title}"?',
+          ko: '정말 "${book.title}" 교재를 삭제하시겠습니까?',
+        )),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(lang.tr('cancel'))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+            onPressed: () {
+              StudyMaterialService.instance.deleteBook(book.id);
+              Navigator.pop(ctx);
+              setState(() {});
+              CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+            },
+            child: Text(lang.tr('delete')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openAddOrEditBookDialog({StudyBook? bookToEdit}) {
+    final isEditing = bookToEdit != null;
+    final lang = LanguageService.instance;
+    final titleCtrl = TextEditingController(text: isEditing ? bookToEdit.title : '');
+    final subtitleCtrl = TextEditingController(text: isEditing ? bookToEdit.subtitle : '');
+    final chapCtrl = TextEditingController(text: isEditing ? '${bookToEdit.chaptersCount}' : '30');
+    final pdfCtrl = TextEditingController(text: isEditing ? bookToEdit.pdfUrl : '');
+    final descCtrl = TextEditingController(text: isEditing ? bookToEdit.description : '');
+    String editionType = isEditing ? bookToEdit.editionType : 'नयाँ संस्करण (New 2024)';
+    String _uploadStatus = '';
+    bool _isUploading = false;
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(lang.trText(ne: '📘 नयाँ किताब वा गाइड थप्नुहोस्', en: '📘 Add New Book or Guide', ko: '📘 새 교재 또는 가이드 추가'), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          title: Text(
+            isEditing
+                ? lang.trText(ne: '✏️ किताब सम्पादन गर्नुहोस्', en: '✏️ Edit Book', ko: '✏️ 교재 수정')
+                : lang.trText(ne: '📘 नयाँ किताब वा गाइड थप्नुहोस्', en: '📘 Add New Book or Guide', ko: '📘 새 교재 추가'),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(controller: titleCtrl, decoration: InputDecoration(labelText: lang.trText(ne: 'किताबको शीर्षक*', en: 'Book Title*', ko: '교재 제목*'), border: const OutlineInputBorder())),
+                TextField(
+                  controller: titleCtrl,
+                  decoration: InputDecoration(labelText: lang.trText(ne: 'किताबको नाम / शीर्षक*', en: 'Book Title*', ko: '교재 제목*'), border: const OutlineInputBorder()),
+                ),
                 const SizedBox(height: 10),
-                TextField(controller: subtitleCtrl, decoration: InputDecoration(labelText: lang.trText(ne: 'उपशीर्षक', en: 'Subtitle', ko: '부제목'), border: const OutlineInputBorder())),
+                TextField(
+                  controller: subtitleCtrl,
+                  decoration: InputDecoration(labelText: lang.trText(ne: 'उपशीर्षक', en: 'Subtitle', ko: '부제목'), border: const OutlineInputBorder()),
+                ),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
                   value: editionType,
                   decoration: InputDecoration(labelText: lang.trText(ne: 'संस्करण', en: 'Edition', ko: '판본'), border: const OutlineInputBorder()),
                   items: [
-                    DropdownMenuItem(value: 'नयाँ संस्करण', child: Text(lang.trText(ne: 'नयाँ संस्करण', en: 'New Edition', ko: '신규 개정판'))),
-                    DropdownMenuItem(value: 'पुरानो संस्करण', child: Text(lang.trText(ne: 'पुरानो संस्करण', en: 'Old Edition', ko: '클래식 구판'))),
+                    DropdownMenuItem(value: 'नयाँ संस्करण (New 2024)', child: Text(lang.trText(ne: 'नयाँ संस्करण (New 2024)', en: 'New Edition (2024)', ko: '신규 개정판 (2024)'))),
+                    DropdownMenuItem(value: 'पुरानो संस्करण (Old 2013)', child: Text(lang.trText(ne: 'पुरानो संस्करण (Old 2013)', en: 'Old Edition (2013)', ko: '클래식 구판 (2013)'))),
                     DropdownMenuItem(value: 'विशेष गाइड', child: Text(lang.trText(ne: 'विशेष गाइड', en: 'Special Guide', ko: '특수 가이드'))),
                   ],
                   onChanged: (val) => setDialogState(() => editionType = val!),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(child: TextField(controller: chapCtrl, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: lang.trText(ne: 'अध्याय संख्या', en: 'Chapters Count', ko: '단원 수'), border: const OutlineInputBorder()))),
-                    const SizedBox(width: 10),
-                    Expanded(child: TextField(controller: pdfCtrl, decoration: InputDecoration(labelText: lang.trText(ne: 'PDF वा फाइल लिङ्क', en: 'PDF or File Link', ko: 'PDF 또는 파일 링크'), border: const OutlineInputBorder()))),
-                  ],
+                TextField(
+                  controller: chapCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: lang.trText(ne: 'अध्याय संख्या', en: 'Chapters Count', ko: '단원 수'), border: const OutlineInputBorder()),
                 ),
                 const SizedBox(height: 10),
-                TextField(controller: descCtrl, maxLines: 2, decoration: InputDecoration(labelText: lang.trText(ne: 'विवरण', en: 'Description', ko: '설명'), border: const OutlineInputBorder())),
+
+                // Upload PDF
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E3A8A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    ),
+                    onPressed: _isUploading
+                        ? null
+                        : () async {
+                            setDialogState(() {
+                              _isUploading = true;
+                              _uploadStatus = '⏳ PDF अपलोड हुँदैछ...';
+                            });
+                            final file = await FileUploadService.instance.pickPdfFile();
+                            if (file != null) {
+                              setDialogState(() {
+                                pdfCtrl.text = file.bestUrl;
+                                _uploadStatus = '✅ PDF सुरक्षित भयो (${file.formattedSize})';
+                                _isUploading = false;
+                              });
+                            } else {
+                              setDialogState(() {
+                                _isUploading = false;
+                                _uploadStatus = '';
+                              });
+                            }
+                          },
+                    icon: const Icon(Icons.picture_as_pdf, size: 16),
+                    label: Text(lang.trText(ne: '📄 PDF फाइल डिभाइसबाट रोज्नुहोस्', en: '📄 Pick PDF from Device', ko: '📄 기기에서 PDF 선택'), style: const TextStyle(fontSize: 11)),
+                  ),
+                ),
+                if (_uploadStatus.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Text(_uploadStatus, style: TextStyle(fontSize: 11, color: Colors.green.shade800)),
+                ],
+                const SizedBox(height: 8),
+                TextField(
+                  controller: pdfCtrl,
+                  decoration: InputDecoration(labelText: lang.trText(ne: 'वा PDF लिङ्क', en: 'Or PDF Link', ko: '또는 PDF 링크'), border: const OutlineInputBorder()),
+                ),
+                if (pdfCtrl.text.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(foregroundColor: Colors.red.shade700),
+                      icon: const Icon(Icons.delete_outline, size: 16),
+                      label: Text(lang.trText(ne: 'PDF हटाउनुहोस्', en: 'Remove PDF', ko: 'PDF 삭제'), style: const TextStyle(fontSize: 12)),
+                      onPressed: () {
+                        setDialogState(() {
+                          pdfCtrl.clear();
+                          _uploadStatus = '🗑️ PDF हटाइयो';
+                        });
+                      },
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 10),
+                TextField(
+                  controller: descCtrl,
+                  maxLines: 2,
+                  decoration: InputDecoration(labelText: lang.trText(ne: 'विवरण', en: 'Description', ko: '설명'), border: const OutlineInputBorder()),
+                ),
               ],
             ),
           ),
@@ -213,23 +355,38 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
               onPressed: () {
-                if (titleCtrl.text.trim().isEmpty) return;
-                final newBook = StudyBook(
-                  id: 'book_${DateTime.now().millisecondsSinceEpoch}',
-                  title: titleCtrl.text.trim(),
-                  subtitle: subtitleCtrl.text.trim(),
-                  editionType: editionType,
-                  level: 'All Levels',
-                  chaptersCount: int.tryParse(chapCtrl.text.trim()) ?? 30,
-                  pdfUrl: pdfCtrl.text.trim(),
-                  description: descCtrl.text.trim().isEmpty ? 'EPS-TOPIK अध्ययन सामग्री' : descCtrl.text.trim(),
-                  highlightTopics: ['अध्यायगत अभ्यास तथा शब्दावली'],
-                  createdAt: DateTime.now(),
-                );
-                StudyMaterialService.instance.addBook(newBook);
+                final title = titleCtrl.text.trim();
+                if (title.isEmpty) return;
+
+                if (isEditing) {
+                  final updated = bookToEdit.copyWith(
+                    title: title,
+                    subtitle: subtitleCtrl.text.trim(),
+                    editionType: editionType,
+                    chaptersCount: int.tryParse(chapCtrl.text.trim()) ?? bookToEdit.chaptersCount,
+                    pdfUrl: pdfCtrl.text.trim(),
+                    description: descCtrl.text.trim(),
+                  );
+                  StudyMaterialService.instance.addBook(updated);
+                } else {
+                  final newBook = StudyBook(
+                    id: 'book_${DateTime.now().millisecondsSinceEpoch}',
+                    title: title,
+                    subtitle: subtitleCtrl.text.trim(),
+                    editionType: editionType,
+                    level: 'All Levels',
+                    chaptersCount: int.tryParse(chapCtrl.text.trim()) ?? 30,
+                    pdfUrl: pdfCtrl.text.trim(),
+                    description: descCtrl.text.trim().isEmpty ? 'EPS-TOPIK अध्ययन सामग्री' : descCtrl.text.trim(),
+                    highlightTopics: ['अध्यायगत अभ्यास तथा शब्दावली'],
+                    createdAt: DateTime.now(),
+                  );
+                  StudyMaterialService.instance.addBook(newBook);
+                }
+
                 Navigator.pop(ctx);
                 setState(() {});
-                CloudSyncService.instance.pushToCloud();
+                CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
               },
               child: Text(lang.trText(ne: 'किताब सेभ गर्नुहोस्', en: 'Save Book', ko: '교재 저장')),
             ),

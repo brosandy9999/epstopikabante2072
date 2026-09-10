@@ -1,3 +1,4 @@
+import '../../core/services/question_bank_service.dart';
 import 'package:flutter/material.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/language_service.dart';
@@ -22,6 +23,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   bool _isAdminSuccess = false;
 
   String _selectedBatchFilter = 'सबै ब्याचहरू';
+  String _selectedStatusTab = 'all'; // 'all', 'pending', 'active'
   final TextEditingController _studentSearchController = TextEditingController();
 
   final List<String> _batchesList = [
@@ -1152,6 +1154,221 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     );
   }
 
+  void _showApproveStudentDialog(AppUser student) {
+    String selectedBatch = student.batch.isNotEmpty && !student.batch.contains('सबै') ? student.batch : _batchesList[1];
+    int quota = 10;
+    DateTime expiry = DateTime.now().add(const Duration(days: 60));
+    bool isUnlimitedExp = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          final lang = LanguageService.instance;
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.verified_user_rounded, color: Colors.green, size: 24),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    lang.trText(
+                      ne: 'विद्यार्थी आवेदन स्वीकृति (Approve)',
+                      en: 'Approve Student Application',
+                      ko: '수험생 등록 승인',
+                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: SizedBox(
+                width: 440,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(lang.trText(ne: 'नाम', en: 'Name', ko: '성명'), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                              Text(student.name, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(lang.trText(ne: 'Username', en: 'Username', ko: '아이디'), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                              Text(student.username, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(lang.trText(ne: 'मोबाइल', en: 'Mobile', ko: '휴대폰'), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                              Text(student.mobileNumber ?? '-', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(lang.trText(ne: 'क्षेत्र', en: 'Sector', ko: '업종'), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                              Text(lang.sectorText(student.sector), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String>(
+                      value: _batchesList.contains(selectedBatch) && !selectedBatch.contains('सबै') ? selectedBatch : _batchesList[1],
+                      decoration: InputDecoration(
+                        labelText: lang.trText(ne: 'ब्याच तोक्नुहोस्*', en: 'Assign Batch*', ko: '반/기수 배정*'),
+                        border: const OutlineInputBorder(),
+                      ),
+                      items: _batchesList.where((b) => !b.contains('सबै')).map((b) => DropdownMenuItem(
+                        value: b,
+                        child: Text(lang.batchText(b), style: const TextStyle(fontSize: 13)),
+                      )).toList(),
+                      onChanged: (val) => setDialogState(() => selectedBatch = val!),
+                    ),
+                    const SizedBox(height: 14),
+                    // Quota & Validity
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0FDFA),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFF99F6E4)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.assignment_turned_in, color: Color(0xFF0F766E), size: 18),
+                              const SizedBox(width: 6),
+                              Text(
+                                lang.trText(ne: 'सेट कोटा र म्याद निर्धारण:', en: 'Set Quota & Validity:', ko: '정원 및 유효기간:'),
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF0F766E)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              _buildQuotaChip(5, '५ सेट', quota, (v) => setDialogState(() => quota = v)),
+                              _buildQuotaChip(10, '१० सेट', quota, (v) => setDialogState(() => quota = v)),
+                              _buildQuotaChip(20, '२० सेट', quota, (v) => setDialogState(() => quota = v)),
+                              _buildQuotaChip(-1, '∞ असीमित', quota, (v) => setDialogState(() => quota = v)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  isUnlimitedExp
+                                      ? lang.trText(ne: 'म्याद: असीमित', en: 'Validity: Unlimited', ko: '유효기간: 무제한')
+                                      : 'म्याद: ${expiry.year}-${expiry.month.toString().padLeft(2, '0')}-${expiry.day.toString().padLeft(2, '0')} (${expiry.difference(DateTime.now()).inDays + 1} दिन)',
+                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF0F766E)),
+                                ),
+                              ),
+                              OutlinedButton.icon(
+                                style: OutlinedButton.styleFrom(
+                                  visualDensity: VisualDensity.compact,
+                                  side: const BorderSide(color: Color(0xFF0F766E)),
+                                ),
+                                icon: const Icon(Icons.edit_calendar, size: 14, color: Color(0xFF0F766E)),
+                                label: Text(lang.trText(ne: 'क्यालेन्डर', en: 'Calendar', ko: '달력'), style: const TextStyle(fontSize: 11, color: Color(0xFF0F766E))),
+                                onPressed: () async {
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: expiry,
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime.now().add(const Duration(days: 3650)),
+                                  );
+                                  if (picked != null) {
+                                    setDialogState(() {
+                                      expiry = DateTime(picked.year, picked.month, picked.day, 23, 59, 59);
+                                      isUnlimitedExp = false;
+                                    });
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(lang.trText(ne: 'रद्द गर्नुहोस्', en: 'Cancel', ko: '취소')),
+              ),
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade700,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                icon: const Icon(Icons.check_circle, size: 18),
+                label: Text(lang.trText(ne: 'स्वीकृत गरी खाता सक्रिय गर्नुहोस्', en: 'Approve & Activate', ko: '승인 및 활성화')),
+                onPressed: () {
+                  AuthService.instance.approveStudent(
+                    studentId: student.id,
+                    batch: selectedBatch,
+                    allowedSetsQuota: quota,
+                    validityExpiry: isUnlimitedExp ? null : expiry,
+                  );
+                  setState(() {});
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(lang.trText(
+                        ne: '✅ ${student.name} को खाता सफलतापूर्वक स्वीकृत गरियो!',
+                        en: '✅ ${student.name} approved successfully!',
+                        ko: '✅ ${student.name} 수험생 계정이 승인되었습니다!',
+                      )),
+                      backgroundColor: Colors.green.shade700,
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
@@ -1161,7 +1378,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         final allStudents = AuthService.instance.students;
         final query = _studentSearchController.text.trim().toLowerCase();
 
+        final pendingStudents = allStudents.where((s) => s.isPendingApproval).toList();
+        final activeStudents = allStudents.where((s) => !s.isPendingApproval && (s.status.contains('सक्रिय') || s.status.toLowerCase().contains('active'))).toList();
+
         final filteredStudents = allStudents.where((s) {
+          // Status Tab filtering
+          if (_selectedStatusTab == 'pending' && !s.isPendingApproval) return false;
+          if (_selectedStatusTab == 'active' && s.isPendingApproval) return false;
+
           final matchesBatch = _selectedBatchFilter.contains('सबै') || _selectedBatchFilter.contains('All') || s.batch == _selectedBatchFilter;
           final matchesQuery = query.isEmpty ||
               s.name.toLowerCase().contains(query) ||
@@ -1199,18 +1423,18 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     children: [
                       Text(
                         LanguageService.instance.trText(
-                          ne: 'विद्यार्थी ब्याच तथा क्रेडिसियल व्यवस्थापन',
-                          en: 'Student Batch & Credentials Management',
-                          ko: '수험생 반별 및 계정 관리',
+                          ne: 'विद्यार्थी ब्याच, स्वीकृति तथा क्रेडिसियल व्यवस्थापन',
+                          en: 'Student Batch, Approvals & Credentials Management',
+                          ko: '수험생 반별, 승인 및 계정 관리',
                         ),
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         LanguageService.instance.trText(
-                          ne: 'ब्याच अनुसार विद्यार्थीहरूको नामावली, क्षेत्र र लगइन क्रेडिसियल नियन्त्रण',
-                          en: 'Manage student rosters, industry sectors, and login credentials by batch',
-                          ko: '반별 수험생 명단, 업종 선택 및 로그인 계정 정보 제어',
+                          ne: 'नयाँ दर्ता भएका विद्यार्थीहरूको स्वीकृति, ब्याच तोक्ने, सेट कोटा तथा म्याद नियन्त्रण',
+                          en: 'Manage new registrations, approve candidates, assign batches, quotas and validity',
+                          ko: '신규 등록 수험생 승인, 반 배정, 세트 정원 및 유효기간 제어',
                         ),
                         style: const TextStyle(color: Colors.white70, fontSize: 12),
                       ),
@@ -1220,7 +1444,68 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+
+          // Pending Alert Banner (if any)
+          if (pendingStudents.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.amber.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.amber.shade300, width: 1.5),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.shade100,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.notifications_active_rounded, color: Color(0xFFD97706), size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          lang.trText(
+                            ne: '🔔 ${pendingStudents.length} जना नयाँ विद्यार्थीहरू स्वीकृतिको पर्खाइमा छन्!',
+                            en: '🔔 ${pendingStudents.length} new student(s) awaiting your approval!',
+                            ko: '🔔 ${pendingStudents.length}명의 신규 수험생이 승인을 대기 중입니다!',
+                          ),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.amber.shade900),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          lang.trText(
+                            ne: 'तलको "स्वीकृति पर्खिरहेका" ट्याबबाट विद्यार्थीको ब्याच र कोटा तोकी १-क्लिकमा स्वीकृत गर्नुहोस्।',
+                            en: 'Assign batch and quota, then approve with 1-click in the Pending tab below.',
+                            ko: '아래 "승인 대기" 탭에서 반과 할당량을 지정하여 원클릭으로 승인해 주세요.',
+                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.amber.shade800),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD97706),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    onPressed: () => setState(() => _selectedStatusTab = 'pending'),
+                    child: Text(
+                      lang.trText(ne: 'हेर्नुहोस्', en: 'View All', ko: '확인하기'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
           // 2. Student List with Batch Filter & Search
           Card(
@@ -1240,9 +1525,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           const SizedBox(width: 10),
                           Text(
                             LanguageService.instance.trText(
-                              ne: 'दर्ता भएका विद्यार्थीहरू (${filteredStudents.length} जना)',
-                              en: 'Registered Students (${filteredStudents.length})',
-                              ko: '등록된 수험생 목록 (${filteredStudents.length}명)',
+                              ne: 'विद्यार्थीहरूको नामावली (${filteredStudents.length} जना)',
+                              en: 'Student Rosters (${filteredStudents.length})',
+                              ko: '수험생 명단 (${filteredStudents.length}명)',
                             ),
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
@@ -1261,6 +1546,56 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                     ],
                   ),
                   const Divider(height: 24),
+
+                  // Status Filter Tabs
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        ChoiceChip(
+                          label: Text('${lang.trText(ne: "सबै विद्यार्थीहरू", en: "All Students", ko: "전체 수험생")} (${allStudents.length})'),
+                          selected: _selectedStatusTab == 'all',
+                          selectedColor: const Color(0xFF1E3A8A),
+                          backgroundColor: Colors.grey.shade100,
+                          labelStyle: TextStyle(
+                            color: _selectedStatusTab == 'all' ? Colors.white : Colors.black87,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                          onSelected: (_) => setState(() => _selectedStatusTab = 'all'),
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          avatar: pendingStudents.isNotEmpty ? const Icon(Icons.circle, size: 10, color: Colors.amber) : null,
+                          label: Text('${lang.trText(ne: "⏳ स्वीकृति पर्खिरहेका", en: "⏳ Pending Approval", ko: "⏳ 승인 대기")} (${pendingStudents.length})'),
+                          selected: _selectedStatusTab == 'pending',
+                          selectedColor: const Color(0xFFD97706),
+                          backgroundColor: pendingStudents.isNotEmpty ? Colors.amber.shade50 : Colors.grey.shade100,
+                          labelStyle: TextStyle(
+                            color: _selectedStatusTab == 'pending' ? Colors.white : (pendingStudents.isNotEmpty ? Colors.amber.shade900 : Colors.black87),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                          onSelected: (_) => setState(() => _selectedStatusTab = 'pending'),
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: Text('${lang.trText(ne: "✅ सक्रिय", en: "✅ Active", ko: "✅ 활성")} (${activeStudents.length})'),
+                          selected: _selectedStatusTab == 'active',
+                          selectedColor: const Color(0xFF0F766E),
+                          backgroundColor: Colors.grey.shade100,
+                          labelStyle: TextStyle(
+                            color: _selectedStatusTab == 'active' ? Colors.white : Colors.black87,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                          onSelected: (_) => setState(() => _selectedStatusTab = 'active'),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
 
                   // Batch Filter Bar & Search
                   Row(
@@ -1333,146 +1668,196 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       separatorBuilder: (_, __) => const Divider(),
                       itemBuilder: (context, i) {
                         final s = filteredStudents[i];
-                        final isActive = s.status.contains('सक्रिय') || s.status.toLowerCase().contains('active');
+                        final isPending = s.isPendingApproval;
+                        final isActive = !isPending && (s.status.contains('सक्रिय') || s.status.toLowerCase().contains('active'));
 
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(vertical: 4),
-                          leading: CircleAvatar(
-                            backgroundColor: const Color(0xFFEFF6FF),
-                            child: Text(
-                              s.name.isNotEmpty ? s.name[0] : 'S',
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
-                            ),
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: isPending ? Colors.amber.shade50.withOpacity(0.5) : Colors.transparent,
+                            borderRadius: BorderRadius.circular(10),
+                            border: isPending ? Border.all(color: Colors.amber.shade300) : null,
                           ),
-                          title: Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            spacing: 6,
-                            runSpacing: 4,
-                            children: [
-                              Text(s.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
-                                child: Text(LanguageService.instance.batchText(s.batch), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
-                                child: Text(LanguageService.instance.sectorText(s.sector), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.teal.shade900)),
-                              ),
-                            ],
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 3),
-                              Text(
-                                LanguageService.instance.trText(
-                                  ne: 'दर्ता नं: ${s.registrationNo ?? "N/A"}  •  Username: ${s.username}  •  Password: ${s.password}',
-                                  en: 'Reg: ${s.registrationNo ?? "N/A"}  •  User: ${s.username}  •  Pass: ${s.password}',
-                                  ko: '수험번호: ${s.registrationNo ?? "N/A"}  •  아이디: ${s.username}  •  비밀번호: ${s.password}',
-                                ),
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              const SizedBox(height: 5),
-                              // Quota & Validity Badges Row
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 4,
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  // Quota badge
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFEFF6FF),
-                                      borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                            leading: CircleAvatar(
+                              backgroundColor: isPending ? Colors.amber.shade100 : const Color(0xFFEFF6FF),
+                              child: isPending
+                                  ? const Icon(Icons.hourglass_top, color: Color(0xFFD97706), size: 20)
+                                  : Text(
+                                      s.name.isNotEmpty ? s.name[0] : 'S',
+                                      style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
                                     ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.assignment_turned_in, size: 12, color: Color(0xFF1E3A8A)),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          '${LanguageService.instance.trText(ne: "कोटा:", en: "Quota:", ko: "정원:")} ${s.quotaSummaryText} (${s.setsUsedCount} हल)',
-                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
-                                        ),
-                                      ],
+                            ),
+                            title: Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: [
+                                Text(s.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                if (!isPending)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
+                                    child: Text(LanguageService.instance.batchText(s.batch), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
+                                  ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
+                                  child: Text(LanguageService.instance.sectorText(s.sector), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.teal.shade900)),
+                                ),
+                                if (isPending)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
+                                    child: Text(
+                                      lang.trText(ne: '⏳ नयाँ दर्ता (स्वीकृति पर्खिरहेको)', en: '⏳ Pending Approval', ko: '⏳ 신규 등록 승인 대기'),
+                                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber.shade900),
                                     ),
                                   ),
-                                  // Validity / Expiry badge
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: s.isExpired ? Colors.red.shade50 : const Color(0xFFF0FDFA),
-                                      borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(color: s.isExpired ? Colors.red.shade300 : const Color(0xFF99F6E4)),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          s.isExpired ? Icons.event_busy : Icons.calendar_today,
-                                          size: 12,
-                                          color: s.isExpired ? Colors.red.shade700 : const Color(0xFF0F766E),
+                              ],
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 3),
+                                Text(
+                                  LanguageService.instance.trText(
+                                    ne: 'मोबाइल: ${s.mobileNumber ?? "N/A"}  •  Username: ${s.username}  •  दर्ता नं: ${s.registrationNo ?? "N/A"}',
+                                    en: 'Mobile: ${s.mobileNumber ?? "N/A"}  •  User: ${s.username}  •  Reg: ${s.registrationNo ?? "N/A"}',
+                                    ko: '휴대폰: ${s.mobileNumber ?? "N/A"}  •  아이디: ${s.username}  •  수험번호: ${s.registrationNo ?? "N/A"}',
+                                  ),
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                if (!isPending) ...[
+                                  const SizedBox(height: 5),
+                                  // Quota & Validity Badges Row
+                                  Wrap(
+                                    spacing: 6,
+                                    runSpacing: 4,
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      // Quota badge
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFEFF6FF),
+                                          borderRadius: BorderRadius.circular(5),
+                                          border: Border.all(color: const Color(0xFFBFDBFE)),
                                         ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          '${LanguageService.instance.trText(ne: "म्याद:", en: "Validity:", ko: "유효기간:")} ${s.validitySummaryText}',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                            color: s.isExpired ? Colors.red.shade800 : const Color(0xFF0F766E),
-                                          ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.assignment_turned_in, size: 12, color: Color(0xFF1E3A8A)),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              '${LanguageService.instance.trText(ne: "कोटा:", en: "Quota:", ko: "정원:")} ${s.quotaSummaryText} (${s.setsUsedCount} हल)',
+                                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      // Validity / Expiry badge
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                        decoration: BoxDecoration(
+                                          color: s.isExpired ? Colors.red.shade50 : const Color(0xFFF0FDFA),
+                                          borderRadius: BorderRadius.circular(5),
+                                          border: Border.all(color: s.isExpired ? Colors.red.shade300 : const Color(0xFF99F6E4)),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              s.isExpired ? Icons.event_busy : Icons.calendar_today,
+                                              size: 12,
+                                              color: s.isExpired ? Colors.red.shade700 : const Color(0xFF0F766E),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              '${LanguageService.instance.trText(ne: "म्याद:", en: "Validity:", ko: "유효기간:")} ${s.validitySummaryText}',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: s.isExpired ? Colors.red.shade800 : const Color(0xFF0F766E),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
-                              ),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Direct Quota & Calendar Button
-                              IconButton(
-                                icon: const Icon(Icons.calendar_month_rounded, color: Color(0xFF0F766E), size: 22),
-                                tooltip: LanguageService.instance.trText(
-                                  ne: 'सेट कोटा तथा क्यालेन्डर म्याद निर्धारण गर्नुहोस्',
-                                  en: 'Manage Set Quota & Calendar Validity',
-                                  ko: '세트 정원 및 캘린더 유효기간 설정',
-                                ),
-                                onPressed: () => _showStudentQuotaDialog(s),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: isActive ? Colors.green.shade50 : Colors.red.shade50,
-                                  borderRadius: BorderRadius.circular(4),
-                                  border: Border.all(color: isActive ? Colors.green : Colors.red),
-                                ),
-                                child: Text(
-                                  LanguageService.instance.statusText(s.status),
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: isActive ? Colors.green.shade900 : Colors.red.shade900,
-                                    fontWeight: FontWeight.bold,
+                              ],
+                            ),
+                            trailing: isPending
+                                ? Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ElevatedButton.icon(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green.shade700,
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                        ),
+                                        icon: const Icon(Icons.check_circle_rounded, size: 16),
+                                        label: Text(lang.trText(ne: 'स्वीकृत गर्नुहोस्', en: 'Approve', ko: '승인')),
+                                        onPressed: () => _showApproveStudentDialog(s),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: Colors.red,
+                                          side: const BorderSide(color: Colors.red),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                        ),
+                                        onPressed: () => _confirmDeleteStudent(s),
+                                        child: Text(lang.trText(ne: 'अस्वीकार', en: 'Reject', ko: '거절')),
+                                      ),
+                                    ],
+                                  )
+                                : Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Direct Quota & Calendar Button
+                                      IconButton(
+                                        icon: const Icon(Icons.calendar_month_rounded, color: Color(0xFF0F766E), size: 22),
+                                        tooltip: LanguageService.instance.trText(
+                                          ne: 'सेट कोटा तथा क्यालेन्डर म्याद निर्धारण गर्नुहोस्',
+                                          en: 'Manage Set Quota & Calendar Validity',
+                                          ko: '세트 정원 및 캘린더 유효기간 설정',
+                                        ),
+                                        onPressed: () => _showStudentQuotaDialog(s),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: isActive ? Colors.green.shade50 : Colors.red.shade50,
+                                          borderRadius: BorderRadius.circular(4),
+                                          border: Border.all(color: isActive ? Colors.green : Colors.red),
+                                        ),
+                                        child: Text(
+                                          LanguageService.instance.statusText(s.status),
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: isActive ? Colors.green.shade900 : Colors.red.shade900,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.edit, color: Color(0xFF1E3A8A), size: 20),
+                                        tooltip: LanguageService.instance.trText(ne: 'सम्पादन गर्नुहोस्', en: 'Edit', ko: '수정'),
+                                        onPressed: () => _showEditStudentDialog(s),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
+                                        tooltip: LanguageService.instance.trText(ne: 'हटाउनुहोस्', en: 'Delete', ko: '삭제'),
+                                        onPressed: () => _confirmDeleteStudent(s),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.edit, color: Color(0xFF1E3A8A), size: 20),
-                                tooltip: LanguageService.instance.trText(ne: 'सम्पादन गर्नुहोस्', en: 'Edit', ko: '수정'),
-                                onPressed: () => _showEditStudentDialog(s),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                                tooltip: LanguageService.instance.trText(ne: 'हटाउनुहोस्', en: 'Delete', ko: '삭제'),
-                                onPressed: () => _confirmDeleteStudent(s),
-                              ),
-                            ],
                           ),
                         );
                       },
@@ -1607,4 +1992,208 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       },
     );
   }
+
+  void _showAssignSetsToStudentDialog(AppUser student) {
+    final allSets = QuestionBankService.instance.getAllMockSets().where((s) => s.isApproved).toList();
+    final selectedSetIds = Set<String>.from(student.unlockedSetIds);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          titlePadding: EdgeInsets.zero,
+          title: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: const BoxDecoration(
+              color: Color(0xFF0F766E),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.assignment_turned_in_rounded, color: Colors.white, size: 24),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: 'विद्यार्थीलाई प्रश्न सेट तोक्नुहोस्',
+                          en: 'Assign Question Sets to Student',
+                          ko: '수험생 문제 세트 배정',
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
+                      ),
+                      Text(
+                        '${student.name} (${student.username})',
+                        style: const TextStyle(fontSize: 11, color: Colors.white70),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          content: SizedBox(
+            width: 500,
+            height: 420,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDFA),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFF99F6E4)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, size: 18, color: Color(0xFF0F766E)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          LanguageService.instance.trText(
+                            ne: 'छानिएका सेटहरू मात्र यस विद्यार्थीले परीक्षा दिन पाउनेछन्। (${selectedSetIds.length} सेट छानियो)',
+                            en: 'This student can only attempt the selected question sets. (${selectedSetIds.length} selected)',
+                            ko: '선택된 모의고사 세트만 해당 수험생이 응시할 수 있습니다. (${selectedSetIds.length}개 선택)',
+                          ),
+                          style: const TextStyle(fontSize: 11.5, color: Color(0xFF0F766E), fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      icon: const Icon(Icons.select_all, size: 16),
+                      label: Text(LanguageService.instance.trText(ne: 'सबै छान्नुहोस्', en: 'Select All', ko: '전체 선택'), style: const TextStyle(fontSize: 12)),
+                      onPressed: () {
+                        setDialogState(() {
+                          selectedSetIds.addAll(allSets.map((s) => s.id));
+                        });
+                      },
+                    ),
+                    TextButton.icon(
+                      icon: const Icon(Icons.deselect, size: 16, color: Colors.red),
+                      label: Text(LanguageService.instance.trText(ne: 'सबै हटाउनुहोस्', en: 'Deselect All', ko: '전체 해제'), style: const TextStyle(fontSize: 12, color: Colors.red)),
+                      onPressed: () {
+                        setDialogState(() {
+                          selectedSetIds.clear();
+                        });
+                      },
+                    ),
+                  ],
+                ),
+                const Divider(height: 10),
+                Expanded(
+                  child: allSets.isEmpty
+                      ? Center(
+                          child: Text(
+                            LanguageService.instance.trText(ne: 'कुनै सेट उपलब्ध छैन', en: 'No sets available', ko: '세트가 없습니다'),
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        )
+                      : ListView.separated(
+                          itemCount: allSets.length,
+                          separatorBuilder: (_, __) => const Divider(height: 1),
+                          itemBuilder: (ctx, idx) {
+                            final set = allSets[idx];
+                            final isChecked = selectedSetIds.contains(set.id);
+
+                            return CheckboxListTile(
+                              value: isChecked,
+                              dense: true,
+                              activeColor: const Color(0xFF0F766E),
+                              title: Text(
+                                set.title,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                  color: isChecked ? const Color(0xFF0F766E) : Colors.black87,
+                                ),
+                              ),
+                              subtitle: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(set.sector, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold)),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${set.questions.length} ${LanguageService.instance.trText(ne: "प्रश्नहरू", en: "Questions", ko: "문항")}',
+                                    style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                                  ),
+                                ],
+                              ),
+                              onChanged: (bool? val) {
+                                setDialogState(() {
+                                  if (val == true) {
+                                    selectedSetIds.add(set.id);
+                                  } else {
+                                    selectedSetIds.remove(set.id);
+                                  }
+                                });
+                              },
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(LanguageService.instance.tr('cancel')),
+            ),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0F766E),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              icon: const Icon(Icons.save, size: 16),
+              label: Text(
+                LanguageService.instance.trText(
+                  ne: 'सेट तोक्नुहोस् (${selectedSetIds.length})',
+                  en: 'Assign Sets (${selectedSetIds.length})',
+                  ko: '세트 배정 (${selectedSetIds.length})',
+                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onPressed: () {
+                final list = selectedSetIds.toList();
+                AuthService.instance.updateStudentUnlockedSets(student.id, list);
+                Navigator.pop(ctx);
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      LanguageService.instance.trText(
+                        ne: '✅ ${student.name} का लागि ${list.length} वटा सेटहरू सफलतापूर्वक तोकियो!',
+                        en: '✅ Successfully assigned ${list.length} sets to ${student.name}!',
+                        ko: '✅ ${student.name} 수험생에게 ${list.length}개 세트가 배정되었습니다!',
+                      ),
+                    ),
+                    backgroundColor: Colors.teal,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 }

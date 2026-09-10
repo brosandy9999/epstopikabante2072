@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../core/models/mock_test_model.dart';
 import '../../core/services/auth_service.dart';
-import '../../core/services/file_upload_web.dart';
+import '../../core/services/file_upload_service.dart';
 import '../../core/services/institute_service.dart';
+import '../../core/services/language_service.dart';
 import '../../core/services/question_bank_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
 import '../question_engine/question_template.dart';
@@ -10,14 +11,6 @@ import 'paper_exam_html_builder.dart';
 import 'paper_exam_print_helper.dart';
 
 /// Official HRD Korea Style EPS-TOPIK Paper-Based Test (PBT) Booklet — 8 Pages
-///
-/// Page 1 : Institute Cover + Candidate Fill-Up Boxes
-/// Pages 2–5 : Reading Section (Single column, HRD style, ~5 Qs/page)
-/// Pages 6–8 : Listening Section (Single column, HRD style, ~6-7 Qs/page)
-///              - Question title BOLD
-///              - Passage/word/material in ROUNDED BORDER BOX
-///              - Options ①②③④ listed below
-///              - Listening script NOT displayed
 class PaperExamPrintScreen extends StatefulWidget {
   final MockTestSet testSet;
   const PaperExamPrintScreen({super.key, required this.testSet});
@@ -27,6 +20,8 @@ class PaperExamPrintScreen extends StatefulWidget {
 }
 
 class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
+  String _tr(String ne, String en, String ko) =>
+      LanguageService.instance.trText(ne: ne, en: en, ko: ko);
   double _zoomLevel = 1.0;
   final ScrollController _scrollController = ScrollController();
   late MockTestSet _currentSet;
@@ -98,8 +93,12 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
     if (!isSuperAdmin && !_currentSet.isApproved) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🔒 सुपर एडमिनको स्वीकृति बिना यो प्रश्नपत्र डाउनलोड गर्न मिल्दैन।'),
+        SnackBar(
+          content: Text(_tr(
+            '🔒 सुपर एडमिनको स्वीकृति बिना यो प्रश्नपत्र डाउनलोड गर्न मिल्दैन।',
+            '🔒 Cannot download this paper without Super Admin approval.',
+            '🔒 최고관리자의 승인 없이는 이 시험지를 다운로드할 수 없습니다.',
+          )),
           backgroundColor: Colors.red,
         ),
       );
@@ -120,10 +119,14 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     );
     printExamHtml(htmlContent);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('🖨️ प्रिन्ट / PDF विन्डो खुल्दैछ... Destination मा "Save as PDF" छान्नुहोस्।'),
-        backgroundColor: Color(0xFF16A34A),
-        duration: Duration(seconds: 4),
+      SnackBar(
+        content: Text(_tr(
+          '🖨️ प्रिन्ट / PDF विन्डो खुल्दैछ... Destination मा "Save as PDF" छान्नुहोस्।',
+          '🖨️ Opening print/PDF window... Select "Save as PDF" in Destination.',
+          '🖨️ 인쇄/PDF 창을 여는 중... 대상에서 "PDF로 저장"을 선택하세요.',
+        )),
+        backgroundColor: const Color(0xFF16A34A),
+        duration: const Duration(seconds: 4),
       ),
     );
   }
@@ -132,8 +135,12 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
     if (!isSuperAdmin && !_currentSet.isApproved) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🔒 सुपर एडमिनको स्वीकृति बिना यो प्रश्नपत्र खोल्न मिल्दैन।'),
+        SnackBar(
+          content: Text(_tr(
+            '🔒 सुपर एडमिनको स्वीकृति बिना यो प्रश्नपत्र खोल्न मिल्दैन।',
+            '🔒 Cannot open this paper without Super Admin approval.',
+            '🔒 최고관리자의 승인 없이는 이 시험지를 열 수 없습니다.',
+          )),
           backgroundColor: Colors.red,
         ),
       );
@@ -154,10 +161,14 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     );
     openExamInNewTab(htmlContent);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('🌐 नयाँ ट्याबमा ८ पृष्ठको PBT प्रश्नपत्र खुल्यो। त्यहाँ माथिको Print बटनबाट PDF save गर्न सक्नुहुन्छ।'),
-        backgroundColor: Color(0xFF1E3A8A),
-        duration: Duration(seconds: 4),
+      SnackBar(
+        content: Text(_tr(
+          '🌐 नयाँ ट्याबमा ८ पृष्ठको PBT प्रश्नपत्र खुल्यो। त्यहाँ माथिको Print बटनबाट PDF save गर्न सक्नुहुन्छ।',
+          '🌐 Opened 8-page PBT exam in new tab. You can save as PDF using the Print button.',
+          '🌐 새 탭에 8페이지 PBT 문제지가 열렸습니다. 인쇄 버튼으로 PDF 저장이 가능합니다.',
+        )),
+        backgroundColor: const Color(0xFF1E3A8A),
+        duration: const Duration(seconds: 4),
       ),
     );
   }
@@ -204,9 +215,13 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                '🎧 लिसनिङ अडियो QR कोड व्यवस्थापन (Listening Audio QR Manager)',
-                                style: TextStyle(
+                              Text(
+                                _tr(
+                                  '🎧 लिसनिङ अडियो QR कोड व्यवस्थापन',
+                                  '🎧 Listening Audio QR Code Manager',
+                                  '🎧 듣기 오디오 QR 코드 관리',
+                                ),
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
@@ -214,7 +229,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'PBT PDF मा प्रत्येक लिसनिङ प्रश्न (२१–४०) वा पेज ६ को ब्यानरमा अडियो सुन्न मिल्ने QR कोड फोटो पेस्ट वा अपलोड गर्नुहोस्।',
+                                _tr(
+                                  'PBT PDF मा प्रत्येक लिसनिङ प्रश्न (२१–४०) वा पेज ६ को ब्यानरमा अडियो सुन्न मिल्ने QR कोड फोटो पेस्ट वा अपलोड गर्नुहोस्।',
+                                  'Paste or upload QR code images to listen to audio for each listening question (21–40) or Page 6 banner in PBT PDF.',
+                                  'PBT PDF의 개별 듣기 문항(21~40) 또는 6페이지 배너에 오디오 청취용 QR 코드 이미지를 붙여넣거나 업로드하세요.',
+                                ),
                                 style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
                               ),
                             ],
@@ -228,7 +247,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                             border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.5)),
                           ),
                           child: Text(
-                            'सेट भएका QR: $count / 20',
+                            '${_tr('सेट भएका QR', 'Configured QRs', '설정된 QR')}: $count / 20',
                             style: const TextStyle(
                               color: Color(0xFF60A5FA),
                               fontWeight: FontWeight.bold,
@@ -276,22 +295,30 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                         child: const Icon(Icons.aspect_ratio, color: Color(0xFF38BDF8), size: 20),
                                       ),
                                       const SizedBox(width: 12),
-                                      const Expanded(
+                                      Expanded(
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              '🔍 PDF मा QR कोडको साइज (QR Code Print Size)',
-                                              style: TextStyle(
+                                              _tr(
+                                                '🔍 PDF मा QR कोडको साइज',
+                                                '🔍 QR Code Print Size in PDF',
+                                                '🔍 PDF 내 QR 코드 인쇄 크기',
+                                              ),
+                                              style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14,
                                               ),
                                             ),
-                                            SizedBox(height: 2),
+                                            const SizedBox(height: 2),
                                             Text(
-                                              'मोबाइल फोनको क्यामेराले सजिलै र टाढाबाटै स्क्यान गर्न QR कोडको साइज यहाँबाट मिलाउनुहोस्।',
-                                              style: TextStyle(color: Colors.white70, fontSize: 11),
+                                              _tr(
+                                                'मोबाइल फोनको क्यामेराले सजिलै र टाढाबाटै स्क्यान गर्न QR कोडको साइज यहाँबाट मिलाउनुहोस्।',
+                                                'Adjust QR code size here for quick and reliable scanning with mobile cameras.',
+                                                '스마트폰 카메라로 멀리서도 빠르고 정확하게 스캔할 수 있도록 QR 코드 크기를 조절하세요.',
+                                              ),
+                                              style: const TextStyle(color: Colors.white70, fontSize: 11),
                                             ),
                                           ],
                                         ),
@@ -349,11 +376,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                     spacing: 8,
                                     runSpacing: 6,
                                     children: [
-                                      _buildQrScaleChip('सामान्य (100% / 46px)', 1.0, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
-                                      _buildQrScaleChip('मध्यम (120% / 55px)', 1.2, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
-                                      _buildQrScaleChip('⭐ सिफारिस (135% / 62px)', 1.35, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
-                                      _buildQrScaleChip('ठूलो (150% / 69px)', 1.5, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
-                                      _buildQrScaleChip('धेरै ठूलो (170% / 78px)', 1.7, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
+                                      _buildQrScaleChip(_tr('सामान्य (100% / 46px)', 'Normal (100% / 46px)', '보통 (100% / 46px)'), 1.0, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
+                                      _buildQrScaleChip(_tr('मध्यम (120% / 55px)', 'Medium (120% / 55px)', '중간 (120% / 55px)'), 1.2, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
+                                      _buildQrScaleChip(_tr('⭐ सिफारिस (135% / 62px)', '⭐ Recommended (135% / 62px)', '⭐ 권장 (135% / 62px)'), 1.35, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
+                                      _buildQrScaleChip(_tr('ठूलो (150% / 69px)', 'Large (150% / 69px)', '크게 (150% / 69px)'), 1.5, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
+                                      _buildQrScaleChip(_tr('धेरै ठूलो (170% / 78px)', 'Extra Large (170% / 78px)', '매우 크게 (170% / 78px)'), 1.7, tempQrScale, (v) => setModalState(() => tempQrScale = v)),
                                     ],
                                   ),
                                   const SizedBox(height: 10),
@@ -363,14 +390,18 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                       color: const Color(0xFF0F172A),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: const Row(
+                                    child: Row(
                                       children: [
-                                        Icon(Icons.check_circle_outline, color: Color(0xFF4ADE80), size: 15),
-                                        SizedBox(width: 6),
+                                        const Icon(Icons.check_circle_outline, color: Color(0xFF4ADE80), size: 15),
+                                        const SizedBox(width: 6),
                                         Expanded(
                                           child: Text(
-                                            'टिप: मोबाइल फोनको क्यामेराले कागजमा प्रिन्ट भएको QR कोड तुरुन्तै स्क्यान गर्न १३५% वा १५०% (६२px~६९px) साइज सबैभन्दा भरपर्दो हुन्छ।',
-                                            style: TextStyle(color: Colors.white70, fontSize: 11),
+                                            _tr(
+                                              'टिप: मोबाइल फोनको क्यामेराले कागजमा प्रिन्ट भएको QR कोड तुरुन्तै स्क्यान गर्न १३५% वा १५०% (६२px~६९px) साइज सबैभन्दा भरपर्दो हुन्छ।',
+                                              'Tip: 135% or 150% (62px–69px) is most reliable for instant paper scanning with phone cameras.',
+                                              '팁: 종이에 인쇄된 QR 코드를 스마트폰 카메라로 즉시 스캔하려면 135% 또는 150%(62px~69px) 크기가 가장 안정적입니다.',
+                                            ),
+                                            style: const TextStyle(color: Colors.white70, fontSize: 11),
                                           ),
                                         ),
                                       ],
@@ -394,9 +425,13 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                     children: [
                                       const Icon(Icons.library_music, color: Color(0xFF38BDF8), size: 20),
                                       const SizedBox(width: 8),
-                                      const Text(
-                                        '📢 समग्र लिसनिङ QR (Master Listening QR — Page 6 Banner)',
-                                        style: TextStyle(
+                                      Text(
+                                        _tr(
+                                          '📢 समग्र लिसनिङ QR (पेज ६ ब्यानर)',
+                                          '📢 Master Listening QR (Page 6 Banner)',
+                                          '📢 전체 듣기 QR (6페이지 배너)',
+                                        ),
+                                        style: const TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 14,
@@ -407,7 +442,14 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                         TextButton.icon(
                                           style: TextButton.styleFrom(foregroundColor: const Color(0xFF38BDF8)),
                                           icon: const Icon(Icons.copy_all, size: 16),
-                                          label: const Text('सबै प्रश्नमा (२१–४०) यही QR लागू गर्नुहोस्', style: TextStyle(fontSize: 11)),
+                                          label: Text(
+                                            _tr(
+                                              'सबै प्रश्नमा (२१–४०) यही QR लागू गर्नुहोस्',
+                                              'Apply this QR to all questions (21–40)',
+                                              '모든 문항(21~40)에 이 QR 일괄 적용',
+                                            ),
+                                            style: const TextStyle(fontSize: 11),
+                                          ),
                                           onPressed: () {
                                             for (int i = 21; i <= 40; i++) {
                                               tempQrMap['$i'] = tempSectionQr!;
@@ -415,10 +457,14 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                             setModalState(() {});
                                             if (mounted) {
                                               ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('✅ समग्र QR २१ देखि ४० सम्मका सबै प्रश्नमा कपी गरियो!'),
-                                                  backgroundColor: Color(0xFF16A34A),
-                                                  duration: Duration(seconds: 2),
+                                                SnackBar(
+                                                  content: Text(_tr(
+                                                    '✅ समग्र QR २१ देखि ४० सम्मका सबै प्रश्नमा कपी गरियो!',
+                                                    '✅ Master QR copied to all questions from 21 to 40!',
+                                                    '✅ 전체 QR 코드가 21번부터 40번까지 모든 문항에 적용되었습니다!',
+                                                  )),
+                                                  backgroundColor: const Color(0xFF16A34A),
+                                                  duration: const Duration(seconds: 2),
                                                 ),
                                               );
                                             }
@@ -426,7 +472,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                                          tooltip: 'समग्र QR हटाउनुहोस्',
+                                          tooltip: _tr('समग्र QR हटाउनुहोस्', 'Delete Master QR', '전체 QR 삭제'),
                                           onPressed: () => setModalState(() => tempSectionQr = null),
                                         ),
                                       ],
@@ -434,7 +480,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'यो QR कोड Page 6 को Listening ब्यानर दायाँपट्टी "전체 듣기 (Full Audio)" को रूपमा देखिनेछ।',
+                                    _tr(
+                                      'यो QR कोड Page 6 को Listening ब्यानर दायाँपट्टी "전체 듣기 (Full Audio)" को रूपमा देखिनेछ।',
+                                      'This QR code will appear on the Page 6 Listening banner on the right side as "전체 듣기 (Full Audio)".',
+                                      '이 QR 코드는 6페이지 듣기 배너 우측에 "전체 듣기 (Full Audio)"로 표시됩니다.',
+                                    ),
                                     style: TextStyle(color: Colors.grey.shade400, fontSize: 11.5),
                                   ),
                                   const SizedBox(height: 12),
@@ -467,7 +517,10 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                               ),
                                               icon: const Icon(Icons.content_paste, size: 16),
-                                              label: const Text('📋 क्लिपबोर्डबाट फोटो पेस्ट (Ctrl+V)', style: TextStyle(fontSize: 12)),
+                                              label: Text(
+                                                _tr('📋 क्लिपबोर्डबाट फोटो पेस्ट (Ctrl+V)', '📋 Paste Image from Clipboard', '📋 클립보드 이미지 붙여넣기'),
+                                                style: const TextStyle(fontSize: 12),
+                                              ),
                                               onPressed: () async {
                                                 final res = await FileUploadService.instance.pasteImageFromClipboard();
                                                 if (res != null && res.dataUrl.isNotEmpty) {
@@ -475,8 +528,12 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                                 } else {
                                                   if (mounted) {
                                                     ScaffoldMessenger.of(context).showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text('⚠️ क्लिपबोर्डमा कुनै फोटो फेला परेन। पहिले QR फोटो Copy (Ctrl+C) गर्नुहोस्।'),
+                                                      SnackBar(
+                                                        content: Text(_tr(
+                                                          '⚠️ क्लिपबोर्डमा कुनै फोटो फेला परेन। पहिले QR फोटो Copy (Ctrl+C) गर्नुहोस्।',
+                                                          '⚠️ No image found in clipboard. Please copy a QR image first.',
+                                                          '⚠️ 클립보드에서 이미지를 찾을 수 없습니다. 먼저 QR 이미지를 복사하세요.',
+                                                        )),
                                                         backgroundColor: Colors.orange,
                                                       ),
                                                     );
@@ -491,7 +548,10 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                                               ),
                                               icon: const Icon(Icons.upload_file, size: 16),
-                                              label: const Text('📁 फोटो छान्नुहोस् (Upload)', style: TextStyle(fontSize: 12)),
+                                              label: Text(
+                                                _tr('📁 फोटो छान्नुहोस् (Upload)', '📁 Upload Image File', '📁 이미지 파일 업로드'),
+                                                style: const TextStyle(fontSize: 12),
+                                              ),
                                               onPressed: () async {
                                                 final res = await FileUploadService.instance.pickImageFile();
                                                 if (res != null && res.dataUrl.isNotEmpty) {
@@ -513,16 +573,24 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  '🎯 प्रत्येक लिसनिङ प्रश्नको QR कोड (Questions 21 – 40)',
-                                  style: TextStyle(
+                                Text(
+                                  _tr(
+                                    '🎯 प्रत्येक लिसनिङ प्रश्नको QR कोड (प्रश्न २१ – ४०)',
+                                    '🎯 Per-Question Listening QR Code (Questions 21–40)',
+                                    '🎯 개별 듣기 문항 QR 코드 (21번~40번)',
+                                  ),
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
                                   ),
                                 ),
                                 Text(
-                                  'प्रत्येक प्रश्नको आफ्नै QR भएमा सोही प्रश्नको टाइटल दायाँपट्टी प्रिन्ट हुनेछ।',
+                                  _tr(
+                                    'प्रत्येक प्रश्नको आफ्नै QR भएमा सोही प्रश्नको दायाँपट्टी प्रिन्ट हुनेछ।',
+                                    'If a question has its own QR, it will print next to that question.',
+                                    '문항별 QR이 있으면 해당 문제 우측에 개별 인쇄됩니다.',
+                                  ),
                                   style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                                 ),
                               ],
@@ -636,7 +704,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                     // 1. Paste from clipboard
                                     IconButton(
                                       icon: const Icon(Icons.content_paste, size: 18, color: Color(0xFF60A5FA)),
-                                      tooltip: 'क्लिपबोर्डबाट फोटो पेस्ट (Ctrl+V)',
+                                      tooltip: _tr('क्लिपबोर्डबाट फोटो पेस्ट (Ctrl+V)', 'Paste from clipboard (Ctrl+V)', '클립보드에서 붙여넣기 (Ctrl+V)'),
                                       onPressed: () async {
                                         final res = await FileUploadService.instance.pasteImageFromClipboard();
                                         if (res != null && res.dataUrl.isNotEmpty) {
@@ -645,7 +713,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                           if (mounted) {
                                             ScaffoldMessenger.of(context).showSnackBar(
                                               SnackBar(
-                                                content: Text('⚠️ Q$qNo को लागि क्लिपबोर्डमा कुनै फोटो फेला परेन। पहिले QR फोटो Copy (Ctrl+C) गर्नुहोस्।'),
+                                                content: Text(_tr(
+                                                  '⚠️ Q$qNo को लागि क्लिपबोर्डमा कुनै फोटो फेला परेन। पहिले QR फोटो Copy (Ctrl+C) गर्नुहोस्।',
+                                                  '⚠️ No image found in clipboard for Q$qNo. Please copy a QR image first.',
+                                                  '⚠️ Q$qNo에 대한 클립보드 이미지가 없습니다. 먼저 QR 이미지를 복사하세요.',
+                                                )),
                                                 backgroundColor: Colors.orange,
                                               ),
                                             );
@@ -656,7 +728,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                     // 2. Upload file
                                     IconButton(
                                       icon: const Icon(Icons.upload_file, size: 18, color: Colors.white70),
-                                      tooltip: 'फोटो फाइल अपलोड गर्नुहोस्',
+                                      tooltip: _tr('फोटो फाइल अपलोड गर्नुहोस्', 'Upload image file', '이미지 파일 업로드'),
                                       onPressed: () async {
                                         final res = await FileUploadService.instance.pickImageFile();
                                         if (res != null && res.dataUrl.isNotEmpty) {
@@ -668,7 +740,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                     if (audioUrl != null && audioUrl.isNotEmpty)
                                       IconButton(
                                         icon: const Icon(Icons.auto_fix_high, size: 18, color: Color(0xFFFBBF24)),
-                                        tooltip: 'अडियो लिंकबाट स्वचालित QR कोड सिर्जना गर्नुहोस्',
+                                        tooltip: _tr('अडियो लिंकबाट स्वचालित QR कोड सिर्जना गर्नुहोस्', 'Auto-generate QR code from audio URL', '오디오 링크에서 QR 코드 자동 생성'),
                                         onPressed: () {
                                           final genUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${Uri.encodeComponent(audioUrl)}';
                                           setModalState(() => tempQrMap[qNumStr] = genUrl);
@@ -678,7 +750,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                     if (hasQr)
                                       IconButton(
                                         icon: const Icon(Icons.delete_outline, size: 18, color: Colors.redAccent),
-                                        tooltip: 'QR हटाउनुहोस्',
+                                        tooltip: _tr('QR हटाउनुहोस्', 'Delete QR', 'QR 삭제'),
                                         onPressed: () => setModalState(() => tempQrMap.remove(qNumStr)),
                                       ),
                                   ],
@@ -699,7 +771,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '💡 नोट: तपाईंले यहाँ थपेका QR कोडहरू सिधै PDF प्रिन्ट र प्रश्न सेटमा सुरक्षित हुनेछन्।',
+                          _tr(
+                            '💡 नोट: तपाईंले यहाँ थपेका QR कोडहरू सिधै PDF प्रिन्ट र प्रश्न सेटमा सुरक्षित हुनेछन्।',
+                            '💡 Note: QR codes added here will be applied directly to PDF print and saved.',
+                            '💡 참고: 여기서 추가한 QR 코드는 PDF 인쇄에 즉시 반영되며 저장됩니다.',
+                          ),
                           style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                         ),
                         Row(
@@ -711,7 +787,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               ),
                               onPressed: () => Navigator.pop(modalCtx),
-                              child: const Text('रद्द गर्नुहोस् (Cancel)'),
+                              child: Text(_tr('रद्द गर्नुहोस्', 'Cancel', '취소')),
                             ),
                             const SizedBox(width: 12),
                             ElevatedButton.icon(
@@ -722,8 +798,10 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
                               icon: const Icon(Icons.check, size: 18),
-                              label: const Text('💾 सुरक्षित गरी PDF मा लागू गर्नुहोस् (Save & Apply)',
-                                  style: TextStyle(fontWeight: FontWeight.bold)),
+                              label: Text(
+                                _tr('💾 सुरक्षित गरी PDF मा लागू गर्नुहोस्', '💾 Save & Apply to PDF', '💾 저장 후 PDF에 적용'),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
                               onPressed: () {
                                 setState(() {
                                   _questionQrCodes = tempQrMap;
@@ -755,7 +833,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('✅ लिसनिङ QR कोडहरू र साइज (${(_qrScale * 100).round()}%) सफलतापूर्वक सुरक्षित गरियो र PDF मा लागू भयो!'),
+                                    content: Text(_tr(
+                                      '✅ लिसनिङ QR कोडहरू र साइज (${(_qrScale * 100).round()}%) सफलतापूर्वक सुरक्षित गरियो र PDF मा लागू भयो!',
+                                      '✅ Listening QR codes and size (${(_qrScale * 100).round()}%) saved and applied to PDF!',
+                                      '✅ 듣기 QR 코드 및 크기(${(_qrScale * 100).round()}%)가 성공적으로 저장되어 PDF에 적용되었습니다!',
+                                    )),
                                     backgroundColor: const Color(0xFF16A34A),
                                     duration: const Duration(seconds: 4),
                                   ),
@@ -849,16 +931,16 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                               child: const Icon(Icons.photo_size_select_large, color: Colors.white, size: 22),
                             ),
                             const SizedBox(width: 12),
-                            const Column(
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '🖼️ फोटो / चित्रको साइज समायोजन',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                  _tr('🖼️ फोटो / चित्रको साइज समायोजन', '🖼️ Image Scaling & Chart Settings', '🖼️ 이미지 크기 및 도표 설정'),
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 Text(
-                                  'Image Scaling & Chart Settings (PBT PDF)',
-                                  style: TextStyle(color: Colors.white60, fontSize: 11),
+                                  _tr('PBT PDF फोटो तथा चार्टको आकार व्यवस्थापन', 'PBT PDF image scaling & chart layout settings', 'PBT PDF 이미지 비율 및 도표 배치 설정'),
+                                  style: const TextStyle(color: Colors.white60, fontSize: 11),
                                 ),
                               ],
                             ),
@@ -887,15 +969,19 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                               ),
                               child: SwitchListTile(
                                 contentPadding: EdgeInsets.zero,
-                                title: const Text(
-                                  '📊 पाईचार्ट / नोटिस बोर्ड ठूलो देखाउने',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                title: Text(
+                                  _tr('📊 पाईचार्ट / नोटिस बोर्ड ठूलो देखाउने', '📊 Enlarge Pie Charts / Notice Boards', '📊 파이차트 / 안내문 도표 크게 표시'),
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                                 ),
-                                subtitle: const Padding(
-                                  padding: EdgeInsets.only(top: 4),
+                                subtitle: Padding(
+                                  padding: const EdgeInsets.only(top: 4),
                                   child: Text(
-                                    'Q5–Q10, प्रतिशत, ग्राफ र सूचना पाटी भएका चित्रहरूलाई साइड-बाइ-साइड नराखी पुरै चौडाइमा ठूलो र स्पष्ट देखाउँछ।',
-                                    style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.35),
+                                    _tr(
+                                      'Q5–Q10, प्रतिशत, ग्राफ र सूचना पाटी भएका चित्रहरूलाई साइड-बाइ-साइड नराखी पुरै चौडाइमा ठूलो र स्पष्ट देखाउँछ।',
+                                      'Displays Q5–Q10 graphs, charts, and notices in full-width large view instead of side-by-side.',
+                                      '5~10번 그래프, 도표, 안내문 이미지를 가로 전체 너비로 크고 선명하게 표시합니다.',
+                                    ),
+                                    style: const TextStyle(color: Colors.white70, fontSize: 12, height: 1.35),
                                   ),
                                 ),
                                 value: tempAutoEnlarge,
@@ -909,13 +995,17 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                             const SizedBox(height: 18),
 
                             // 2. Global Scale Presets
-                            const Text(
-                              '🎯 फोटोको समग्र साइज (Overall Image Scale)',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.5),
+                            Text(
+                              _tr('🎯 फोटोको समग्र साइज', '🎯 Overall Image Scale', '🎯 전체 이미지 크기 비율'),
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13.5),
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'PDF मा सम्पूर्ण फोटोहरूको आकार प्रतिशतमा घटबढ गर्नुहोस्:',
+                              _tr(
+                                'PDF मा सम्पूर्ण फोटोहरूको आकार प्रतिशतमा घटबढ गर्नुहोस्:',
+                                'Adjust the percentage size of all images in the PDF:',
+                                'PDF 내 모든 이미지의 크기 비율을 조절하세요:',
+                              ),
                               style: TextStyle(color: Colors.grey.shade400, fontSize: 11.5),
                             ),
                             const SizedBox(height: 10),
@@ -924,11 +1014,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                               spacing: 8,
                               runSpacing: 8,
                               children: [
-                                _presetChip('८५% (सानो)', 0.85, tempScale, (v) => setModalState(() => tempScale = v)),
-                                _presetChip('१००% (सामान्य)', 1.0, tempScale, (v) => setModalState(() => tempScale = v)),
-                                _presetChip('११५% (सिफारिस)', 1.15, tempScale, (v) => setModalState(() => tempScale = v)),
-                                _presetChip('१३०% (ठूलो)', 1.30, tempScale, (v) => setModalState(() => tempScale = v)),
-                                _presetChip('१४५% (धेरै ठूलो)', 1.45, tempScale, (v) => setModalState(() => tempScale = v)),
+                                _presetChip(_tr('८५% (सानो)', '85% (Small)', '85% (작게)'), 0.85, tempScale, (v) => setModalState(() => tempScale = v)),
+                                _presetChip(_tr('१००% (सामान्य)', '100% (Normal)', '100% (보통)'), 1.0, tempScale, (v) => setModalState(() => tempScale = v)),
+                                _presetChip(_tr('११५% (सिफारिस)', '115% (Recommended)', '115% (권장)'), 1.15, tempScale, (v) => setModalState(() => tempScale = v)),
+                                _presetChip(_tr('१३०% (ठूलो)', '130% (Large)', '130% (크게)'), 1.30, tempScale, (v) => setModalState(() => tempScale = v)),
+                                _presetChip(_tr('१४५% (धेरै ठूलो)', '145% (Extra Large)', '145% (매우 크게)'), 1.45, tempScale, (v) => setModalState(() => tempScale = v)),
                               ],
                             ),
 
@@ -976,13 +1066,17 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
 
                             if (candidateIndices.isNotEmpty) ...[
                               const SizedBox(height: 18),
-                              const Text(
-                                '⚙️ प्रश्न अनुसार पाईचार्ट / ग्राफ लेआउट नियन्त्रण (Per-Question)',
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                              Text(
+                                _tr('⚙️ प्रश्न अनुसार पाईचार्ट / ग्राफ लेआउट नियन्त्रण', '⚙️ Per-Question Chart Layout Controls', '⚙️ 문항별 도표/그래프 레이아웃 설정'),
+                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                'विशेष प्रश्नलाई ठूलो चार्ट बक्स वा सानो साइड-बाइ-साइड बक्समा राख्ने छनौट गर्नुहोस्:',
+                                _tr(
+                                  'विशेष प्रश्नलाई ठूलो चार्ट बक्स वा सानो साइड-बाइ-साइड बक्समा राख्ने छनौट गर्नुहोस्:',
+                                  'Choose whether to display each question as a large chart box or compact side-by-side:',
+                                  '각 문항을 큰 도표 상자로 표시할지 나란히 배치할지 선택하세요:',
+                                ),
                                 style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                               ),
                               const SizedBox(height: 8),
@@ -1000,13 +1094,13 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        'प्रश्न $qNo (Question $qNo)',
+                                        '${_tr('प्रश्न', 'Question', '문제')} $qNo',
                                         style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
                                       ),
                                       Row(
                                         children: [
                                           ChoiceChip(
-                                            label: const Text('ठूलो चार्ट', style: TextStyle(fontSize: 11)),
+                                            label: Text(_tr('ठूलो चार्ट', 'Large Chart', '큰 도표'), style: const TextStyle(fontSize: 11)),
                                             selected: isEnlarged,
                                             selectedColor: const Color(0xFF0D9488),
                                             labelStyle: TextStyle(color: isEnlarged ? Colors.white : Colors.white70),
@@ -1016,7 +1110,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                           ),
                                           const SizedBox(width: 6),
                                           ChoiceChip(
-                                            label: const Text('साइड-बाइ-साइड', style: TextStyle(fontSize: 11)),
+                                            label: Text(_tr('साइड-बाइ-साइड', 'Side-by-Side', '나란히 배치'), style: const TextStyle(fontSize: 11)),
                                             selected: !isEnlarged,
                                             selectedColor: const Color(0xFF475569),
                                             labelStyle: TextStyle(color: !isEnlarged ? Colors.white : Colors.white70),
@@ -1044,7 +1138,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                       children: [
                         TextButton.icon(
                           icon: const Icon(Icons.refresh, size: 16, color: Colors.white70),
-                          label: const Text('डिफल्ट (100%) मा फर्काउनुहोस्', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                          label: Text(_tr('डिफल्ट (100%) मा फर्काउनुहोस्', 'Reset to Default (100%)', '기본값(100%)으로 초기화'), style: const TextStyle(color: Colors.white70, fontSize: 12)),
                           onPressed: () {
                             setModalState(() {
                               tempScale = 1.0;
@@ -1056,7 +1150,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                         Row(
                           children: [
                             TextButton(
-                              child: const Text('रद्द गर्नुहोस् (Cancel)', style: TextStyle(color: Colors.white60)),
+                              child: Text(_tr('रद्द गर्नुहोस्', 'Cancel', '취소'), style: const TextStyle(color: Colors.white60)),
                               onPressed: () => Navigator.pop(ctx),
                             ),
                             const SizedBox(width: 8),
@@ -1068,7 +1162,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                               ),
                               icon: const Icon(Icons.check, size: 18),
-                              label: const Text('लागू गर्नुहोस् (Apply)', style: TextStyle(fontWeight: FontWeight.bold)),
+                              label: Text(_tr('लागू गर्नुहोस्', 'Apply', '적용'), style: const TextStyle(fontWeight: FontWeight.bold)),
                               onPressed: () {
                                 setState(() {
                                   _imageScale = tempScale;
@@ -1080,7 +1174,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                 Navigator.pop(ctx);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('✅ फोटो साइज ${(_imageScale * 100).round()}% मा सेट गरियो। PDF र प्रिन्टमा लागू भएको छ।'),
+                                    content: Text(_tr(
+                                      '✅ फोटो साइज ${(_imageScale * 100).round()}% मा सेट गरियो। PDF र प्रिन्टमा लागू भएको छ।',
+                                      '✅ Image scale set to ${(_imageScale * 100).round()}%. Applied to PDF and Print.',
+                                      '✅ 이미지 크기가 ${(_imageScale * 100).round()}%로 설정되었습니다. PDF 및 인쇄에 적용되었습니다.',
+                                    )),
                                     backgroundColor: const Color(0xFF0D9488),
                                     duration: const Duration(seconds: 3),
                                   ),
@@ -1151,16 +1249,16 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                               child: const Icon(Icons.school, color: Colors.white, size: 22),
                             ),
                             const SizedBox(width: 12),
-                            const Column(
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '🏫 इन्स्टिच्युट कभर तथा ब्राण्डिङ सम्पादन',
-                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                                  _tr('🏫 इन्स्टिच्युट कभर तथा ब्राण्डिङ सम्पादन', '🏫 Edit Institute Cover & Branding', '🏫 학원 표지 및 브랜딩 수정'),
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 Text(
-                                  'Edit Institute Name, Logo & Contact Info for Cover Page',
-                                  style: TextStyle(color: Colors.white60, fontSize: 11),
+                                  _tr('कभर पेजको लागि इन्स्टिच्युट नाम, लोगो र सम्पर्क विवरण सम्पादन गर्नुहोस्', 'Edit Institute Name, Logo & Contact Info for Cover Page', '표지 페이지의 학원명, 로고 및 연락처 정보를 수정하세요'),
+                                  style: const TextStyle(color: Colors.white60, fontSize: 11),
                                 ),
                               ],
                             ),
@@ -1180,9 +1278,9 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // 1. Institute Name
-                            const Text(
-                              '🏢 इन्स्टिच्युटको नाम (Institute Name)',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            Text(
+                              _tr('🏢 इन्स्टिच्युटको नाम', '🏢 Institute Name', '🏢 학원/기관명'),
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             const SizedBox(height: 6),
                             TextField(
@@ -1203,9 +1301,9 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                             const SizedBox(height: 18),
 
                             // 2. Institute Logo
-                            const Text(
-                              '🖼️ इन्स्टिच्युटको लोगो (Logo)',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            Text(
+                              _tr('🖼️ इन्स्टिच्युटको लोगो', '🖼️ Institute Logo', '🖼️ 학원 로고'),
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             const SizedBox(height: 6),
                             Container(
@@ -1251,7 +1349,10 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                                           ),
                                           icon: const Icon(Icons.content_paste, size: 16),
-                                          label: const Text('📋 क्लिपबोर्डबाट पेस्ट (Ctrl+V)', style: TextStyle(fontSize: 12)),
+                                          label: Text(
+                                            _tr('📋 क्लिपबोर्डबाट पेस्ट (Ctrl+V)', '📋 Paste from Clipboard', '📋 클립보드에서 붙여넣기'),
+                                            style: const TextStyle(fontSize: 12),
+                                          ),
                                           onPressed: () async {
                                             final res = await FileUploadService.instance.pasteImageFromClipboard();
                                             if (res != null && res.dataUrl.isNotEmpty) {
@@ -1259,8 +1360,12 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                             } else {
                                               if (mounted) {
                                                 ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text('⚠️ क्लिपबोर्डमा कुनै फोटो फेला परेन। पहिले लोगो Copy (Ctrl+C) गर्नुहोस्।'),
+                                                  SnackBar(
+                                                    content: Text(_tr(
+                                                      '⚠️ क्लिपबोर्डमा कुनै फोटो फेला परेन। पहिले लोगो Copy (Ctrl+C) गर्नुहोस्।',
+                                                      '⚠️ No image found in clipboard. Please copy a logo first.',
+                                                      '⚠️ 클립보드에서 이미지를 찾을 수 없습니다. 먼저 로고를 복사하세요.',
+                                                    )),
                                                     backgroundColor: Colors.orange,
                                                   ),
                                                 );
@@ -1275,7 +1380,10 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                                           ),
                                           icon: const Icon(Icons.upload_file, size: 16),
-                                          label: const Text('📁 लोगो अपलोड (Upload)', style: TextStyle(fontSize: 12)),
+                                          label: Text(
+                                            _tr('📁 लोगो अपलोड', '📁 Upload Logo', '📁 로고 업로드'),
+                                            style: const TextStyle(fontSize: 12),
+                                          ),
                                           onPressed: () async {
                                             final res = await FileUploadService.instance.pickImageFile();
                                             if (res != null && res.dataUrl.isNotEmpty) {
@@ -1290,7 +1398,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 9),
                                             ),
                                             icon: const Icon(Icons.delete_outline, size: 16),
-                                            label: const Text('❌ हटाउनुहोस्', style: TextStyle(fontSize: 12)),
+                                            label: Text(_tr('❌ हटाउनुहोस्', '❌ Remove', '❌ 삭제'), style: const TextStyle(fontSize: 12)),
                                             onPressed: () => setModalState(() => tempLogo = null),
                                           ),
                                       ],
@@ -1303,13 +1411,17 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                             const SizedBox(height: 18),
 
                             // 3. Contact & Information
-                            const Text(
-                              '📍 ठेगाना, फोन तथा सम्पर्क विवरण (Address & Contact Info)',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            Text(
+                              _tr('📍 ठेगाना, फोन तथा सम्पर्क विवरण', '📍 Address & Contact Information', '📍 주소 및 연락처 정보'),
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'यो विवरण कभर पृष्ठको माथि इन्स्टिच्युट नामको तल सानो अक्षरमा देखिनेछ:',
+                              _tr(
+                                'यो विवरण कभर पृष्ठको माथि इन्स्टिच्युट नामको तल सानो अक्षरमा देखिनेछ:',
+                                'This will appear under the institute name on the cover page:',
+                                '이 정보는 표지 상단 학원명 아래에 표시됩니다:',
+                              ),
                               style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                             ),
                             const SizedBox(height: 6),
@@ -1332,9 +1444,9 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                             const SizedBox(height: 18),
 
                             // 4. Exam Subtitle / Extra Note
-                            const Text(
-                              '📝 कभर उप-शीर्षक / परीक्षा विवरण (Exam Subtitle / Sector Note)',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            Text(
+                              _tr('📝 कभर उप-शीर्षक / परीक्षा विवरण', '📝 Exam Subtitle / Sector Note', '📝 시험 부제목 / 분야 안내'),
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             const SizedBox(height: 6),
                             TextField(
@@ -1357,13 +1469,17 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                             // 5. Save to Profile switch
                             CheckboxListTile(
                               contentPadding: EdgeInsets.zero,
-                              title: const Text(
-                                '💾 यो विवरण इन्स्टिच्युट प्रोफाइलमा पनि सेभ गर्नुहोस् (Save to Institute Profile)',
-                                style: TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
+                              title: Text(
+                                _tr('💾 यो विवरण इन्स्टिच्युट प्रोफाइलमा पनि सेभ गर्नुहोस्', '💾 Save this info to Institute Profile', '💾 이 정보를 학원 프로필에도 저장'),
+                                style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w600),
                               ),
-                              subtitle: const Text(
-                                'भविष्यमा अन्य सेट प्रिन्ट गर्दा पनि यही नाम र लोगो स्वतः प्रयोग हुनेछ।',
-                                style: TextStyle(color: Colors.white54, fontSize: 11),
+                              subtitle: Text(
+                                _tr(
+                                  'भविष्यमा अन्य सेट प्रिन्ट गर्दा पनि यही नाम र लोगो स्वतः प्रयोग हुनेछ।',
+                                  'This name and logo will automatically be used for future exam prints.',
+                                  '향후 다른 문제지를 인쇄할 때도 이 이름과 로고가 자동 적용됩니다.',
+                                ),
+                                style: const TextStyle(color: Colors.white54, fontSize: 11),
                               ),
                               value: saveToProfile,
                               activeColor: const Color(0xFF2563EB),
@@ -1381,7 +1497,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextButton(
-                          child: const Text('रद्द गर्नुहोस् (Cancel)', style: TextStyle(color: Colors.white60)),
+                          child: Text(_tr('रद्द गर्नुहोस्', 'Cancel', '취소'), style: const TextStyle(color: Colors.white60)),
                           onPressed: () => Navigator.pop(ctx),
                         ),
                         ElevatedButton.icon(
@@ -1392,7 +1508,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
                           icon: const Icon(Icons.check, size: 18),
-                          label: const Text('लागू गर्नुहोस् (Apply & Update PDF)', style: TextStyle(fontWeight: FontWeight.bold)),
+                          label: Text(_tr('लागू गर्नुहोस्', 'Apply & Update PDF', '적용 및 PDF 갱신'), style: const TextStyle(fontWeight: FontWeight.bold)),
                           onPressed: () {
                             final newName = nameCtrl.text.trim();
                             final newInfo = infoCtrl.text.trim();
@@ -1422,10 +1538,14 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
 
                             Navigator.pop(ctx);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('✅ इन्स्टिच्युटको नाम, लोगो र कभर विवरण सफलतापूर्वक अपडेट भयो! PDF मा लागू भएको छ।'),
-                                backgroundColor: Color(0xFF16A34A),
-                                duration: Duration(seconds: 3),
+                              SnackBar(
+                                content: Text(_tr(
+                                  '✅ इन्स्टिच्युटको नाम, लोगो र कभर विवरण सफलतापूर्वक अपडेट भयो! PDF मा लागू भएको छ।',
+                                  '✅ Institute branding updated and applied to PDF!',
+                                  '✅ 학원 브랜딩 정보가 성공적으로 업데이트되어 PDF에 적용되었습니다!',
+                                )),
+                                backgroundColor: const Color(0xFF16A34A),
+                                duration: const Duration(seconds: 3),
                               ),
                             );
                           },
@@ -1481,15 +1601,10 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                   child: Icon(Icons.lock_outline, size: 52, color: Colors.amber.shade900),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  'सुपर एडमिनको अनुमति आवश्यक',
+                Text(
+                  _tr('सुपर एडमिनको अनुमति आवश्यक', 'Super Admin Permission Required', '최고 관리자 승인 필요'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Super Admin Permission Required',
-                  style: TextStyle(fontSize: 12, color: Colors.black54, fontWeight: FontWeight.w600),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                 ),
                 const SizedBox(height: 16),
                 Container(
@@ -1500,7 +1615,11 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                     border: Border.all(color: Colors.amber.shade200),
                   ),
                   child: Text(
-                    'यो PBT प्रश्नपत्र (८ पृष्ठ) प्रिन्ट वा PDF डाउनलोड गर्नका लागि पहिले सुपर एडमिन (Super Admin) को स्वीकृति (Approval) हुनुपर्छ।\n\nहाल यो सेट स्वीकृत भइसकेको छैन। कृपया सुपर एडमिनसँग सम्पर्क गरी यो सेट स्वीकृत गराउनुहोस्।',
+                    _tr(
+                      'यो PBT प्रश्नपत्र (८ पृष्ठ) प्रिन्ट वा PDF डाउनलोड गर्नका लागि पहिले सुपर एडमिनको स्वीकृति हुनुपर्छ।\n\nहाल यो सेट स्वीकृत भइसकेको छैन। कृपया सुपर एडमिनसँग सम्पर्क गरी यो सेट स्वीकृत गराउनुहोस्।',
+                      'This 8-page PBT exam requires Super Admin approval before printing or downloading as PDF.\n\nThis set is currently pending approval. Please contact a Super Admin to get it approved.',
+                      '이 8페이지 PBT 시험지를 인쇄하거나 PDF로 다운로드하려면 최고 관리자의 승인이 필요합니다.\n\n현재 이 세트는 승인되지 않았습니다. 최고 관리자에게 승인을 요청해 주세요.',
+                    ),
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 13, height: 1.5, color: Colors.amber.shade900),
                   ),
@@ -1515,7 +1634,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                   ),
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.arrow_back, size: 18),
-                  label: const Text('फर्कनुहोस् (Go Back)', style: TextStyle(fontWeight: FontWeight.bold)),
+                  label: Text(_tr('फर्कनुहोस्', 'Go Back', '돌아가기'), style: const TextStyle(fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -1559,21 +1678,21 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${_currentSet.title}  —  PBT Paper Exam (८ पृष्ठ)',
+            Text('${_currentSet.title}  —  ${_tr('PBT प्रश्नपत्र (८ पृष्ठ)', 'PBT Paper Exam (8 Pages)', 'PBT 지필 모의고사 (8페이지)')}',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            const Text('Page 1: Cover  •  Pages 2–8: Questions (Single Column, HRD Style)',
-                style: TextStyle(fontSize: 10, color: Colors.white60)),
+            Text(_tr('पेज १: कभर  •  पेज २–८: प्रश्नहरू (HRD फर्म्याट)', 'Page 1: Cover  •  Pages 2–8: Questions (HRD Style)', '1페이지: 표지  •  2~8페이지: 문제 (HRD 스타일)'),
+                style: const TextStyle(fontSize: 10, color: Colors.white60)),
           ],
         ),
         actions: [
-          IconButton(icon: const Icon(Icons.zoom_out), tooltip: 'Zoom Out',
+          IconButton(icon: const Icon(Icons.zoom_out), tooltip: _tr('जुम आउट', 'Zoom Out', '축소'),
               onPressed: () => setState(() => _zoomLevel = (_zoomLevel - 0.1).clamp(0.5, 1.4))),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Center(child: Text('${(_zoomLevel * 100).round()}%',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12))),
           ),
-          IconButton(icon: const Icon(Icons.zoom_in), tooltip: 'Zoom In',
+          IconButton(icon: const Icon(Icons.zoom_in), tooltip: _tr('जुम इन', 'Zoom In', '확대'),
               onPressed: () => setState(() => _zoomLevel = (_zoomLevel + 0.1).clamp(0.5, 1.4))),
           const SizedBox(width: 8),
           Padding(
@@ -1585,8 +1704,8 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               ),
               icon: const Icon(Icons.school, size: 18),
-              label: const Text('🏫 फ्रन्ट कभर सम्पादन',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              label: Text(_tr('🏫 फ्रन्ट कभर सम्पादन', '🏫 Edit Cover', '🏫 표지 수정'),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
               onPressed: _openInstituteCoverDialog,
             ),
           ),
@@ -1599,7 +1718,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               ),
               icon: const Icon(Icons.photo_size_select_large, size: 18),
-              label: Text('🖼️ फोटो साइज (${(_imageScale * 100).round()}%)',
+              label: Text('🖼️ ${_tr('फोटो साइज', 'Image Scale', '이미지 크기')} (${(_imageScale * 100).round()}%)',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
               onPressed: _openImageSizeDialog,
             ),
@@ -1613,7 +1732,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               ),
               icon: const Icon(Icons.qr_code_2, size: 18),
-              label: Text('🎧 लिसनिङ QR ($_configuredQrCount/20 • ${(_qrScale * 100).round()}%)',
+              label: Text('🎧 ${_tr('लिसनिङ QR', 'Listening QR', '듣기 QR')} ($_configuredQrCount/20 • ${(_qrScale * 100).round()}%)',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
               onPressed: _openListeningQrManagerDialog,
             ),
@@ -1627,8 +1746,8 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               ),
               icon: const Icon(Icons.print, size: 18),
-              label: const Text('🖨️ PDF डाउनलोड / Print',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5)),
+              label: Text(_tr('🖨️ PDF डाउनलोड / Print', '🖨️ Download PDF / Print', '🖨️ PDF 다운로드 / 인쇄'),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5)),
               onPressed: _triggerPrint,
             ),
           ),
@@ -1641,8 +1760,8 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               ),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('🌐 नयाँ ट्याब',
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 11)),
+              label: Text(_tr('🌐 नयाँ ट्याब', '🌐 New Tab', '🌐 새 탭'),
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 11)),
               onPressed: _openInNewTab,
             ),
           ),
@@ -1844,12 +1963,12 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(color: const Color(0xFF1E3A8A).withValues(alpha: 0.25)),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.edit, size: 10, color: Color(0xFF1E3A8A)),
-                                SizedBox(width: 3),
-                                Text('सम्पादन', style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
+                                const Icon(Icons.edit, size: 10, color: Color(0xFF1E3A8A)),
+                                const SizedBox(width: 3),
+                                Text(_tr('सम्पादन', 'Edit', '수정'), style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
                               ],
                             ),
                           ),

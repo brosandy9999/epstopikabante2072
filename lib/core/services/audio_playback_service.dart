@@ -7,6 +7,12 @@ import 'package:audioplayers/audioplayers.dart';
 /// Guarantees that only ONE audio plays at any time across the entire application.
 /// Any previous audio (TTS or MP3) is strictly stopped before new audio starts.
 class AudioPlaybackService {
+  Future<void> setPlaybackRate(double rate) async {
+    try {
+      await _player?.setPlaybackRate(rate);
+    } catch (_) {}
+  }
+
   static final AudioPlaybackService instance = AudioPlaybackService._internal();
   AudioPlaybackService._internal() {
     _initPlayer();
