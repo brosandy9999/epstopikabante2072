@@ -4,26 +4,12 @@
     "ignore": [
       "firebase.json",
       "**/.*",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "**/apk/**",
+      "**/*.apk",
+      "**/*.exe"
     ],
     "headers": [
-      {
-        "source": "**/*.@(apk)",
-        "headers": [
-          {
-            "key": "Content-Type",
-            "value": "application/vnd.android.package-archive"
-          },
-          {
-            "key": "Content-Disposition",
-            "value": "attachment; filename=\"eps_topik_ubt_2026.apk\""
-          },
-          {
-            "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
-          }
-        ]
-      },
       {
         "source": "**",
         "headers": [
@@ -44,7 +30,7 @@
     ],
     "rewrites": [
       {
-        "source": "!/apk/**",
+        "source": "**",
         "destination": "/index.html"
       }
     ]
