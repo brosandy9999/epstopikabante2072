@@ -1,13 +1,13 @@
 import 'dart:html' as html;
 
-/// APK download helper for Web clients
-/// Points to high-speed CDN hosted binary APK on GitHub Pages (avoiding Firebase Spark exe restriction)
+/// Official GitHub Direct Download URL (High speed CDN)
+const String kGithubApkDownloadUrl =
+    'https://brosandy9999.github.io/epstopikabante2072/apk/eps_topik_ubt_2026.apk';
+
+/// Trigger direct APK binary download from GitHub
 void triggerApkDownload() {
   try {
-    const apkPath =
-        'https://brosandy9999.github.io/epstopikabante2072/apk/eps_topik_ubt_2026.apk';
-
-    final anchor = html.AnchorElement(href: apkPath)
+    final anchor = html.AnchorElement(href: kGithubApkDownloadUrl)
       ..setAttribute('download', 'eps_topik_ubt_2026.apk')
       ..setAttribute('target', '_blank')
       ..setAttribute('rel', 'noopener noreferrer')
@@ -17,9 +17,7 @@ void triggerApkDownload() {
     anchor.click();
     anchor.remove();
   } catch (e) {
-    html.window.open(
-        'https://brosandy9999.github.io/epstopikabante2072/apk/eps_topik_ubt_2026.apk',
-        '_blank');
+    html.window.open(kGithubApkDownloadUrl, '_blank');
   }
 }
 
