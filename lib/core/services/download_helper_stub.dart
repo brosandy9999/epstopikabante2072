@@ -1,46 +1,148 @@
+import 'package:flutter/material.dart';
+
+/// High speed CDN Download URLs
 const String kGithubApkTabA32BitUrl =
     'https://brosandy9999.github.io/epstopikabante2072/apk/app-armeabi-v7a-release.apk';
 const String kGithubApkPhone64BitUrl =
     'https://brosandy9999.github.io/epstopikabante2072/apk/app-arm64-v8a-release.apk';
 const String kGithubApkUniversalUrl =
-    'https://brosandy9999.github.io/epstopikabante2072/apk/eps_topik_ubt_2026.apk';
+    'https://brosandy9999.github.io/epstopikabante2072/apk/app-release.apk';
+const String kGithubWebUrl =
+    'https://brosandy9999.github.io/epstopikabante2072/';
 
-enum DetectedAndroidArchitecture {
+enum DevicePlatformType {
+  androidPhone64Bit,
   samsungTab32Bit,
-  phone64Bit,
-  universal,
+  androidUniversal,
+  windowsDesktop,
+  appleIos,
+  otherDesktop,
 }
 
-class DeviceApkInfo {
-  final DetectedAndroidArchitecture architecture;
-  final String downloadUrl;
+class AppDownloadOption {
+  final DevicePlatformType type;
   final String titleNe;
   final String titleEn;
   final String titleKo;
+  final String subtitleNe;
+  final String subtitleEn;
+  final String subtitleKo;
+  final String downloadUrl;
   final String sizeText;
   final String deviceLabel;
+  final IconData icon;
+  final bool isApk;
+  final bool isPwa;
+  final bool isWeb;
 
-  const DeviceApkInfo({
-    required this.architecture,
-    required this.downloadUrl,
+  const AppDownloadOption({
+    required this.type,
     required this.titleNe,
     required this.titleEn,
     required this.titleKo,
+    required this.subtitleNe,
+    required this.subtitleEn,
+    required this.subtitleKo,
+    required this.downloadUrl,
     required this.sizeText,
     required this.deviceLabel,
+    required this.icon,
+    this.isApk = true,
+    this.isPwa = false,
+    this.isWeb = false,
   });
 }
 
-DeviceApkInfo getDetectedApkInfo() {
-  return const DeviceApkInfo(
-    architecture: DetectedAndroidArchitecture.phone64Bit,
-    downloadUrl: kGithubApkPhone64BitUrl,
-    titleNe: 'Android Phone (६४-बिट)',
-    titleEn: 'Android Phone (64-bit)',
-    titleKo: '안드로이드 스마트폰 (64비트)',
-    sizeText: '२०.७ MB',
-    deviceLabel: 'Android Smartphone',
-  );
+const AppDownloadOption kAndroidPhone64Option = AppDownloadOption(
+  type: DevicePlatformType.androidPhone64Bit,
+  titleNe: 'Android Phone (६४-बिट APK)',
+  titleEn: 'Android Phone (64-bit arm64-v8a)',
+  titleKo: '안드로이드 스마트폰 (64비트)',
+  subtitleNe: 'Samsung, Xiaomi, Realme, Poco, Vivo, Oppo आदी अधिकांश फोनका लागि',
+  subtitleEn: 'Optimized for modern Android smartphones (arm64-v8a)',
+  subtitleKo: '최신 안드로이드 스마트폰 전용 초경량 최적화 버전',
+  downloadUrl: kGithubApkPhone64BitUrl,
+  sizeText: '20.7 MB',
+  deviceLabel: 'Android Smartphone (64-bit)',
+  icon: Icons.smartphone_rounded,
+  isApk: true,
+);
+
+const AppDownloadOption kSamsungTab32Option = AppDownloadOption(
+  type: DevicePlatformType.samsungTab32Bit,
+  titleNe: 'Samsung Galaxy Tab A & ३२-बिट',
+  titleEn: 'Samsung Galaxy Tab A & 32-bit',
+  titleKo: '삼성 갤럭시 탭 A 및 32비트',
+  subtitleNe: 'Galaxy Tab A (SM-T290/T295/T510) तथा ३२-बिट ट्याब्लेटका लागि',
+  subtitleEn: 'Specially built for Galaxy Tab A & 32-bit armeabi-v7a tablets',
+  subtitleKo: '삼성 갤럭시 탭 A 및 32비트 태블릿 전용 버전',
+  downloadUrl: kGithubApkTabA32BitUrl,
+  sizeText: '18.5 MB',
+  deviceLabel: 'Samsung Galaxy Tab A / 32-bit Tablet',
+  icon: Icons.tablet_android_rounded,
+  isApk: true,
+);
+
+const AppDownloadOption kUniversalAndroidOption = AppDownloadOption(
+  type: DevicePlatformType.androidUniversal,
+  titleNe: 'Universal Android (सबै डिभाइस)',
+  titleEn: 'Universal Android (All Devices)',
+  titleKo: '통합 올인원 APK (모든 기기)',
+  subtitleNe: 'कुनै पनि एन्ड्रोइड फोन वा ट्याब्लेटमा १००% चल्ने अल-इन-वन प्याकेज',
+  subtitleEn: 'Complete all-in-one package for any Android device or emulator',
+  subtitleKo: '모든 안드로이드 스마트폰 및 태블릿 지원 통합본',
+  downloadUrl: kGithubApkUniversalUrl,
+  sizeText: '77.8 MB',
+  deviceLabel: 'Universal Android Device',
+  icon: Icons.android_rounded,
+  isApk: true,
+);
+
+const AppDownloadOption kWindowsDesktopOption = AppDownloadOption(
+  type: DevicePlatformType.windowsDesktop,
+  titleNe: 'Windows PC / ल्यापटप (Web UBT Hall)',
+  titleEn: 'Windows PC / Laptop (Web & PWA)',
+  titleKo: '윈도우 PC / 노트북 (웹 UBT 시험장)',
+  subtitleNe: 'कम्प्युटरको ठूलो स्क्रिनमा १००% रियल UBT एक्जाम हल सिधै खोल्नुहोस्',
+  subtitleEn: 'Run real full-screen EPS-TOPIK UBT exam simulator on PC',
+  subtitleKo: 'PC 및 노트북에서 실제 시험장과 동일한 풀스크린 모드 실행',
+  downloadUrl: kGithubWebUrl,
+  sizeText: 'Instant Web',
+  deviceLabel: 'Windows Computer / Laptop',
+  icon: Icons.laptop_windows_rounded,
+  isApk: false,
+  isWeb: true,
+  isPwa: true,
+);
+
+const AppDownloadOption kAppleIosOption = AppDownloadOption(
+  type: DevicePlatformType.appleIos,
+  titleNe: 'Apple iPhone / iPad (PWA App)',
+  titleEn: 'Apple iPhone / iPad (PWA Web App)',
+  titleKo: '애플 아이폰 / 아이패드 (홈 화면 추가)',
+  subtitleNe: 'Safari मा खोलेर Share बटन (📤) थिची "Add to Home Screen" गर्नुहोस्',
+  subtitleEn: 'Open in Safari and tap Share -> "Add to Home Screen"',
+  subtitleKo: '사파리(Safari)에서 공유 버튼(📤) 누른 후 "홈 화면에 추가"',
+  downloadUrl: kGithubWebUrl,
+  sizeText: 'Instant PWA',
+  deviceLabel: 'Apple iPhone / iPad',
+  icon: Icons.phone_iphone_rounded,
+  isApk: false,
+  isPwa: true,
+);
+
+List<AppDownloadOption> getAllDownloadOptions() {
+  return const [
+    kAndroidPhone64Option,
+    kSamsungTab32Option,
+    kUniversalAndroidOption,
+    kWindowsDesktopOption,
+    kAppleIosOption,
+  ];
+}
+
+AppDownloadOption getDetectedApkInfo() {
+  return kAndroidPhone64Option;
 }
 
 void triggerApkDownload([String? specificUrl]) {

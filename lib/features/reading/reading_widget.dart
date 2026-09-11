@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../question_engine/question_template.dart';
 import '../../core/widgets/smart_image_widget.dart';
+import '../../core/widgets/sequence_option_widget.dart';
 import '../../core/services/audio_playback_service.dart';
 import '../../core/services/language_service.dart';
 
-/// Authentic HRDK EPS-TOPIK UBT Reading Question Widget
-/// Split Layout: Question & Passage / Graphic on LEFT, Options 1-4 on RIGHT
+/// Phase 7: Authentic HRDK EPS-TOPIK UBT Reading Question Widget
+/// Strict 1:1 replica of the official South Korea HRD EPS-TOPIK Computer Based Test (CBT/UBT) interface
 class ReadingQuestionWidget extends StatelessWidget {
   final QuestionTemplate question;
   final int? selectedOptionIndex;
@@ -17,6 +18,26 @@ class ReadingQuestionWidget extends StatelessWidget {
     this.selectedOptionIndex,
     required this.onOptionSelected,
   });
+
+  void _playOptionAudio(int index, String? audioUrl, String optionText) {
+    final cleanUrl = audioUrl?.trim() ?? '';
+    final cleanText = optionText.trim();
+
+    final isPlayingThis = AudioPlaybackService.instance.isPlaying &&
+        ((cleanUrl.isNotEmpty && AudioPlaybackService.instance.currentSource == cleanUrl) ||
+            (AudioPlaybackService.instance.currentSource == 'tts:$cleanText'));
+
+    if (isPlayingThis) {
+      AudioPlaybackService.instance.stop();
+      return;
+    }
+
+    if (cleanUrl.isNotEmpty) {
+      AudioPlaybackService.instance.playAudioUrl(cleanUrl, fallbackKoreanText: cleanText);
+    } else if (cleanText.isNotEmpty) {
+      AudioPlaybackService.instance.playKoreanSpeech(cleanText);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +68,6 @@ class ReadingQuestionWidget extends StatelessWidget {
         if (!isLandscape) {
           // ==========================================
           // MOBILE / PORTRAIT: VERTICAL STACK
-          // Full width for easy reading & large tap targets
           // ==========================================
           return SingleChildScrollView(
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
@@ -55,7 +75,7 @@ class ReadingQuestionWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Top Card: Question Prompt & Passage/Illustration
+                // Top Card: Prompt & Visual
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -64,10 +84,10 @@ class ReadingQuestionWidget extends StatelessWidget {
                     border: Border.all(color: Colors.grey.shade300, width: 1.0),
                     boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))],
                   ),
-                  child: _buildQuestionPromptPane(context, false),
+                  child: _buildPromptPane(context, false),
                 ),
                 const SizedBox(height: 10),
-                // Bottom Card: 4 Multiple Choice Options
+                // Bottom Card: Options
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
@@ -86,12 +106,11 @@ class ReadingQuestionWidget extends StatelessWidget {
 
         // ==========================================
         // LANDSCAPE / TABLET / DESKTOP: 2-COLUMN SPLIT
-        // Left: Question & Material | Right: Options
         // ==========================================
         return Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // LEFT PANE: Question Prompt & Material Box
+            // LEFT PANE: Question Text & Visual Material
             Expanded(
               flex: 6,
               child: Container(
@@ -104,7 +123,7 @@ class ReadingQuestionWidget extends StatelessWidget {
                 ),
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                  child: _buildQuestionPromptPane(context, true),
+                  child: _buildPromptPane(context, true),
                 ),
               ),
             ),
@@ -134,11 +153,25 @@ class ReadingQuestionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildQuestionPromptPane(BuildContext context, bool isLandscape) {
+  Widget _buildPromptPane(BuildContext context, bool isLandscape) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Main Question Instruction Text
+        // Section Badge
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2563EB),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            LanguageService.instance.readingSectionText(),
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Question Instruction / Prompt
         Text(
           question.questionText,
           style: TextStyle(
@@ -148,9 +181,9 @@ class ReadingQuestionWidget extends StatelessWidget {
             color: const Color(0xFF0F172A),
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: isLandscape ? 8 : 12),
 
-        // Visual Illustration / Passage Box
+        // Visual Material / Reading Passage Box (ONLY if image or passage exists)
         _buildQuestionMaterial(question.questionId, question.questionText, isLandscape),
       ],
     );
@@ -160,28 +193,14 @@ class ReadingQuestionWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (selectedOptionIndex != null) ...[
-          Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-              decoration: BoxDecoration(color: Colors.blue.shade100, borderRadius: BorderRadius.circular(4)),
-              child: Text(
-                "선택: ${selectedOptionIndex! + 1}번",
-                style: const TextStyle(color: Color(0xFF1E3A8A), fontWeight: FontWeight.bold, fontSize: 11),
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-        ],
-
         // 4 Options Stacked Vertically
         ...List.generate(4, (index) {
           final isSelected = selectedOptionIndex == index;
-          const circledNumbers = ["①", "②", "③", "④"];
+          const circledNumbers = ['①', '②', '③', '④'];
           final numLabel = circledNumbers[index];
           final optionText = options[index].trim();
 
+          // Check if image option exists
           String? imageOptionUrl;
           if (question is UniversalQuestion) {
             final uq = question as UniversalQuestion;
@@ -190,6 +209,7 @@ class ReadingQuestionWidget extends StatelessWidget {
             }
           }
 
+          // Check if audio option exists
           String? audioOptionUrl;
           if (question is UniversalQuestion) {
             final uq = question as UniversalQuestion;
@@ -198,9 +218,11 @@ class ReadingQuestionWidget extends StatelessWidget {
             }
           }
 
-          final displayText = optionText.isNotEmpty 
-              ? optionText 
-              : (imageOptionUrl == null ? "${index + 1}번" : "");
+          final displayText = optionText.isNotEmpty
+              ? optionText
+              : (imageOptionUrl == null ? '${index + 1}번' : '');
+
+          final hasAudioCapability = (audioOptionUrl != null && audioOptionUrl.isNotEmpty) || optionText.isNotEmpty;
 
           return Container(
             margin: EdgeInsets.only(bottom: isLandscape ? 6 : 8),
@@ -231,9 +253,9 @@ class ReadingQuestionWidget extends StatelessWidget {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isSelected ? const Color(0xFF1E3A8A) : Colors.white,
+                          color: isSelected ? const Color(0xFF2563EB) : Colors.white,
                           border: Border.all(
-                            color: isSelected ? const Color(0xFF1E3A8A) : Colors.grey.shade400,
+                            color: isSelected ? const Color(0xFF2563EB) : Colors.grey.shade400,
                             width: 1.2,
                           ),
                         ),
@@ -254,9 +276,10 @@ class ReadingQuestionWidget extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (displayText.isNotEmpty)
-                              Text(
-                                displayText,
-                                style: TextStyle(
+                              SequenceOptionWidget(
+                                text: displayText,
+                                isSelected: isSelected,
+                                baseStyle: TextStyle(
                                   fontSize: isLandscape ? 13 : 15,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                   color: isSelected ? const Color(0xFF1E3A8A) : Colors.black87,
@@ -277,34 +300,56 @@ class ReadingQuestionWidget extends StatelessWidget {
                                 ),
                               ),
                             ],
-                            if (audioOptionUrl != null) ...[
+                            if (hasAudioCapability) ...[
                               const SizedBox(height: 4),
-                              InkWell(
-                                onTap: () => AudioPlaybackService.instance.playAudioUrl(audioOptionUrl!),
-                                borderRadius: BorderRadius.circular(20),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
+                              ValueListenableBuilder<String?>(
+                                valueListenable: AudioPlaybackService.instance.currentAudioSourceNotifier,
+                                builder: (context, currentSource, _) {
+                                  final isPlayingThis = AudioPlaybackService.instance.isPlaying &&
+                                      ((audioOptionUrl != null && currentSource == audioOptionUrl) ||
+                                          (optionText.isNotEmpty && currentSource == 'tts:$optionText'));
+
+                                  return InkWell(
+                                    onTap: () => _playOptionAudio(index, audioOptionUrl, optionText),
                                     borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: Colors.blue.shade200),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.play_circle_fill, size: 14, color: Color(0xFF1E3A8A)),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        LanguageService.instance.trText(
-                                          ne: 'अडियो सुन्नुहोस्',
-                                          en: 'Play Audio',
-                                          ko: '오디오 듣기',
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: isPlayingThis ? const Color(0xFFDBEAFE) : Colors.blue.shade50,
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: isPlayingThis ? const Color(0xFF2563EB) : Colors.blue.shade200,
+                                          width: isPlayingThis ? 1.5 : 1.0,
                                         ),
-                                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
                                       ),
-                                    ],
-                                  ),
-                                ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            isPlayingThis ? Icons.volume_up : Icons.play_circle_fill,
+                                            size: 14,
+                                            color: const Color(0xFF1E3A8A),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            isPlayingThis
+                                                ? LanguageService.instance.trText(
+                                                    ne: 'बज्दैछ...',
+                                                    en: 'Playing...',
+                                                    ko: '재생 중...',
+                                                  )
+                                                : LanguageService.instance.trText(
+                                                    ne: 'अडियो सुन्नुहोस्',
+                                                    en: 'Play Audio',
+                                                    ko: '음성 듣기',
+                                                  ),
+                                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ],
@@ -333,9 +378,18 @@ class ReadingQuestionWidget extends StatelessWidget {
       customImage = (question as ReadingImageQuestion).imageAssetPath;
     }
 
+    final cleanImg = (customImage != null &&
+            customImage.trim().isNotEmpty &&
+            customImage.trim() != 'null' &&
+            customImage.trim() != 'undefined' &&
+            !customImage.trim().endsWith('/null') &&
+            !customImage.trim().endsWith('/undefined'))
+        ? customImage.trim()
+        : null;
+
     final imgHeight = isLandscape ? 135.0 : 190.0;
 
-    if (customImage != null && customImage.trim().isNotEmpty) {
+    if (cleanImg != null) {
       return Container(
         height: imgHeight + 10,
         alignment: Alignment.center,
@@ -344,113 +398,29 @@ class ReadingQuestionWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.grey.shade300),
         ),
-        child: SmartImageWidget(imageSource: customImage.trim(), height: imgHeight, fit: BoxFit.contain),
+        child: SmartImageWidget(imageSource: cleanImg, height: imgHeight, fit: BoxFit.contain),
       );
     }
 
-    if (qId == 'Q01') {
-      // Notebook / Book picture prompt
-      return Container(
-        height: 180,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.menu_book, size: 70, color: Colors.blueGrey.shade700),
-            const SizedBox(height: 10),
-            const Text("[ 공 책 (Notebook) ]", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          ],
-        ),
-      );
-    } else if (qId == 'Q02') {
-      // Firefighter / Police / Doctor picture prompt
-      return Container(
-        height: 180,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.local_fire_department, size: 70, color: Colors.deepOrange.shade600),
-            const SizedBox(height: 10),
-            const Text("[ 소방관 (Firefighter) ]", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          ],
-        ),
-      );
-    } else if (qId == 'Q03') {
-      // No Parking Signboard
-      return Container(
-        height: 180,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(Icons.directions_car, size: 60, color: Colors.grey.shade800),
-                Icon(Icons.block, size: 85, color: Colors.red.shade700),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const Text("주 차 금 지 (No Parking)", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red)),
-          ],
-        ),
-      );
-    } else if (qId == 'Q09') {
-      // Mart Receipt Box
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.amber.shade50,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.amber.shade300),
-        ),
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(child: Text("=== [영수증 영수증] ===", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))),
-            Divider(color: Colors.black45),
-            Text("• 품목: 사과, 우유, 빵"),
-            Text("• 결제 금액: 15,000원"),
-            Text("• 결제 수단: 신용카드 (KB국민)"),
-            Text("• 일시: 2026. 09. 03  14:20"),
-          ],
-        ),
-      );
-    } else if (text.contains('\n')) {
+    if (text.contains('\n')) {
       final passageText = text.split('\n').skip(1).join('\n').trim();
-      if (passageText.isEmpty) return const SizedBox.shrink();
-      // Clean Korean Passage Box
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: const Color(0xFFCBD5E1)),
-        ),
-        child: Text(
-          passageText,
-          style: const TextStyle(fontSize: 15, height: 1.55, color: Color(0xFF334155)),
-        ),
-      );
-    } else {
-      return const SizedBox.shrink();
+      if (passageText.isNotEmpty) {
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF8FAFC),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFCBD5E1)),
+          ),
+          child: Text(
+            passageText,
+            style: const TextStyle(fontSize: 15, height: 1.55, color: Color(0xFF334155)),
+          ),
+        );
+      }
     }
+
+    return const SizedBox.shrink();
   }
 }

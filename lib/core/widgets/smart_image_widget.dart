@@ -8,6 +8,7 @@ class SmartImageWidget extends StatelessWidget {
   final BoxFit fit;
   final BorderRadius? borderRadius;
   final Widget? fallback;
+  final bool enableZoom;
 
   const SmartImageWidget({
     super.key,
@@ -17,7 +18,42 @@ class SmartImageWidget extends StatelessWidget {
     this.fit = BoxFit.contain,
     this.borderRadius,
     this.fallback,
+    this.enableZoom = true,
   });
+
+  void _showZoomDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (dialogCtx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(12),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            InteractiveViewer(
+              minScale: 0.8,
+              maxScale: 4.0,
+              child: SmartImageWidget(
+                imageSource: imageSource,
+                fit: BoxFit.contain,
+                enableZoom: false,
+              ),
+            ),
+            Positioned(
+              top: 10,
+              right: 10,
+              child: IconButton(
+                onPressed: () => Navigator.of(dialogCtx).pop(),
+                icon: const Icon(Icons.close_rounded, color: Colors.white, size: 28),
+                style: IconButton.styleFrom(backgroundColor: Colors.black54),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +95,22 @@ class SmartImageWidget extends StatelessWidget {
       );
     }
 
+    Widget result = img;
     if (borderRadius != null) {
-      return ClipRRect(borderRadius: borderRadius!, child: img);
+      result = ClipRRect(borderRadius: borderRadius!, child: result);
     }
-    return img;
+
+    if (enableZoom) {
+      return GestureDetector(
+        onTap: () => _showZoomDialog(context),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.zoomIn,
+          child: result,
+        ),
+      );
+    }
+
+    return result;
   }
 
   Widget _buildPlaceholder() {

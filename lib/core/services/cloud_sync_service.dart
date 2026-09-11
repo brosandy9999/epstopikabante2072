@@ -47,9 +47,9 @@ class CloudSyncService extends ChangeNotifier {
     }
     if (trimmed.contains('firebaseio.com') && !trimmed.endsWith('.json')) {
       if (trimmed.endsWith('/')) {
-        trimmed = '${trimmed}sync.json';
+        trimmed = '${trimmed}eps_sync.json';
       } else {
-        trimmed = '$trimmed/sync.json';
+        trimmed = '$trimmed/eps_sync.json';
       }
     }
     return trimmed;
@@ -105,10 +105,7 @@ class CloudSyncService extends ChangeNotifier {
       if (jsonString.isNotEmpty) {
         final Map<String, dynamic> payload = jsonDecode(jsonString);
         final success = ingestSyncPayload(payload);
-        if (success) {
-          // Push to Firebase RTDB so cloud server matches local computer
-          FirebaseRtdbSyncService.instance.pushData(payload).catchError((_) => false);
-        }
+        // Do NOT push to cloud from client app startup - only read/ingest
         return success;
       }
     } catch (e) {

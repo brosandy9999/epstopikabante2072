@@ -5,21 +5,18 @@ import 'package:audioplayers/audioplayers.dart';
 
 /// Single-Audio Exclusive Playback Service
 /// Guarantees that only ONE audio plays at any time across the entire application.
-/// Any previous audio (TTS or MP3) is strictly stopped before new audio starts.
+/// Supports Base64 data URLs, Cloud storage links (Google Drive, Dropbox),
+/// Local filesystem paths (Windows/Mobile/Desktop), Asset paths, and Korean TTS.
 class AudioPlaybackService {
-  Future<void> setPlaybackRate(double rate) async {
-    try {
-      await _player?.setPlaybackRate(rate);
-    } catch (_) {}
-  }
-
   static final AudioPlaybackService instance = AudioPlaybackService._internal();
+
   AudioPlaybackService._internal() {
     _initPlayer();
   }
 
   AudioPlayer? _player;
   int _playbackSessionId = 0;
+  Completer<void>? _currentCompleter;
   StreamSubscription? _completeSubscription;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _durationSubscription;
@@ -46,6 +43,9 @@ class AudioPlaybackService {
         isPlayingNotifier.value = false;
         currentAudioSourceNotifier.value = null;
         positionNotifier.value = Duration.zero;
+        if (_currentCompleter != null && !_currentCompleter!.isCompleted) {
+          _currentCompleter!.complete();
+        }
       });
 
       _positionSubscription = _player?.onPositionChanged.listen((pos) {
@@ -55,9 +55,51 @@ class AudioPlaybackService {
       _durationSubscription = _player?.onDurationChanged.listen((dur) {
         durationNotifier.value = dur;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[AudioPlaybackService] Player init error: ');
       _player = null;
     }
+  }
+
+  /// Converts Google Drive or Dropbox links to direct streamable audio links
+  String normalizeAudioUrl(String input) {
+    var clean = input.trim();
+    if (clean.isEmpty) return clean;
+
+    // Google Drive share link -> direct download/stream link
+    // e.g. https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+    final gDriveRegex = RegExp(r'https?://drive\.google\.com/file/d/([a-zA-Z0-9_-]+)');
+    final match = gDriveRegex.firstMatch(clean);
+    if (match != null) {
+      final fileId = match.group(1);
+      return 'https://docs.google.com/uc?export=download&id=' + (fileId ?? '');
+    }
+
+    // Google Drive open?id= link
+    final gDriveOpenRegex = RegExp(r'https?://drive\.google\.com/(?:open|uc)\?(?:.*&)?id=([a-zA-Z0-9_-]+)');
+    final matchOpen = gDriveOpenRegex.firstMatch(clean);
+    if (matchOpen != null) {
+      final fileId = matchOpen.group(1);
+      return 'https://docs.google.com/uc?export=download&id=' + (fileId ?? '');
+    }
+
+    // Dropbox share link -> direct download
+    if (clean.contains('dropbox.com')) {
+      if (clean.contains('?dl=0')) {
+        return clean.replaceAll('?dl=0', '?raw=1');
+      } else if (!clean.contains('?raw=1') && !clean.contains('?dl=1')) {
+        return '=1';
+      }
+    }
+
+    return clean;
+  }
+
+  /// Changes playback speed
+  Future<void> setPlaybackRate(double rate) async {
+    try {
+      await _player?.setPlaybackRate(rate);
+    } catch (_) {}
   }
 
   /// Seek to position in the current track
@@ -70,9 +112,15 @@ class AudioPlaybackService {
   /// Stops any currently playing audio immediately
   Future<void> stop() async {
     _playbackSessionId++; // Invalidate any ongoing transition
+    if (_currentCompleter != null && !_currentCompleter!.isCompleted) {
+      _currentCompleter!.complete();
+    }
+    _currentCompleter = null;
+
     try {
       await _player?.stop();
     } catch (_) {}
+
     isPlayingNotifier.value = false;
     currentAudioSourceNotifier.value = null;
     positionNotifier.value = Duration.zero;
@@ -87,48 +135,117 @@ class AudioPlaybackService {
     final sessionId = ++_playbackSessionId;
     await stop();
 
+    final completer = Completer<void>();
+    _currentCompleter = completer;
+
     try {
-      final url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=${Uri.encodeComponent(cleanText)}';
+      final url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=';
       
       _player ??= AudioPlayer();
-      if (_playbackSessionId != sessionId) return; // Another sound was triggered
+      if (_playbackSessionId != sessionId) return;
 
-      currentAudioSourceNotifier.value = 'tts:$cleanText';
+      currentAudioSourceNotifier.value = 'tts:';
       isPlayingNotifier.value = true;
       await _player?.play(UrlSource(url));
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[AudioPlaybackService] TTS Error: ');
       isPlayingNotifier.value = false;
       currentAudioSourceNotifier.value = null;
+      if (!completer.isCompleted) completer.complete();
     }
   }
 
-  /// Plays an uploaded audio file (Data URL, network URL, or asset) with exclusive single-playback
-  Future<void> playAudioUrl(String audioUrl) async {
-    final clean = audioUrl.trim();
-    if (clean.isEmpty) return;
+  /// Plays Korean speech and returns a Future that completes when playback finishes
+  Future<void> playKoreanSpeechAndWait(String koreanText) async {
+    final cleanText = koreanText.replaceAll(RegExp(r'\[.*?\]'), '').trim();
+    if (cleanText.isEmpty) return;
+
+    await playKoreanSpeech(cleanText);
+    if (_currentCompleter != null) {
+      final estimatedSec = (cleanText.length * 0.18 + 1.5).clamp(2.5, 30.0);
+      final timeoutDuration = Duration(milliseconds: (estimatedSec * 1000).round());
+      try {
+        await _currentCompleter!.future.timeout(timeoutDuration);
+      } catch (_) {}
+    }
+  }
+
+  /// Plays an uploaded audio file (Data URL, network URL, local disk path, or asset) with exclusive single-playback
+  Future<void> playAudioUrl(String audioUrl, {String? fallbackKoreanText}) async {
+    var clean = audioUrl.trim();
+    if (clean.isEmpty) {
+      if (fallbackKoreanText != null && fallbackKoreanText.trim().isNotEmpty) {
+        await playKoreanSpeech(fallbackKoreanText);
+      }
+      return;
+    }
 
     final sessionId = ++_playbackSessionId;
     await stop();
 
+    final completer = Completer<void>();
+    _currentCompleter = completer;
+
     try {
       _player ??= AudioPlayer();
-      if (_playbackSessionId != sessionId) return; // Another sound was triggered
+      if (_playbackSessionId != sessionId) return;
 
       currentAudioSourceNotifier.value = clean;
       isPlayingNotifier.value = true;
 
+      // 1. Data URL (Base64)
       if (clean.startsWith('data:audio') || clean.startsWith('data:application')) {
         final base64Part = clean.contains(',') ? clean.split(',')[1] : clean;
         final bytes = base64Decode(base64Part);
         await _player?.play(BytesSource(bytes));
-      } else if (clean.startsWith('http://') || clean.startsWith('https://')) {
-        await _player?.play(UrlSource(clean));
-      } else {
-        await _player?.play(AssetSource(clean));
       }
-    } catch (_) {
+      // 2. Network URL (HTTP / HTTPS)
+      else if (clean.startsWith('http://') || clean.startsWith('https://')) {
+        final directUrl = normalizeAudioUrl(clean);
+        await _player?.play(UrlSource(directUrl));
+      }
+      // 3. File URI (file://...)
+      else if (clean.startsWith('file://')) {
+        var filePath = clean.replaceFirst('file:///', '');
+        if (filePath.startsWith('file://')) {
+          filePath = filePath.replaceFirst('file://', '');
+        }
+        filePath = Uri.decodeComponent(filePath);
+        await _player?.play(DeviceFileSource(filePath));
+      }
+      // 4. Windows / Local absolute file path (e.g. C:\... or C:/... or /...)
+      else if (RegExp(r'^[a-zA-Z]:[\\/]').hasMatch(clean) || (clean.startsWith('/') && !clean.startsWith('/assets'))) {
+        await _player?.play(DeviceFileSource(clean));
+      }
+      // 5. Bundled Flutter Asset
+      else {
+        var assetPath = clean;
+        if (assetPath.startsWith('assets/')) {
+          assetPath = assetPath.replaceFirst('assets/', '');
+        }
+        await _player?.play(AssetSource(assetPath));
+      }
+    } catch (e) {
+      debugPrint('[AudioPlaybackService] playAudioUrl failed: , source: ');
       isPlayingNotifier.value = false;
       currentAudioSourceNotifier.value = null;
+      if (!completer.isCompleted) completer.complete();
+
+      // Attempt fallback to TTS if text is provided
+      if (fallbackKoreanText != null && fallbackKoreanText.trim().isNotEmpty) {
+        debugPrint('[AudioPlaybackService] Falling back to Korean TTS...');
+        await playKoreanSpeech(fallbackKoreanText);
+      }
+    }
+  }
+
+  /// Plays audio and waits until finished
+  Future<void> playAudioUrlAndWait(String audioUrl, {String? fallbackKoreanText, Duration defaultMaxWait = const Duration(seconds: 40)}) async {
+    await playAudioUrl(audioUrl, fallbackKoreanText: fallbackKoreanText);
+    if (_currentCompleter != null) {
+      try {
+        await _currentCompleter!.future.timeout(defaultMaxWait);
+      } catch (_) {}
     }
   }
 

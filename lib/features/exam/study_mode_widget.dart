@@ -1,12 +1,14 @@
-import '../../core/services/language_service.dart';
 import 'package:flutter/material.dart';
 import '../question_engine/question_template.dart';
 import '../../core/services/question_bank_service.dart';
 import '../../core/services/audio_playback_service.dart';
+import '../../core/widgets/smart_image_widget.dart';
+import '../../core/widgets/sequence_option_widget.dart';
+import '../../core/services/language_service.dart';
 
 enum StudyAudioState { ready, playingFirst, firstComplete, playingSecond, locked }
 
-/// Phase 10: Responsive Study Mode Interactive Question Widget
+/// Responsive Study Mode Interactive Question Widget
 /// - Tablet/Desktop/Landscape: Left Question & Audio/Visual | Right Options & Feedback
 /// - Mobile/Portrait: Top Question | Middle Options | Bottom Feedback & Explanation
 class StudyModeQuestionWidget extends StatefulWidget {
@@ -31,106 +33,107 @@ class StudyModeQuestionWidget extends StatefulWidget {
 
 class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
   StudyAudioState _audioState = StudyAudioState.ready;
-  double _playbackProgress = 0.0;
   bool _showScript = false;
+  int _loopRunId = 0;
 
   @override
   void dispose() {
+    _loopRunId++;
     AudioPlaybackService.instance.stop();
     super.dispose();
   }
 
-  /// Continuous 2-Repeat loop just like the strict exam mode
-  void _startContinuousAudioLoop() {
+  /// Continuous 2-Repeat loop matching EPS-TOPIK examination format
+  Future<void> _startContinuousAudioLoop() async {
     if (_audioState == StudyAudioState.locked ||
         _audioState == StudyAudioState.playingFirst ||
         _audioState == StudyAudioState.playingSecond) {
       return;
     }
 
+    final currentRun = ++_loopRunId;
+
     String speechText = widget.question.questionText;
+    String? audioPath;
     if (widget.question is UniversalQuestion) {
       speechText = (widget.question as UniversalQuestion).audioScript ?? widget.question.questionText;
+      audioPath = (widget.question as UniversalQuestion).questionAudioUrl;
     } else if (widget.question is ListeningAudioQuestion) {
       speechText = (widget.question as ListeningAudioQuestion).audioScript ?? widget.question.questionText;
+      audioPath = (widget.question as ListeningAudioQuestion).audioAssetPath;
+    }
+
+    Future<void> playTrack() async {
+      if (audioPath != null && audioPath.trim().isNotEmpty) {
+        await AudioPlaybackService.instance.playAudioUrlAndWait(
+          audioPath.trim(),
+          fallbackKoreanText: speechText,
+        );
+      } else if (speechText.trim().isNotEmpty) {
+        await AudioPlaybackService.instance.playKoreanSpeechAndWait(speechText.trim());
+      }
     }
 
     // ROUND 1
+    if (!mounted || _loopRunId != currentRun) return;
     setState(() {
       _audioState = StudyAudioState.playingFirst;
-      _playbackProgress = 0.0;
     });
 
-    AudioPlaybackService.instance.playKoreanSpeech(speechText);
+    await playTrack();
 
-    Future.delayed(const Duration(milliseconds: 700), () {
-      if (mounted && _audioState == StudyAudioState.playingFirst) {
-        setState(() => _playbackProgress = 0.45);
-      }
-    });
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted && _audioState == StudyAudioState.playingFirst) {
-        setState(() => _playbackProgress = 0.85);
-      }
+    if (!mounted || _loopRunId != currentRun) return;
+    setState(() {
+      _audioState = StudyAudioState.firstComplete;
     });
 
-    // 1.5s intermission
-    Future.delayed(const Duration(milliseconds: 2400), () {
-      if (!mounted) return;
-      setState(() {
-        _audioState = StudyAudioState.firstComplete;
-        _playbackProgress = 1.0;
-      });
+    // 3.0s intermission gap between round 1 and round 2
+    await Future.delayed(const Duration(seconds: 3));
 
-      // ROUND 2
-      Future.delayed(const Duration(milliseconds: 1400), () {
-        if (!mounted) return;
-        setState(() {
-          _audioState = StudyAudioState.playingSecond;
-          _playbackProgress = 0.0;
-        });
+    // ROUND 2
+    if (!mounted || _loopRunId != currentRun) return;
+    setState(() {
+      _audioState = StudyAudioState.playingSecond;
+    });
 
-        AudioPlaybackService.instance.playKoreanSpeech(speechText);
+    await playTrack();
 
-        Future.delayed(const Duration(milliseconds: 700), () {
-          if (mounted && _audioState == StudyAudioState.playingSecond) {
-            setState(() => _playbackProgress = 0.45);
-          }
-        });
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          if (mounted && _audioState == StudyAudioState.playingSecond) {
-            setState(() => _playbackProgress = 0.85);
-          }
-        });
-
-        // Round 2 finishes -> Locked
-        Future.delayed(const Duration(milliseconds: 2400), () {
-          if (!mounted) return;
-          setState(() {
-            _audioState = StudyAudioState.locked;
-            _playbackProgress = 1.0;
-          });
-        });
-      });
+    // FINISHED / LOCKED
+    if (!mounted || _loopRunId != currentRun) return;
+    setState(() {
+      _audioState = StudyAudioState.locked;
     });
   }
 
-  @override
-  void didUpdateWidget(covariant StudyModeQuestionWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.question.questionId != widget.question.questionId) {
+  void _playOptionAudio(int index, String? audioUrl, String optionText) {
+    final cleanUrl = audioUrl?.trim() ?? '';
+    final cleanText = optionText.trim();
+
+    final isPlayingThis = AudioPlaybackService.instance.isPlaying &&
+        ((cleanUrl.isNotEmpty && AudioPlaybackService.instance.currentSource == cleanUrl) ||
+            (AudioPlaybackService.instance.currentSource == 'tts:'));
+
+    if (isPlayingThis) {
       AudioPlaybackService.instance.stop();
-      _audioState = StudyAudioState.ready;
-      _playbackProgress = 0.0;
-      _showScript = false;
+      return;
+    }
+
+    if (cleanUrl.isNotEmpty) {
+      AudioPlaybackService.instance.playAudioUrl(cleanUrl, fallbackKoreanText: cleanText);
+    } else if (cleanText.isNotEmpty) {
+      AudioPlaybackService.instance.playKoreanSpeech(cleanText);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isListening = (widget.question is UniversalQuestion)
+    final isAnswered = widget.selectedOption != null;
+    final isCorrect = widget.answerInfo != null && widget.selectedOption == widget.answerInfo!.correctIndex;
+
+    final isListening = (widget.question is UniversalQuestion)
         ? (widget.question as UniversalQuestion).isListening
         : (widget.question is ListeningAudioQuestion || widget.question is ListeningImageOptionsQuestion);
+
     List<String> rawOptions = [];
     if (widget.question is UniversalQuestion) {
       rawOptions = (widget.question as UniversalQuestion).textOptions;
@@ -143,12 +146,8 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
     } else if (widget.question is ListeningImageOptionsQuestion) {
       rawOptions = (widget.question as ListeningImageOptionsQuestion).imageOptionPaths;
     }
-    final options = List.generate(4, (i) => i < rawOptions.length ? rawOptions[i] : '');
 
-    final isAnswered = widget.selectedOption != null;
-    final isCorrect = isAnswered &&
-        widget.answerInfo != null &&
-        widget.selectedOption == widget.answerInfo!.correctIndex;
+    final options = List.generate(4, (index) => (index < rawOptions.length) ? rawOptions[index] : '');
 
     final isPlaying = _audioState == StudyAudioState.playingFirst || _audioState == StudyAudioState.playingSecond;
     final isIntermission = _audioState == StudyAudioState.firstComplete;
@@ -156,42 +155,37 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final bool isLandscapeOrWide = constraints.maxWidth > 750;
+        final isLandscape = constraints.maxWidth >= 720;
 
-        if (isLandscapeOrWide) {
-          // ==========================================
-          // TABLET / DESKTOP / LANDSCAPE (SPLIT VIEW)
-          // ==========================================
+        if (isLandscape) {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Left Pane (Question Prompt + Visual Material / Audio Button)
               Expanded(
-                flex: 6,
+                flex: 5,
                 child: Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
                   ),
                   child: _buildQuestionContent(isListening, isPlaying, isIntermission, isLocked),
                 ),
               ),
 
-              const SizedBox(width: 24),
+              const SizedBox(width: 16),
 
-              // Right Pane (4 Multiple-Choice Options + Instant Feedback)
+              // Right Pane (Options + Feedback)
               Expanded(
                 flex: 5,
                 child: Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
                   ),
                   child: _buildOptionsAndFeedback(options, isAnswered, isCorrect),
                 ),
@@ -199,9 +193,6 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
             ],
           );
         } else {
-          // ==========================================
-          // MOBILE / PORTRAIT (TOP-TO-BOTTOM COLUMN)
-          // ==========================================
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -239,6 +230,11 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
 
   /// Builds question prompt, illustrations (Reading) or centered speaker icon (Listening)
   Widget _buildQuestionContent(bool isListening, bool isPlaying, bool isIntermission, bool isLocked) {
+    String? questionImageUrl;
+    if (widget.question is UniversalQuestion && (widget.question as UniversalQuestion).hasQuestionImage) {
+      questionImageUrl = (widget.question as UniversalQuestion).questionImageUrl;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -248,11 +244,28 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, height: 1.4),
         ),
 
-        const SizedBox(height: 20),
+        if (questionImageUrl != null && questionImageUrl.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Center(
+            child: Container(
+              constraints: const BoxConstraints(maxHeight: 200),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: SmartImageWidget(
+                imageSource: questionImageUrl,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ],
 
-        // If Listening: Centered Speaker Icon Button (Identical to Exam Mode)
+        const SizedBox(height: 16),
+
+        // If Listening: Centered Speaker Icon Button
         if (isListening) ...[
-          const SizedBox(height: 10),
           Center(
             child: Tooltip(
               message: isLocked
@@ -265,7 +278,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
                 shape: const CircleBorder(),
                 child: InkWell(
                   customBorder: const CircleBorder(),
-                  onTap: (isLocked || isPlaying || isIntermission) ? null : _startContinuousAudioLoop,
+                  onTap: isLocked ? null : _startContinuousAudioLoop,
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -277,29 +290,14 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
                         width: isPlaying ? 2.5 : 1.5,
                       ),
                     ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Icon(
-                          isLocked
-                              ? Icons.volume_off
-                              : (isPlaying ? Icons.volume_up : Icons.volume_up_outlined),
-                          size: 34,
-                          color: isLocked
-                              ? Colors.grey.shade500
-                              : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF1E3A8A)),
-                        ),
-                        if (isPlaying)
-                          SizedBox(
-                            width: 46,
-                            height: 46,
-                            child: CircularProgressIndicator(
-                              value: _playbackProgress,
-                              strokeWidth: 2.5,
-                              color: const Color(0xFFD97706),
-                            ),
-                          ),
-                      ],
+                    child: Icon(
+                      isLocked
+                          ? Icons.volume_off
+                          : (isPlaying ? Icons.volume_up : Icons.volume_up_outlined),
+                      size: 34,
+                      color: isLocked
+                          ? Colors.grey.shade500
+                          : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF1E3A8A)),
                     ),
                   ),
                 ),
@@ -311,15 +309,15 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
             builder: (context) {
               String statusText;
               if (isLocked) {
-                statusText = LanguageService.instance.trText(ne: 'अडियो समाप्त (२/२ बजिसक्यो)', en: 'Audio Finished (Played 2/2)', ko: '재생 종료 (2/2회 완료)');
+                statusText = LanguageService.instance.trText(ne: 'अडियो समाप्त (२/२ पटक सकियो)', en: 'Audio Finished (Played 2/2)', ko: '재생 완료 (2/2회 완료)');
               } else if (isPlaying) {
                 statusText = (_audioState == StudyAudioState.playingFirst)
                     ? LanguageService.instance.trText(ne: 'पहिलो पटक बज्दैछ... (१/२)', en: 'Playing Round 1... (1/2)', ko: '1회차 재생 중... (1/2)')
-                    : LanguageService.instance.trText(ne: 'दोस्रो पटक बज्दैछ... (२/२)', en: 'Playing Round 2... (2/2)', ko: '2회차 자동 반복 중... (2/2)');
+                    : LanguageService.instance.trText(ne: 'दोस्रो पटक दोहोरिँदैछ... (२/२)', en: 'Playing Round 2... (2/2)', ko: '2회차 반복 재생 중... (2/2)');
               } else if (isIntermission) {
-                statusText = LanguageService.instance.trText(ne: 'केही क्षणमा दोस्रो पटक स्वतः बज्नेछ...', en: 'Playing second round shortly...', ko: '잠시 후 2회차 자동 반복...');
+                statusText = LanguageService.instance.trText(ne: 'केही क्षणमा दोस्रो पटक सुरु हुनेछ...', en: 'Playing second round shortly...', ko: '잠시 후, 2회차 재생 시작...');
               } else {
-                statusText = LanguageService.instance.trText(ne: '🔊 अडियो बजाउनुहोस् (२ पटक बज्नेछ)', en: '🔊 Play Audio (Plays 2 times)', ko: '🔊 오디오 재생 (2회 연속 재생)');
+                statusText = LanguageService.instance.trText(ne: '🔊 अडियो सुन्नुहोस् (२ पटक बज्नेछ)', en: '🔊 Play Audio (Plays 2 times)', ko: '🔊 오디오 듣기 (2회 연속 재생)');
               }
               return Center(
                 child: Text(
@@ -340,10 +338,10 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
             child: TextButton.icon(
               onPressed: () => setState(() => _showScript = !_showScript),
               icon: Icon(_showScript ? Icons.visibility_off : Icons.subtitles, size: 16),
-              label: Text(_showScript ? "대본 숨기기 (Hide Script)" : "🎧 대본 보기 (Audio Script)"),
+              label: Text(_showScript ? 'स्क्रिप्ट लुकाउनुहोस् (Hide Script)' : '📜 अडियो स्क्रिप्ट हेर्नुहोस् (Audio Script)'),
             ),
           ),
-          if (_showScript && widget.question is ListeningAudioQuestion) ...[
+          if (_showScript) ...[
             const SizedBox(height: 10),
             Container(
               width: double.infinity,
@@ -360,19 +358,29 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
                     children: [
                       Icon(Icons.record_voice_over, size: 16, color: Color(0xFFB45309)),
                       SizedBox(width: 6),
-                      Text("듣기 대본 (Listening Dialogue):",
+                      Text('듣기 대본 (Listening Dialogue):',
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFFB45309))),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    (widget.question as ListeningAudioQuestion).audioScript ?? widget.question.questionText,
+                    (widget.question is UniversalQuestion)
+                        ? ((widget.question as UniversalQuestion).audioScript ?? widget.question.questionText)
+                        : ((widget.question is ListeningAudioQuestion)
+                            ? ((widget.question as ListeningAudioQuestion).audioScript ?? widget.question.questionText)
+                            : widget.question.questionText),
                     style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                   ),
-                  if ((widget.question as ListeningAudioQuestion).audioScriptNepali != null) ...[
+                  if (widget.question is UniversalQuestion && (widget.question as UniversalQuestion).audioScriptNepali != null) ...[
                     const SizedBox(height: 4),
                     Text(
-                      "🇳🇵 ${(widget.question as ListeningAudioQuestion).audioScriptNepali}",
+                      '🇳🇵 ',
+                      style: const TextStyle(color: Colors.black87, fontSize: 12, fontStyle: FontStyle.italic),
+                    ),
+                  ] else if (widget.question is ListeningAudioQuestion && (widget.question as ListeningAudioQuestion).audioScriptNepali != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      '🇳🇵 ',
                       style: const TextStyle(color: Colors.black87, fontSize: 12, fontStyle: FontStyle.italic),
                     ),
                   ],
@@ -381,7 +389,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
             ),
           ],
         ] else ...[
-          // If Reading: Authentic Illustration / Visual material
+          // If Reading: Visual Material
           _buildVisualMaterial(widget.question.questionId),
         ],
       ],
@@ -396,6 +404,22 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
         ...List.generate(options.length, (index) {
           final circledNumbers = ['①', '②', '③', '④'];
           final label = index < circledNumbers.length ? circledNumbers[index] : '';
+          final optionText = options[index].trim();
+
+          // Extract option audio if exists
+          String? audioOptionUrl;
+          String? imageOptionUrl;
+          if (widget.question is UniversalQuestion) {
+            final uq = widget.question as UniversalQuestion;
+            if (index < uq.audioOptions.length && uq.audioOptions[index] != null && uq.audioOptions[index]!.trim().isNotEmpty) {
+              audioOptionUrl = uq.audioOptions[index]!.trim();
+            }
+            if (index < uq.imageOptions.length && uq.imageOptions[index] != null && uq.imageOptions[index]!.trim().isNotEmpty) {
+              imageOptionUrl = uq.imageOptions[index]!.trim();
+            }
+          }
+
+          final hasAudioCapability = (audioOptionUrl != null && audioOptionUrl.isNotEmpty) || optionText.isNotEmpty;
 
           final isThisSelected = widget.selectedOption == index;
           final isThisCorrect = widget.answerInfo != null && index == widget.answerInfo!.correctIndex;
@@ -413,7 +437,8 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
               badge = Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(4)),
-                child: Text(LanguageService.instance.trText(ne: '✓ सहि उत्तर', en: '✓ Correct Answer', ko: '✓ 정답'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                child: Text(LanguageService.instance.trText(ne: '✅ सही उत्तर', en: '✅ Correct Answer', ko: '✅ 정답'),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
               );
             } else if (isThisSelected && !isThisCorrect) {
               bgColor = const Color(0xFFFEE2E2);
@@ -422,7 +447,8 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
               badge = Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(4)),
-                child: Text(LanguageService.instance.trText(ne: '✗ मेरो रोजाइ (गलत)', en: '✗ My Choice (Incorrect)', ko: '✗ 내 선택 (오답)'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                child: Text(LanguageService.instance.trText(ne: '❌ तपाईंको छनोट (गलत)', en: '❌ My Choice (Incorrect)', ko: '❌ 내 선택 (오답)'),
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
               );
             }
           }
@@ -436,7 +462,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
                 borderRadius: BorderRadius.circular(10),
                 onTap: isAnswered ? null : () => widget.onOptionSelected(index),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: borderColor, width: (isThisCorrect || isThisSelected) ? 2 : 1.2),
@@ -446,13 +472,74 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
                       Text(label, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: textColor)),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          options[index],
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: (isThisCorrect || isThisSelected) ? FontWeight.bold : FontWeight.normal,
-                            color: textColor,
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (optionText.isNotEmpty)
+                              SequenceOptionWidget(
+                                text: optionText,
+                                isSelected: isThisSelected,
+                                baseStyle: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: (isThisCorrect || isThisSelected) ? FontWeight.bold : FontWeight.normal,
+                                  color: textColor,
+                                ),
+                              ),
+                            if (imageOptionUrl != null && imageOptionUrl.isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Container(
+                                constraints: const BoxConstraints(maxHeight: 90),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: Colors.grey.shade300),
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: SmartImageWidget(imageSource: imageOptionUrl, fit: BoxFit.contain),
+                              ),
+                            ],
+                            if (hasAudioCapability) ...[
+                              const SizedBox(height: 6),
+                              ValueListenableBuilder<String?>(
+                                valueListenable: AudioPlaybackService.instance.currentAudioSourceNotifier,
+                                builder: (context, currentSource, _) {
+                                  final isPlayingThis = AudioPlaybackService.instance.isPlaying &&
+                                      ((audioOptionUrl != null && currentSource == audioOptionUrl) ||
+                                          (optionText.isNotEmpty && currentSource == 'tts:'));
+
+                                  return InkWell(
+                                    onTap: () => _playOptionAudio(index, audioOptionUrl, optionText),
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: isPlayingThis ? const Color(0xFFFDE68A) : Colors.amber.shade50,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: isPlayingThis ? const Color(0xFFD97706) : Colors.amber.shade300,
+                                          width: isPlayingThis ? 1.5 : 1.0,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            isPlayingThis ? Icons.volume_up : Icons.play_circle_fill,
+                                            size: 14,
+                                            color: const Color(0xFFD97706),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            isPlayingThis ? 'बज्दैछ...' : 'अडियो सुन्नुहोस्',
+                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                       if (badge != null) badge,
@@ -469,76 +556,64 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
           const SizedBox(height: 16),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isCorrect ? const Color(0xFFF0FDF4) : const Color(0xFFFEF2F2),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: isCorrect ? Colors.green.shade300 : Colors.red.shade300),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isCorrect ? Colors.green.shade300 : Colors.red.shade300,
+                width: 1.5,
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          isCorrect ? Icons.check_circle : Icons.cancel,
-                          color: isCorrect ? Colors.green : Colors.red,
-                          size: 22,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          isCorrect ? LanguageService.instance.trText(ne: 'सहि उत्तर! बधाई छ 🎉', en: 'Correct Answer! Congratulations 🎉', ko: '맞았습니다! 정답입니다 🎉') : LanguageService.instance.trText(ne: 'गलत उत्तर! फेरि प्रयास गर्नुहोस् ❌', en: 'Incorrect! Try again ❌', ko: '틀렸습니다! 다시 시도해보세요 ❌'),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: isCorrect ? Colors.green.shade900 : Colors.red.shade900,
-                          ),
-                        ),
-                      ],
+                    Icon(
+                      isCorrect ? Icons.check_circle : Icons.cancel,
+                      color: isCorrect ? Colors.green : Colors.red,
+                      size: 22,
                     ),
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        widget.onRetry();
-                      },
-                      icon: const Icon(Icons.refresh, size: 16),
-                      label: Text(LanguageService.instance.trText(ne: 'पुनः प्रयास गर्नुहोस्', en: 'Try Again', ko: '다시 풀기')),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: isCorrect ? Colors.green.shade900 : Colors.red.shade900,
-                        side: BorderSide(color: isCorrect ? Colors.green : Colors.red),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    const SizedBox(width: 8),
+                    Text(
+                      isCorrect
+                          ? LanguageService.instance.trText(ne: 'उत्कृष्ट! सही उत्तर रोज्नुभयो 🎉', en: 'Great Job! Correct Answer 🎉', ko: '정답입니다! 참 잘했어요 🎉')
+                          : LanguageService.instance.trText(ne: 'गलत भयो! फेरि प्रयास गर्नुहोस् 💪', en: 'Incorrect! Try Again 💪', ko: '오답입니다! 다시 시도해 보세요 💪'),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isCorrect ? Colors.green.shade800 : Colors.red.shade800,
                       ),
                     ),
                   ],
                 ),
-                const Divider(height: 20),
+                const SizedBox(height: 10),
                 if (widget.answerInfo != null) ...[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Icon(Icons.lightbulb, color: Color(0xFF2563EB), size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              LanguageService.instance.trText(ne: 'सहि उत्तर व्याख्या:', en: 'Answer Explanation:', ko: '정답 해설:'),
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.answerInfo!.explanation,
-                              style: const TextStyle(fontSize: 14, height: 1.5, color: Color(0xFF1E293B)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  Text(
+                    '💡 ',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.answerInfo!.explanation,
+                    style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4),
                   ),
                 ],
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton.icon(
+                    onPressed: widget.onRetry,
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: Text(LanguageService.instance.trText(ne: 'फेरि प्रयास गर्नुहोस् (Retry)', en: 'Try Again', ko: '다시 풀기')),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isCorrect ? Colors.green.shade700 : const Color(0xFF2563EB),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -547,77 +622,26 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
     );
   }
 
-  /// Authentic illustrations / visuals for reading items
   Widget _buildVisualMaterial(String qId) {
-    if (qId == 'Q01') {
-      return Container(
-        height: 160,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade300)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.menu_book, size: 65, color: Colors.blueGrey.shade700),
-            const SizedBox(height: 8),
-            const Text('[ 공 책 (Notebook) ]', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          ],
-        ),
-      );
-    } else if (qId == 'Q02') {
-      return Container(
-        height: 160,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade300)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.local_fire_department, size: 65, color: Colors.deepOrange.shade600),
-            const SizedBox(height: 8),
-            const Text('[ 소방관 (Firefighter) ]', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-          ],
-        ),
-      );
-    } else if (qId == 'Q03') {
-      return Container(
-        height: 160,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.red.shade300, width: 2)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.not_interested, size: 65, color: Colors.red.shade700),
-            const SizedBox(height: 8),
-            const Text('[ 주차금지 (NO PARKING) ]', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.red)),
-          ],
-        ),
-      );
-    } else if (qId == 'Q09') {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.amber.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.amber.shade400)),
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('📄 [행복마트 영수증]', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.brown)),
-            Text(
-              '• 사과 2개: 4,000원\n• 우유 1팩: 2,500원\n• 합계: 6,500원\n• 결제방법: 신용카드 (Card)',
-              style: TextStyle(fontSize: 14, height: 1.5, fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      );
+    String? customImage;
+    if (widget.question is UniversalQuestion) {
+      customImage = (widget.question as UniversalQuestion).questionImageUrl;
+    } else if (widget.question is ReadingImageQuestion) {
+      customImage = (widget.question as ReadingImageQuestion).imageAssetPath;
     }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.grey.shade300)),
-      child: const Row(
-        children: [
-          Icon(Icons.article, color: Colors.blueGrey, size: 24),
-          SizedBox(width: 10),
-          Expanded(child: Text('다음을 읽고 내용과 같은 것을 고르십시오.', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500))),
-        ],
-      ),
-    );
+    if (customImage != null && customImage.trim().isNotEmpty) {
+      return Container(
+        height: 180,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: SmartImageWidget(imageSource: customImage.trim(), height: 160, fit: BoxFit.contain),
+      );
+    }
+    return const SizedBox.shrink();
   }
 }

@@ -1,5 +1,5 @@
+import '../../core/widgets/universal_pdf_viewer.dart';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../core/models/study_material_model.dart';
 import '../../core/services/audio_playback_service.dart';
@@ -8,7 +8,6 @@ import '../../core/services/study_material_service.dart';
 import '../../core/services/cloud_sync_service.dart';
 import '../../core/services/language_service.dart';
 import '../../core/services/offline_download_service.dart';
-import '../../core/widgets/pdf_viewer.dart';
 
 /// Comprehensive Textbook & Interactive PDF Reader
 /// Features:
@@ -573,6 +572,9 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                 _saveUpdatedBook(updated);
                 setState(() {
                   _selectedChapter = chNum;
+                  if (chPdf.isNotEmpty) {
+                    _isPdfMode = true;
+                  }
                 });
                 Navigator.pop(ctx);
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -842,6 +844,17 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
         ),
       ),
     );
+  }
+
+  void _updateTrackPosition(BookAudioTrack track, double newX, double newY) {
+    final updatedTracks = List<BookAudioTrack>.from(_currentBook.audioTracks);
+    final idx = updatedTracks.indexWhere((t) => t.id == track.id);
+    if (idx != -1) {
+      updatedTracks[idx] = track.copyWith(posX: newX, posY: newY);
+      final updatedBook = _currentBook.copyWith(audioTracks: updatedTracks);
+      _saveUpdatedBook(updatedBook);
+      setState(() {});
+    }
   }
 
   void _deleteTrack(BookAudioTrack track) {
@@ -1418,7 +1431,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                                   : _buildDefaultTextbookCanvas(),
                             ),
 
-                            // 2. All Pinned Audio Buttons placed exactly at posX / posY on the PDF
+                            // 2. All Pinned Audio Buttons placed exactly at posX / posY on the PDF with Drag-to-Position support
                             ...tracks.where((t) => t.posX != null && t.posY != null).map((track) {
                               final left = track.posX! * canvasWidth;
                               final top = track.posY! * canvasHeight;
@@ -1426,11 +1439,21 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                               return Positioned(
                                 left: left,
                                 top: top,
-                                child: ExpandableAudioTimelineButton(
-                                  track: track,
-                                  isPinned: true,
-                                  onLongPress: () => _openAddOrEditTrackDialog(trackToEdit: track),
-                                  onEditRequested: () => _openAddOrEditTrackDialog(trackToEdit: track),
+                                child: GestureDetector(
+                                  onPanUpdate: _isPinningMode
+                                      ? (details) {
+                                          final newX = ((left + details.delta.dx) / canvasWidth).clamp(0.01, 0.95);
+                                          final newY = ((top + details.delta.dy) / canvasHeight).clamp(0.01, 0.95);
+                                          _updateTrackPosition(track, newX, newY);
+                                        }
+                                      : null,
+                                  child: ExpandableAudioTimelineButton(
+                                    track: track,
+                                    isPinned: true,
+                                    isDraggableMode: _isPinningMode,
+                                    onLongPress: () => _openAddOrEditTrackDialog(trackToEdit: track),
+                                    onEditRequested: () => _openAddOrEditTrackDialog(trackToEdit: track),
+                                  ),
                                 ),
                               );
                             }),
@@ -1466,31 +1489,42 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
     );
   }
 
-  Widget _buildUploadedPdfBackground(String url) {
-    final bool isImage = url.startsWith('data:image') ||
-        (url.startsWith('http') &&
-            RegExp(r'\.(jpe?g|png|webp|gif|svg)(\?.*)?$', caseSensitive: false).hasMatch(url));
+    Widget _buildUploadedPdfBackground(String url) {
+    final cleanUrl = url.trim();
+    final bool isImage = cleanUrl.startsWith('data:image') ||
+        (cleanUrl.startsWith('http') &&
+            RegExp(r'\.(jpe?g|png|webp|gif|svg)(\?.*)?$', caseSensitive: false).hasMatch(cleanUrl));
 
-    // ── Image (data:image base64 or network image URL) ────────────────
+    // ─── 1. Image Format (Scanned textbook page / Screenshot) ───
     if (isImage) {
-      if (url.startsWith('data:image')) {
+      if (cleanUrl.startsWith('data:image')) {
         try {
-          final bytes = base64Decode(url.split(',')[1]);
-          return Image.memory(bytes, fit: BoxFit.contain);
+          final commaIdx = cleanUrl.indexOf(',');
+          final base64Part = commaIdx != -1 ? cleanUrl.substring(commaIdx + 1) : cleanUrl;
+          final bytes = base64Decode(base64Part.replaceAll(RegExp(r'\s+'), ''));
+          return Image.memory(
+            bytes,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => _buildDefaultTextbookCanvas(),
+          );
         } catch (_) {}
       }
       return Image.network(
-        url,
+        cleanUrl,
         fit: BoxFit.contain,
-        loadingBuilder: (_, child, progress) => progress == null ? child : const Center(child: CircularProgressIndicator()),
+        loadingBuilder: (_, child, progress) =>
+            progress == null ? child : const Center(child: CircularProgressIndicator(color: Color(0xFF1E3A8A))),
         errorBuilder: (_, __, ___) => _buildDefaultTextbookCanvas(),
       );
     }
 
-    // ── PDF (web: iframe via native blob/object URL; mobile: placeholder) ──
-    final viewId = 'pdf_ch${_currentBook.id}_${_selectedChapter}_${url.hashCode.abs()}';
+    // ─── 2. PDF Document (Base64 data or HTTP PDF stream) ───
+    final viewId = 'pdf_ch${_currentBook.id}_${_selectedChapter}_${cleanUrl.hashCode.abs()}';
     return SizedBox.expand(
-      child: buildPdfViewerWidget(url, viewId),
+      child: UniversalPdfViewerWidget(
+        url: cleanUrl,
+        viewId: viewId,
+      ),
     );
   }
 
@@ -1940,11 +1974,19 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
 /// 2. Clicking expands smoothly into live audio timeline slider with progress, elapsed/total time and seek control.
 /// 3. Clicking again or stop button collapses back to compact headphone button.
 /// 4. Options to edit or delete the button.
+/// ============================================================================
+/// AUTHENTIC KOREAN TEXTBOOK IN-PRINT AUDIO BADGE & TIMELINE PLAYER
+/// ============================================================================
+/// 1. Simple, clean in-print typography style matching authentic Korean textbooks (EPS-TOPIK HRD Korea).
+/// 2. Can be placed anywhere on interactive PDF canvas (with drag-to-reposition) or inside reading sections.
+/// 3. Tap to play immediately with live animated sound waves (ılılı) and sleek expandable timeline slider.
+/// 4. Long-press or edit button to update title, section, audio URL/MP3, or delete.
 class ExpandableAudioTimelineButton extends StatefulWidget {
   final BookAudioTrack track;
   final VoidCallback? onLongPress;
   final VoidCallback? onEditRequested;
   final bool isPinned;
+  final bool isDraggableMode;
 
   const ExpandableAudioTimelineButton({
     super.key,
@@ -1952,6 +1994,7 @@ class ExpandableAudioTimelineButton extends StatefulWidget {
     this.onLongPress,
     this.onEditRequested,
     this.isPinned = false,
+    this.isDraggableMode = false,
   });
 
   @override
@@ -1980,6 +2023,26 @@ class _ExpandableAudioTimelineButtonState extends State<ExpandableAudioTimelineB
     AudioPlaybackService.instance.setPlaybackRate(_playbackSpeed);
   }
 
+  Color _getSectionInkColor(String sectionType) {
+    switch (sectionType) {
+      case 'dialogue_1':
+        return const Color(0xFF1E3A8A); // Classic Deep Indigo
+      case 'dialogue_2':
+        return const Color(0xFF15803D); // Forest Green
+      case 'vocabulary':
+      case 'vocabulary_2':
+        return const Color(0xFFB45309); // Ochre / Warm Amber
+      case 'pronunciation':
+        return const Color(0xFF6D28D9); // Violet
+      case 'listening':
+        return const Color(0xFFC2410C); // Terracotta
+      case 'extended':
+      case 'custom':
+      default:
+        return const Color(0xFF0F766E); // Deep Teal
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<String?>(
@@ -1988,7 +2051,7 @@ class _ExpandableAudioTimelineButtonState extends State<ExpandableAudioTimelineB
         final isPlayingThis = currentSource == widget.track.audioUrl;
 
         return AnimatedSize(
-          duration: const Duration(milliseconds: 260),
+          duration: const Duration(milliseconds: 240),
           curve: Curves.easeInOut,
           child: isPlayingThis
               ? _buildExpandedTimeline(context)
@@ -2001,11 +2064,13 @@ class _ExpandableAudioTimelineButtonState extends State<ExpandableAudioTimelineB
   /// 1. Authentic Official Korean Textbook In-Print Badge Button
   /// Matches standard EPS-TOPIK Korean textbook print typography and aesthetic
   Widget _buildCompactTextbookBadge(BuildContext context) {
+    final Color inkColor = _getSectionInkColor(widget.track.sectionType);
+
     return Tooltip(
       message: LanguageService.instance.trText(
-        ne: 'अडियो सुन्न थिच्नुहोस् (स्लाइडर खुल्नेछ) • सम्पादन गर्न लङ-प्रेस',
-        en: 'Tap to listen audio (slider expands) • Long-press to edit',
-        ko: '오디오 듣기 (슬라이더 열림) • 길게 눌러 수정',
+        ne: 'अडियो सुन्न ट्याप गर्नुहोस् • सम्पादन गर्न थिचिराख्नुहोस्',
+        en: 'Tap to listen audio • Long-press to edit',
+        ko: '오디오 듣기 (탭) • 길게 눌러 수정',
       ),
       child: Material(
         color: Colors.transparent,
@@ -2014,50 +2079,57 @@ class _ExpandableAudioTimelineButtonState extends State<ExpandableAudioTimelineB
             AudioPlaybackService.instance.playAudioUrl(widget.track.audioUrl);
           },
           onLongPress: widget.onLongPress,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(4),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3.5),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(4),
               border: Border.all(
-                color: const Color(0xFF0F766E),
-                width: 1.6,
+                color: widget.isDraggableMode ? Colors.amber.shade700 : inkColor,
+                width: widget.isDraggableMode ? 1.5 : 1.1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF0F766E).withOpacity(0.18),
-                  blurRadius: 5,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
                 ),
               ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // In-print Headphone Badge Icon
-                Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF0F766E),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.headphones_rounded, size: 12, color: Colors.white),
+                if (widget.isDraggableMode) ...[
+                  Icon(Icons.drag_indicator, size: 12, color: Colors.amber.shade800),
+                  const SizedBox(width: 2),
+                ],
+                // In-print Headphone Icon
+                Icon(
+                  Icons.headphones_rounded,
+                  size: 13,
+                  color: widget.isDraggableMode ? Colors.amber.shade900 : inkColor,
                 ),
-                const SizedBox(width: 6),
-                // Authentic Textbook Typography Label
+                const SizedBox(width: 5),
+                // Authentic Textbook Typography Label (e.g. Track 01, 대화 1, 01)
                 Text(
                   widget.track.label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0.3,
-                    color: Color(0xFF0F172A),
+                    color: widget.isDraggableMode ? Colors.amber.shade900 : const Color(0xFF0F172A),
                     fontFamily: 'Roboto',
                   ),
                 ),
                 const SizedBox(width: 4),
-                const Icon(Icons.play_circle_fill_rounded, size: 14, color: Color(0xFFEA580C)),
+                // Subtle in-print play glyph
+                Icon(
+                  Icons.play_arrow_rounded,
+                  size: 13,
+                  color: widget.isDraggableMode ? Colors.amber.shade800 : inkColor,
+                ),
               ],
             ),
           ),
@@ -2066,48 +2138,54 @@ class _ExpandableAudioTimelineButtonState extends State<ExpandableAudioTimelineB
     );
   }
 
-  /// 2. Expanded Floating Audio Slider with Live Scrubber & Speed Control
+  /// 2. Expanded Floating Audio Slider with Live Scrubber, Equalizer & Speed Control
   Widget _buildExpandedTimeline(BuildContext context) {
+    final Color inkColor = _getSectionInkColor(widget.track.sectionType);
+
     return Material(
-      elevation: 6,
-      borderRadius: BorderRadius.circular(24),
+      elevation: 4,
+      borderRadius: BorderRadius.circular(6),
       color: const Color(0xFF0F172A),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        constraints: const BoxConstraints(minWidth: 280, maxWidth: 420),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        constraints: const BoxConstraints(minWidth: 270, maxWidth: 400),
         decoration: BoxDecoration(
           color: const Color(0xFF0F172A),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: const Color(0xFF14B8A6), width: 1.8),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: inkColor, width: 1.4),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.35),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Stop / Collapse Button
+            // Stop Button
             InkWell(
               onTap: () => AudioPlaybackService.instance.stop(),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(4),
               child: Container(
-                padding: const EdgeInsets.all(5),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFEA580C),
-                  shape: BoxShape.circle,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEA580C),
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Icon(Icons.stop_rounded, size: 16, color: Colors.white),
+                child: const Icon(Icons.stop_rounded, size: 14, color: Colors.white),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
+
+            // Live Animated Equalizer Waves
+            _EqualizerBarsWidget(color: const Color(0xFF14B8A6)),
+            const SizedBox(width: 6),
 
             // Track Name
             ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 85),
+              constraints: const BoxConstraints(maxWidth: 80),
               child: Text(
                 widget.track.label,
                 maxLines: 1,
@@ -2137,9 +2215,9 @@ class _ExpandableAudioTimelineButtonState extends State<ExpandableAudioTimelineB
                         children: [
                           SliderTheme(
                             data: SliderTheme.of(context).copyWith(
-                              trackHeight: 3.0,
-                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                              overlayShape: const RoundSliderOverlayShape(overlayRadius: 10),
+                              trackHeight: 2.5,
+                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
+                              overlayShape: const RoundSliderOverlayShape(overlayRadius: 8),
                               activeTrackColor: const Color(0xFF14B8A6),
                               inactiveTrackColor: Colors.white24,
                               thumbColor: Colors.white,
@@ -2154,12 +2232,12 @@ class _ExpandableAudioTimelineButtonState extends State<ExpandableAudioTimelineB
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 2),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(_formatTime(pos), style: const TextStyle(fontSize: 9, color: Color(0xFF5EEAD4), fontWeight: FontWeight.bold)),
-                                Text(_formatTime(dur), style: const TextStyle(fontSize: 9, color: Colors.white60)),
+                                Text(_formatTime(pos), style: const TextStyle(fontSize: 8.5, color: Color(0xFF5EEAD4), fontWeight: FontWeight.bold)),
+                                Text(_formatTime(dur), style: const TextStyle(fontSize: 8.5, color: Colors.white60)),
                               ],
                             ),
                           ),
@@ -2176,30 +2254,43 @@ class _ExpandableAudioTimelineButtonState extends State<ExpandableAudioTimelineB
             // Speed cycle button
             InkWell(
               onTap: _cycleSpeed,
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(4),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.white12,
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(4),
                   border: Border.all(color: Colors.white24),
                 ),
                 child: Text(
                   '${_playbackSpeed}x',
-                  style: const TextStyle(color: Colors.amberAccent, fontSize: 9.5, fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: Colors.amberAccent, fontSize: 9, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
 
-            const SizedBox(width: 6),
+            const SizedBox(width: 4),
+
+            // Edit button if requested
+            if (widget.onEditRequested != null)
+              InkWell(
+                onTap: widget.onEditRequested,
+                borderRadius: BorderRadius.circular(4),
+                child: const Padding(
+                  padding: EdgeInsets.all(2),
+                  child: Icon(Icons.edit, size: 14, color: Colors.white70),
+                ),
+              ),
+
+            const SizedBox(width: 2),
 
             // Close / Minimize Button
             InkWell(
               onTap: () => AudioPlaybackService.instance.stop(),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(4),
               child: const Padding(
                 padding: EdgeInsets.all(2),
-                child: Icon(Icons.close_rounded, size: 16, color: Colors.white70),
+                child: Icon(Icons.close_rounded, size: 14, color: Colors.white70),
               ),
             ),
           ],
@@ -2209,6 +2300,89 @@ class _ExpandableAudioTimelineButtonState extends State<ExpandableAudioTimelineB
   }
 }
 
+/// Live Animated Equalizer Sound Waves (ılılı) for authentic audio feedback
+class _EqualizerBarsWidget extends StatefulWidget {
+  final Color color;
+  const _EqualizerBarsWidget({required this.color});
+
+  @override
+  State<_EqualizerBarsWidget> createState() => _EqualizerBarsWidgetState();
+}
+
+class _EqualizerBarsWidgetState extends State<_EqualizerBarsWidget> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 650),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final val = _controller.value;
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Container(width: 2.2, height: 4 + (val * 8), decoration: BoxDecoration(color: widget.color, borderRadius: BorderRadius.circular(1))),
+            const SizedBox(width: 1.5),
+            Container(width: 2.2, height: 12 - (val * 7), decoration: BoxDecoration(color: widget.color, borderRadius: BorderRadius.circular(1))),
+            const SizedBox(width: 1.5),
+            Container(width: 2.2, height: 5 + (val * 6), decoration: BoxDecoration(color: widget.color, borderRadius: BorderRadius.circular(1))),
+          ],
+        );
+      },
+    );
+  }
+}
+
+/// In-print Audio Typography Badge that can be placed anywhere inside reading sections/dialogues
+class TextbookInPrintAudioBadge extends StatelessWidget {
+  final String label; // e.g. "Track 01"
+  final String audioUrl;
+  final String sectionType;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onEditRequested;
+
+  const TextbookInPrintAudioBadge({
+    super.key,
+    required this.label,
+    required this.audioUrl,
+    this.sectionType = 'dialogue_1',
+    this.onLongPress,
+    this.onEditRequested,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final track = BookAudioTrack(
+      id: 'inline_${audioUrl.hashCode.abs()}',
+      chapterNo: 0,
+      label: label,
+      sectionType: sectionType,
+      audioUrl: audioUrl,
+    );
+
+    return ExpandableAudioTimelineButton(
+      track: track,
+      onLongPress: onLongPress,
+      onEditRequested: onEditRequested,
+    );
+  }
+}
 
 class _VocabChip extends StatelessWidget {
   final String word;
@@ -2216,7 +2390,6 @@ class _VocabChip extends StatelessWidget {
   final String flag;
 
   const _VocabChip({
-    super.key,
     required this.word,
     required this.nepali,
     required this.flag,
@@ -2228,7 +2401,7 @@ class _VocabChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(color: Colors.grey.shade300),
       ),
       child: Row(

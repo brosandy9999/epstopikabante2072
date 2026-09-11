@@ -1818,13 +1818,52 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
 
   (String, String?) _splitQuestionPrompt(String rawText) {
     var text = rawText.trim();
-    // Strip leading question numbers like [1], [01], 1., 1)
+    // 1. Strip leading question numbers like [1], [01], 1., 1)
     text = text.replaceFirst(RegExp(r'^\[?\d{1,2}\]?[.\s-]*'), '').trim();
 
+    // 2. Remove redundant question labels like "1번 문항", "1번 문제", "1번"
+    text = text.replaceAll(RegExp(r'^\s*\[?\d{1,2}\]?[번\s]*(?:문항|문제)?[.\s-]*$', multiLine: true), '').trim();
+
     if (text.contains('\n')) {
-      final firstLine = text.split('\n').first.trim();
-      final rest = text.split('\n').skip(1).join('\n').trim();
-      return (firstLine, rest.isNotEmpty ? rest : null);
+      final lines = text.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
+      if (lines.isEmpty) return ('', null);
+
+      // Filter out any line that is just a question label
+      final cleanedLines = lines.where((l) => !RegExp(r'^\s*\[?\d{1,2}\]?[번\s]*(?:문항|문제)?[.\s-]*$').hasMatch(l)).toList();
+      if (cleanedLines.isEmpty) return ('', null);
+
+      final promptLines = <String>[];
+      final passageLines = <String>[];
+      bool inPassage = false;
+
+      for (int i = 0; i < cleanedLines.length; i++) {
+        final line = cleanedLines[i];
+        if (line.startsWith('[지문]') || line.startsWith('<지문>')) {
+          inPassage = true;
+          final cleanP = line.replaceFirst(RegExp(r'^\[지문\]|<지문>'), '').trim();
+          if (cleanP.isNotEmpty) passageLines.add(cleanP);
+          continue;
+        }
+
+        if (inPassage) {
+          passageLines.add(line);
+        } else if (i == 0 ||
+            line.endsWith('고르십시오.') ||
+            line.endsWith('무엇입니까?') ||
+            line.endsWith('답하십시오.') ||
+            line.endsWith('맞는 것은?') ||
+            line.endsWith('알맞은 것은?') ||
+            line.endsWith('알맞은 것을?') ||
+            (line.startsWith('[') && line.endsWith(']'))) {
+          promptLines.add(line);
+        } else {
+          passageLines.add(line);
+        }
+      }
+
+      final prompt = promptLines.isNotEmpty ? promptLines.join(' ') : cleanedLines.first;
+      final passage = passageLines.isNotEmpty ? passageLines.join('\n') : null;
+      return (prompt, passage);
     }
 
     // Check for inline bracketed / quoted word like:
@@ -2307,10 +2346,12 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
 
     // Extract fields with smart prompt / passage / word splitting
     final rawText = q.questionText.trim();
-    final (qText, passage) = _splitQuestionPrompt(rawText);
+    final (qText, rawPassage) = _splitQuestionPrompt(rawText);
+    final passage = (rawPassage != null && rawPassage.trim().isNotEmpty) ? rawPassage.trim() : null;
 
-    final imgUrl = (q is UniversalQuestion) ? q.questionImageUrl
+    final rawImg = (q is UniversalQuestion) ? q.questionImageUrl
         : (q is ReadingImageQuestion) ? q.imageAssetPath : null;
+    final imgUrl = PaperExamHtmlBuilder.cleanImageUrl(rawImg);
 
     List<String> textOpts = [];
     List<String?> imgOpts = [];
@@ -2407,14 +2448,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (passage != null && passage.isNotEmpty) ...[
-                        Text(
-                          passage,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87),
-                        ),
-                        const SizedBox(height: 4),
-                      ],
+
                       Flexible(
                         child: Container(
                           constraints: BoxConstraints(
@@ -2597,20 +2631,25 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
     final maxLen = cleaned.fold<int>(0, (max, o) => o.length > max ? o.length : max);
     final count = cleaned.where((o) => o.isNotEmpty).length;
 
+    final totalLen = cleaned.fold<int>(0, (sum, o) => sum + o.length);
+
     int colCount = 1;
     if (isSideBySide) {
-      if (!hasNewlines && count == 4 && maxLen <= 8) {
+      if (!hasNewlines && count == 4 && maxLen <= 14 && totalLen <= 48) {
         colCount = 2;
       } else {
         colCount = 1;
       }
     } else {
       if (!hasNewlines && count > 0) {
-        if (count == 4 && maxLen <= 11) {
+        if (count == 4 && maxLen <= 12 && totalLen <= 42) {
+          // Short vocabulary words, numbers, time -> 4 columns in 1 row
           colCount = 4;
-        } else if (maxLen <= 26) {
+        } else if (maxLen <= 26 && totalLen <= 92) {
+          // Medium phrases / typical EPS actions / sentence clauses -> 2 columns (2x2 grid)
           colCount = 2;
         } else {
+          // Long statements / reading comprehension -> 1 column
           colCount = 1;
         }
       }

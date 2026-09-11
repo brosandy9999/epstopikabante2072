@@ -45,6 +45,8 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
   // Anti-Cheat
   int _cheatWarnings = 0;
   static const int _maxCheatWarnings = 3;
+  String? _activeCheatWarning;
+  Timer? _cheatWarningDismissTimer;
 
   @override
   void initState() {
@@ -56,13 +58,14 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
 
     // 🔄 Force immersive fullscreen mode for authentic exam terminal security
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    OrientationService.unlockOrientation();
+    OrientationService.forceLandscape();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    _cheatWarningDismissTimer?.cancel();
     _remainingSecondsNotifier.dispose();
 
     // 🔓 Restore standard system UI and orientations upon exiting the exam hall
@@ -78,72 +81,158 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
     }
   }
 
-  void _triggerAntiCheatWarning() {
+    void _triggerAntiCheatWarning({String? customReason}) {
     setState(() => _cheatWarnings++);
 
     if (_cheatWarnings >= _maxCheatWarnings) {
-      _submitExamDirectly(reason: '부정행위 감지로 인한 자동 제출 (Automatic Submission: Anti-Cheat Policy)');
+      _submitExamDirectly(reason: 'Automatic Submission: Anti-Cheat Policy (${_cheatWarnings} Warnings)');
       return;
     }
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Colors.red.shade50,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 30),
-            const SizedBox(width: 10),
-            Text(
-              LanguageService.instance.trText(ne: '🚨 परीक्षा नियम उल्लंघन चेतावनी (${_cheatWarnings}/${_maxCheatWarnings})', en: '🚨 Anti-Cheat Warning (${_cheatWarnings}/${_maxCheatWarnings})', ko: '🚨 부정행위 방지 경고 (${_cheatWarnings}/${_maxCheatWarnings})'),
-              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 18),
+    final reasonText = customReason ??
+        LanguageService.instance.trText(
+          ne: 'कृपया टाउको नहल्लाउनुहोस् र स्क्रिनतर्फ मात्र हेर्नुहोस्। परीक्षा विन्डो छोड्न निषेध छ!',
+          en: 'Please keep your head steady and face the screen. Leaving the exam window is strictly prohibited!',
+          ko: '머리를 움직이지 마시고 화면만 응시하십시오. 시험 창을 벗어나는 것은 금지됩니다!',
+        );
+
+    _cheatWarningDismissTimer?.cancel();
+    _cheatWarningDismissTimer = Timer(const Duration(seconds: 8), () {
+      if (mounted) {
+        setState(() {
+          _activeCheatWarning = null;
+        });
+      }
+    });
+
+    setState(() {
+      _activeCheatWarning = reasonText;
+    });
+  }
+
+  /// Bottom-Left Floating Anti-Cheat Toast Warning Card (स्क्रीनको बायाँपट्टि तल साइडमा)
+  Widget _buildBottomLeftAntiCheatCard() {
+    final remaining = _maxCheatWarnings - _cheatWarnings;
+
+    return Material(
+      color: Colors.transparent,
+      elevation: 10,
+      child: Container(
+        constraints: const BoxConstraints(minWidth: 260, maxWidth: 360),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF991B1B), // Deep warning crimson
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFFCA5A5), width: 1.5),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black45,
+              blurRadius: 12,
+              offset: Offset(0, 4),
             ),
           ],
         ),
-        content: Column(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Top Header: Warning icon + Badge + Close Button
+            Row(
+              children: [
+                const Icon(Icons.warning_amber_rounded, color: Color(0xFFFDE047), size: 20),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    LanguageService.instance.trText(
+                      ne: 'एन्टी-चिट चेतावनी (${_cheatWarnings}/${_maxCheatWarnings})',
+                      en: 'Anti-Cheat Warning (${_cheatWarnings}/${_maxCheatWarnings})',
+                      ko: '부정행위 경고 (${_cheatWarnings}/${_maxCheatWarnings})',
+                    ),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 12.5,
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    _cheatWarningDismissTimer?.cancel();
+                    setState(() => _activeCheatWarning = null);
+                  },
+                  borderRadius: BorderRadius.circular(4),
+                  child: const Padding(
+                    padding: EdgeInsets.all(2),
+                    child: Icon(Icons.close, color: Colors.white70, size: 16),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+
+            // Warning Reason Body (e.g. "कृपया टाउको नहल्लाउनुहोस्...")
             Text(
-              LanguageService.instance.trText(
-                ne: 'परीक्षा हल विन्डो छाड्न सख्त निषेध गरिएको छ!',
-                en: 'Leaving the exam window is strictly prohibited!',
-                ko: '시험 중 창이나 탭을 벗어나는 행위는 엄격히 금지됩니다!',
+              _activeCheatWarning ?? '',
+              style: const TextStyle(
+                color: Color(0xFFFEF2F2),
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                height: 1.35,
               ),
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             const SizedBox(height: 8),
-            Text(
-              LanguageService.instance.trText(
-                ne: 'परीक्षा हलबाट बाहिर अन्य विन्डो वा ट्याबमा जान सख्त निषेध छ। ३ पटक उल्लंघन भएमा परीक्षा स्वतः सबमिट हुनेछ।',
-                en: 'Leaving the exam window is strictly prohibited. If violated 3 times, your exam will be automatically submitted.',
-                ko: '시험 중 다른 창이나 탭으로 전환하면 안 됩니다. 3회 위반 시 자동 제출됩니다.',
-              ),
-              style: const TextStyle(color: Colors.black87, fontSize: 13),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.red.shade100,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                LanguageService.instance.trText(ne: 'बाँकी मौका: ${(_maxCheatWarnings - _cheatWarnings)} पटक', en: 'Remaining chances: ${(_maxCheatWarnings - _cheatWarnings)}', ko: '남은 기회: ${(_maxCheatWarnings - _cheatWarnings)}회'),
-                style: TextStyle(color: Colors.red.shade900, fontWeight: FontWeight.bold),
-              ),
+
+            // Footer Row: Remaining chances + Dismiss Button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.black26,
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.white24, width: 0.8),
+                  ),
+                  child: Text(
+                    LanguageService.instance.trText(
+                      ne: 'बाँकी मौका: $remaining पटक',
+                      en: 'Remaining: $remaining',
+                      ko: '남은 기회: $remaining회',
+                    ),
+                    style: TextStyle(
+                      color: remaining <= 1 ? const Color(0xFFFDE047) : Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    _cheatWarningDismissTimer?.cancel();
+                    setState(() => _activeCheatWarning = null);
+                  },
+                  borderRadius: BorderRadius.circular(4),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      LanguageService.instance.trText(ne: '✓ बुझें', en: '✓ Got It', ko: '✓ 확인'),
+                      style: const TextStyle(
+                        color: Color(0xFF991B1B),
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(LanguageService.instance.trText(ne: 'परीक्षामा फर्कनुहोस्', en: 'Return to Exam', ko: '시험으로 돌아가기')),
-          ),
-        ],
       ),
     );
   }
@@ -644,7 +733,9 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           },
           child: Scaffold(
           backgroundColor: const Color(0xFFF1F5F9),
-          body: SafeArea(
+          body: Stack(
+            children: [
+              SafeArea(
             child: Column(
               children: [
                 // 1. ULTRA-RESPONSIVE FLOATING HEADER (Adapts to Portrait & Landscape)
@@ -946,11 +1037,19 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
               ],
             ),
           ),
-        ),
+          if (_activeCheatWarning != null)
+            Positioned(
+              left: 14,
+              bottom: 14,
+              child: _buildBottomLeftAntiCheatCard(),
+            ),
+        ],
       ),
     ),
-  );
-}
+    ),
+    ),
+    );
+  }
 
   Widget _buildCurrentQuestion(QuestionTemplate currentQ) {
     final bool isListening = (currentQ is ListeningAudioQuestion) ||

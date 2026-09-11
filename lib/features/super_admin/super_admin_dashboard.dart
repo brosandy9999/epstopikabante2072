@@ -5,6 +5,7 @@ import '../settings/universal_settings_dialog.dart';
 import '../../core/models/institute_model.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/institute_service.dart';
+import '../../core/widgets/edit_institute_profile_dialog.dart';
 import '../../core/services/question_bank_service.dart';
 import '../../core/services/cloud_sync_service.dart';
 import '../../core/widgets/app_exit_dialog.dart';
@@ -478,7 +479,15 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
                                   )),
                                 ),
                                 const SizedBox(width: 6),
-                                // Change Quota Button
+                                // Edit Institute Profile & Logo
+                                  OutlinedButton.icon(
+                                    onPressed: () => EditInstituteProfileDialog.show(context, institute: inst).then((_) => setState(() {})),
+                                    icon: const Icon(Icons.edit_note, size: 16),
+                                    label: Text(LanguageService.instance.trText(ne: 'प्रोफाइल & लोगो', en: 'Edit Profile & Logo', ko: '프로필/로고')),
+                                    style: OutlinedButton.styleFrom(visualDensity: VisualDensity.compact),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  // Change Quota Button
                                 OutlinedButton.icon(
                                   onPressed: () => _showChangeQuotaDialog(inst),
                                   icon: const Icon(Icons.tune, size: 14),

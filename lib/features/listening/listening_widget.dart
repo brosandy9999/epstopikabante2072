@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../question_engine/question_template.dart';
 import '../../core/models/exam_session_model.dart';
 import '../../core/services/audio_playback_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
+import '../../core/widgets/sequence_option_widget.dart';
 import '../../core/services/language_service.dart';
 
 /// Authentic HRDK EPS-TOPIK UBT Listening Question Widget
@@ -25,18 +26,24 @@ class ListeningQuestionWidget extends StatefulWidget {
 
 class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
   AudioState _audioState = AudioState.ready;
+  int _loopRunId = 0;
 
   @override
   void dispose() {
+    _loopRunId++;
     AudioPlaybackService.instance.stop();
     super.dispose();
   }
 
-  /// Plays audio continuously for 2 iterations without requiring manual 2nd tap
-  void _startContinuousAudioLoop() {
-    if (_audioState == AudioState.locked || _audioState == AudioState.playingFirst || _audioState == AudioState.playingSecond) {
+  /// Plays audio continuously for 2 iterations waiting for actual track duration
+  Future<void> _startContinuousAudioLoop() async {
+    if (_audioState == AudioState.locked ||
+        _audioState == AudioState.playingFirst ||
+        _audioState == AudioState.playingSecond) {
       return;
     }
+
+    final currentRun = ++_loopRunId;
 
     String speechText = widget.question.questionText;
     String? audioPath;
@@ -52,50 +59,72 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
         ? (widget.question as UniversalQuestion).isAudioOnly
         : false;
 
-    void playCurrentTrack() {
+    Future<void> playTrack() async {
       if (audioPath != null && audioPath.trim().isNotEmpty) {
-        AudioPlaybackService.instance.playAudioUrl(audioPath.trim());
-      } else if (!isAudioOnly) {
-        AudioPlaybackService.instance.playKoreanSpeech(speechText);
+        await AudioPlaybackService.instance.playAudioUrlAndWait(
+          audioPath.trim(),
+          fallbackKoreanText: isAudioOnly ? null : speechText,
+        );
+      } else if (!isAudioOnly && speechText.trim().isNotEmpty) {
+        await AudioPlaybackService.instance.playKoreanSpeechAndWait(speechText.trim());
       }
     }
 
     // ----------------------------------------
     // ROUND 1: 1st Audio Playback
     // ----------------------------------------
+    if (!mounted || _loopRunId != currentRun) return;
     setState(() {
       _audioState = AudioState.playingFirst;
     });
 
-    playCurrentTrack();
+    await playTrack();
 
-    // Round 1 ends after 2.4s -> 1.5s brief pause before auto repeating
-    Future.delayed(const Duration(milliseconds: 2400), () {
-      if (!mounted) return;
-      setState(() {
-        _audioState = AudioState.firstComplete; // Intermission state
-      });
-
-      // ----------------------------------------
-      // ROUND 2: Auto Repeat 2nd Playback
-      // ----------------------------------------
-      Future.delayed(const Duration(milliseconds: 1400), () {
-        if (!mounted) return;
-        setState(() {
-          _audioState = AudioState.playingSecond;
-        });
-
-        playCurrentTrack();
-
-        // Round 2 finishes -> Permanently Locked!
-        Future.delayed(const Duration(milliseconds: 2400), () {
-          if (!mounted) return;
-          setState(() {
-            _audioState = AudioState.locked;
-          });
-        });
-      });
+    if (!mounted || _loopRunId != currentRun) return;
+    setState(() {
+      _audioState = AudioState.firstComplete; // Intermission state
     });
+
+    // ----------------------------------------
+    // 1.5s intermission before round 2
+    // ----------------------------------------
+    await Future.delayed(const Duration(seconds: 3));
+
+    // ----------------------------------------
+    // ROUND 2: Auto Repeat 2nd Playback
+    // ----------------------------------------
+    if (!mounted || _loopRunId != currentRun) return;
+    setState(() {
+      _audioState = AudioState.playingSecond;
+    });
+
+    await playTrack();
+
+    // Round 2 finishes -> Permanently Locked!
+    if (!mounted || _loopRunId != currentRun) return;
+    setState(() {
+      _audioState = AudioState.locked;
+    });
+  }
+
+  void _playOptionAudio(int index, String? audioUrl, String optionText) {
+    final cleanUrl = audioUrl?.trim() ?? '';
+    final cleanText = optionText.trim();
+
+    final isPlayingThis = AudioPlaybackService.instance.isPlaying &&
+        ((cleanUrl.isNotEmpty && AudioPlaybackService.instance.currentSource == cleanUrl) ||
+            (AudioPlaybackService.instance.currentSource == 'tts:$cleanText'));
+
+    if (isPlayingThis) {
+      AudioPlaybackService.instance.stop();
+      return;
+    }
+
+    if (cleanUrl.isNotEmpty) {
+      AudioPlaybackService.instance.playAudioUrl(cleanUrl, fallbackKoreanText: cleanText);
+    } else if (cleanText.isNotEmpty) {
+      AudioPlaybackService.instance.playKoreanSpeech(cleanText);
+    }
   }
 
   @override
@@ -217,6 +246,11 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
   }
 
   Widget _buildAudioPromptPane(BuildContext context, bool isLandscape, bool isLocked, bool isPlaying, bool isIntermission) {
+    String? questionImageUrl;
+    if (widget.question is UniversalQuestion && (widget.question as UniversalQuestion).hasQuestionImage) {
+      questionImageUrl = (widget.question as UniversalQuestion).questionImageUrl;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -249,9 +283,9 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                     const SizedBox(width: 3),
                     Text(
                       LanguageService.instance.trText(
-                        ne: 'केवल अडियो ट्र्याक',
+                        ne: 'अडियो मात्र (Audio Only)',
                         en: 'Strict Audio Only',
-                        ko: '오디오 전용 문항',
+                        ko: '오디오 전용',
                       ),
                       style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
@@ -272,16 +306,33 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
             color: const Color(0xFF0F172A),
           ),
         ),
+        if (questionImageUrl != null && questionImageUrl.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Center(
+            child: Container(
+              constraints: BoxConstraints(maxHeight: isLandscape ? 150 : 200),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: SmartImageWidget(
+                imageSource: questionImageUrl,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ],
         SizedBox(height: isLandscape ? 8 : 14),
 
         // Speaker Icon centered below the question
         Center(
           child: Tooltip(
             message: isLocked
-                ? LanguageService.instance.trText(ne: "अडियो समाप्त (लक भयो)", en: "Audio Completed (Locked)", ko: "재생 완료 (오디오 잠김)")
+                ? LanguageService.instance.trText(ne: 'अडियो समाप्त (२/२ सकियो)', en: 'Audio Completed (Locked)', ko: '재생 완료 (오디오 잠금)')
                 : (isPlaying
-                    ? LanguageService.instance.trText(ne: "अडियो बजिरहेको छ...", en: "Audio playing...", ko: "오디오 재생 중...")
-                    : LanguageService.instance.trText(ne: "अडियो सुन्नुहोस् (यहाँ थिच्नुहोस्)", en: "Listen to Audio (Click to Play)", ko: "오디오 듣기 (클릭하여 재생)")),
+                    ? LanguageService.instance.trText(ne: 'अडियो बजिरहेको छ...', en: 'Audio playing...', ko: '오디오 재생 중...')
+                    : LanguageService.instance.trText(ne: 'अडियो सुन्नुहोस् (यहाँ थिच्नुहोस्)', en: 'Listen to Audio (Click to Play)', ko: '오디오 듣기 (클릭하여 재생)')),
             child: Material(
               color: isLocked
                   ? Colors.grey.shade200
@@ -315,50 +366,6 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
             ),
           ),
         ),
-        const SizedBox(height: 6),
-
-        // Playback status text
-        Center(
-          child: Text(
-            isLocked
-                ? LanguageService.instance.trText(
-                    ne: "अडियो २ पटक बजिसक्यो (सम्पन्न)",
-                    en: "Audio Played 2 Times (Completed)",
-                    ko: "재생 완료 (2회 청취 완료)",
-                  )
-                : (isPlaying
-                    ? (_audioState == AudioState.playingFirst
-                        ? LanguageService.instance.trText(
-                            ne: "🔊 पहिलो पटक अडियो बज्दैछ... (Round 1)",
-                            en: "🔊 Playing Round 1 Audio...",
-                            ko: "🔊 1회차 오디오 재생 중...",
-                          )
-                        : LanguageService.instance.trText(
-                            ne: "🔊 दोस्रो पटक अडियो दोहोरिँदै... (Round 2)",
-                            en: "🔊 Repeating Round 2 Audio...",
-                            ko: "🔊 2회차 오디오 반복 중...",
-                          ))
-                    : (isIntermission
-                        ? LanguageService.instance.trText(
-                            ne: "⏳ केही क्षणमा दोस्रो पटक स्वतः बज्नेछ...",
-                            en: "⏳ Round 2 will auto-play in a moment...",
-                            ko: "⏳ 잠시 후 2회차가 자동 재생됩니다...",
-                          )
-                        : LanguageService.instance.trText(
-                            ne: "🔊 अडियो सुन्नुहोस् (यहाँ थिचेपछि २ पटक बज्नेछ)",
-                            en: "🔊 Play Audio (Korean voice will play 2 times)",
-                            ko: "🔊 오디오 듣기 (클릭 시 2회 연속 재생)",
-                          ))),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: isLandscape ? 11 : 12,
-              fontWeight: FontWeight.bold,
-              color: isLocked
-                  ? Colors.grey.shade600
-                  : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF1E3A8A)),
-            ),
-          ),
-        ),
       ],
     );
   }
@@ -367,25 +374,10 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.selectedOptionIndex != null) ...[
-          Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-              decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
-              child: Text(
-                "선택: ${widget.selectedOptionIndex! + 1}번",
-                style: const TextStyle(color: Color(0xFF92400E), fontWeight: FontWeight.bold, fontSize: 11),
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-        ],
-
         // 4 Options Stacked Vertically
         ...List.generate(4, (index) {
           final isSelected = widget.selectedOptionIndex == index;
-          const circledNumbers = ["①", "②", "③", "④"];
+          const circledNumbers = ['①', '②', '③', '④'];
           final numLabel = circledNumbers[index];
           final optionText = options[index].trim();
 
@@ -415,7 +407,9 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
           // Fallback text if text is blank and no image is attached:
           final displayText = optionText.isNotEmpty 
               ? optionText 
-              : (imageOptionUrl == null ? "${index + 1}번" : "");
+              : (imageOptionUrl == null ? '${index + 1}번' : '');
+
+          final hasAudioCapability = (audioOptionUrl != null && audioOptionUrl.isNotEmpty) || optionText.isNotEmpty;
 
           return Container(
             margin: EdgeInsets.only(bottom: isLandscape ? 6 : 8),
@@ -469,9 +463,10 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (displayText.isNotEmpty)
-                              Text(
-                                displayText,
-                                style: TextStyle(
+                              SequenceOptionWidget(
+                                text: displayText,
+                                isSelected: isSelected,
+                                baseStyle: TextStyle(
                                   fontSize: isLandscape ? 13 : 15,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                   color: isSelected ? const Color(0xFF92400E) : Colors.black87,
@@ -492,34 +487,56 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                                 ),
                               ),
                             ],
-                            if (audioOptionUrl != null) ...[
+                            if (hasAudioCapability) ...[
                               const SizedBox(height: 4),
-                              InkWell(
-                                onTap: () => AudioPlaybackService.instance.playAudioUrl(audioOptionUrl!),
-                                borderRadius: BorderRadius.circular(16),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: Colors.amber.shade50,
+                              ValueListenableBuilder<String?>(
+                                valueListenable: AudioPlaybackService.instance.currentAudioSourceNotifier,
+                                builder: (context, currentSource, _) {
+                                  final isPlayingThis = AudioPlaybackService.instance.isPlaying &&
+                                      ((audioOptionUrl != null && currentSource == audioOptionUrl) ||
+                                          (optionText.isNotEmpty && currentSource == 'tts:$optionText'));
+
+                                  return InkWell(
+                                    onTap: () => _playOptionAudio(index, audioOptionUrl, optionText),
                                     borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(color: Colors.amber.shade300),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.play_circle_fill, size: 14, color: Color(0xFFD97706)),
-                                      const SizedBox(width: 3),
-                                      Text(
-                                        LanguageService.instance.trText(
-                                          ne: 'अडियो सुन्नुहोस्',
-                                          en: 'Play Audio',
-                                          ko: '오디오 듣기',
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      decoration: BoxDecoration(
+                                        color: isPlayingThis ? const Color(0xFFFDE68A) : Colors.amber.shade50,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: isPlayingThis ? const Color(0xFFD97706) : Colors.amber.shade300,
+                                          width: isPlayingThis ? 1.5 : 1.0,
                                         ),
-                                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
                                       ),
-                                    ],
-                                  ),
-                                ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            isPlayingThis ? Icons.volume_up : Icons.play_circle_fill,
+                                            size: 14,
+                                            color: const Color(0xFFD97706),
+                                          ),
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            isPlayingThis
+                                                ? LanguageService.instance.trText(
+                                                    ne: 'बज्दैछ...',
+                                                    en: 'Playing...',
+                                                    ko: '재생 중...',
+                                                  )
+                                                : LanguageService.instance.trText(
+                                                    ne: 'अडियो सुन्नुहोस्',
+                                                    en: 'Play Audio',
+                                                    ko: '음성 듣기',
+                                                  ),
+                                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ],
                           ],

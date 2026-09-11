@@ -1,4 +1,4 @@
-class InstituteProfile {
+﻿class InstituteProfile {
   final String id;
   String name;
   String code;
@@ -12,13 +12,11 @@ class InstituteProfile {
   int maxStudentsQuota;
   bool isActive;
   List<String> assignedSetIds;
-  // Maximum allowed file size for uploads (in MB). Null means unlimited.
   int? maxFileSizeMb;
-  // New fields for dual quota
-  int customSetQuota; // number of custom sets institute can upload
-  int customSetDurationDays; // active days for each custom set after upload
-  int mainSetQuota; // number of main sets students can access
-  int mainSetDurationDays; // duration for main set access
+  int customSetQuota;
+  int customSetDurationDays;
+  int mainSetQuota;
+  int mainSetDurationDays;
   final DateTime createdAt;
 
   InstituteProfile({
@@ -29,10 +27,10 @@ class InstituteProfile {
     required this.phone,
     required this.email,
     required this.address,
-    this.aboutUs = 'हाम्रो इन्स्टिच्युटमा दक्षिण कोरियाको EPS-TOPIK UBT परीक्षाको उच्चस्तरीय तयारी गराइन्छ। अनुभवी प्रशिक्षक, नवीनतम प्रश्न बैंक र रियल टाइम UBT ल्याब सुविधा।',
-    this.allowedSetsQuota = 5,
+    this.aboutUs = '',
+    this.allowedSetsQuota = 48,
     required this.validityExpiry,
-    this.maxStudentsQuota = 100,
+    this.maxStudentsQuota = 500,
     this.isActive = true,
     List<String>? assignedSetIds,
     int? customSetQuota,
@@ -40,11 +38,11 @@ class InstituteProfile {
     int? mainSetQuota,
     int? mainSetDurationDays,
     DateTime? createdAt,
-  })  : assignedSetIds = assignedSetIds ?? ['set_01', 'set_02', 'set_03', 'set_04', 'set_05'],
-        customSetQuota = customSetQuota ?? 1,
-        customSetDurationDays = customSetDurationDays ?? 365,
-        mainSetQuota = mainSetQuota ?? 5,
-        mainSetDurationDays = mainSetDurationDays ?? 365,
+  })  : assignedSetIds = assignedSetIds ?? List.generate(48, (i) => 'set_${(i + 1).toString().padLeft(2, '0')}'),
+        customSetQuota = customSetQuota ?? 48,
+        customSetDurationDays = customSetDurationDays ?? 3650,
+        mainSetQuota = mainSetQuota ?? 48,
+        mainSetDurationDays = mainSetDurationDays ?? 3650,
         createdAt = createdAt ?? DateTime.now();
 
   bool get isExpired => DateTime.now().isAfter(validityExpiry);
@@ -76,25 +74,26 @@ class InstituteProfile {
       };
 
   factory InstituteProfile.fromJson(Map<String, dynamic> json) => InstituteProfile(
-        id: json['id'] as String? ?? 'inst_01',
-        name: json['name'] as String? ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट',
-        code: json['code'] as String? ?? 'GLOBAL_01',
+        id: json['id'] as String? ?? 'inst_abante_ktm',
+        name: json['name'] as String? ?? 'Abante Korean Language (Abante Academy)',
+        code: json['code'] as String? ?? 'ABANTE_KTM',
         logoUrl: json['logoUrl'] as String? ?? 'assets/images/institute_logo_default.png',
-        phone: json['phone'] as String? ?? '9851234567',
-        email: json['email'] as String? ?? 'info@globalinstitute.edu.np',
-        address: json['address'] as String? ?? 'बागबजार, काठमाडौं (Bagbazar, Kathmandu)',
-        aboutUs: json['aboutUs'] as String? ?? 'हाम्रो इन्स्टिच्युटमा दक्षिण कोरियाको EPS-TOPIK UBT परीक्षाको उच्चस्तरीय तयारी गराइन्छ। अनुभवी प्रशिक्षक, नवीनतम प्रश्न बैंक र रियल टाइम UBT ल्याब सुविधा।',
-        allowedSetsQuota: json['allowedSetsQuota'] as int? ?? 5,
+        phone: json['phone'] as String? ?? '014168102',
+        email: json['email'] as String? ?? 'info@abante.edu.np',
+        address: json['address'] as String? ?? 'Putalisadak, Kathmandu',
+        aboutUs: json['aboutUs'] as String? ?? '',
+        allowedSetsQuota: json['allowedSetsQuota'] as int? ?? 48,
         validityExpiry: json['validityExpiry'] != null
-            ? DateTime.tryParse(json['validityExpiry'] as String) ?? DateTime.now().add(const Duration(days: 180))
-            : DateTime.now().add(const Duration(days: 180)),
-        maxStudentsQuota: json['maxStudentsQuota'] as int? ?? 100,
+            ? DateTime.tryParse(json['validityExpiry'] as String) ?? DateTime.now().add(const Duration(days: 3650))
+            : DateTime.now().add(const Duration(days: 3650)),
+        maxStudentsQuota: json['maxStudentsQuota'] as int? ?? 500,
         isActive: json['isActive'] as bool? ?? true,
-        customSetQuota: json['customSetQuota'] as int? ?? 1,
-        customSetDurationDays: json['customSetDurationDays'] as int? ?? 7,
-        mainSetQuota: json['mainSetQuota'] as int? ?? 5,
-        mainSetDurationDays: json['mainSetDurationDays'] as int? ?? 30,
-        assignedSetIds: (json['assignedSetIds'] as List?)?.map((e) => e.toString()).toList() ?? ['set_01', 'set_02', 'set_03', 'set_04', 'set_05'],
+        customSetQuota: json['customSetQuota'] as int? ?? 48,
+        customSetDurationDays: json['customSetDurationDays'] as int? ?? 3650,
+        mainSetQuota: json['mainSetQuota'] as int? ?? 48,
+        mainSetDurationDays: json['mainSetDurationDays'] as int? ?? 3650,
+        assignedSetIds: (json['assignedSetIds'] as List?)?.map((e) => e.toString()).toList() ??
+            List.generate(48, (i) => 'set_${(i + 1).toString().padLeft(2, '0')}'),
         createdAt: json['createdAt'] != null
             ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
             : DateTime.now(),
