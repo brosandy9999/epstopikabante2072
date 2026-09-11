@@ -1,0 +1,11 @@
+{
+  "latestVersion": "2.4.0",
+  "latestBuildNumber": 25,
+  "releaseDate": "2026-09-11",
+  "releaseNotes": "한국어 표준교재 2026 공식 테마, 교재 내 오디오 플레이어, 3초 리스닝 인터미션, 안티치트 경고 알림, 기기별 맞춤 APK 다운로드 시스템 업데이트 완료!",
+  "releaseNotesEn": "Official HRD Korea 2026 Coursebook theme, in-print audio player, 3s listening gap, bottom-left anti-cheat card, and smart device APK download system!",
+  "apkUrl": "https://brosandy9999.github.io/epstopikabante2072/apk/app-arm64-v8a-release.apk",
+  "webUrl": "https://topik-abante.web.app/",
+  "isMandatory": false,
+  "updatedTimestamp": 1789118404
+}
