@@ -1,11 +1,11 @@
-import 'dart:async';
-import 'dart:convert';
+﻿import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'audio_helper.dart';
 
 /// Single-Audio Exclusive Playback Service
 /// Guarantees that only ONE audio plays at any time across the entire application.
-/// Supports Base64 data URLs, Cloud storage links (Google Drive, Dropbox),
+/// Supports Base64 data URLs, Cloud storage links (Google Drive, Dropbox, Firebase),
 /// Local filesystem paths (Windows/Mobile/Desktop), Asset paths, and Korean TTS.
 class AudioPlaybackService {
   static final AudioPlaybackService instance = AudioPlaybackService._internal();
@@ -56,7 +56,7 @@ class AudioPlaybackService {
         durationNotifier.value = dur;
       });
     } catch (e) {
-      debugPrint('[AudioPlaybackService] Player init error: ');
+      debugPrint('[AudioPlaybackService] Player init error: $e');
       _player = null;
     }
   }
@@ -139,16 +139,17 @@ class AudioPlaybackService {
     _currentCompleter = completer;
 
     try {
-      final url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=';
+      final encoded = Uri.encodeComponent(cleanText);
+      final url = 'https://translate.google.com/translate_tts?ie=UTF-8&tl=ko&client=tw-ob&q=$encoded';
       
       _player ??= AudioPlayer();
       if (_playbackSessionId != sessionId) return;
 
-      currentAudioSourceNotifier.value = 'tts:';
+      currentAudioSourceNotifier.value = 'tts:$cleanText';
       isPlayingNotifier.value = true;
       await _player?.play(UrlSource(url));
     } catch (e) {
-      debugPrint('[AudioPlaybackService] TTS Error: ');
+      debugPrint('[AudioPlaybackService] TTS Error: $e');
       isPlayingNotifier.value = false;
       currentAudioSourceNotifier.value = null;
       if (!completer.isCompleted) completer.complete();
@@ -195,15 +196,12 @@ class AudioPlaybackService {
 
       // 1. Data URL (Base64) or Blob URL
       if (clean.startsWith('data:') || clean.startsWith('blob:')) {
-        if (kIsWeb) {
-          // On Flutter Web, HTML5 audio natively handles Data URLs and Blob URLs via UrlSource
-          await _player?.play(UrlSource(clean));
-        } else if (clean.startsWith('blob:')) {
+        if (clean.startsWith('blob:')) {
           await _player?.play(UrlSource(clean));
         } else {
-          final base64Part = clean.contains(',') ? clean.split(',')[1] : clean;
-          final bytes = base64Decode(base64Part);
-          await _player?.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
+          final source = await getSourceFromDataUrl(clean, sessionId);
+          if (_playbackSessionId != sessionId) return;
+          await _player?.play(source);
         }
       }
       // 2. Network URL (HTTP / HTTPS)
@@ -233,7 +231,7 @@ class AudioPlaybackService {
         await _player?.play(AssetSource(assetPath));
       }
     } catch (e) {
-      debugPrint('[AudioPlaybackService] playAudioUrl failed: $e, source: $clean');
+      debugPrint('[AudioPlaybackService] playAudioUrl failed: $e, source: ${clean.length > 80 ? '${clean.substring(0, 80)}...' : clean}');
       isPlayingNotifier.value = false;
       currentAudioSourceNotifier.value = null;
       if (!completer.isCompleted) completer.complete();
