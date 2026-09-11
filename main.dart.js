@@ -9381,7 +9381,7 @@ if(i==null)i="\u0938\u0915\u094d\u0930\u093f\u092f (Active)"
 h=A.ba(a.h(a1,"instituteId"))
 if(h==null)h="inst_abante_ktm"
 g=A.ba(a.h(a1,"instituteName"))
-if(g==null)g="\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f"
+if(g==null)g="Abante Korean Language (Abante Academy)"
 f=A.ba(a.h(a1,"instituteLogo"))
 if(f==null)f="assets/images/institute_logo_default.png"
 e=A.ba(a.h(a1,"profilePhoto"))
@@ -58042,7 +58042,7 @@ s.Q=a1==null?s.Q:a1}i.a=s
 i.hr()}else{r=Date.now()
 q=d==null?"STU_"+r:d
 p=a0==null?"inst_abante_ktm":a0
-o=a1==null?"\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f":a1
+o=a1==null?"Abante Korean Language (Abante Academy)":a1
 n=b.length!==0?b:"Google \u092a\u0930\u0940\u0915\u094d\u0937\u093e\u0930\u094d\u0925\u0940"
 m=B.b.cF(B.k.k(r),7)
 l=a==null?"2026 Batch A (\u092c\u093f\u0939\u093e\u0928\u0940 \u0938\u0924\u094d\u0930)":a
@@ -58148,7 +58148,7 @@ q=r==null
 p=q?j:r.z
 if(p==null)p="inst_abante_ktm"
 o=q?j:r.Q
-if(o==null)o="\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f"
+if(o==null)o="Abante Korean Language (Abante Academy)"
 n=q?j:r.as
 if(n==null)n="assets/images/institute_logo_default.png"
 m=Date.now()
@@ -59663,7 +59663,7 @@ $S:367}
 A.ani.prototype={
 $1(a){var s
 if(a.a!=="inst_abante_ktm"){s=a.b
-s=B.b.n(s,"Global Korean")||B.b.n(s,"Everest")}else s=!0
+s=B.b.n(s,"Abante Korean")||B.b.n(s,"Everest")}else s=!0
 return s},
 $S:27}
 A.anj.prototype={
@@ -67101,7 +67101,7 @@ $1(a){return a.a===this.a.d},
 $S:27}
 A.aTv.prototype={
 $0(){var s=null,r=this.a
-return r.length!==0?B.c.gW(r):A.Vy("","\u092c\u093e\u0917\u092c\u091c\u093e\u0930, \u0915\u093e\u0920\u092e\u093e\u0921\u094c\u0902",5,s,"ABANTE_KTM",s,s,s,"info@abante.edu.np","inst_abante_ktm",!0,"",s,s,200,"\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f","014168102",new A.aX(Date.now(),0,!1).dc(31536e9))},
+return r.length!==0?B.c.gW(r):A.Vy("","\u092c\u093e\u0917\u092c\u091c\u093e\u0930, \u0915\u093e\u0920\u092e\u093e\u0921\u094c\u0902",5,s,"ABANTE_KTM",s,s,s,"info@abante.edu.np","inst_abante_ktm",!0,"",s,s,200,"Abante Korean Language (Abante Academy)","014168102",new A.aX(Date.now(),0,!1).dc(31536e9))},
 $S:140}
 A.aTw.prototype={
 $3(a,b,c){var s=null,r=this.a.b
@@ -73116,7 +73116,7 @@ A.ac(r,!1).cp(s)},
 $S:0}
 A.b0K.prototype={
 $1(a){var s=null,r=this.a,q=r.c
-return A.bmX(r.y,r.x,r.w,this.b.w,r.r,r.f,r.b,A.qg(10,"2026 Batch A (\u092c\u093f\u0939\u093e\u0928\u0940 \u0938\u0924\u094d\u0930)",q,"inst_abante_ktm","assets/images/institute_logo_default.png","\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f",s,r.d,"student_password",s,r.e,B.eN,"\uc81c\uc870\uc5c5 (Manufacturing)",0,"\u0938\u0915\u094d\u0930\u093f\u092f (Active)",s,q,s),r.z,r.Q)},
+return A.bmX(r.y,r.x,r.w,this.b.w,r.r,r.f,r.b,A.qg(10,"2026 Batch A (\u092c\u093f\u0939\u093e\u0928\u0940 \u0938\u0924\u094d\u0930)",q,"inst_abante_ktm","assets/images/institute_logo_default.png","Abante Korean Language (Abante Academy)",s,r.d,"student_password",s,r.e,B.eN,"\uc81c\uc870\uc5c5 (Manufacturing)",0,"\u0938\u0915\u094d\u0930\u093f\u092f (Active)",s,q,s),r.z,r.Q)},
 $S:224}
 A.b0N.prototype={
 $0(){var s,r=this.a.c
@@ -144951,7 +144951,7 @@ s($,"bIM","eg",()=>{var q=new A.add(A.aDp(!1),A.aDp(null),A.aDp(B.ap),A.aDp(B.ap
 q.ax8()
 return q})
 s($,"bIP","cJ",()=>{var q=null,p="admin123",o="assets/images/institute_logo_default.png",n="\u0938\u0915\u094d\u0930\u093f\u092f (Active)",m=t.u6
-return new A.Se(A.qg(-1,"Platform Headquarters","SUPER_ADMIN_001","platform_master",o,"EPS-TOPIK Master Platform","9851000000","\u092e\u0941\u0916\u094d\u092f \u0938\u0941\u092a\u0930 \u090f\u0921\u092e\u093f\u0928 (Super Admin)",p,q,q,B.d1,"Platform Owner",0,n,q,"superadmin",q),A.qg(-1,"Management","ADMIN_001","inst_abante_ktm",o,"\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f","9851234567","\u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f \u090f\u0921\u092e\u093f\u0928 (Institute Admin)",p,q,q,B.fO,"Administration",0,n,q,"admin",q),A.a([],m),A.a([],m),$.aj())})
+return new A.Se(A.qg(-1,"Platform Headquarters","SUPER_ADMIN_001","platform_master",o,"EPS-TOPIK Master Platform","9851000000","\u092e\u0941\u0916\u094d\u092f \u0938\u0941\u092a\u0930 \u090f\u0921\u092e\u093f\u0928 (Super Admin)",p,q,q,B.d1,"Platform Owner",0,n,q,"superadmin",q),A.qg(-1,"Management","ADMIN_001","inst_abante_ktm",o,"Abante Korean Language (Abante Academy)","9851234567","\u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f \u090f\u0921\u092e\u093f\u0928 (Institute Admin)",p,q,q,B.fO,"Administration",0,n,q,"admin",q),A.a([],m),A.a([],m),$.aj())})
 s($,"bIY","cK",()=>new A.ES(B.an9,$.aj()))
 s($,"bJ5","biX",()=>new A.agj())
 s($,"bJu","iD",()=>{var q=new A.ajs(A.a([],t.Vu))
