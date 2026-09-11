@@ -3803,6 +3803,819 @@
           "explanation": "भोलि बिहान ८ बजे कम्पनी आइपुग्नुपर्ने कुरा हुन्छ।"
         }
       }
+    },
+    {
+      "id": "set_28",
+      "title": "제28회 EPS-TOPIK 실전 모의고사 (Set 28)",
+      "description": "2026 UBT 공식 표준 40문항 실전 모의고사 - 읽기(1~20) & 듣기(21~40) 정밀 오디오/이미지 수록",
+      "durationMinutes": 50,
+      "passMarks": 100,
+      "totalQuestions": 40,
+      "sector": "제조업 (Manufacturing)",
+      "isApproved": true,
+      "isLiveExam": true,
+      "isStrictMode": true,
+      "createdByRole": "superAdmin",
+      "questions": [
+        {
+          "questionId": "Q01",
+          "questionNumber": 1,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[1] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
+          "questionImageUrl": "assets/images/set_28/q01.png",
+          "textOptions": [
+            "2.5 센티미터 입니다.",
+            "2.6 밀리미터 입니다.",
+            "26 센티미터 입니다.",
+            "26 밀리미터 입니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q02",
+          "questionNumber": 2,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[2] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
+          "questionImageUrl": "assets/images/set_28/q02.png",
+          "textOptions": [
+            "4.8 센티미터 입니다.",
+            "48 센티미터 입니다.",
+            "4.8 밀리미터 입니다.",
+            "480 밀리미터 입니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q03",
+          "questionNumber": 3,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[3] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.",
+          "questionImageUrl": "assets/images/set_28/q03.png",
+          "textOptions": [
+            "철근입니다.",
+            "시멘트입니다.",
+            "벽돌입니다.",
+            "합판입니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q04",
+          "questionNumber": 4,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[4] 다음 그림의 작업 순서로 맞는 것을 고르십시오.",
+          "questionImageUrl": "assets/images/set_28/q04.png",
+          "textOptions": [
+            "D – C – E – A – B",
+            "A – C – E – B – D",
+            "E – C – A – B – D",
+            "C – B – D – A – E"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q05",
+          "questionNumber": 5,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[5] 다음 단어의 반대말은 무엇입니까?\n< 약하다 >",
+          "textOptions": [
+            "강하다",
+            "단단하다",
+            "딱딱하다",
+            "부드럽다"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q06",
+          "questionNumber": 6,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[6] 다음 단어와 관계있는 것은 무엇입니까?\n< 자르다, 썰다, 깎다, 베다 >",
+          "textOptions": [
+            "숟가락",
+            "젓가락",
+            "칼",
+            "포크"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q07",
+          "questionNumber": 7,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[7] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n한국의 겨울은 기온이 낮고 바람이 많이 불어서 날씨가 매우 (   ).",
+          "textOptions": [
+            "춥습니다",
+            "덥습니다",
+            "따뜻합니다",
+            "시원합니다"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q08",
+          "questionNumber": 8,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[8] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n저는 이번 주말에 친구와 함께 산에 (   ) 갈 겁니다.",
+          "textOptions": [
+            "오르고",
+            "오르러",
+            "오르며",
+            "오르면"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q09",
+          "questionNumber": 9,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[9] 다음 표지에 대한 설명으로 맞는 것을 고르십시오.",
+          "questionImageUrl": "assets/images/set_28/q09.png",
+          "textOptions": [
+            "이곳에는 아무나 들어갈 수 있습니다.",
+            "이곳에서 일하는 사람만 들어갈 수 있습니다.",
+            "이곳에서는 큰 소리로 떠들면 안 됩니다.",
+            "이곳에서는 사진을 찍을 수 없습니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q10",
+          "questionNumber": 10,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[10] 다음은 한국인이 좋아하는 운동에 대한 그래프입니다. 셋째로 좋아하는 운동은 무엇입니까?",
+          "questionImageUrl": "assets/images/set_28/q10.png",
+          "textOptions": [
+            "걷기",
+            "농구",
+            "수영",
+            "등산"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q11",
+          "questionNumber": 11,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[11] 다음 글을 읽고 내용과 같은 것을 고르십시오.",
+          "passageText": "한국 사람들은 밥과 국, 그리고 여러 가지 반찬을 함께 먹습니다. 밥을 먹을 때는 숟가락을 사용하고 반찬을 먹을 때는 젓가락을 사용합니다.",
+          "textOptions": [
+            "밥을 먹을 때 젓가락만 씁니다.",
+            "반찬을 먹을 때 숟가락을 씁니다.",
+            "한국인은 국 없이 밥만 먹습니다.",
+            "밥을 먹을 때 숟가락을 씁니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q12",
+          "questionNumber": 12,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[12] 다음 글을 읽고 내용과 같은 것을 고르십시오.",
+          "passageText": "외국인 근로자가 한국에서 일을 하다가 다치면 산재보험을 통해 치료비와 휴업급여를 받을 수 있습니다.",
+          "textOptions": [
+            "일하다 다쳐도 치료비를 받을 수 없습니다.",
+            "산재보험으로 치료비와 보상을 받을 수 있습니다.",
+            "외국인은 산재보험에 가입할 수 없습니다.",
+            "일을 쉬는 동안에는 돈을 받지 못합니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q13",
+          "questionNumber": 13,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[13] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.",
+          "passageText": "작업을 시작하기 전에는 반드시 (   )을/를 착용하여 안전사고를 예방해야 합니다.",
+          "textOptions": [
+            "안전모",
+            "슬리퍼",
+            "귀걸이",
+            "넥타이"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q14",
+          "questionNumber": 14,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[14] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.",
+          "passageText": "월급날에는 기본급 외에 연장근로수당과 야간근로수당이 (   ) 급여명세서를 확인합니다.",
+          "textOptions": [
+            "포함된",
+            "제외된",
+            "잃어버린",
+            "취소된"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q15",
+          "questionNumber": 15,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[15] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.",
+          "passageText": "선탄장에서는 큰 석탄을 (   ) 불순물을 골라내야 돼요.",
+          "textOptions": [
+            "깨서",
+            "부수고",
+            "세우고",
+            "깔고"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q16",
+          "questionNumber": 16,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[16] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.",
+          "passageText": "프레스 작업을 할 때는 손이 기계에 (   ) 않도록 각별히 조심하십시오.",
+          "textOptions": [
+            "끼이지",
+            "미끄러지지",
+            "쏟아지지",
+            "닿지"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q17",
+          "questionNumber": 17,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[17] 다음 글의 내용과 맞지 않는 것을 고르십시오.",
+          "passageText": "한국의 추석은 음력 8월 15일로 한 해 동안 농사지은 쌀로 송편을 빚어 먹고 차례를 지냅니다.",
+          "textOptions": [
+            "추석은 음력 8월 15일입니다.",
+            "추석에는 송편을 만들어 먹습니다.",
+            "추석에는 조상에게 차례를 지냅니다.",
+            "추석은 봄을 맞이하는 명절입니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q18",
+          "questionNumber": 18,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[18] 다음 설명에 맞는 어휘를 고르십시오.",
+          "passageText": "물건을 운반할 때 손으로 밀어서 바퀴로 이동시키는 간단한 운반 도구입니다.",
+          "textOptions": [
+            "손수레",
+            "지게차",
+            "크레인",
+            "트럭"
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q19",
+          "questionNumber": 19,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[19] 다음 글을 읽고 내용과 같은 것을 고르십시오.",
+          "passageText": "한국의 대도시는 서울, 부산, 대구, 인천 등이 있습니다. 각 도시마다 고유한 문화와 명소가 있어 많은 관광객이 찾습니다. 서울은 역사 유적지와 쇼핑 명소가 많고, 부산은 아름다운 바다와 해산물로 유명합니다.",
+          "textOptions": [
+            "한국의 대도시는 보통 분위기가 비슷합니다.",
+            "서울에서는 근대골목투어를 즐길 수 있습니다.",
+            "부산은 바다가 아름다워 여행객이 좋아합니다.",
+            "맛집 여행을 하고 싶을 때는 대구에 가면 됩니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q20",
+          "questionNumber": 20,
+          "type": "UniversalQuestion",
+          "isListening": false,
+          "questionText": "[20] 다음 표지에 대한 설명으로 맞는 것을 고르십시오.",
+          "questionImageUrl": "assets/images/set_28/q20.png",
+          "textOptions": [
+            "비상구 위치를 알려주는 표지판입니다.",
+            "위험 물질이 있으니 주의하라는 표지판입니다.",
+            "금연 구역을 알리는 표지판입니다.",
+            "소화기가 있는 곳을 나타내는 표지판입니다."
+          ],
+          "audioScript": null,
+          "audioScriptNepali": null
+        },
+        {
+          "questionId": "Q21",
+          "questionNumber": 21,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[21] 들은 것을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q21.mp3",
+          "textOptions": [
+            "소고기",
+            "불고기",
+            "닭고기",
+            "돼지고기"
+          ],
+          "audioScript": "소고기",
+          "audioScriptNepali": "गाईको मासु"
+        },
+        {
+          "questionId": "Q22",
+          "questionNumber": 22,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[22] 들은 것을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q22.mp3",
+          "textOptions": [
+            "갈 데가 없어요",
+            "할 일이 없어요",
+            "볼 일이 없어요",
+            "살 데가 없어요"
+          ],
+          "audioScript": "갈 데가 없어요",
+          "audioScriptNepali": "जाने ठाउँ छैन"
+        },
+        {
+          "questionId": "Q23",
+          "questionNumber": 23,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[23] 다음을 듣고 내용과 관계있는 그림을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q23.mp3",
+          "imageOptions": [
+            "assets/images/set_28/q23_opt1.png",
+            "assets/images/set_28/q23_opt2.png",
+            "assets/images/set_28/q23_opt3.png",
+            "assets/images/set_28/q23_opt4.png"
+          ],
+          "audioScript": "몇 시에 만날까요? 7시에 만나요.",
+          "audioScriptNepali": "कति बजे भेट्ने? ७ बजे भेटौं।"
+        },
+        {
+          "questionId": "Q24",
+          "questionNumber": 24,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[24] 다음을 듣고 내용과 관계있는 그림을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q24.mp3",
+          "imageOptions": [
+            "assets/images/set_28/q24_opt1.png",
+            "assets/images/set_28/q24_opt2.png",
+            "assets/images/set_28/q24_opt3.png",
+            "assets/images/set_28/q24_opt4.png"
+          ],
+          "audioScript": "오늘 날씨가 어때요? 비가 와요.",
+          "audioScriptNepali": "आज मौसम कस्तो छ? पानी परिरहेको छ।"
+        },
+        {
+          "questionId": "Q25",
+          "questionNumber": 25,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[25] 다음을 듣고 내용과 관계있는 그림을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q25.mp3",
+          "imageOptions": [
+            "assets/images/set_28/q25_opt1.png",
+            "assets/images/set_28/q25_opt2.png",
+            "assets/images/set_28/q25_opt3.png",
+            "assets/images/set_28/q25_opt4.png"
+          ],
+          "audioScript": "이 사람은 지금 무엇을 하고 있습니까? 청소를 하고 있습니다.",
+          "audioScriptNepali": "यो मान्छे अहिले के गर्दैछ? सरसफाइ गर्दैछ।"
+        },
+        {
+          "questionId": "Q26",
+          "questionNumber": 26,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[26] 다음을 듣고 내용과 관계있는 그림을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q26.mp3",
+          "imageOptions": [
+            "assets/images/set_28/q26_opt1.png",
+            "assets/images/set_28/q26_opt2.png",
+            "assets/images/set_28/q26_opt3.png",
+            "assets/images/set_28/q26_opt4.png"
+          ],
+          "audioScript": "이것은 무엇입니까? 사다리입니다.",
+          "audioScriptNepali": "यो के हो? भर्‍याङ हो।"
+        },
+        {
+          "questionId": "Q27",
+          "questionNumber": 27,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[27] 다음을 듣고 내용과 관계있는 그림을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q27.mp3",
+          "imageOptions": [
+            "assets/images/set_28/q27_opt1.png",
+            "assets/images/set_28/q27_opt2.png",
+            "assets/images/set_28/q27_opt3.png",
+            "assets/images/set_28/q27_opt4.png"
+          ],
+          "audioScript": "모자가 얼마나 있습니까? 세 개 있습니다.",
+          "audioScriptNepali": "टोपी कतिवटा छन्? ३ वटा छन्।"
+        },
+        {
+          "questionId": "Q28",
+          "questionNumber": 28,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[28] 그림을 보고 알맞은 대답을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q28.mp3",
+          "imageOptions": [
+            "assets/images/set_28/q28_opt1.png",
+            "assets/images/set_28/q28_opt2.png",
+            "assets/images/set_28/q28_opt3.png",
+            "assets/images/set_28/q28_opt4.png"
+          ],
+          "audioScript": "이 사람은 무엇을 하고 있습니까? 용접을 하고 있습니다.",
+          "audioScriptNepali": "यो मान्छे के गर्दैछ? वेल्डिङ गर्दैछ।"
+        },
+        {
+          "questionId": "Q29",
+          "questionNumber": 29,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[29] 그림을 보고 알맞은 대답을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q29.mp3",
+          "imageOptions": [
+            "assets/images/set_28/q29_opt1.png",
+            "assets/images/set_28/q29_opt2.png",
+            "assets/images/set_28/q29_opt3.png",
+            "assets/images/set_28/q29_opt4.png"
+          ],
+          "audioScript": "이것은 무엇에 쓰는 물건입니까? 못을 박을 때 씁니다.",
+          "audioScriptNepali": "यो के को लागि प्रयोग गरिने सामान हो? काँटी ठोक्दा प्रयोग गरिन्छ।"
+        },
+        {
+          "questionId": "Q30",
+          "questionNumber": 30,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[30] 그림을 보고 알맞은 대답을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q30.mp3",
+          "imageOptions": [
+            "assets/images/set_28/q30_opt1.png",
+            "assets/images/set_28/q30_opt2.png",
+            "assets/images/set_28/q30_opt3.png",
+            "assets/images/set_28/q30_opt4.png"
+          ],
+          "audioScript": "어디에 가야 합니까? 병원에 가야 합니다.",
+          "audioScriptNepali": "कहाँ जानुपर्छ? अस्पताल जानुपर्छ।"
+        },
+        {
+          "questionId": "Q31",
+          "questionNumber": 31,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[31] 질문을 듣고 알맞은 대답을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q31.mp3",
+          "textOptions": [
+            "네, 오늘 처음이에요.",
+            "아니요, 자주 왔어요.",
+            "네, 한국 사람이에요.",
+            "아니요, 혼자 왔어요."
+          ],
+          "audioScript": "한국에 처음 오셨어요?",
+          "audioScriptNepali": "कोरिया पहिलो पटक आउनुभएको हो?"
+        },
+        {
+          "questionId": "Q32",
+          "questionNumber": 32,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[32] 질문을 듣고 알맞은 대답을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q32.mp3",
+          "textOptions": [
+            "지하철을 타고 가요.",
+            "1시간쯤 걸려요.",
+            "회사 근처에 있어요.",
+            "친구하고 가요."
+          ],
+          "audioScript": "회사까지 어떻게 가요?",
+          "audioScriptNepali": "कम्पनीसम्म कसरी जानुहुन्छ?"
+        },
+        {
+          "questionId": "Q33",
+          "questionNumber": 33,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[33] 질문을 듣고 알맞은 대답을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q33.mp3",
+          "textOptions": [
+            "네, 다 고쳤어요.",
+            "아니요, 아직 못 고쳤어요.",
+            "네, 기계가 잘 돌아가요.",
+            "아니요, 고장이 안 났어요."
+          ],
+          "audioScript": "기계가 고장 났는데 고칠 수 있어요?",
+          "audioScriptNepali": "मेसिन बिग्रिएको छ, मर्मत गर्न सक्नुहुन्छ?"
+        },
+        {
+          "questionId": "Q34",
+          "questionNumber": 34,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[34] 다음을 듣고 이어지는 말을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q34.mp3",
+          "textOptions": [
+            "네, 맛있게 드세요.",
+            "네, 제가 낼게요.",
+            "네, 잘 먹었습니다.",
+            "네, 준비해 드릴게요."
+          ],
+          "audioScript": "식사 맛있게 하셨어요?",
+          "audioScriptNepali": "खाना मिठोसँग खानुभयो?"
+        },
+        {
+          "questionId": "Q35",
+          "questionNumber": 35,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[35] 다음을 듣고 이어지는 말을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q35.mp3",
+          "textOptions": [
+            "네, 수고하셨습니다.",
+            "네, 어서 오세요.",
+            "네, 안녕히 계세요.",
+            "네, 반갑습니다."
+          ],
+          "audioScript": "오늘 작업은 여기까지 하겠습니다. 모두 수고하셨습니다.",
+          "audioScriptNepali": "आजको काम यति नै गरौंला। सबैलाई धन्यवाद (मेहेनत गर्नुभयो)।"
+        },
+        {
+          "questionId": "Q36",
+          "questionNumber": 36,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[36] 다음을 듣고 들은 내용과 같은 것을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q36.mp3",
+          "textOptions": [
+            "남자는 오늘 야근을 합니다.",
+            "여자는 주말에 출근합니다.",
+            "두 사람은 내일 만납니다.",
+            "남자는 내일 휴가를 냅니다."
+          ],
+          "audioScript": "남: 수피카 씨, 내일 주말인데 뭐 할 거예요?\n여: 저는 집에서 청소하고 쉴 거예요. 리한 씨는요?\n남: 저는 고향 친구들하고 축구하기로 했어요.",
+          "audioScriptNepali": "केटा: सुपिका जी, भोलि सप्ताहन्तमा के गर्नुहुन्छ?\nकेटी: म घरमा सरसफाइ गरेर आराम गर्नेछु। रिहान जी तपाईं नि?\nकेटा: म गाउँका साथीहरूसँग फुटबल खेल्नेछु।"
+        },
+        {
+          "questionId": "Q37",
+          "questionNumber": 37,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[37] 다음을 듣고 질문에 알맞은 대답을 고르십시오.\n여기는 어디입니까?",
+          "questionAudioUrl": "assets/audio/set_28/q37.mp3",
+          "textOptions": [
+            "플라스틱 공장",
+            "가구를 파는 가게",
+            "농산물 시장",
+            "자동차 정비소"
+          ],
+          "audioScript": "이 플라스틱 용기는 어디에 놓을까요? 저쪽 상자에 담아 두세요.",
+          "audioScriptNepali": "यो प्लास्टिकको भाँडो कहाँ राखौं? उता बाकसमा हालेर राख्नुहोस्।"
+        },
+        {
+          "questionId": "Q38",
+          "questionNumber": 38,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[38] 다음을 듣고 들은 내용과 같은 것을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q38.mp3",
+          "textOptions": [
+            "남자는 작업복을 입고 있습니다.",
+            "여자는 안전모를 찾고 있습니다.",
+            "작업장에서는 안전화를 신어야 합니다.",
+            "남자는 지금 퇴근하려고 합니다."
+          ],
+          "audioScript": "작업장에 들어갈 때는 안전모와 안전화를 꼭 착용해야 합니다. 안전모 턱끈도 단단히 매세요.",
+          "audioScriptNepali": "कार्यस्थलमा प्रवेश गर्दा सुरक्षा हेल्मेट र सेफ्टी जुत्ता अनिवार्य रूपमा लगाउनुपर्छ।"
+        },
+        {
+          "questionId": "Q39",
+          "questionNumber": 39,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[39] 두 사람은 무엇에 대해 이야기하고 있습니까?",
+          "questionAudioUrl": "assets/audio/set_28/q39.mp3",
+          "textOptions": [
+            "월급과 수당",
+            "근로계약 기간",
+            "숙소와 식사",
+            "휴가와 휴일"
+          ],
+          "audioScript": "반장님, 이번 달 월급에 야간근로수당이 포함되었나요? 네, 급여명세서를 확인해 보세요.",
+          "audioScriptNepali": "क्याप्टेन ज्यू, यो महिनाको तलबमा नाइट ड्युटी भत्ता समावेश भएको छ? हजुर, स्यालरी सिट चेक गर्नुहोस्।"
+        },
+        {
+          "questionId": "Q40",
+          "questionNumber": 40,
+          "type": "UniversalQuestion",
+          "isListening": true,
+          "questionText": "[40] 다음을 듣고 들은 내용과 같은 것을 고르십시오.",
+          "questionAudioUrl": "assets/audio/set_28/q40.mp3",
+          "textOptions": [
+            "남자는 기숙사 생활이 마음에 듭니다.",
+            "기숙사 방에는 세탁기가 있습니다.",
+            "기숙사에는 조리 시설이 없습니다.",
+            "남자는 혼자 방을 씁니다."
+          ],
+          "audioScript": "기숙사 시설은 아주 깨끗하고 편리해요. 방마다 에어컨도 있고 휴게실에는 세탁기도 있어서 마음에 들어요.",
+          "audioScriptNepali": "होस्टेलको सुविधा निकै सफा र सहज छ। कोठापिच्छे एसी र विश्राम कक्षमा वासिङ मेसिन पनि भएकाले मन पर्छ।"
+        }
+      ],
+      "answerKeys": {
+        "Q01": {
+          "correctIndex": 3,
+          "explanation": "2.6cm = 26mm (밀리미터)이므로 ④번 '26 밀리미터 입니다'가 정답입니다. (२.६ सेमी = २६ मिलिमिटर)"
+        },
+        "Q02": {
+          "correctIndex": 0,
+          "explanation": "눈금이 4.8cm를 가리키고 있으므로 ①번 '4.8 센티미터 입니다'가 정답입니다. (४.८ सेन्टिमिटर)"
+        },
+        "Q03": {
+          "correctIndex": 0,
+          "explanation": "그림은 건축용 '철근'의 모습입니다. (फलामको रड / रिबार)"
+        },
+        "Q04": {
+          "correctIndex": 0,
+          "explanation": "작업 공정 순서는 D-C-E-A-B 순서가 올바릅니다. (कामको चरणबद्ध प्रक्रिया)"
+        },
+        "Q05": {
+          "correctIndex": 0,
+          "explanation": "'약하다(कमजोर हुनु)'의 반대말은 '강하다(बलियो हुनु)'입니다."
+        },
+        "Q06": {
+          "correctIndex": 2,
+          "explanation": "자르다, 썰다, 깎다, 베다는 모두 '칼(चक्कु)'을 사용할 때 쓰는 행동입니다."
+        },
+        "Q07": {
+          "correctIndex": 0,
+          "explanation": "기온이 낮고 바람이 불면 '춥습니다(चिसो हुन्छ)'."
+        },
+        "Q08": {
+          "correctIndex": 1,
+          "explanation": "목적을 나타내는 연결어미 '-(으)러 가다'를 사용하여 '오르러(चढ्नका लागि)'가 정답입니다."
+        },
+        "Q09": {
+          "correctIndex": 1,
+          "explanation": "'관계자 외 출입금지'는 관계자(일하는 사람)만 들어갈 수 있다는 뜻입니다. (सम्बन्धित व्यक्ति बाहेक प्रवेश निषेध)"
+        },
+        "Q10": {
+          "correctIndex": 2,
+          "explanation": "그래프에서 셋째(3번째)로 많은 운동은 '수영(पौडी)'입니다."
+        },
+        "Q11": {
+          "correctIndex": 3,
+          "explanation": "본문에서 '밥을 먹을 때는 숟가락을 사용하고'라고 명시되어 있습니다. (भात खाँदा चम्चा प्रयोग गरिन्छ)"
+        },
+        "Q12": {
+          "correctIndex": 1,
+          "explanation": "산재보험(औद्योगिक दुर्घटना बीमा)을 통해 치료비와 휴업급여 등 보상을 받을 수 있습니다."
+        },
+        "Q13": {
+          "correctIndex": 0,
+          "explanation": "작업 전 안전사고 예방을 위해 착용하는 것은 '안전모(सुरक्षा हेल्मेट)'입니다."
+        },
+        "Q14": {
+          "correctIndex": 0,
+          "explanation": "수당이 '포함된(समावेश भएको)' 급여명세서를 확인합니다."
+        },
+        "Q15": {
+          "correctIndex": 1,
+          "explanation": "큰 석탄을 '부수고(टुक्रा पारेर/कुल्चेर)' 불순물을 골라냅니다."
+        },
+        "Q16": {
+          "correctIndex": 0,
+          "explanation": "프레스 기계에 손이 '끼이지(अड्किने/च्यापिने)' 않도록 조심해야 합니다."
+        },
+        "Q17": {
+          "correctIndex": 3,
+          "explanation": "추석은 가을(음력 8월 15일) 명절이므로 봄을 맞이한다는 ④번이 틀린 설명입니다."
+        },
+        "Q18": {
+          "correctIndex": 0,
+          "explanation": "손으로 밀어 바퀴로 이동시키는 간단한 운반 도구는 '손수레(ठेलागाडा)'입니다."
+        },
+        "Q19": {
+          "correctIndex": 2,
+          "explanation": "본문에 '부산은 아름다운 바다와 해산물로 유명합니다'라고 나와 있습니다."
+        },
+        "Q20": {
+          "correctIndex": 0,
+          "explanation": "비상구(Emergency Exit / आकस्मिक निकास)를 나타내는 녹색 표지판입니다."
+        },
+        "Q21": {
+          "correctIndex": 0,
+          "explanation": "들은 단어는 '소고기(गाईको मासु)'입니다."
+        },
+        "Q22": {
+          "correctIndex": 0,
+          "explanation": "들은 문장은 '갈 데가 없어요(जाने ठाउँ छैन)'입니다."
+        },
+        "Q23": {
+          "correctIndex": 2,
+          "explanation": "'7시에 만나요'에 해당하는 7시 시계 그림(③번)이 정답입니다."
+        },
+        "Q24": {
+          "correctIndex": 1,
+          "explanation": "'비가 와요(पानी परिरहेको छ)'에 해당하는 우산/비 그림(②번)이 정답입니다."
+        },
+        "Q25": {
+          "correctIndex": 0,
+          "explanation": "'청소를 하고 있습니다(सरसफाइ गर्दैछ)' 그림이 정답입니다."
+        },
+        "Q26": {
+          "correctIndex": 1,
+          "explanation": "'사다리(भर्‍याङ)' 그림이 정답입니다."
+        },
+        "Q27": {
+          "correctIndex": 2,
+          "explanation": "모자 세 개(३ वटा टोपी) 그림이 정답입니다."
+        },
+        "Q28": {
+          "correctIndex": 0,
+          "explanation": "'용접(वेल्डिङ)' 작업을 하고 있는 그림이 정답입니다."
+        },
+        "Q29": {
+          "correctIndex": 0,
+          "explanation": "'못을 박을 때(काँटी ठोक्दा)' 사용하는 망치(ह्याम्मर) 그림이 정답입니다."
+        },
+        "Q30": {
+          "correctIndex": 0,
+          "explanation": "'병원(अस्पताल)' 십자가 표식 그림이 정답입니다."
+        },
+        "Q31": {
+          "correctIndex": 0,
+          "explanation": "'한국에 처음 오셨어요?' 질문에 알맞은 대답은 '네, 오늘 처음이에요(हजुर, आज पहिलो पटक हो)'입니다."
+        },
+        "Q32": {
+          "correctIndex": 0,
+          "explanation": "'어떻게 가요(कसरी जानुहुन्छ)?' 질문에는 이동수단인 '지하철을 타고 가요'가 정답입니다."
+        },
+        "Q33": {
+          "correctIndex": 0,
+          "explanation": "'고칠 수 있어요?'에 대한 긍정 대답 '네, 다 고쳤어요'가 적절합니다."
+        },
+        "Q34": {
+          "correctIndex": 2,
+          "explanation": "'식사 맛있게 하셨어요?'에 대한 대답은 '네, 잘 먹었습니다(हजुर, राम्रोसँग खाएँ)'입니다."
+        },
+        "Q35": {
+          "correctIndex": 0,
+          "explanation": "'모두 수고하셨습니다' 인사에 화답하는 '네, 수고하셨습니다'가 정답입니다."
+        },
+        "Q36": {
+          "correctIndex": 0,
+          "explanation": "대화 내용과 일치하는 선택지가 정답입니다."
+        },
+        "Q37": {
+          "correctIndex": 0,
+          "explanation": "'플라스틱 용기'를 담고 작업하는 '플라스틱 공장'이 정답입니다."
+        },
+        "Q38": {
+          "correctIndex": 2,
+          "explanation": "'작업장에서는 안전모와 안전화를 꼭 착용해야 합니다' 내용과 일치합니다."
+        },
+        "Q39": {
+          "correctIndex": 0,
+          "explanation": "월급과 야간근로수당에 대해 이야기하고 있으므로 '월급과 수당'이 정답입니다."
+        },
+        "Q40": {
+          "correctIndex": 0,
+          "explanation": "'기숙사 시설이 깨끗하고 편리해서 마음에 들어요' 내용과 일치합니다."
+        }
+      }
     }
   ],
   "users": [
