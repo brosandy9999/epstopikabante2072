@@ -273,37 +273,6 @@ class InstituteService extends ChangeNotifier {
   }
 
   List<InstituteProfile> _getDefaultInstitutes() {
-    return [
-      InstituteProfile(
-        id: 'inst_abante_ktm',
-        name: 'Abante Korean Language (Abante Academy)',
-        code: 'ABANTE_KTM',
-        logoUrl: 'assets/images/institute_logo_default.png',
-        phone: '014168102',
-        email: 'info@abante.edu.np',
-        address: 'Putalisadak, Kathmandu',
-        aboutUs: 'Abante Korean Language (Abante Academy) - Putalisadak, Kathmandu',
-        allowedSetsQuota: 48,
-        validityExpiry: DateTime.now().add(const Duration(days: 3650)),
-        maxStudentsQuota: 1000,
-        isActive: true,
-        assignedSetIds: List.generate(48, (i) => 'set_${(i + 1).toString().padLeft(2, '0')}'),
-      ),
-      InstituteProfile(
-        id: 'inst_abante_bkt',
-        name: 'Abante Korean Language (Abante Academy)',
-        code: 'ABANTE_BKT',
-        logoUrl: 'assets/images/institute_logo_default.png',
-        phone: '985130020',
-        email: 'bhaktapur@abante.edu.np',
-        address: 'Suryabinayak, Bhaktapur',
-        aboutUs: 'Abante Korean Language (Abante Academy) - Suryabinayak, Bhaktapur',
-        allowedSetsQuota: 48,
-        validityExpiry: DateTime.now().add(const Duration(days: 3650)),
-        maxStudentsQuota: 1000,
-        isActive: true,
-        assignedSetIds: List.generate(48, (i) => 'set_${(i + 1).toString().padLeft(2, '0')}'),
-      ),
-    ];
+    return <InstituteProfile>[];
   }
 }

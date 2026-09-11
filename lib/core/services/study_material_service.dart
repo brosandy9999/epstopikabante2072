@@ -115,74 +115,7 @@ class StudyMaterialService extends ChangeNotifier {
   }
 
   List<StudyBook> _getDefaultBooks() {
-    return [
-      StudyBook(
-        id: 'book_new_01',
-        title: 'EPS-TOPIK 한국어 표준교재 1권 (2024 नयाँ परिमार्जित संस्करण)',
-        subtitle: 'आधारभूत कोरियन भाषा तथा दैनिक जीवनयापन (अध्याय ०१ देखि ३०)',
-        editionType: 'नयाँ संस्करण (New Edition)',
-        level: 'Book 1 (기초)',
-        chaptersCount: 30,
-        pdfUrl: 'https://hrdkorea.or.kr/epstopik/book1.pdf',
-        description: 'वर्णमाला (हन्गुल), अभिवादन, किनमेल, दिशा, मिति/समय, मौसम, परिवार, खाना र दैनिक कार्यस्थल संवादहरू समेटिएको नवीनतम परिमार्जित आधिकारिक पाठ्यपुस्तक।',
-        highlightTopics: [
-          '제1과~5과: 한글 익히기 (वर्णमाला र उच्चारण)',
-          '제6과~10과: 자기소개 및 일상생활 (आत्मपरिचय र दिनचर्या)',
-          '제11과~15과: 물건 사기 및 날씨 (किनमेल र मौसम)',
-          '제16과~20과: 취미 및 교통 (रुचि र यातायात)',
-          '제21과~30과: 약속, 전화 및 병원 (भेटघाट र स्वास्थ्य)',
-        ],
-        createdAt: DateTime.now(),
-      ),
-      StudyBook(
-        id: 'book_new_02',
-        title: 'EPS-TOPIK 한국어 표준교재 2권 (2024 नयाँ परिमार्जित संस्करण)',
-        subtitle: 'कार्यस्थल भाषा, सुरक्षा, श्रम कानुन तथा संस्कृति (अध्याय ३१ देखि ६०)',
-        editionType: 'नयाँ संस्करण (New Edition)',
-        level: 'Book 2 (실전/직장)',
-        chaptersCount: 30,
-        pdfUrl: 'https://hrdkorea.or.kr/epstopik/book2.pdf',
-        description: 'कारखाना औजार, कार्यस्थल सुरक्षा, औद्योगिक दुर्घटना रोकथाम, कृषि र निर्माण शब्दावली, कोरियाली संस्कृति, श्रम सम्झौता, तलब र बिमा सम्बन्धी आधिकारिक पाठ्यपुस्तक।',
-        highlightTopics: [
-          '제31과~40과: 한국 문화 및 직장 예절 (कोरियाली संस्कृति र मर्यादा)',
-          '제41과~50과: 제조업 도구 및 안전 수칙 (उत्पादन औजार र सुरक्षा)',
-          '제51과~55과: 고용허가제 및 근로계약 (श्रम कानुन र सम्झौता)',
-          '제56과~60과: 휴가, 체류 연장 및 귀국 (बिदा, भिसा थप र स्वदेश फिर्ता)',
-        ],
-        createdAt: DateTime.now(),
-      ),
-      StudyBook(
-        id: 'book_old_01',
-        title: 'EPS-TOPIK 한국어 표준교재 (2013 पुरानो संस्करण - Classic)',
-        subtitle: 'क्लासिक आधारभूत पाठ्यपुस्तक १ र २ (अध्याय ०१ देखि ६०)',
-        editionType: 'पुरानो संस्करण (Old Edition)',
-        level: 'Book 1 & 2 (Classic)',
-        chaptersCount: 60,
-        pdfUrl: 'https://hrdkorea.or.kr/epstopik/classic.pdf',
-        description: 'पहिलेदेखि नै अभ्यास गरिँदै आएका आधारभूत शब्दहरू, व्याकरणका संरचनाहरू र विगतका परीक्षामा धेरै सोधिएका प्रश्नहरू भएको क्लासिक पुरानो संस्करण।',
-        highlightTopics: [
-          'क्लासिक हन्गुल र आधारभूत शब्दावली (अध्याय १-३०)',
-          'कार्यस्थल तथा निर्माण साइट संवाद (अध्याय ३१-६०)',
-        ],
-        createdAt: DateTime.now().subtract(const Duration(days: 10)),
-      ),
-      StudyBook(
-        id: 'book_guide_01',
-        title: '고용허가제 표준 한국어 실전 단어장 (विशेष शब्दावली गाइड)',
-        subtitle: 'कार्यस्थल तथा उद्योग क्षेत्र अनुसारका २००० अत्यावश्यक मिनिङहरू',
-        editionType: 'विशेष गाइड (Special Guide)',
-        level: '단어장 (Vocabulary)',
-        chaptersCount: 60,
-        pdfUrl: 'https://hrdkorea.or.kr/epstopik/vocab_guide.pdf',
-        description: 'म्यानुफ्याक्चरिङ, कृषि, निर्माण, र मत्स्यपालन क्षेत्रका आधिकारिक शब्दावली, चित्र र उदाहरण सहितको विशेष पकेट गाइड।',
-        highlightTopics: [
-          'औद्योगिक औजार तथा सुरक्षा शब्दावली',
-          'कृषि तथा निर्माण उपकरण शब्दावली',
-          'श्रम कानुन तथा सम्झौता शब्दावली',
-        ],
-        createdAt: DateTime.now().subtract(const Duration(days: 20)),
-      ),
-    ];
+    return <StudyBook>[];
   }
 
   // -------------------------------------------------------------
@@ -233,96 +166,7 @@ class StudyMaterialService extends ChangeNotifier {
   }
 
   List<DictionaryWord> _getDefaultDictionary() {
-    return [
-      const DictionaryWord(
-        id: 'dict_01',
-        koreanWord: '안전모',
-        pronunciation: 'आन्जनमो',
-        nepaliMeaning: 'सुरक्षा हेल्मेट (Safety Helmet)',
-        partOfSpeech: 'संज्ञा (Noun)',
-        chapterNo: 48,
-        category: 'सुरक्षा (Safety)',
-        exampleKorean: '공사장에서는 반드시 안전모를 착용해야 합니다.',
-        exampleNepali: 'निर्माण स्थलमा अनिवार्य रूपमा सुरक्षा हेल्मेट लगाउनुपर्छ।',
-      ),
-      const DictionaryWord(
-        id: 'dict_02',
-        koreanWord: '안전화',
-        pronunciation: 'आन्जन्व्हा',
-        nepaliMeaning: 'सुरक्षा जुत्ता (Safety Boots)',
-        partOfSpeech: 'संज्ञा (Noun)',
-        chapterNo: 48,
-        category: 'सुरक्षा (Safety)',
-        exampleKorean: '무거운 물건을 옮길 때는 안전화를 신으세요.',
-        exampleNepali: 'गह्रौं सामान सार्दा सुरक्षा जुत्ता लगाउनुहोस्।',
-      ),
-      const DictionaryWord(
-        id: 'dict_03',
-        koreanWord: '망치',
-        pronunciation: 'माङ्छी',
-        nepaliMeaning: 'हथौडा (Hammer)',
-        partOfSpeech: 'संज्ञा (Noun)',
-        chapterNo: 41,
-        category: 'औजार (Tools)',
-        exampleKorean: '못을 박으려면 망치가 필요합니다.',
-        exampleNepali: 'काँटी ठोक्नका लागि हथौडा आवश्यक पर्दछ।',
-      ),
-      const DictionaryWord(
-        id: 'dict_04',
-        koreanWord: '톱',
-        pronunciation: 'थोप',
-        nepaliMeaning: 'करौंती (Hand Saw)',
-        partOfSpeech: 'संज्ञा (Noun)',
-        chapterNo: 41,
-        category: 'औजार (Tools)',
-        exampleKorean: '나무를 톱으로 자르세요.',
-        exampleNepali: 'काठलाई करौंतीले काट्नुहोस्।',
-      ),
-      const DictionaryWord(
-        id: 'dict_05',
-        koreanWord: '용접하다',
-        pronunciation: 'योङजबहादा',
-        nepaliMeaning: 'वेल्डिङ गर्नु (To Weld)',
-        partOfSpeech: 'क्रिया (Verb)',
-        chapterNo: 42,
-        category: 'उत्पादन (Manufacturing)',
-        exampleKorean: '철판을 불꽃으로 용접합니다.',
-        exampleNepali: 'फलामको पातालाई आगोको ज्वालाले वेल्डिङ गरिन्छ।',
-      ),
-      const DictionaryWord(
-        id: 'dict_06',
-        koreanWord: '수확하다',
-        pronunciation: 'सुह्वाकहादा',
-        nepaliMeaning: 'बाली भित्र्याउनु / टिप्नु (To Harvest)',
-        partOfSpeech: 'क्रिया (Verb)',
-        chapterNo: 45,
-        category: 'कृषि (Agriculture)',
-        exampleKorean: '가을에는 잘 익은 벼와 과일을 수확합니다.',
-        exampleNepali: 'शरद ऋतुमा राम्रोसँग पाकेको धान र फलफूल भित्र्याइन्छ।',
-      ),
-      const DictionaryWord(
-        id: 'dict_07',
-        koreanWord: '근로계약서',
-        pronunciation: 'कुल्लोकेयाक्स',
-        nepaliMeaning: 'श्रम सम्झौता पत्र (Labor Contract)',
-        partOfSpeech: 'संज्ञा (Noun)',
-        chapterNo: 52,
-        category: 'श्रम कानुन (Labor Law)',
-        exampleKorean: '근로계약서에 근무 시간과 임금이 적혀 있습니다.',
-        exampleNepali: 'श्रम सम्झौता पत्रमा कामको समय र तलब लेखिएको हुन्छ।',
-      ),
-      const DictionaryWord(
-        id: 'dict_08',
-        koreanWord: '친절하다',
-        pronunciation: 'छिन्जलहादा',
-        nepaliMeaning: 'दयालु हुनु / भद्र हुनु (To be Kind)',
-        partOfSpeech: 'विशेषण (Adjective)',
-        chapterNo: 6,
-        category: 'दैनिक (General)',
-        exampleKorean: '공장 반장님이 아주 친절해요.',
-        exampleNepali: 'कारखानाका क्याप्टेन ज्यू धेरै दयालु हुनुहुन्छ।',
-      ),
-    ];
+    return <DictionaryWord>[];
   }
 
   // -------------------------------------------------------------
@@ -688,18 +532,7 @@ class StudyMaterialService extends ChangeNotifier {
   }
 
   List<InstituteNotice> _getDefaultNotices() {
-    return [
-      InstituteNotice(
-        id: 'notice_01',
-        title: '📢 २०२६ प्रथम चरण EPS-TOPIK विशेष UBT परीक्षा तालिका प्रकाशित!',
-        content: 'सम्पूर्ण विद्यार्थी साथीहरूलाई सूचित गरिन्छ कि आगामी महिना सञ्चालन हुने कोरियाली भाषा परीक्षाका लागि नयाँ मोडल सेट १ देखि ५ र र्‍यान्डम परीक्षा हल उपलब्ध गराइएको छ।',
-        author: 'परीक्षा शाखा प्रमुख',
-        priority: 'अति जरुरी',
-        category: 'परीक्षा',
-        date: DateTime.now().subtract(const Duration(hours: 4)),
-        isPinned: true,
-      ),
-    ];
+    return <InstituteNotice>[];
   }
 
   List<GrammarTopic> getAllGrammar() {
@@ -743,32 +576,7 @@ class StudyMaterialService extends ChangeNotifier {
   }
 
   List<GrammarTopic> _getDefaultGrammar() {
-    return [
-      GrammarTopic(
-        id: 'g_01',
-        title: '-(으)ㄹ 수 있다 / 없다',
-        structure: 'धातु + (으)ㄹ 수 있다/없다',
-        category: 'योग्यता तथा सम्भावना',
-        nepaliExplanation: 'कुनै पनि काम गर्न "सक्नु" वा "नसक्नु" (क्षमता वा सम्भावना) जनाउन यो व्याकरण प्रयोग गरिन्छ। बाछिम भएमा -을 수 있다 र बाछिम नभएमा वा ㄹ भएमा -ㄹ 수 있다 जोडिन्छ।',
-        examples: [
-          const GrammarExample(korean: '저는 한국어를 말할 수 있어요.', nepali: 'म कोरियन भाषा बोल्न सक्छु।'),
-          const GrammarExample(korean: '작업 중에는 휴대전화를 사용할 수 없습니다.', nepali: 'कामको समयमा मोबाइल फोन प्रयोग गर्न सकिँदैन।'),
-        ],
-        createdAt: DateTime.now(),
-      ),
-      GrammarTopic(
-        id: 'g_02',
-        title: '-아/어서',
-        structure: 'धातु + 아/어서',
-        category: 'कारण तथा क्रमिकता',
-        nepaliExplanation: 'पहिलो वाक्य दोस्रो वाक्यको "कारण" हुँदा (भएर / भएकोले) वा दुई कामहरू एकपछि अर्को लगातार गर्दा प्रयोग गरिन्छ।',
-        examples: [
-          const GrammarExample(korean: '배가 아파서 병원에 갔어요.', nepali: 'पेट दुखेकोले अस्पताल गएँ।'),
-          const GrammarExample(korean: '공장에 가서 기계를 점검하세요.', nepali: 'कारखानामा गएर मेसिन चेकजाँच गर्नुहोस्।'),
-        ],
-        createdAt: DateTime.now(),
-      ),
-    ];
+    return <GrammarTopic>[];
   }
 
   List<VideoCourse> getAllVideos() {
@@ -812,66 +620,6 @@ class StudyMaterialService extends ChangeNotifier {
   }
 
   List<VideoCourse> _getDefaultVideos() {
-    return [
-      VideoCourse(
-        id: 'vid_01',
-        title: 'EPS-TOPIK Book 1: अध्याय १ देखि १० आधारभूत वर्णमाला र दैनिक संवाद',
-        instructor: 'कोरियन भाषा मुख्य प्रशिक्षक',
-        duration: '४५ मिनेट',
-        videoUrl: 'https://www.youtube.com/watch?v=0ZhOeA0RD9o',
-        category: 'Book 1 पाठ्यपुस्तक',
-        description: 'हन्गुल वर्णमाला, स्वर तथा व्यञ्जन, बाछिमका नियमहरू र आत्मपरिचय सम्बन्धी पूर्ण भिडियो पाठ।',
-        lessons: [
-          CourseLesson(
-            id: 'l_01_1',
-            title: 'पाठ १: हन्गुल वर्णमाला र उच्चारणका आधारभूत नियमहरू',
-            videoUrl: 'https://www.youtube.com/watch?v=0ZhOeA0RD9o',
-            duration: '१५ मिनेट',
-            summary: 'आधारभूत स्वर वर्ण (모음) र व्यञ्जन वर्ण (자음) को शुद्ध उच्चारण र लेख्ने तरिका।',
-          ),
-          CourseLesson(
-            id: 'l_01_2',
-            title: 'पाठ २: बाछिम (받침) तथा संयुक्त व्यञ्जनको नियम',
-            videoUrl: 'https://www.youtube.com/watch?v=s5aobqyEaMQ',
-            duration: '१५ मिनेट',
-            summary: 'अन्तिम व्यञ्जनको उच्चारण र जोडिएर आउँदा हुने ध्वनी परिवर्तनका मुख्य नियमहरू।',
-          ),
-          CourseLesson(
-            id: 'l_01_3',
-            title: 'पाठ ३: दैनिक अभिवादन, आत्मपरिचय र आधारभूत व्याकरण',
-            videoUrl: 'https://www.youtube.com/watch?v=2N_N8rP9pXo',
-            duration: '१५ मिनेट',
-            summary: '안녕하세요, 저는 ... 입니다 लगायत औपचारिक आत्मपरिचय र दैनिक संवाद।',
-          ),
-        ],
-        createdAt: DateTime.now(),
-      ),
-      VideoCourse(
-        id: 'vid_02',
-        title: 'कारखाना औजार तथा कार्यस्थल सुरक्षा उपकरण प्रत्यक्ष भिडियो गाइड',
-        instructor: 'प्राविधिक कार्यशाला संयोजक',
-        duration: '३० मिनेट',
-        videoUrl: 'https://www.youtube.com/watch?v=s5aobqyEaMQ',
-        category: 'औजार तथा सुरक्षा',
-        description: 'म्यानुफ्याक्चरिङ तथा कन्स्ट्रक्सनमा प्रयोग हुने ५० वटा औजारहरूको प्रत्यक्ष कोरियाली नाम र काम गर्ने तरिका।',
-        lessons: [
-          CourseLesson(
-            id: 'l_02_1',
-            title: 'पाठ १: निर्माण तथा उत्पादन क्षेत्रका हाते औजारहरू (수공구)',
-            videoUrl: 'https://www.youtube.com/watch?v=s5aobqyEaMQ',
-            duration: '१५ मिनेट',
-            summary: 'ड्रिल, रेन्च, स्क्रुड्राइभर, प्लायर्स, हेक्सो लगायत सबै उपकरणहरूको कोरियाली नामाकरण।',
-          ),
-          CourseLesson(
-            id: 'l_02_2',
-            title: 'पाठ २: कार्यस्थल सुरक्षा, सुरक्षात्मक पोशाक र दुर्घटना रोकथाम',
-            videoUrl: 'https://www.youtube.com/watch?v=0ZhOeA0RD9o',
-            duration: '१५ मिनेट',
-            summary: 'सुरक्षा हेल्मेट (안전모), जुत्ता (안전화), चश्मा र आपतकालीन साइरन नियमहरू।',
-          ),
-        ],
-        createdAt: DateTime.now(),
-      ),
-    ];
+    return <VideoCourse>[];
   }
 }
