@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
       - name: Build Web Application
-        run: flutter build web --release --base-href "/epstopikabante2072/"
+        run: flutter build web --release --no-wasm-dry-run --no-web-resources-cdn -O4 --base-href "/epstopikabante2072/"
       - name: Stage APKs and static assets in Web Bundle
         run: |
           mkdir -p ./build/web/apk
