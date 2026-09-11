@@ -228,27 +228,21 @@ class CloudSyncService extends ChangeNotifier {
       // 4. Ingest Flashcards
       if (payload['flashcards'] is List) {
         final List rawCards = payload['flashcards'];
-        final existingCards = StudyMaterialService.instance.getAllVisualFlashcards();
         for (final item in rawCards) {
           if (item is Map) {
             final card = VisualFlashcard.fromJson(Map<String, dynamic>.from(item));
-            if (!existingCards.any((c) => c.id == card.id)) {
-              StudyMaterialService.instance.addVisualFlashcard(card);
-            }
+            StudyMaterialService.instance.addVisualFlashcard(card);
           }
         }
       }
 
-      // 5. Ingest Books
+      // 5. Ingest Books (Update chapters, PDFs & audio tracks)
       if (payload['books'] is List) {
         final List rawBooks = payload['books'];
-        final existingBooks = StudyMaterialService.instance.getAllBooks();
         for (final item in rawBooks) {
           if (item is Map) {
             final book = StudyBook.fromJson(Map<String, dynamic>.from(item));
-            if (!existingBooks.any((b) => b.id == book.id)) {
-              StudyMaterialService.instance.addBook(book);
-            }
+            StudyMaterialService.instance.addBook(book);
           }
         }
       }
@@ -256,13 +250,10 @@ class CloudSyncService extends ChangeNotifier {
       // 6. Ingest Videos
       if (payload['videos'] is List) {
         final List rawVideos = payload['videos'];
-        final existingVideos = StudyMaterialService.instance.getAllVideos();
         for (final item in rawVideos) {
           if (item is Map) {
             final vid = VideoCourse.fromJson(Map<String, dynamic>.from(item));
-            if (!existingVideos.any((v) => v.id == vid.id)) {
-              StudyMaterialService.instance.addVideo(vid);
-            }
+            StudyMaterialService.instance.addVideo(vid);
           }
         }
       }
@@ -270,13 +261,10 @@ class CloudSyncService extends ChangeNotifier {
       // 7. Ingest Grammar
       if (payload['grammar'] is List) {
         final List rawGrammar = payload['grammar'];
-        final existingGrammar = StudyMaterialService.instance.getAllGrammar();
         for (final item in rawGrammar) {
           if (item is Map) {
             final g = GrammarTopic.fromJson(Map<String, dynamic>.from(item));
-            if (!existingGrammar.any((t) => t.id == g.id)) {
-              StudyMaterialService.instance.addGrammar(g);
-            }
+            StudyMaterialService.instance.addGrammar(g);
           }
         }
       }
@@ -284,13 +272,10 @@ class CloudSyncService extends ChangeNotifier {
       // 8. Ingest Dictionary
       if (payload['dictionary'] is List) {
         final List rawDict = payload['dictionary'];
-        final existingDict = StudyMaterialService.instance.getAllDictionaryWords();
         for (final item in rawDict) {
           if (item is Map) {
             final d = DictionaryWord.fromJson(Map<String, dynamic>.from(item));
-            if (!existingDict.any((w) => w.id == d.id)) {
-              StudyMaterialService.instance.addDictionaryWord(d);
-            }
+            StudyMaterialService.instance.addDictionaryWord(d);
           }
         }
       }
@@ -298,13 +283,10 @@ class CloudSyncService extends ChangeNotifier {
       // 9. Ingest Notices
       if (payload['notices'] is List) {
         final List rawNotices = payload['notices'];
-        final existingNotices = StudyMaterialService.instance.getAllNotices();
         for (final item in rawNotices) {
           if (item is Map) {
             final n = InstituteNotice.fromJson(Map<String, dynamic>.from(item));
-            if (!existingNotices.any((x) => x.id == n.id)) {
-              StudyMaterialService.instance.addNotice(n);
-            }
+            StudyMaterialService.instance.addNotice(n);
           }
         }
       }

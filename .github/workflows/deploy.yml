@@ -31,6 +31,7 @@ jobs:
         run: |
           mkdir -p ./build/web/apk
           mkdir -p ./build/web/audio
+          mkdir -p ./build/web/pdf
           mkdir -p ./build/web/assets/audio
           cp -r ./web/apk/* ./build/web/apk/ 2>/dev/null || true
           cp ./apk/eps_topik_ubt_2026.apk ./build/web/apk/ 2>/dev/null || true
@@ -39,6 +40,7 @@ jobs:
           cp -r ./web/assets/* ./build/web/assets/ 2>/dev/null || true
           cp -r ./assets/audio/* ./build/web/audio/ 2>/dev/null || true
           cp -r ./web/audio/* ./build/web/audio/ 2>/dev/null || true
+          cp -r ./web/pdf/* ./build/web/pdf/ 2>/dev/null || true
           cp -r ./assets/audio/* ./build/web/assets/audio/ 2>/dev/null || true
           touch ./build/web/.nojekyll
           cp ./web/_config.yml ./build/web/_config.yml 2>/dev/null || true
