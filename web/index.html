@@ -106,6 +106,21 @@
       }
     };
   </script>
+    <!-- Official Supabase JS SDK & Cloud Sync Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://ysrxjsmqipzudwwnqorb.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_secret_2EmpXQ4nPKPiw0pUMQiqWA_I1OPgOKY';
+    try {
+      if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('⚡ Supabase Cloud Web Client Initialized for topik-abante');
+      }
+    } catch(err) {
+      console.warn('Supabase JS init notice:', err);
+    }
+  </script>
+
   <!-- Official Firebase Web SDK for Real Authentication & Storage -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>

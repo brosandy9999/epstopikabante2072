@@ -32,41 +32,48 @@ class FileUploadService {
     );
   }
 
-  /// Direct non-blocking streaming upload from browser file directly to Firebase Storage
+  /// Direct non-blocking streaming upload from browser file directly to Supabase Storage
   Future<String?> _uploadBrowserFileToFirebase(html.File file, String folder) async {
     final completer = Completer<String?>();
     try {
-      const bucket = 'topik-abante.firebasestorage.app';
+      const projectRef = 'ysrxjsmqipzudwwnqorb';
+      const baseUrl = 'https://$projectRef.supabase.co';
+      const apiKey = 'sb_secret_2EmpXQ4nPKPiw0pUMQiqWA_I1OPgOKY';
+
+      final bucket = folder == 'books' ? 'books' : 'media';
+      final subpath = folder == 'books' ? 'chapters' : folder;
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final cleanName = file.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
-      final storagePath = 'eps_topik/$folder/${timestamp}_$cleanName';
-      final encodedPath = Uri.encodeComponent(storagePath);
-      final uploadUrl = 'https://firebasestorage.googleapis.com/v0/b/$bucket/o?name=$encodedPath&uploadType=media';
+      final destinationPath = '$subpath/${timestamp}_$cleanName';
 
+      final uploadUrl = '$baseUrl/storage/v1/object/$bucket/$destinationPath';
       final request = html.HttpRequest();
       request.open('POST', uploadUrl);
       final mime = file.type.isNotEmpty ? file.type : (folder == 'books' ? 'application/pdf' : 'application/octet-stream');
+      request.setRequestHeader('apikey', apiKey);
+      request.setRequestHeader('Authorization', 'Bearer $apiKey');
       request.setRequestHeader('Content-Type', mime);
+      request.setRequestHeader('x-upsert', 'true');
 
       request.onLoad.listen((_) {
-        if (request.status == 200 || request.status == 204) {
-          final downloadUrl = 'https://firebasestorage.googleapis.com/v0/b/$bucket/o/$encodedPath?alt=media';
-          debugPrint('[FirebaseStorage] Direct file stream upload success: $downloadUrl');
+        if (request.status == 200 || request.status == 201) {
+          final downloadUrl = '$baseUrl/storage/v1/object/public/$bucket/$destinationPath';
+          debugPrint('[SupabaseStorage] Web stream upload success: $downloadUrl');
           completer.complete(downloadUrl);
         } else {
-          debugPrint('[FirebaseStorage] Direct file upload failed: ${request.status} ${request.responseText}');
+          debugPrint('[SupabaseStorage] Web upload failed: ${request.status} ${request.responseText}');
           completer.complete(null);
         }
       });
 
       request.onError.listen((e) {
-        debugPrint('[FirebaseStorage] Direct file upload error: $e');
+        debugPrint('[SupabaseStorage] Web upload error: $e');
         completer.complete(null);
       });
 
       request.send(file);
     } catch (e) {
-      debugPrint('[FirebaseStorage] Direct upload exception: $e');
+      debugPrint('[SupabaseStorage] Web upload exception: $e');
       completer.complete(null);
     }
     return completer.future;
