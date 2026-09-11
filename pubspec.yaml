@@ -58,10 +58,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/set_05/
-    - assets/audio/set_05/
+    # - assets/audio/set_05/
     - data/eps_sync_data.json
-    - assets/audio/
-    - assets/audio/set_28/
+    # - assets/audio/
+    # - assets/audio/set_28/
     - assets/images/
     - assets/images/set_28/
 
