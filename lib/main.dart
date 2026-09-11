@@ -1,3 +1,4 @@
+import 'core/services/institute_service.dart';
 import 'features/authentication/institute_splash_screen.dart';
 import 'features/security/android_web_gatekeeper_screen.dart';
 import 'core/services/platform_detector.dart';
@@ -149,7 +150,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     return ListenableBuilder(
       listenable: LanguageService.instance,
       builder: (context, _) {
-        final s = widget.student ?? AuthService.instance.students.first;
+        final s = widget.student ?? AuthService.instance.currentUser ?? AuthService.instance.students.first;
         final allSets = QuestionBankService.instance
             .getAllMockSets()
             .where((s) => s.isApproved)
@@ -237,7 +238,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        s.instituteName.toUpperCase(),
+                        (InstituteService.instance.getInstituteById(s.instituteId)?.name ?? (s.instituteName.isNotEmpty ? s.instituteName : 'EPS-TOPIK Academy')).toUpperCase(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 0.5, color: Colors.white),

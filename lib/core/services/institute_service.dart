@@ -26,10 +26,15 @@ class InstituteService extends ChangeNotifier {
   }
 
   InstituteProfile? getInstituteById(String id) {
+    if (id.trim().isEmpty) return null;
     getAllInstitutes();
-    final idx = _institutes!.indexWhere((i) => i.id == id);
+    final cleanId = id.trim();
+    final idx = _institutes!.indexWhere((i) => i.id == cleanId);
     if (idx != -1) return _institutes![idx];
-    if (_institutes!.isNotEmpty) return _institutes!.first;
+    final idxCode = _institutes!.indexWhere((i) => i.code.trim().toUpperCase() == cleanId.toUpperCase());
+    if (idxCode != -1) return _institutes![idxCode];
+    final idxName = _institutes!.indexWhere((i) => i.name.trim().toLowerCase() == cleanId.toLowerCase());
+    if (idxName != -1) return _institutes![idxName];
     return null;
   }
 
