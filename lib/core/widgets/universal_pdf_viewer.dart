@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -51,6 +52,18 @@ class _UniversalPdfViewerWidgetState extends State<UniversalPdfViewerWidget> {
     final rawUrl = widget.url.trim();
 
     try {
+      // Case 0: Flutter Local Asset PDF
+      if (rawUrl.startsWith('assets/') || rawUrl.startsWith('data/')) {
+        final byteData = await rootBundle.load(rawUrl);
+        if (mounted) {
+          setState(() {
+            _pdfBytes = byteData.buffer.asUint8List();
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
       // Case 1: Base64 data URI (uploaded from local computer)
       if (rawUrl.startsWith('data:') && rawUrl.contains('base64,')) {
         final commaIdx = rawUrl.indexOf('base64,');

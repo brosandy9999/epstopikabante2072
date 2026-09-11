@@ -1426,7 +1426,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                           children: [
                             // 1. Background Content: Either uploaded PDF/Image or Official Textbook Template
                             Positioned.fill(
-                              child: chapterPdf != null && chapterPdf.isNotEmpty
+                              child: chapterPdf != null && chapterPdf.isNotEmpty && !chapterPdf.contains("hrdkorea.or.kr")
                                   ? _buildUploadedPdfBackground(chapterPdf)
                                   : _buildDefaultTextbookCanvas(),
                             ),
