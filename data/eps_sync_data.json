@@ -4108,81 +4108,2855 @@
   "books": [
     {
       "id": "book_new_01",
-      "title": "EPS-TOPIK 한국어 표준교재 1권 (2024 नयाँ परिमार्जित संस्करण)",
-      "subtitle": "आधारभूत कोरियन भाषा तथा दैनिक जीवनयापन (अध्याय ०१ देखि ३०)",
-      "editionType": "नयाँ संस्करण (New Edition)",
-      "level": "Book 1 (기초)",
+      "title": "EPS-TOPIK 한국어 표준교재 1권 (2024 개정판 - Book 1)",
+      "subtitle": "기초 한글 및 일상 생활 한국어 (1~30과)",
+      "editionType": "2024 개정판 (New Edition)",
+      "level": "Book 1 (초급)",
       "chaptersCount": 30,
-      "description": "वर्णमाला (हन्गुल), अभिवादन, किनमेल, दिशा, मिति/समय, मौसम, परिवार, खाना र दैनिक कार्यस्थल संवादहरू समेटिएको नवीनतम परिमार्जित आधिकारिक पाठ्यपुस्तक।",
-      "pdfUrl": "https://hrdkorea.or.kr/epstopik/book1.pdf",
-      "chapterPdfs": {},
-      "chapterTitles": {},
+      "pdfUrl": "",
+      "description": "국립국제교육원 및 HRD Korea 공식 표준교재 (Book 1 (초급))",
       "highlightTopics": [
-        "제1과~5과: 한글 익히기 (वर्णमाला र उच्चारण)",
-        "제6과~10과: 자기소개 및 일상생활 (आत्मपरिचय र दिनचर्या)",
-        "제11과~15과: 물건 사기 및 날씨 (किनमेल र मौसम)",
-        "제16과~20과: 취미 및 교통 (रुचि र यातायात)",
-        "제21과~30과: 약속, 전화 및 병원 (भेटघाट र स्वास्थ्य)"
+        "대화 1 & 대화 2 (Dialogues with native audio)",
+        "어휘 1 & 어휘 2 (Vocabulary with Nepali meaning)",
+        "문법 1 & 문법 2 (Grammar points & exercises)",
+        "듣기 연습 (Listening practice tracks)",
+        "읽기 연습 (Reading comprehension)"
       ],
-      "audioTracks": [],
-      "createdAt": "2026-09-11T18:28:42.232616"
+      "chapterTitles": {
+        "1": "Lesson 01",
+        "2": "Lesson 02",
+        "3": "Lesson 03",
+        "4": "Lesson 04",
+        "5": "Lesson 05",
+        "6": "Lesson 06",
+        "7": "Lesson 07",
+        "8": "Lesson 08",
+        "9": "Lesson 09",
+        "10": "Lesson 10",
+        "11": "Lesson 11",
+        "12": "Lesson 12",
+        "13": "Lesson 13",
+        "14": "Lesson 14",
+        "15": "Lesson 15",
+        "16": "Lesson 16",
+        "17": "Lesson 17",
+        "18": "Lesson 18",
+        "19": "Lesson 19",
+        "20": "Lesson 20",
+        "21": "Lesson 21",
+        "22": "Lesson 22",
+        "23": "Lesson 23",
+        "24": "Lesson 24",
+        "25": "Lesson 25",
+        "26": "Lesson 26",
+        "27": "Lesson 27",
+        "28": "Lesson 28",
+        "29": "Lesson 29",
+        "30": "Lesson 30"
+      },
+      "chapterPdfs": {},
+      "audioTracks": [
+        {
+          "id": "track_book-1_1_1",
+          "chapterNo": 1,
+          "label": "Track 1 (track-001-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-001-001.mp3",
+          "posX": 0.2068,
+          "posY": 0.9103
+        },
+        {
+          "id": "track_book-1_1_2",
+          "chapterNo": 1,
+          "label": "Track 2 (track-002-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-002-002.mp3",
+          "posX": 0.1047,
+          "posY": 0.5834
+        },
+        {
+          "id": "track_book-1_1_3",
+          "chapterNo": 1,
+          "label": "Track 3 (track-003-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-003-003.mp3",
+          "posX": 0.2048,
+          "posY": 0.1105
+        },
+        {
+          "id": "track_book-1_1_4",
+          "chapterNo": 1,
+          "label": "Track 4 (track-004-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-004-004.mp3",
+          "posX": 0.1539,
+          "posY": 0.2219
+        },
+        {
+          "id": "track_book-1_1_5",
+          "chapterNo": 1,
+          "label": "Track 5 (track-005-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-005-005.mp3",
+          "posX": 0.1539,
+          "posY": 0.1118
+        },
+        {
+          "id": "track_book-1_1_6",
+          "chapterNo": 1,
+          "label": "Track 6 (track-006-006.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-006-006.mp3",
+          "posX": 0.1236,
+          "posY": 0.1118
+        },
+        {
+          "id": "track_book-1_1_7",
+          "chapterNo": 1,
+          "label": "Track 7 (track-007-007.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-007-007.mp3",
+          "posX": 0.1539,
+          "posY": 0.2219
+        },
+        {
+          "id": "track_book-1_1_8",
+          "chapterNo": 1,
+          "label": "Track 8 (track-008-008.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-008-008.mp3",
+          "posX": 0.1539,
+          "posY": 0.1118
+        },
+        {
+          "id": "track_book-1_1_9",
+          "chapterNo": 1,
+          "label": "Track 9 (track-009-009.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-009-009.mp3",
+          "posX": 0.4829,
+          "posY": 0.1327
+        },
+        {
+          "id": "track_book-1_1_10",
+          "chapterNo": 1,
+          "label": "Track 10 (track-010-010.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-010-010.mp3",
+          "posX": 0.5986,
+          "posY": 0.2339
+        },
+        {
+          "id": "track_book-1_1_11",
+          "chapterNo": 1,
+          "label": "Track 11 (track-011-011.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-011-011.mp3",
+          "posX": 0.6224,
+          "posY": 0.3353
+        },
+        {
+          "id": "track_book-1_1_12",
+          "chapterNo": 1,
+          "label": "Track 12 (track-012-012.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-012-012.mp3",
+          "posX": 0.7096,
+          "posY": 0.5709
+        },
+        {
+          "id": "track_book-1_1_13",
+          "chapterNo": 1,
+          "label": "Track 13 (track-013-013.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-013-013.mp3",
+          "posX": 0.4844,
+          "posY": 0.1316
+        },
+        {
+          "id": "track_book-1_1_14",
+          "chapterNo": 1,
+          "label": "Track 14 (track-014-014.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-014-014.mp3",
+          "posX": 0.6024,
+          "posY": 0.2119
+        },
+        {
+          "id": "track_book-1_1_15",
+          "chapterNo": 1,
+          "label": "Track 15 (track-015-015.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-015-015.mp3",
+          "posX": 0.6262,
+          "posY": 0.3141
+        },
+        {
+          "id": "track_book-1_1_16",
+          "chapterNo": 1,
+          "label": "Track 16 (track-016-016.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-016-016.mp3",
+          "posX": 0.7129,
+          "posY": 0.5497
+        },
+        {
+          "id": "track_book-1_1_17",
+          "chapterNo": 1,
+          "label": "Track 17 (track-017-017.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-017-017.mp3",
+          "posX": 0.48,
+          "posY": 0.1316
+        },
+        {
+          "id": "track_book-1_1_18",
+          "chapterNo": 1,
+          "label": "Track 18 (track-018-018.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-018-018.mp3",
+          "posX": 0.5986,
+          "posY": 0.2118
+        },
+        {
+          "id": "track_book-1_1_19",
+          "chapterNo": 1,
+          "label": "Track 19 (track-019-019.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-019-019.mp3",
+          "posX": 0.6224,
+          "posY": 0.3133
+        },
+        {
+          "id": "track_book-1_1_20",
+          "chapterNo": 1,
+          "label": "Track 20 (track-020-020.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-020-020.mp3",
+          "posX": 0.7086,
+          "posY": 0.4891
+        },
+        {
+          "id": "track_book-1_1_21",
+          "chapterNo": 1,
+          "label": "Track 21 (track-021-021.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-021-021.mp3",
+          "posX": 0.4844,
+          "posY": 0.1316
+        },
+        {
+          "id": "track_book-1_1_22",
+          "chapterNo": 1,
+          "label": "Track 22 (track-022-022.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-022-022.mp3",
+          "posX": 0.6015,
+          "posY": 0.2318
+        },
+        {
+          "id": "track_book-1_1_23",
+          "chapterNo": 1,
+          "label": "Track 23 (track-023-023.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-023-023.mp3",
+          "posX": 0.7447,
+          "posY": 0.3346
+        },
+        {
+          "id": "track_book-1_1_24",
+          "chapterNo": 1,
+          "label": "Track 24 (track-024-024.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-024-024.mp3",
+          "posX": 0.7123,
+          "posY": 0.563
+        },
+        {
+          "id": "track_book-1_1_25",
+          "chapterNo": 1,
+          "label": "Track 25 (track-025-025.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-025-025.mp3",
+          "posX": 0.4112,
+          "posY": 0.1316
+        },
+        {
+          "id": "track_book-1_1_26",
+          "chapterNo": 1,
+          "label": "Track 26 (track-026-026.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/00-Preliminary/track-026-026.mp3",
+          "posX": 0.5082,
+          "posY": 0.2535
+        },
+        {
+          "id": "track_book-1_1_27",
+          "chapterNo": 1,
+          "label": "Track 27 (track-027-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-01/track-027-001.mp3",
+          "posX": 0.15,
+          "posY": 0.4
+        },
+        {
+          "id": "track_book-1_1_28",
+          "chapterNo": 1,
+          "label": "Track 28 (track-028-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-01/track-028-002.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_1_29",
+          "chapterNo": 1,
+          "label": "Track 29 (track-029-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-01/track-029-003.mp3",
+          "posX": 0.4246,
+          "posY": 0.7389
+        },
+        {
+          "id": "track_book-1_1_30",
+          "chapterNo": 1,
+          "label": "Track 30 (track-030-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-01/track-030-004.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_1_31",
+          "chapterNo": 1,
+          "label": "Track 31 (track-031-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-01/track-031-005.mp3",
+          "posX": 0.4603,
+          "posY": 0.7241
+        },
+        {
+          "id": "track_book-1_1_32",
+          "chapterNo": 1,
+          "label": "Track 32 (track-032-006.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-01/track-032-006.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_2_33",
+          "chapterNo": 2,
+          "label": "Track 33 (track-033-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-02/track-033-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_2_34",
+          "chapterNo": 2,
+          "label": "Track 34 (track-034-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-02/track-034-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.7666
+        },
+        {
+          "id": "track_book-1_2_35",
+          "chapterNo": 2,
+          "label": "Track 35 (track-035-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-02/track-035-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_2_36",
+          "chapterNo": 2,
+          "label": "Track 36 (track-036-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-02/track-036-004.mp3",
+          "posX": 0.4603,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_2_37",
+          "chapterNo": 2,
+          "label": "Track 37 (track-037-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-02/track-037-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_3_38",
+          "chapterNo": 3,
+          "label": "Track 38 (track-038-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-03/track-038-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_3_39",
+          "chapterNo": 3,
+          "label": "Track 39 (track-039-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-03/track-039-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.7817
+        },
+        {
+          "id": "track_book-1_3_40",
+          "chapterNo": 3,
+          "label": "Track 40 (track-040-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-03/track-040-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_3_41",
+          "chapterNo": 3,
+          "label": "Track 41 (track-041-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-03/track-041-004.mp3",
+          "posX": 0.4603,
+          "posY": 0.7736
+        },
+        {
+          "id": "track_book-1_3_42",
+          "chapterNo": 3,
+          "label": "Track 42 (track-042-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-03/track-042-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_4_43",
+          "chapterNo": 4,
+          "label": "Track 43 (track-043-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-04/track-043-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_4_44",
+          "chapterNo": 4,
+          "label": "Track 44 (track-044-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-04/track-044-002.mp3",
+          "posX": 0.6221,
+          "posY": 0.9099
+        },
+        {
+          "id": "track_book-1_4_45",
+          "chapterNo": 4,
+          "label": "Track 45 (track-045-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-04/track-045-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_4_46",
+          "chapterNo": 4,
+          "label": "Track 46 (track-046-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-04/track-046-004.mp3",
+          "posX": 0.4603,
+          "posY": 0.7489
+        },
+        {
+          "id": "track_book-1_4_47",
+          "chapterNo": 4,
+          "label": "Track 47 (track-047-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-04/track-047-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_5_48",
+          "chapterNo": 5,
+          "label": "Track 48 (track-048-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-05/track-048-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_5_49",
+          "chapterNo": 5,
+          "label": "Track 49 (track-049-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-05/track-049-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.7525
+        },
+        {
+          "id": "track_book-1_5_50",
+          "chapterNo": 5,
+          "label": "Track 50 (track-050-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-05/track-050-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_5_51",
+          "chapterNo": 5,
+          "label": "Track 51 (track-051-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-05/track-051-004.mp3",
+          "posX": 0.4603,
+          "posY": 0.7606
+        },
+        {
+          "id": "track_book-1_5_52",
+          "chapterNo": 5,
+          "label": "Track 52 (track-052-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-05/track-052-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_6_53",
+          "chapterNo": 6,
+          "label": "Track 53 (track-053-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-06/track-053-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_6_54",
+          "chapterNo": 6,
+          "label": "Track 54 (track-054-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-06/track-054-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.7244
+        },
+        {
+          "id": "track_book-1_6_55",
+          "chapterNo": 6,
+          "label": "Track 55 (track-055-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-06/track-055-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_6_56",
+          "chapterNo": 6,
+          "label": "Track 56 (track-056-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-06/track-056-004.mp3",
+          "posX": 0.4603,
+          "posY": 0.7713
+        },
+        {
+          "id": "track_book-1_6_57",
+          "chapterNo": 6,
+          "label": "Track 57 (track-057-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-06/track-057-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_7_58",
+          "chapterNo": 7,
+          "label": "Track 58 (track-058-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-07/track-058-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_7_59",
+          "chapterNo": 7,
+          "label": "Track 59 (track-059-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-07/track-059-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.7524
+        },
+        {
+          "id": "track_book-1_7_60",
+          "chapterNo": 7,
+          "label": "Track 60 (track-060-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-07/track-060-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_7_61",
+          "chapterNo": 7,
+          "label": "Track 61 (track-061-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-07/track-061-004.mp3",
+          "posX": 0.4603,
+          "posY": 0.787
+        },
+        {
+          "id": "track_book-1_7_62",
+          "chapterNo": 7,
+          "label": "Track 62 (track-062-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-07/track-062-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_8_63",
+          "chapterNo": 8,
+          "label": "Track 63 (track-063-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-08/track-063-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_8_64",
+          "chapterNo": 8,
+          "label": "Track 64 (track-064-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-08/track-064-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.726
+        },
+        {
+          "id": "track_book-1_8_65",
+          "chapterNo": 8,
+          "label": "Track 65 (track-065-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-08/track-065-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_8_66",
+          "chapterNo": 8,
+          "label": "Track 66 (track-066-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-08/track-066-004.mp3",
+          "posX": 0.4603,
+          "posY": 0.7713
+        },
+        {
+          "id": "track_book-1_8_67",
+          "chapterNo": 8,
+          "label": "Track 67 (track-067-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-08/track-067-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_9_68",
+          "chapterNo": 9,
+          "label": "Track 68 (track-068-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-09/track-068-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_9_69",
+          "chapterNo": 9,
+          "label": "Track 69 (track-069-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-09/track-069-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.7389
+        },
+        {
+          "id": "track_book-1_9_70",
+          "chapterNo": 9,
+          "label": "Track 70 (track-070-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-09/track-070-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_9_71",
+          "chapterNo": 9,
+          "label": "Track 71 (track-071-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-09/track-071-004.mp3",
+          "posX": 0.4603,
+          "posY": 0.7873
+        },
+        {
+          "id": "track_book-1_9_72",
+          "chapterNo": 9,
+          "label": "Track 72 (track-072-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-09/track-072-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_10_73",
+          "chapterNo": 10,
+          "label": "Track 73 (track-073-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-10/track-073-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_10_74",
+          "chapterNo": 10,
+          "label": "Track 74 (track-074-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-10/track-074-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.7354
+        },
+        {
+          "id": "track_book-1_10_75",
+          "chapterNo": 10,
+          "label": "Track 75 (track-075-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-10/track-075-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_10_76",
+          "chapterNo": 10,
+          "label": "Track 76 (track-076-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-10/track-076-004.mp3",
+          "posX": 0.4603,
+          "posY": 0.7713
+        },
+        {
+          "id": "track_book-1_10_77",
+          "chapterNo": 10,
+          "label": "Track 77 (track-077-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-10/track-077-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_11_78",
+          "chapterNo": 11,
+          "label": "Track 78 (track-078-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-11/track-078-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_11_79",
+          "chapterNo": 11,
+          "label": "Track 79 (track-079-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-11/track-079-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.739
+        },
+        {
+          "id": "track_book-1_11_80",
+          "chapterNo": 11,
+          "label": "Track 80 (track-080-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-11/track-080-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_11_81",
+          "chapterNo": 11,
+          "label": "Track 81 (track-081-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-11/track-081-004.mp3",
+          "posX": 0.4637,
+          "posY": 0.7713
+        },
+        {
+          "id": "track_book-1_11_82",
+          "chapterNo": 11,
+          "label": "Track 82 (track-082-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-11/track-082-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_12_83",
+          "chapterNo": 12,
+          "label": "Track 83 (track-083-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-12/track-083-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_12_84",
+          "chapterNo": 12,
+          "label": "Track 84 (track-084-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-12/track-084-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.739
+        },
+        {
+          "id": "track_book-1_12_85",
+          "chapterNo": 12,
+          "label": "Track 85 (track-085-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-12/track-085-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_12_86",
+          "chapterNo": 12,
+          "label": "Track 86 (track-086-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-12/track-086-004.mp3",
+          "posX": 0.4637,
+          "posY": 0.7713
+        },
+        {
+          "id": "track_book-1_12_87",
+          "chapterNo": 12,
+          "label": "Track 87 (track-087-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-12/track-087-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_13_88",
+          "chapterNo": 13,
+          "label": "Track 88 (track-088-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-13/track-088-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_13_89",
+          "chapterNo": 13,
+          "label": "Track 89 (track-089-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-13/track-089-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.739
+        },
+        {
+          "id": "track_book-1_13_90",
+          "chapterNo": 13,
+          "label": "Track 90 (track-090-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-13/track-090-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_13_91",
+          "chapterNo": 13,
+          "label": "Track 91 (track-091-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-13/track-091-004.mp3",
+          "posX": 0.4637,
+          "posY": 0.7713
+        },
+        {
+          "id": "track_book-1_13_92",
+          "chapterNo": 13,
+          "label": "Track 92 (track-092-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-13/track-092-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_14_93",
+          "chapterNo": 14,
+          "label": "Track 93 (track-093-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-14/track-093-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_14_94",
+          "chapterNo": 14,
+          "label": "Track 94 (track-094-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-14/track-094-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.7225
+        },
+        {
+          "id": "track_book-1_14_95",
+          "chapterNo": 14,
+          "label": "Track 95 (track-095-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-14/track-095-003.mp3",
+          "posX": 0.4327,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_14_96",
+          "chapterNo": 14,
+          "label": "Track 96 (track-096-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-14/track-096-004.mp3",
+          "posX": 0.4637,
+          "posY": 0.7595
+        },
+        {
+          "id": "track_book-1_14_97",
+          "chapterNo": 14,
+          "label": "Track 97 (track-097-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-14/track-097-005.mp3",
+          "posX": 0.3804,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_15_98",
+          "chapterNo": 15,
+          "label": "Track 98 (track-098-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-15/track-098-001.mp3",
+          "posX": 0.4629,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_15_99",
+          "chapterNo": 15,
+          "label": "Track 99 (track-099-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-15/track-099-002.mp3",
+          "posX": 0.4246,
+          "posY": 0.739
+        },
+        {
+          "id": "track_book-1_15_100",
+          "chapterNo": 15,
+          "label": "Track 100 (track-100-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-15/track-100-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_15_101",
+          "chapterNo": 15,
+          "label": "Track 101 (track-101-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-15/track-101-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7878
+        },
+        {
+          "id": "track_book-1_15_102",
+          "chapterNo": 15,
+          "label": "Track 102 (track-102-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-15/track-102-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_16_103",
+          "chapterNo": 16,
+          "label": "Track 103 (track-103-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-16/track-103-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_16_104",
+          "chapterNo": 16,
+          "label": "Track 104 (track-104-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-16/track-104-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7682
+        },
+        {
+          "id": "track_book-1_16_105",
+          "chapterNo": 16,
+          "label": "Track 105 (track-105-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-16/track-105-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_16_106",
+          "chapterNo": 16,
+          "label": "Track 106 (track-106-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-16/track-106-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7713
+        },
+        {
+          "id": "track_book-1_16_107",
+          "chapterNo": 16,
+          "label": "Track 107 (track-107-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-16/track-107-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_17_108",
+          "chapterNo": 17,
+          "label": "Track 108 (track-108-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-17/track-108-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_17_109",
+          "chapterNo": 17,
+          "label": "Track 109 (track-109-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-17/track-109-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7508
+        },
+        {
+          "id": "track_book-1_17_110",
+          "chapterNo": 17,
+          "label": "Track 110 (track-110-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-17/track-110-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_17_111",
+          "chapterNo": 17,
+          "label": "Track 111 (track-111-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-17/track-111-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_17_112",
+          "chapterNo": 17,
+          "label": "Track 112 (track-112-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-17/track-112-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_18_113",
+          "chapterNo": 18,
+          "label": "Track 113 (track-113-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-18/track-113-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_18_114",
+          "chapterNo": 18,
+          "label": "Track 114 (track-114-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-18/track-114-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.725
+        },
+        {
+          "id": "track_book-1_18_115",
+          "chapterNo": 18,
+          "label": "Track 115 (track-115-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-18/track-115-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_18_116",
+          "chapterNo": 18,
+          "label": "Track 116 (track-116-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-18/track-116-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7862
+        },
+        {
+          "id": "track_book-1_18_117",
+          "chapterNo": 18,
+          "label": "Track 117 (track-117-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-18/track-117-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_19_118",
+          "chapterNo": 19,
+          "label": "Track 118 (track-118-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-19/track-118-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_19_119",
+          "chapterNo": 19,
+          "label": "Track 119 (track-119-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-19/track-119-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7516
+        },
+        {
+          "id": "track_book-1_19_120",
+          "chapterNo": 19,
+          "label": "Track 120 (track-120-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-19/track-120-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_19_121",
+          "chapterNo": 19,
+          "label": "Track 121 (track-121-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-19/track-121-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7713
+        },
+        {
+          "id": "track_book-1_19_122",
+          "chapterNo": 19,
+          "label": "Track 122 (track-122-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-19/track-122-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_20_123",
+          "chapterNo": 20,
+          "label": "Track 123 (track-123-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-20/track-123-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_20_124",
+          "chapterNo": 20,
+          "label": "Track 124 (track-124-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-20/track-124-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7516
+        },
+        {
+          "id": "track_book-1_20_125",
+          "chapterNo": 20,
+          "label": "Track 125 (track-125-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-20/track-125-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_20_126",
+          "chapterNo": 20,
+          "label": "Track 126 (track-126-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-20/track-126-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_20_127",
+          "chapterNo": 20,
+          "label": "Track 127 (track-127-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-20/track-127-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_21_128",
+          "chapterNo": 21,
+          "label": "Track 128 (track-128-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-21/track-128-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_21_129",
+          "chapterNo": 21,
+          "label": "Track 129 (track-129-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-21/track-129-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7516
+        },
+        {
+          "id": "track_book-1_21_130",
+          "chapterNo": 21,
+          "label": "Track 130 (track-130-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-21/track-130-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_21_131",
+          "chapterNo": 21,
+          "label": "Track 131 (track-131-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-21/track-131-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_21_132",
+          "chapterNo": 21,
+          "label": "Track 132 (track-132-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-21/track-132-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_22_133",
+          "chapterNo": 22,
+          "label": "Track 133 (track-133-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-22/track-133-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_22_134",
+          "chapterNo": 22,
+          "label": "Track 134 (track-134-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-22/track-134-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7682
+        },
+        {
+          "id": "track_book-1_22_135",
+          "chapterNo": 22,
+          "label": "Track 135 (track-135-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-22/track-135-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_22_136",
+          "chapterNo": 22,
+          "label": "Track 136 (track-136-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-22/track-136-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_22_137",
+          "chapterNo": 22,
+          "label": "Track 137 (track-137-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-22/track-137-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_23_138",
+          "chapterNo": 23,
+          "label": "Track 138 (track-138-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-23/track-138-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_23_139",
+          "chapterNo": 23,
+          "label": "Track 139 (track-139-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-23/track-139-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7687
+        },
+        {
+          "id": "track_book-1_23_140",
+          "chapterNo": 23,
+          "label": "Track 140 (track-140-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-23/track-140-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_23_141",
+          "chapterNo": 23,
+          "label": "Track 141 (track-141-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-23/track-141-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_23_142",
+          "chapterNo": 23,
+          "label": "Track 142 (track-142-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-23/track-142-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_24_143",
+          "chapterNo": 24,
+          "label": "Track 143 (track-143-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-24/track-143-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_24_144",
+          "chapterNo": 24,
+          "label": "Track 144 (track-144-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-24/track-144-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7382
+        },
+        {
+          "id": "track_book-1_24_145",
+          "chapterNo": 24,
+          "label": "Track 145 (track-145-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-24/track-145-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_24_146",
+          "chapterNo": 24,
+          "label": "Track 146 (track-146-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-24/track-146-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_24_147",
+          "chapterNo": 24,
+          "label": "Track 147 (track-147-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-24/track-147-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_25_148",
+          "chapterNo": 25,
+          "label": "Track 148 (track-148-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-25/track-148-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_25_149",
+          "chapterNo": 25,
+          "label": "Track 149 (track-149-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-25/track-149-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7422
+        },
+        {
+          "id": "track_book-1_25_150",
+          "chapterNo": 25,
+          "label": "Track 150 (track-150-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-25/track-150-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_25_151",
+          "chapterNo": 25,
+          "label": "Track 151 (track-151-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-25/track-151-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_25_152",
+          "chapterNo": 25,
+          "label": "Track 152 (track-152-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-25/track-152-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_26_153",
+          "chapterNo": 26,
+          "label": "Track 153 (track-153-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-26/track-153-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_26_154",
+          "chapterNo": 26,
+          "label": "Track 154 (track-154-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-26/track-154-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7382
+        },
+        {
+          "id": "track_book-1_26_155",
+          "chapterNo": 26,
+          "label": "Track 155 (track-155-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-26/track-155-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_26_156",
+          "chapterNo": 26,
+          "label": "Track 156 (track-156-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-26/track-156-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7718
+        },
+        {
+          "id": "track_book-1_26_157",
+          "chapterNo": 26,
+          "label": "Track 157 (track-157-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-26/track-157-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_27_158",
+          "chapterNo": 27,
+          "label": "Track 158 (track-158-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-27/track-158-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_27_159",
+          "chapterNo": 27,
+          "label": "Track 159 (track-159-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-27/track-159-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7236
+        },
+        {
+          "id": "track_book-1_27_160",
+          "chapterNo": 27,
+          "label": "Track 160 (track-160-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-27/track-160-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_27_161",
+          "chapterNo": 27,
+          "label": "Track 161 (track-161-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-27/track-161-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_27_162",
+          "chapterNo": 27,
+          "label": "Track 162 (track-162-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-27/track-162-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_28_163",
+          "chapterNo": 28,
+          "label": "Track 163 (track-163-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-28/track-163-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_28_164",
+          "chapterNo": 28,
+          "label": "Track 164 (track-164-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-28/track-164-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7682
+        },
+        {
+          "id": "track_book-1_28_165",
+          "chapterNo": 28,
+          "label": "Track 165 (track-165-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-28/track-165-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_28_166",
+          "chapterNo": 28,
+          "label": "Track 166 (track-166-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-28/track-166-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_28_167",
+          "chapterNo": 28,
+          "label": "Track 167 (track-167-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-28/track-167-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_29_168",
+          "chapterNo": 29,
+          "label": "Track 168 (track-168-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-29/track-168-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_29_169",
+          "chapterNo": 29,
+          "label": "Track 169 (track-169-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-29/track-169-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7713
+        },
+        {
+          "id": "track_book-1_29_170",
+          "chapterNo": 29,
+          "label": "Track 170 (track-170-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-29/track-170-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_29_171",
+          "chapterNo": 29,
+          "label": "Track 171 (track-171-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-29/track-171-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7713
+        },
+        {
+          "id": "track_book-1_29_172",
+          "chapterNo": 29,
+          "label": "Track 172 (track-172-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-29/track-172-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_30_173",
+          "chapterNo": 30,
+          "label": "Track 173 (track-173-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-30/track-173-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_30_174",
+          "chapterNo": 30,
+          "label": "Track 174 (track-174-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-30/track-174-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7681
+        },
+        {
+          "id": "track_book-1_30_175",
+          "chapterNo": 30,
+          "label": "Track 175 (track-175-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-30/track-175-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-1_30_176",
+          "chapterNo": 30,
+          "label": "Track 176 (track-176-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-30/track-176-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7871
+        },
+        {
+          "id": "track_book-1_30_177",
+          "chapterNo": 30,
+          "label": "Track 177 (track-177-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-1/Chapter-30/track-177-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        }
+      ],
+      "createdAt": "2026-09-12T00:00:00.000Z"
     },
     {
       "id": "book_new_02",
-      "title": "EPS-TOPIK 한국어 표준교재 2권 (2024 नयाँ परिमार्जित संस्करण)",
-      "subtitle": "कार्यस्थल भाषा, सुरक्षा, श्रम कानुन तथा संस्कृति (अध्याय ३१ देखि ६०)",
-      "editionType": "नयाँ संस्करण (New Edition)",
-      "level": "Book 2 (실전/직장)",
+      "title": "EPS-TOPIK 한국어 표준교재 2권 (2024 개정판 - Book 2)",
+      "subtitle": "직장 생활 및 직무 전문 한국어 (31~60과)",
+      "editionType": "2024 개정판 (New Edition)",
+      "level": "Book 2 (중급/심화)",
       "chaptersCount": 30,
-      "description": "कारखाना औजार, कार्यस्थल सुरक्षा, औद्योगिक दुर्घटना रोकथाम, कृषि र निर्माण शब्दावली, कोरियाली संस्कृति, श्रम सम्झौता, तलब र बिमा सम्बन्धी आधिकारिक पाठ्यपुस्तक।",
-      "pdfUrl": "https://hrdkorea.or.kr/epstopik/book2.pdf",
-      "chapterPdfs": {},
-      "chapterTitles": {},
+      "pdfUrl": "",
+      "description": "국립국제교육원 및 HRD Korea 공식 표준교재 (Book 2 (중급/심화))",
       "highlightTopics": [
-        "제31과~40과: 한국 문화 및 직장 예절 (कोरियाली संस्कृति र मर्यादा)",
-        "제41과~50과: 제조업 도구 및 안전 수칙 (उत्पादन औजार र सुरक्षा)",
-        "제51과~55과: 고용허가제 및 근로계약 (श्रम कानुन र सम्झौता)",
-        "제56과~60과: 휴가, 체류 연장 및 귀국 (बिदा, भिसा थप र स्वदेश फिर्ता)"
+        "대화 1 & 대화 2 (Dialogues with native audio)",
+        "어휘 1 & 어휘 2 (Vocabulary with Nepali meaning)",
+        "문법 1 & 문법 2 (Grammar points & exercises)",
+        "듣기 연습 (Listening practice tracks)",
+        "읽기 연습 (Reading comprehension)"
       ],
-      "audioTracks": [],
-      "createdAt": "2026-09-11T18:28:42.233706"
-    },
-    {
-      "id": "book_old_01",
-      "title": "EPS-TOPIK 한국어 표준교재 (2013 पुरानो संस्करण - Classic)",
-      "subtitle": "क्लासिक आधारभूत पाठ्यपुस्तक १ र २ (अध्याय ०१ देखि ६०)",
-      "editionType": "पुरानो संस्करण (Old Edition)",
-      "level": "Book 1 & 2 (Classic)",
-      "chaptersCount": 60,
-      "description": "पहिलेदेखि नै अभ्यास गरिँदै आएका आधारभूत शब्दहरू, व्याकरणका संरचनाहरू र विगतका परीक्षामा धेरै सोधिएका प्रश्नहरू भएको क्लासिक पुरानो संस्करण।",
-      "pdfUrl": "https://hrdkorea.or.kr/epstopik/classic.pdf",
+      "chapterTitles": {
+        "1": "Book 2 Preliminary",
+        "31": "Lesson 31",
+        "32": "Lesson 32",
+        "33": "Lesson 33",
+        "34": "Lesson 34",
+        "35": "Lesson 35",
+        "36": "Lesson 36",
+        "37": "Lesson 37",
+        "38": "Lesson 38",
+        "39": "Lesson 39",
+        "40": "Lesson 40",
+        "41": "Lesson 41",
+        "42": "Lesson 42",
+        "43": "Lesson 43",
+        "44": "Lesson 44",
+        "45": "Lesson 45",
+        "46": "Lesson 46",
+        "47": "Lesson 47",
+        "48": "Lesson 48",
+        "49": "Lesson 49",
+        "50": "Lesson 50",
+        "51": "Lesson 51",
+        "52": "Lesson 52",
+        "53": "Lesson 53",
+        "54": "Lesson 54",
+        "55": "Lesson 55",
+        "56": "Lesson 56",
+        "57": "Lesson 57",
+        "58": "Lesson 58",
+        "59": "Lesson 59",
+        "60": "Lesson 60"
+      },
       "chapterPdfs": {},
-      "chapterTitles": {},
-      "highlightTopics": [
-        "क्लासिक हन्गुल र आधारभूत शब्दावली (अध्याय १-३०)",
-        "कार्यस्थल तथा निर्माण साइट संवाद (अध्याय ३१-६०)"
+      "audioTracks": [
+        {
+          "id": "track_book-2_31_178",
+          "chapterNo": 31,
+          "label": "Track 178 (track-178-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-31/track-178-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_31_179",
+          "chapterNo": 31,
+          "label": "Track 179 (track-179-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-31/track-179-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7685
+        },
+        {
+          "id": "track_book-2_31_180",
+          "chapterNo": 31,
+          "label": "Track 180 (track-180-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-31/track-180-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_31_181",
+          "chapterNo": 31,
+          "label": "Track 181 (track-181-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-31/track-181-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7934
+        },
+        {
+          "id": "track_book-2_32_183",
+          "chapterNo": 32,
+          "label": "Track 183 (track-183-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-32/track-183-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_32_184",
+          "chapterNo": 32,
+          "label": "Track 184 (track-184-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-32/track-184-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7819
+        },
+        {
+          "id": "track_book-2_32_185",
+          "chapterNo": 32,
+          "label": "Track 185 (track-185-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-32/track-185-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_32_186",
+          "chapterNo": 32,
+          "label": "Track 186 (track-186-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-32/track-186-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7934
+        },
+        {
+          "id": "track_book-2_32_187",
+          "chapterNo": 32,
+          "label": "Track 187 (track-187-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-32/track-187-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_33_188",
+          "chapterNo": 33,
+          "label": "Track 188 (track-188-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-33/track-188-002.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_33_189",
+          "chapterNo": 33,
+          "label": "Track 189 (track-189-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-33/track-189-003.mp3",
+          "posX": 0.4217,
+          "posY": 0.7819
+        },
+        {
+          "id": "track_book-2_33_190",
+          "chapterNo": 33,
+          "label": "Track 190 (track-190-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-33/track-190-004.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_33_191",
+          "chapterNo": 33,
+          "label": "Track 191 (track-191-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-33/track-191-005.mp3",
+          "posX": 0.4608,
+          "posY": 0.7911
+        },
+        {
+          "id": "track_book-2_33_192",
+          "chapterNo": 33,
+          "label": "Track 192 (track-192-006.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-33/track-192-006.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_34_193",
+          "chapterNo": 34,
+          "label": "Track 193 (track-193-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-34/track-193-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_34_194",
+          "chapterNo": 34,
+          "label": "Track 194 (track-194-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-34/track-194-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7518
+        },
+        {
+          "id": "track_book-2_34_195",
+          "chapterNo": 34,
+          "label": "Track 195 (track-195-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-34/track-195-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_34_196",
+          "chapterNo": 34,
+          "label": "Track 196 (track-196-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-34/track-196-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7911
+        },
+        {
+          "id": "track_book-2_34_197",
+          "chapterNo": 34,
+          "label": "Track 197 (track-197-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-34/track-197-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_35_199",
+          "chapterNo": 35,
+          "label": "Track 199 (track-199-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-35/track-199-001.mp3",
+          "posX": 0.4217,
+          "posY": 0.7519
+        },
+        {
+          "id": "track_book-2_35_200",
+          "chapterNo": 35,
+          "label": "Track 200 (track-200-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-35/track-200-002.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_35_201",
+          "chapterNo": 35,
+          "label": "Track 201 (track-201-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-35/track-201-003.mp3",
+          "posX": 0.4608,
+          "posY": 0.7911
+        },
+        {
+          "id": "track_book-2_35_202",
+          "chapterNo": 35,
+          "label": "Track 202 (track-202-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-35/track-202-004.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_36_203",
+          "chapterNo": 36,
+          "label": "Track 203 (track-203-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-36/track-203-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_36_204",
+          "chapterNo": 36,
+          "label": "Track 204 (track-204-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-36/track-204-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7513
+        },
+        {
+          "id": "track_book-2_36_206",
+          "chapterNo": 36,
+          "label": "Track 206 (track-206-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-36/track-206-003.mp3",
+          "posX": 0.4608,
+          "posY": 0.7934
+        },
+        {
+          "id": "track_book-2_37_208",
+          "chapterNo": 37,
+          "label": "Track 208 (track-208-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-37/track-208-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_37_209",
+          "chapterNo": 37,
+          "label": "Track 209 (track-209-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-37/track-209-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7515
+        },
+        {
+          "id": "track_book-2_37_210",
+          "chapterNo": 37,
+          "label": "Track 210 (track-210-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-37/track-210-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_37_211",
+          "chapterNo": 37,
+          "label": "Track 211 (track-211-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-37/track-211-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.79
+        },
+        {
+          "id": "track_book-2_37_212",
+          "chapterNo": 37,
+          "label": "Track 212 (track-212-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-37/track-212-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_38_213",
+          "chapterNo": 38,
+          "label": "Track 213 (track-213-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-38/track-213-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_38_214",
+          "chapterNo": 38,
+          "label": "Track 214 (track-214-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-38/track-214-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7519
+        },
+        {
+          "id": "track_book-2_38_216",
+          "chapterNo": 38,
+          "label": "Track 216 (track-216-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-38/track-216-003.mp3",
+          "posX": 0.4608,
+          "posY": 0.7869
+        },
+        {
+          "id": "track_book-2_38_217",
+          "chapterNo": 38,
+          "label": "Track 217 (track-217-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-38/track-217-004.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_39_218",
+          "chapterNo": 39,
+          "label": "Track 218 (track-218-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-39/track-218-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_39_219",
+          "chapterNo": 39,
+          "label": "Track 219 (track-219-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-39/track-219-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7685
+        },
+        {
+          "id": "track_book-2_39_222",
+          "chapterNo": 39,
+          "label": "Track 222 (track-222-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-39/track-222-003.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_40_223",
+          "chapterNo": 40,
+          "label": "Track 223 (track-223-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-40/track-223-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_40_224",
+          "chapterNo": 40,
+          "label": "Track 224 (track-224-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-40/track-224-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7687
+        },
+        {
+          "id": "track_book-2_40_226",
+          "chapterNo": 40,
+          "label": "Track 226 (track-226-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-40/track-226-003.mp3",
+          "posX": 0.4608,
+          "posY": 0.8041
+        },
+        {
+          "id": "track_book-2_40_227",
+          "chapterNo": 40,
+          "label": "Track 227 (track-227-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-40/track-227-004.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_41_228",
+          "chapterNo": 41,
+          "label": "Track 228 (track-228-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-41/track-228-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_41_229",
+          "chapterNo": 41,
+          "label": "Track 229 (track-229-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-41/track-229-002.mp3",
+          "posX": 0.4219,
+          "posY": 0.7685
+        },
+        {
+          "id": "track_book-2_41_230",
+          "chapterNo": 41,
+          "label": "Track 230 (track-230-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-41/track-230-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_41_231",
+          "chapterNo": 41,
+          "label": "Track 231 (track-231-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-41/track-231-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7933
+        },
+        {
+          "id": "track_book-2_42_233",
+          "chapterNo": 42,
+          "label": "Track 233 (track-233-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-42/track-233-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_42_234",
+          "chapterNo": 42,
+          "label": "Track 234 (track-234-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-42/track-234-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7518
+        },
+        {
+          "id": "track_book-2_42_235",
+          "chapterNo": 42,
+          "label": "Track 235 (track-235-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-42/track-235-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_42_237",
+          "chapterNo": 42,
+          "label": "Track 237 (track-237-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-42/track-237-004.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_43_238",
+          "chapterNo": 43,
+          "label": "Track 238 (track-238-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-43/track-238-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_43_239",
+          "chapterNo": 43,
+          "label": "Track 239 (track-239-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-43/track-239-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7676
+        },
+        {
+          "id": "track_book-2_43_240",
+          "chapterNo": 43,
+          "label": "Track 240 (track-240-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-43/track-240-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_44_243",
+          "chapterNo": 44,
+          "label": "Track 243 (track-243-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-44/track-243-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_44_244",
+          "chapterNo": 44,
+          "label": "Track 244 (track-244-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-44/track-244-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7819
+        },
+        {
+          "id": "track_book-2_44_245",
+          "chapterNo": 44,
+          "label": "Track 245 (track-245-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-44/track-245-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_44_246",
+          "chapterNo": 44,
+          "label": "Track 246 (track-246-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-44/track-246-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7911
+        },
+        {
+          "id": "track_book-2_44_247",
+          "chapterNo": 44,
+          "label": "Track 247 (track-247-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-44/track-247-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_45_248",
+          "chapterNo": 45,
+          "label": "Track 248 (track-248-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-45/track-248-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_45_249",
+          "chapterNo": 45,
+          "label": "Track 249 (track-249-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-45/track-249-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7742
+        },
+        {
+          "id": "track_book-2_45_250",
+          "chapterNo": 45,
+          "label": "Track 250 (track-250-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-45/track-250-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_45_251",
+          "chapterNo": 45,
+          "label": "Track 251 (track-251-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-45/track-251-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7932
+        },
+        {
+          "id": "track_book-2_45_252",
+          "chapterNo": 45,
+          "label": "Track 252 (track-252-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-45/track-252-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_46_253",
+          "chapterNo": 46,
+          "label": "Track 253 (track-253-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-46/track-253-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_46_254",
+          "chapterNo": 46,
+          "label": "Track 254 (track-254-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-46/track-254-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7819
+        },
+        {
+          "id": "track_book-2_46_256",
+          "chapterNo": 46,
+          "label": "Track 256 (track-256-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-46/track-256-003.mp3",
+          "posX": 0.4608,
+          "posY": 0.7934
+        },
+        {
+          "id": "track_book-2_47_258",
+          "chapterNo": 47,
+          "label": "Track 258 (track-258-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-47/track-258-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_47_259",
+          "chapterNo": 47,
+          "label": "Track 259 (track-259-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-47/track-259-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7817
+        },
+        {
+          "id": "track_book-2_47_260",
+          "chapterNo": 47,
+          "label": "Track 260 (track-260-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-47/track-260-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_47_261",
+          "chapterNo": 47,
+          "label": "Track 261 (track-261-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-47/track-261-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.8028
+        },
+        {
+          "id": "track_book-2_47_262",
+          "chapterNo": 47,
+          "label": "Track 262 (track-262-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-47/track-262-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_48_263",
+          "chapterNo": 48,
+          "label": "Track 263 (track-263-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-48/track-263-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_48_264",
+          "chapterNo": 48,
+          "label": "Track 264 (track-264-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-48/track-264-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7685
+        },
+        {
+          "id": "track_book-2_48_265",
+          "chapterNo": 48,
+          "label": "Track 265 (track-265-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-48/track-265-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_48_266",
+          "chapterNo": 48,
+          "label": "Track 266 (track-266-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-48/track-266-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7911
+        },
+        {
+          "id": "track_book-2_48_267",
+          "chapterNo": 48,
+          "label": "Track 267 (track-267-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-48/track-267-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_49_268",
+          "chapterNo": 49,
+          "label": "Track 268 (track-268-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-49/track-268-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_49_269",
+          "chapterNo": 49,
+          "label": "Track 269 (track-269-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-49/track-269-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7685
+        },
+        {
+          "id": "track_book-2_49_270",
+          "chapterNo": 49,
+          "label": "Track 270 (track-270-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-49/track-270-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_49_272",
+          "chapterNo": 49,
+          "label": "Track 272 (track-272-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-49/track-272-004.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_50_273",
+          "chapterNo": 50,
+          "label": "Track 273 (track-273-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-50/track-273-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_50_274",
+          "chapterNo": 50,
+          "label": "Track 274 (track-274-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-50/track-274-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7882
+        },
+        {
+          "id": "track_book-2_50_275",
+          "chapterNo": 50,
+          "label": "Track 275 (track-275-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-50/track-275-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_50_276",
+          "chapterNo": 50,
+          "label": "Track 276 (track-276-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-50/track-276-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7932
+        },
+        {
+          "id": "track_book-2_50_277",
+          "chapterNo": 50,
+          "label": "Track 277 (track-277-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-50/track-277-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_51_278",
+          "chapterNo": 51,
+          "label": "Track 278 (track-278-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-51/track-278-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_51_279",
+          "chapterNo": 51,
+          "label": "Track 279 (track-279-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-51/track-279-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7685
+        },
+        {
+          "id": "track_book-2_51_280",
+          "chapterNo": 51,
+          "label": "Track 280 (track-280-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-51/track-280-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_51_282",
+          "chapterNo": 51,
+          "label": "Track 282 (track-282-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-51/track-282-004.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_52_283",
+          "chapterNo": 52,
+          "label": "Track 283 (track-283-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-52/track-283-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_52_285",
+          "chapterNo": 52,
+          "label": "Track 285 (track-285-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-52/track-285-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_52_287",
+          "chapterNo": 52,
+          "label": "Track 287 (track-287-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-52/track-287-004.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_53_288",
+          "chapterNo": 53,
+          "label": "Track 288 (track-288-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-53/track-288-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_53_289",
+          "chapterNo": 53,
+          "label": "Track 289 (track-289-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-53/track-289-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7818
+        },
+        {
+          "id": "track_book-2_53_290",
+          "chapterNo": 53,
+          "label": "Track 290 (track-290-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-53/track-290-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_53_291",
+          "chapterNo": 53,
+          "label": "Track 291 (track-291-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-53/track-291-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7911
+        },
+        {
+          "id": "track_book-2_53_292",
+          "chapterNo": 53,
+          "label": "Track 292 (track-292-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-53/track-292-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_54_293",
+          "chapterNo": 54,
+          "label": "Track 293 (track-293-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-54/track-293-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_54_294",
+          "chapterNo": 54,
+          "label": "Track 294 (track-294-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-54/track-294-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7386
+        },
+        {
+          "id": "track_book-2_54_295",
+          "chapterNo": 54,
+          "label": "Track 295 (track-295-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-54/track-295-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_54_296",
+          "chapterNo": 54,
+          "label": "Track 296 (track-296-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-54/track-296-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7911
+        },
+        {
+          "id": "track_book-2_54_297",
+          "chapterNo": 54,
+          "label": "Track 297 (track-297-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-54/track-297-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_55_298",
+          "chapterNo": 55,
+          "label": "Track 298 (track-298-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-55/track-298-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_55_300",
+          "chapterNo": 55,
+          "label": "Track 300 (track-300-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-55/track-300-002.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_55_301",
+          "chapterNo": 55,
+          "label": "Track 301 (track-301-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-55/track-301-003.mp3",
+          "posX": 0.4608,
+          "posY": 0.7932
+        },
+        {
+          "id": "track_book-2_55_302",
+          "chapterNo": 55,
+          "label": "Track 302 (track-302-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-55/track-302-004.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_56_305",
+          "chapterNo": 56,
+          "label": "Track 305 (track-305-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-56/track-305-001.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_56_306",
+          "chapterNo": 56,
+          "label": "Track 306 (track-306-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-56/track-306-002.mp3",
+          "posX": 0.4608,
+          "posY": 0.7934
+        },
+        {
+          "id": "track_book-2_56_307",
+          "chapterNo": 56,
+          "label": "Track 307 (track-307-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-56/track-307-003.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_57_308",
+          "chapterNo": 57,
+          "label": "Track 308 (track-308-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-57/track-308-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_57_309",
+          "chapterNo": 57,
+          "label": "Track 309 (track-309-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-57/track-309-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7243
+        },
+        {
+          "id": "track_book-2_57_310",
+          "chapterNo": 57,
+          "label": "Track 310 (track-310-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-57/track-310-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_57_311",
+          "chapterNo": 57,
+          "label": "Track 311 (track-311-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-57/track-311-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7934
+        },
+        {
+          "id": "track_book-2_58_313",
+          "chapterNo": 58,
+          "label": "Track 313 (track-313-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-58/track-313-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_58_314",
+          "chapterNo": 58,
+          "label": "Track 314 (track-314-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-58/track-314-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7845
+        },
+        {
+          "id": "track_book-2_58_315",
+          "chapterNo": 58,
+          "label": "Track 315 (track-315-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-58/track-315-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_58_316",
+          "chapterNo": 58,
+          "label": "Track 316 (track-316-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-58/track-316-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.7765
+        },
+        {
+          "id": "track_book-2_58_317",
+          "chapterNo": 58,
+          "label": "Track 317 (track-317-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-58/track-317-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_59_318",
+          "chapterNo": 59,
+          "label": "Track 318 (track-318-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-59/track-318-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_59_319",
+          "chapterNo": 59,
+          "label": "Track 319 (track-319-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-59/track-319-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7944
+        },
+        {
+          "id": "track_book-2_59_320",
+          "chapterNo": 59,
+          "label": "Track 320 (track-320-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-59/track-320-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_59_321",
+          "chapterNo": 59,
+          "label": "Track 321 (track-321-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-59/track-321-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.8065
+        },
+        {
+          "id": "track_book-2_59_322",
+          "chapterNo": 59,
+          "label": "Track 322 (track-322-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-59/track-322-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_60_323",
+          "chapterNo": 60,
+          "label": "Track 323 (track-323-001.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-60/track-323-001.mp3",
+          "posX": 0.46,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_60_324",
+          "chapterNo": 60,
+          "label": "Track 324 (track-324-002.mp3)",
+          "sectionType": "dialogue_2",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-60/track-324-002.mp3",
+          "posX": 0.4217,
+          "posY": 0.7818
+        },
+        {
+          "id": "track_book-2_60_325",
+          "chapterNo": 60,
+          "label": "Track 325 (track-325-003.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-60/track-325-003.mp3",
+          "posX": 0.4298,
+          "posY": 0.0877
+        },
+        {
+          "id": "track_book-2_60_326",
+          "chapterNo": 60,
+          "label": "Track 326 (track-326-004.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-60/track-326-004.mp3",
+          "posX": 0.4608,
+          "posY": 0.791
+        },
+        {
+          "id": "track_book-2_60_327",
+          "chapterNo": 60,
+          "label": "Track 327 (track-327-005.mp3)",
+          "sectionType": "dialogue_1",
+          "audioUrl": "https://brosandy9999.github.io/epstopikabante2072/audio/books/book-2/Chapter-60/track-327-005.mp3",
+          "posX": 0.3775,
+          "posY": 0.0877
+        }
       ],
-      "audioTracks": [],
-      "createdAt": "2026-09-01T18:28:42.233706"
-    },
-    {
-      "id": "book_guide_01",
-      "title": "고용허가제 표준 한국어 실전 단어장 (विशेष शब्दावली गाइड)",
-      "subtitle": "कार्यस्थल तथा उद्योग क्षेत्र अनुसारका २००० अत्यावश्यक मिनिङहरू",
-      "editionType": "विशेष गाइड (Special Guide)",
-      "level": "단어장 (Vocabulary)",
-      "chaptersCount": 60,
-      "description": "म्यानुफ्याक्चरिङ, कृषि, निर्माण, र मत्स्यपालन क्षेत्रका आधिकारिक शब्दावली, चित्र र उदाहरण सहितको विशेष पकेट गाइड।",
-      "pdfUrl": "https://hrdkorea.or.kr/epstopik/vocab_guide.pdf",
-      "chapterPdfs": {},
-      "chapterTitles": {},
-      "highlightTopics": [
-        "औद्योगिक औजार तथा सुरक्षा शब्दावली",
-        "कृषि तथा निर्माण उपकरण शब्दावली",
-        "श्रम कानुन तथा सम्झौता शब्दावली"
-      ],
-      "audioTracks": [],
-      "createdAt": "2026-08-22T18:28:42.233706"
+      "createdAt": "2026-09-12T00:00:00.000Z"
     }
   ],
   "videos": [
