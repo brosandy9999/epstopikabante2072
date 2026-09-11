@@ -40,8 +40,8 @@ class AppUser {
     this.sector = '제조업 (Manufacturing)',
     this.status = 'सक्रिय (Active)',
     required this.role,
-    this.instituteId = 'inst_01',
-    this.instituteName = 'ग्लोबल कोरियन भाषा इन्स्टिच्युट',
+    this.instituteId = 'inst_abante_ktm',
+    this.instituteName = 'Abante Korean Language (Abante Academy)',
     this.instituteLogo = 'assets/images/institute_logo_default.png',
     this.profilePhoto,
     this.allowedSetsQuota = 10,
@@ -133,8 +133,8 @@ class AppUser {
       sector: json['sector'] as String? ?? '제조업 (Manufacturing)',
       status: json['status'] as String? ?? 'सक्रिय (Active)',
       role: role,
-      instituteId: json['instituteId'] as String? ?? 'inst_01',
-      instituteName: json['instituteName'] as String? ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट',
+      instituteId: json['instituteId'] as String? ?? 'inst_abante_ktm',
+      instituteName: json['instituteName'] as String? ?? 'Abante Korean Language (Abante Academy)',
       instituteLogo: json['instituteLogo'] as String? ?? 'assets/images/institute_logo_default.png',
       profilePhoto: json['profilePhoto'] as String?,
       allowedSetsQuota: json['allowedSetsQuota'] as int? ?? 10,
@@ -178,8 +178,8 @@ class AuthService extends ChangeNotifier {
     batch: 'Management',
     sector: 'Administration',
     role: UserRole.admin,
-    instituteId: 'inst_01',
-    instituteName: 'ग्लोबल कोरियन भाषा इन्स्टिच्युट',
+    instituteId: 'inst_abante_ktm',
+    instituteName: 'Abante Korean Language (Abante Academy)',
     allowedSetsQuota: -1,
   );
 
@@ -669,8 +669,8 @@ class AuthService extends ChangeNotifier {
     } else {
       final nowMs = DateTime.now().millisecondsSinceEpoch;
       final newId = googleUid ?? 'STU_$nowMs';
-      final effectiveInstId = instituteId ?? 'inst_01';
-      final effectiveInstName = instituteName ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट';
+      final effectiveInstId = instituteId ?? 'inst_abante_ktm';
+      final effectiveInstName = instituteName ?? 'Abante Korean Language (Abante Academy)';
       final newStudent = AppUser(
         id: newId,
         username: cleanUser,
@@ -717,8 +717,8 @@ class AuthService extends ChangeNotifier {
     } else {
       final nowMs = DateTime.now().millisecondsSinceEpoch;
       final newId = 'STU_$nowMs';
-      final effectiveInstId = instituteId ?? 'inst_01';
-      final effectiveInstName = instituteName ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट';
+      final effectiveInstId = instituteId ?? 'inst_abante_ktm';
+      final effectiveInstName = instituteName ?? 'Abante Korean Language (Abante Academy)';
       final newStudent = AppUser(
         id: newId,
         username: 'user_${nowMs.toString().substring(7)}',
@@ -777,8 +777,8 @@ class AuthService extends ChangeNotifier {
         ? registrationNo.trim()
         : 'REG-${nowMs.toString().substring(7)}';
 
-    final instId = _currentUser?.instituteId ?? 'inst_01';
-    final instName = _currentUser?.instituteName ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट';
+    final instId = _currentUser?.instituteId ?? 'inst_abante_ktm';
+    final instName = _currentUser?.instituteName ?? 'Abante Korean Language (Abante Academy)';
     final instLogo = _currentUser?.instituteLogo ?? 'assets/images/institute_logo_default.png';
 
     final newStudent = AppUser(
@@ -996,8 +996,8 @@ class AuthService extends ChangeNotifier {
     );
     if (exists) return false;
 
-    final instId = _currentUser?.instituteId ?? 'inst_01';
-    final instName = _currentUser?.instituteName ?? 'ग्लोबल कोरियन भाषा इन्स्टिच्युट';
+    final instId = _currentUser?.instituteId ?? 'inst_abante_ktm';
+    final instName = _currentUser?.instituteName ?? 'Abante Korean Language (Abante Academy)';
     final instLogo = _currentUser?.instituteLogo ?? 'assets/images/institute_logo_default.png';
 
     final nowMs = DateTime.now().millisecondsSinceEpoch;

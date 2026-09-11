@@ -33,7 +33,7 @@ class _InstituteProfileScreenState extends State<InstituteProfileScreen> {
   void initState() {
     super.initState();
     final user = AuthService.instance.currentUser;
-    final instId = user?.instituteId ?? 'inst_01';
+    final instId = user?.instituteId ?? 'inst_abante_ktm';
     _institute = InstituteService.instance.getInstituteById(instId) ?? InstituteService.instance.getDefaultInstitute();
 
     _nameCtrl = TextEditingController(text: _institute.name);

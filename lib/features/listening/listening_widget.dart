@@ -1,21 +1,24 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'dart:async';
 import '../question_engine/question_template.dart';
-import '../../core/models/exam_session_model.dart';
 import '../../core/services/audio_playback_service.dart';
+import '../../core/services/language_service.dart';
 import '../../core/widgets/smart_image_widget.dart';
 import '../../core/widgets/sequence_option_widget.dart';
-import '../../core/services/language_service.dart';
 
-/// Authentic HRDK EPS-TOPIK UBT Listening Question Widget
-/// Single Click Continuous Playback Engine: Plays Round 1 -> Brief Intermission -> Auto Repeats Round 2 -> Locks!
+enum AudioState { ready, playingFirst, firstComplete, playingSecond, locked }
+
+/// EPS-TOPIK Official Listening (듣기) Widget
 class ListeningQuestionWidget extends StatefulWidget {
-  final QuestionTemplate question;
+  final dynamic question;
+  final int? selectedOption;
   final int? selectedOptionIndex;
   final Function(int) onOptionSelected;
 
   const ListeningQuestionWidget({
     super.key,
     required this.question,
+    this.selectedOption,
     this.selectedOptionIndex,
     required this.onOptionSelected,
   });
@@ -26,16 +29,17 @@ class ListeningQuestionWidget extends StatefulWidget {
 
 class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
   AudioState _audioState = AudioState.ready;
-  int _loopRunId = 0;
+  Timer? _intermissionTimer;
+
+  int? get _currentSelected => widget.selectedOptionIndex ?? widget.selectedOption;
 
   @override
   void dispose() {
-    _loopRunId++;
+    _intermissionTimer?.cancel();
     AudioPlaybackService.instance.stop();
     super.dispose();
   }
 
-  /// Plays audio continuously for 2 iterations waiting for actual track duration
   Future<void> _startContinuousAudioLoop() async {
     if (_audioState == AudioState.locked ||
         _audioState == AudioState.playingFirst ||
@@ -43,9 +47,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
       return;
     }
 
-    final currentRun = ++_loopRunId;
-
-    String speechText = widget.question.questionText;
+    String speechText = '';
     String? audioPath;
     if (widget.question is UniversalQuestion) {
       speechText = (widget.question as UniversalQuestion).audioScript ?? widget.question.questionText;
@@ -70,61 +72,34 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
       }
     }
 
-    // ----------------------------------------
-    // ROUND 1: 1st Audio Playback
-    // ----------------------------------------
-    if (!mounted || _loopRunId != currentRun) return;
+    // ROUND 1
+    if (!mounted) return;
     setState(() {
       _audioState = AudioState.playingFirst;
     });
 
     await playTrack();
 
-    if (!mounted || _loopRunId != currentRun) return;
+    if (!mounted) return;
     setState(() {
-      _audioState = AudioState.firstComplete; // Intermission state
+      _audioState = AudioState.firstComplete;
     });
 
-    // ----------------------------------------
-    // 1.5s intermission before round 2
-    // ----------------------------------------
-    await Future.delayed(const Duration(seconds: 3));
+    // 2-3 sec Intermission
+    await Future.delayed(const Duration(milliseconds: 2500));
+    if (!mounted) return;
 
-    // ----------------------------------------
-    // ROUND 2: Auto Repeat 2nd Playback
-    // ----------------------------------------
-    if (!mounted || _loopRunId != currentRun) return;
+    // ROUND 2
     setState(() {
       _audioState = AudioState.playingSecond;
     });
 
     await playTrack();
 
-    // Round 2 finishes -> Permanently Locked!
-    if (!mounted || _loopRunId != currentRun) return;
+    if (!mounted) return;
     setState(() {
       _audioState = AudioState.locked;
     });
-  }
-
-  void _playOptionAudio(int index, String? audioUrl, String optionText) {
-    final cleanUrl = audioUrl?.trim() ?? '';
-    final cleanText = optionText.trim();
-
-    final isPlayingThis = AudioPlaybackService.instance.isPlaying &&
-        ((cleanUrl.isNotEmpty && AudioPlaybackService.instance.currentSource == cleanUrl) ||
-            (AudioPlaybackService.instance.currentSource == 'tts:$cleanText'));
-
-    if (isPlayingThis) {
-      AudioPlaybackService.instance.stop();
-      return;
-    }
-
-    if (cleanUrl.isNotEmpty) {
-      AudioPlaybackService.instance.playAudioUrl(cleanUrl, fallbackKoreanText: cleanText);
-    } else if (cleanText.isNotEmpty) {
-      AudioPlaybackService.instance.playKoreanSpeech(cleanText);
-    }
   }
 
   @override
@@ -135,281 +110,229 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
     } else if (widget.question is ListeningAudioQuestion) {
       rawOptions = (widget.question as ListeningAudioQuestion).textOptions;
     } else if (widget.question is ListeningImageOptionsQuestion) {
-      rawOptions = (widget.question as ListeningImageOptionsQuestion).imageOptionPaths;
-    } else if (widget.question is ReadingTextQuestion) {
-      rawOptions = (widget.question as ReadingTextQuestion).textOptions;
-    } else if (widget.question is ReadingImageQuestion) {
-      rawOptions = (widget.question as ReadingImageQuestion).textOptions;
+      rawOptions = List.generate(4, (i) => '${i + 1}번');
     }
 
-    final List<String> options = List.generate(4, (index) {
-      if (index < rawOptions.length) {
-        return rawOptions[index];
-      }
-      return '';
-    });
-
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     final isLocked = _audioState == AudioState.locked;
     final isPlaying = _audioState == AudioState.playingFirst || _audioState == AudioState.playingSecond;
     final isIntermission = _audioState == AudioState.firstComplete;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isLandscape = constraints.maxWidth >= 640;
-
-        if (!isLandscape) {
-          // ==========================================
-          // MOBILE / PORTRAIT: VERTICAL STACK
-          // ==========================================
-          return SingleChildScrollView(
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 2),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Top Card: Audio Player & Prompt
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.grey.shade300, width: 1.0),
-                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))],
-                  ),
-                  child: _buildAudioPromptPane(context, false, isLocked, isPlaying, isIntermission),
-                ),
-                const SizedBox(height: 10),
-                // Bottom Card: 4 Multiple Choice Options
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.grey.shade300, width: 1.0),
-                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))],
-                  ),
-                  child: _buildOptionsPane(context, options, false),
-                ),
-                const SizedBox(height: 12),
-              ],
+    if (isLandscape) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // LEFT PANE: Listening Audio Player & Prompt (50% split)
+          Expanded(
+            flex: 5,
+            child: SingleChildScrollView(
+              child: _buildAudioPromptPane(context, true, isLocked, isPlaying, isIntermission),
             ),
-          );
-        }
-
-        // ==========================================
-        // LANDSCAPE / TABLET / DESKTOP: 2-COLUMN SPLIT
-        // ==========================================
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // LEFT PANE: Listening Audio Player & Prompt
-            Expanded(
-              flex: 6,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300, width: 1.0),
-                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))],
-                ),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                  child: _buildAudioPromptPane(context, true, isLocked, isPlaying, isIntermission),
-                ),
-              ),
+          ),
+          const SizedBox(width: 14),
+          // RIGHT PANE: 4 Options (50% split)
+          Expanded(
+            flex: 5,
+            child: SingleChildScrollView(
+              child: _buildOptions(rawOptions, isLandscape),
             ),
+          ),
+        ],
+      );
+    }
 
-            const SizedBox(width: 8),
-
-            // RIGHT PANE: 4 Multiple-Choice Options
-            Expanded(
-              flex: 5,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300, width: 1.0),
-                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 3, offset: Offset(0, 1))],
-                ),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                  child: _buildOptionsPane(context, options, true),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildAudioPromptPane(context, false, isLocked, isPlaying, isIntermission),
+          const SizedBox(height: 16),
+          _buildOptions(rawOptions, isLandscape),
+        ],
+      ),
     );
   }
 
-  Widget _buildAudioPromptPane(BuildContext context, bool isLandscape, bool isLocked, bool isPlaying, bool isIntermission) {
-    String? questionImageUrl;
-    if (widget.question is UniversalQuestion && (widget.question as UniversalQuestion).hasQuestionImage) {
-      questionImageUrl = (widget.question as UniversalQuestion).questionImageUrl;
-    }
+  Widget _buildAudioPromptPane(
+    BuildContext context,
+    bool isLandscape,
+    bool isLocked,
+    bool isPlaying,
+    bool isIntermission,
+  ) {
+    final cleanPrompt = widget.question.questionText.split('\n').first.trim();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section Badge
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xFFD97706),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                LanguageService.instance.listeningSectionText(),
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
-              ),
-            ),
-            const SizedBox(width: 6),
-            if (widget.question is UniversalQuestion && (widget.question as UniversalQuestion).isAudioOnly)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFC2410C),
-                  borderRadius: BorderRadius.circular(4),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isLandscape ? 12 : 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Question Header
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  cleanPrompt,
+                  style: TextStyle(
+                    fontSize: isLandscape ? 14 : 16,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF0F172A),
+                    height: 1.35,
+                  ),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.audiotrack, color: Colors.white, size: 11),
-                    const SizedBox(width: 3),
-                    Text(
-                      LanguageService.instance.trText(
-                        ne: 'अडियो मात्र (Audio Only)',
-                        en: 'Strict Audio Only',
-                        ko: '오디오 전용',
+              ),
+              if (widget.question is UniversalQuestion &&
+                  (widget.question as UniversalQuestion).isAudioOnly)
+                Container(
+                  margin: const EdgeInsets.only(left: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.deepPurple.shade700,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.audiotrack, color: Colors.white, size: 11),
+                      const SizedBox(width: 3),
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: 'अडियो मात्र (Audio Only)',
+                          en: 'Strict Audio Only',
+                          ko: '순수 듣기 전용',
+                        ),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 8),
-
-        // Question Instruction Text
-        Text(
-          widget.question.questionText,
-          style: TextStyle(
-            fontSize: isLandscape ? 14 : 16,
-            fontWeight: FontWeight.bold,
-            height: 1.35,
-            color: const Color(0xFF0F172A),
+            ],
           ),
-        ),
-        if (questionImageUrl != null && questionImageUrl.isNotEmpty) ...[
+
           const SizedBox(height: 10),
-          Center(
-            child: Container(
-              constraints: BoxConstraints(maxHeight: isLandscape ? 150 : 200),
+
+          // Question Image (if any)
+          if (widget.question is UniversalQuestion &&
+              (widget.question as UniversalQuestion).hasQuestionImage) ...[
+            Container(
+              constraints: BoxConstraints(maxHeight: isLandscape ? 110 : 160),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
                 border: Border.all(color: Colors.grey.shade300),
               ),
               clipBehavior: Clip.antiAlias,
               child: SmartImageWidget(
-                imageSource: questionImageUrl,
+                imageSource: (widget.question as UniversalQuestion).questionImageUrl!,
                 fit: BoxFit.contain,
               ),
             ),
-          ),
-        ],
-        SizedBox(height: isLandscape ? 8 : 14),
+            const SizedBox(height: 10),
+          ],
 
-        // Speaker Icon centered below the question
-        Center(
-          child: Tooltip(
-            message: isLocked
-                ? LanguageService.instance.trText(ne: 'अडियो समाप्त (२/२ सकियो)', en: 'Audio Completed (Locked)', ko: '재생 완료 (오디오 잠금)')
-                : (isPlaying
-                    ? LanguageService.instance.trText(ne: 'अडियो बजिरहेको छ...', en: 'Audio playing...', ko: '오디오 재생 중...')
-                    : LanguageService.instance.trText(ne: 'अडियो सुन्नुहोस् (यहाँ थिच्नुहोस्)', en: 'Listen to Audio (Click to Play)', ko: '오디오 듣기 (클릭하여 재생)')),
-            child: Material(
-              color: isLocked
-                  ? Colors.grey.shade200
-                  : (isPlaying ? const Color(0xFFFEF3C7) : const Color(0xFFEFF6FF)),
-              shape: const CircleBorder(),
-              child: InkWell(
-                customBorder: const CircleBorder(),
-                onTap: isLocked ? null : _startContinuousAudioLoop,
-                child: Container(
-                  padding: EdgeInsets.all(isLandscape ? 10 : 16),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isLocked
-                          ? Colors.grey.shade400
-                          : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF3B82F6)),
-                      width: 2.0,
-                    ),
-                  ),
-                  child: Icon(
-                    isLocked
-                        ? Icons.lock_rounded
-                        : (isPlaying ? Icons.volume_up_rounded : Icons.play_arrow_rounded),
-                    size: isLandscape ? 28 : 36,
+          // Audio Player Banner
+          Center(
+            child: Column(
+              children: [
+                Text(
+                  isLocked
+                      ? LanguageService.instance.trText(
+                          ne: 'अडियो समाप्त (२/२ सकियो)',
+                          en: 'Audio Completed (Locked)',
+                          ko: '재생 완료 (오디오 잠금)',
+                        )
+                      : (isPlaying
+                          ? LanguageService.instance.trText(
+                              ne: 'अडियो बजिरहेको छ...',
+                              en: 'Audio playing...',
+                              ko: '오디오 재생 중...',
+                            )
+                          : LanguageService.instance.trText(
+                              ne: 'अडियो सुन्नुहोस् (यहाँ थिच्नुहोस्)',
+                              en: 'Listen to Audio (Click to Play)',
+                              ko: '오디오 듣기 (클릭하여 재생)',
+                            )),
+                  style: TextStyle(
+                    fontSize: isLandscape ? 12 : 14,
+                    fontWeight: FontWeight.bold,
                     color: isLocked
-                        ? Colors.grey.shade500
+                        ? Colors.grey.shade600
                         : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF1E3A8A)),
                   ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                Material(
+                  color: isLocked
+                      ? Colors.grey.shade200
+                      : (isPlaying ? const Color(0xFFFEF3C7) : const Color(0xFFEFF6FF)),
+                  shape: const CircleBorder(),
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: isLocked ? null : _startContinuousAudioLoop,
+                    child: Container(
+                      padding: EdgeInsets.all(isLandscape ? 14 : 16),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isLocked
+                              ? Colors.grey.shade400
+                              : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF3B82F6)),
+                          width: isPlaying ? 2.5 : 1.5,
+                        ),
+                      ),
+                      child: Icon(
+                        isLocked
+                            ? Icons.volume_off
+                            : (isPlaying ? Icons.volume_up_rounded : Icons.play_arrow_rounded),
+                        size: isLandscape ? 32 : 36,
+                        color: isLocked
+                            ? Colors.grey.shade500
+                            : (isPlaying ? const Color(0xFFD97706) : const Color(0xFF1E3A8A)),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildOptionsPane(BuildContext context, List<String> options, bool isLandscape) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 4 Options Stacked Vertically
-        ...List.generate(4, (index) {
-          final isSelected = widget.selectedOptionIndex == index;
-          const circledNumbers = ['①', '②', '③', '④'];
-          final numLabel = circledNumbers[index];
-          final optionText = options[index].trim();
+  Widget _buildOptions(List<String> rawOptions, bool isLandscape) {
+    final circledNums = ['①', '②', '③', '④'];
 
-          // Check if image option exists
+    return Column(
+      children: [
+        ...List.generate(rawOptions.length, (index) {
+          final isSelected = _currentSelected == index;
+          final numLabel = index < circledNums.length ? circledNums[index] : '${index + 1}';
+          final optionText = rawOptions[index].trim();
+
           String? imageOptionUrl;
           if (widget.question is UniversalQuestion) {
             final uq = widget.question as UniversalQuestion;
-            if (index < uq.imageOptions.length && uq.imageOptions[index] != null && uq.imageOptions[index]!.trim().isNotEmpty) {
+            if (index < uq.imageOptions.length &&
+                uq.imageOptions[index] != null &&
+                uq.imageOptions[index]!.trim().isNotEmpty) {
               imageOptionUrl = uq.imageOptions[index]!.trim();
             }
-          } else if (widget.question is ListeningImageOptionsQuestion) {
-            final lio = widget.question as ListeningImageOptionsQuestion;
-            if (index < lio.imageOptionPaths.length && lio.imageOptionPaths[index].trim().isNotEmpty) {
-              imageOptionUrl = lio.imageOptionPaths[index].trim();
-            }
           }
 
-          // Check if audio option exists
-          String? audioOptionUrl;
-          if (widget.question is UniversalQuestion) {
-            final uq = widget.question as UniversalQuestion;
-            if (index < uq.audioOptions.length && uq.audioOptions[index] != null && uq.audioOptions[index]!.trim().isNotEmpty) {
-              audioOptionUrl = uq.audioOptions[index]!.trim();
-            }
-          }
-
-          // Fallback text if text is blank and no image is attached:
-          final displayText = optionText.isNotEmpty 
-              ? optionText 
+          final displayText = optionText.isNotEmpty
+              ? optionText
               : (imageOptionUrl == null ? '${index + 1}번' : '');
-
-          final hasAudioCapability = (audioOptionUrl != null && audioOptionUrl.isNotEmpty) || optionText.isNotEmpty;
 
           return Container(
             margin: EdgeInsets.only(bottom: isLandscape ? 6 : 8),
@@ -485,58 +408,6 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
                                   imageSource: imageOptionUrl,
                                   fit: BoxFit.contain,
                                 ),
-                              ),
-                            ],
-                            if (hasAudioCapability) ...[
-                              const SizedBox(height: 4),
-                              ValueListenableBuilder<String?>(
-                                valueListenable: AudioPlaybackService.instance.currentAudioSourceNotifier,
-                                builder: (context, currentSource, _) {
-                                  final isPlayingThis = AudioPlaybackService.instance.isPlaying &&
-                                      ((audioOptionUrl != null && currentSource == audioOptionUrl) ||
-                                          (optionText.isNotEmpty && currentSource == 'tts:$optionText'));
-
-                                  return InkWell(
-                                    onTap: () => _playOptionAudio(index, audioOptionUrl, optionText),
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                      decoration: BoxDecoration(
-                                        color: isPlayingThis ? const Color(0xFFFDE68A) : Colors.amber.shade50,
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
-                                          color: isPlayingThis ? const Color(0xFFD97706) : Colors.amber.shade300,
-                                          width: isPlayingThis ? 1.5 : 1.0,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            isPlayingThis ? Icons.volume_up : Icons.play_circle_fill,
-                                            size: 14,
-                                            color: const Color(0xFFD97706),
-                                          ),
-                                          const SizedBox(width: 3),
-                                          Text(
-                                            isPlayingThis
-                                                ? LanguageService.instance.trText(
-                                                    ne: 'बज्दैछ...',
-                                                    en: 'Playing...',
-                                                    ko: '재생 중...',
-                                                  )
-                                                : LanguageService.instance.trText(
-                                                    ne: 'अडियो सुन्नुहोस्',
-                                                    en: 'Play Audio',
-                                                    ko: '음성 듣기',
-                                                  ),
-                                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
                               ),
                             ],
                           ],

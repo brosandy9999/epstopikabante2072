@@ -242,7 +242,7 @@ class InstituteService extends ChangeNotifier {
       if (jsonStr == null || jsonStr.isEmpty) return null;
       final List decoded = jsonDecode(jsonStr);
       final list = decoded.map((e) => InstituteProfile.fromJson(Map<String, dynamic>.from(e))).toList();
-      if (list.any((i) => i.id == 'inst_01' || i.name.contains('Global Korean') || i.name.contains('Everest'))) {
+      if (list.any((i) => i.id == 'inst_abante_ktm' || i.name.contains('Abante Korean') || i.name.contains('Everest'))) {
         return null;
       }
       return list;

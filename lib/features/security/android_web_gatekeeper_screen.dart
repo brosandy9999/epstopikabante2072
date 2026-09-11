@@ -6,11 +6,6 @@ import '../../core/services/language_service.dart';
 import '../../core/services/download_helper.dart';
 
 /// EPS-TOPIK Official Coursebook (한국어 표준교재 2026) Themed Gatekeeper Screen
-/// Designed with the official HRD Korea Standard Textbook Cover Color Combination:
-/// - Crisp clean porcelain white background with soft pastel pink & emerald teal wave gradients
-/// - Book 1 (일상생활 한국어 1권 - Rose/Magenta) & Book 2 (직장생활 한국어 2권 - Emerald/Teal) motifs
-/// - Official HRD Korea & Ministry of Employment and Labor (고용노동부) typography & emblems
-/// - 1-Click Device-Smart APK Download & Full Offline Coursebook + UBT Hall access
 class AndroidWebGatekeeperScreen extends StatelessWidget {
   final bool showBackButton;
   const AndroidWebGatekeeperScreen({super.key, this.showBackButton = false});
@@ -36,7 +31,6 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
             title: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // HRD Book Style Emblem
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
@@ -91,7 +85,6 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Official HRD Korea Coursebook Header Badges
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -120,14 +113,10 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 16),
-
-                        // Dual Book Cover Visual Cards (Book 1 Rose Pink & Book 2 Emerald Green)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            // Book 1 Badge Card
                             _buildCoursebookCoverBadge(
                               bookNum: '1',
                               labelKo: '일상생활 한국어',
@@ -138,7 +127,6 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                               bgGradient: const [Color(0xFFFFF1F2), Color(0xFFFFE4E6)],
                             ),
                             const SizedBox(width: 12),
-                            // Book 2 Badge Card
                             _buildCoursebookCoverBadge(
                               bookNum: '2',
                               labelKo: '직장생활 한국어',
@@ -150,10 +138,7 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 20),
-
-                        // Coursebook Title Header
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
                           decoration: BoxDecoration(
@@ -174,18 +159,12 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 10),
-
-                        // Big Title in Bold Coursebook Typography
                         Text(
                           LanguageService.instance.trText(
-                            ne: '한국어 표준교재
-EPS-TOPIK UBT आधिकारिक एप',
-                            en: '한국어 표준교재
-Official EPS-TOPIK UBT Mobile App',
-                            ko: '한국어 표준교재 2026
-공식 EPS-TOPIK UBT 모바일 앱',
+                            ne: '한국어 표준교재\nEPS-TOPIK UBT आधिकारिक एप',
+                            en: '한국어 표준교재\nOfficial EPS-TOPIK UBT Mobile App',
+                            ko: '한국어 표준교재 2026\n공식 EPS-TOPIK UBT 모바일 앱',
                           ),
                           style: const TextStyle(
                             color: Color(0xFF0F172A),
@@ -196,10 +175,7 @@ Official EPS-TOPIK UBT Mobile App',
                           ),
                           textAlign: TextAlign.center,
                         ),
-
                         const SizedBox(height: 10),
-
-                        // Subtitle
                         Text(
                           LanguageService.instance.trText(
                             ne: 'कोरियाली भाषा मानक पाठ्यपुस्तकका सम्पूर्ण ६० पाठ, पुस्तकभित्रै बज्ने ओरिजिनल अडियो, र १००% वास्तविक UBT एक्जाम हल अब तपाईंको मोबाइलमा!',
@@ -213,10 +189,7 @@ Official EPS-TOPIK UBT Mobile App',
                           ),
                           textAlign: TextAlign.center,
                         ),
-
                         const SizedBox(height: 22),
-
-                        // Pill Badges with Pastel Textbook Tones
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
@@ -228,10 +201,7 @@ Official EPS-TOPIK UBT Mobile App',
                             _buildPillBadge(Icons.quiz_rounded, LanguageService.instance.trText(ne: '४०+ UBT सेटहरू', en: '40+ Real UBT Sets', ko: '40+ 실전 UBT'), const Color(0xFF7C3AED)),
                           ],
                         ),
-
                         const SizedBox(height: 24),
-
-                        // Smart Device Auto-Detection Card (Textbook Styled)
                         Builder(
                           builder: (context) {
                             final detected = getDetectedApkInfo();
@@ -321,8 +291,6 @@ Official EPS-TOPIK UBT Mobile App',
                             );
                           },
                         ),
-
-                        // Primary Action 1: Official HRD Gradient Smart Download Button
                         Builder(
                           builder: (context) {
                             final detected = getDetectedApkInfo();
@@ -414,10 +382,7 @@ Official EPS-TOPIK UBT Mobile App',
                             );
                           },
                         ),
-
                         const SizedBox(height: 12),
-
-                        // Action 2: Choose another device APK / All Platform Modal
                         SizedBox(
                           width: double.infinity,
                           height: 48,
@@ -444,10 +409,7 @@ Official EPS-TOPIK UBT Mobile App',
                             },
                           ),
                         ),
-
                         const SizedBox(height: 10),
-
-                        // Action 3: Web Portal / Direct Login
                         SizedBox(
                           width: double.infinity,
                           child: TextButton.icon(
@@ -476,10 +438,7 @@ Official EPS-TOPIK UBT Mobile App',
                             },
                           ),
                         ),
-
                         const SizedBox(height: 26),
-
-                        // Textbook Feature Highlights (White cards with colored book ribbon accents)
                         _buildFeatureCard(
                           icon: Icons.auto_stories_rounded,
                           accentColor: const Color(0xFFE11D48),
@@ -495,7 +454,6 @@ Official EPS-TOPIK UBT Mobile App',
                             ko: '1과부터 60과까지 대화, 어휘, 듣기 지문이 교재 페이지 내에서 바로 재생됩니다.',
                           ),
                         ),
-
                         _buildFeatureCard(
                           icon: Icons.timer_outlined,
                           accentColor: const Color(0xFF0D9488),
@@ -511,7 +469,6 @@ Official EPS-TOPIK UBT Mobile App',
                             ko: '실제 시험과 동일한 타이머, 읽기/듣기 화면 분할, 즉각적인 성적 분석.',
                           ),
                         ),
-
                         _buildFeatureCard(
                           icon: Icons.wifi_off_rounded,
                           accentColor: const Color(0xFF2563EB),
@@ -527,10 +484,7 @@ Official EPS-TOPIK UBT Mobile App',
                             ko: '인터넷 연결 없이도 모든 시험 및 오디오 학습 무제한 이용.',
                           ),
                         ),
-
                         const SizedBox(height: 24),
-
-                        // 3-Step Installation Guide (Clean Textbook Card)
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(20),
@@ -607,10 +561,7 @@ Official EPS-TOPIK UBT Mobile App',
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 28),
-
-                        // Official Agency Endorsement & Copyright Footer
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                           decoration: BoxDecoration(

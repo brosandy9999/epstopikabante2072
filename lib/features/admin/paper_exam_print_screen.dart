@@ -61,7 +61,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
 
     // Initialize institute branding
     final user = AuthService.instance.currentUser;
-    final instId = user?.instituteId ?? 'inst_01';
+    final instId = user?.instituteId ?? 'inst_abante_ktm';
     final profile = InstituteService.instance.getInstituteById(instId) ??
         InstituteService.instance.getDefaultInstitute();
 
@@ -1523,7 +1523,7 @@ class _PaperExamPrintScreenState extends State<PaperExamPrintScreen> {
 
                             if (saveToProfile) {
                               final user = AuthService.instance.currentUser;
-                              final instId = user?.instituteId ?? 'inst_01';
+                              final instId = user?.instituteId ?? 'inst_abante_ktm';
                               final profile = InstituteService.instance.getInstituteById(instId) ??
                                   InstituteService.instance.getDefaultInstitute();
                               if (newName.isNotEmpty) profile.name = newName;

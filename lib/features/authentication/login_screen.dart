@@ -28,7 +28,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String _activeInstituteId = 'inst_01';
+  String _activeInstituteId = 'inst_abante_ktm';
 
   @override
   void initState() {
@@ -300,7 +300,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final phoneCtrl = TextEditingController();
     
     final institutes = InstituteService.instance.getAllInstitutes();
-    String selectedInstituteId = institutes.isNotEmpty ? institutes.first.id : 'inst_01';
+    String selectedInstituteId = institutes.isNotEmpty ? institutes.first.id : 'inst_abante_ktm';
     String selectedBatch = _batchesList.first;
     String selectedSector = _sectorsList.first;
     String regError = '';
@@ -758,7 +758,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final nameCtrl = TextEditingController();
 
     final institutes = InstituteService.instance.getAllInstitutes();
-    String selectedInstituteId = institutes.isNotEmpty ? institutes.first.id : 'inst_01';
+    String selectedInstituteId = institutes.isNotEmpty ? institutes.first.id : 'inst_abante_ktm';
 
     String generatedOtp = '';
     bool otpSent = false;
@@ -1139,7 +1139,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final confirmPassCtrl = TextEditingController();
 
     final institutes = InstituteService.instance.getAllInstitutes();
-    String selectedInstituteId = institutes.isNotEmpty ? institutes.first.id : 'inst_01';
+    String selectedInstituteId = institutes.isNotEmpty ? institutes.first.id : 'inst_abante_ktm';
     String selectedBatch = _batchesList.first;
     String selectedSector = _sectorsList.first;
     String error = '';
@@ -1918,12 +1918,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         orElse: () => institutes.isNotEmpty
                             ? institutes.first
                             : InstituteProfile(
-                                id: 'inst_01',
-                                name: 'ग्लोबल कोरियन भाषा इन्स्टिच्युट',
-                                code: 'GLOBAL_KTM',
+                                id: 'inst_abante_ktm',
+                                name: 'Abante Korean Language (Abante Academy)',
+                                code: 'ABANTE_KTM',
                                 logoUrl: '',
-                                phone: '9851234567',
-                                email: 'contact@globalinstitute.edu.np',
+                                phone: '014168102',
+                                email: 'info@abante.edu.np',
                                 address: 'बागबजार, काठमाडौं',
                                 aboutUs: '',
                                 allowedSetsQuota: 5,

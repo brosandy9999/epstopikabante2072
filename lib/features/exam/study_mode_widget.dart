@@ -105,25 +105,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
     });
   }
 
-  void _playOptionAudio(int index, String? audioUrl, String optionText) {
-    final cleanUrl = audioUrl?.trim() ?? '';
-    final cleanText = optionText.trim();
-
-    final isPlayingThis = AudioPlaybackService.instance.isPlaying &&
-        ((cleanUrl.isNotEmpty && AudioPlaybackService.instance.currentSource == cleanUrl) ||
-            (AudioPlaybackService.instance.currentSource == 'tts:'));
-
-    if (isPlayingThis) {
-      AudioPlaybackService.instance.stop();
-      return;
-    }
-
-    if (cleanUrl.isNotEmpty) {
-      AudioPlaybackService.instance.playAudioUrl(cleanUrl, fallbackKoreanText: cleanText);
-    } else if (cleanText.isNotEmpty) {
-      AudioPlaybackService.instance.playKoreanSpeech(cleanText);
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -406,20 +388,13 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
           final label = index < circledNumbers.length ? circledNumbers[index] : '';
           final optionText = options[index].trim();
 
-          // Extract option audio if exists
-          String? audioOptionUrl;
           String? imageOptionUrl;
           if (widget.question is UniversalQuestion) {
             final uq = widget.question as UniversalQuestion;
-            if (index < uq.audioOptions.length && uq.audioOptions[index] != null && uq.audioOptions[index]!.trim().isNotEmpty) {
-              audioOptionUrl = uq.audioOptions[index]!.trim();
-            }
             if (index < uq.imageOptions.length && uq.imageOptions[index] != null && uq.imageOptions[index]!.trim().isNotEmpty) {
               imageOptionUrl = uq.imageOptions[index]!.trim();
             }
           }
-
-          final hasAudioCapability = (audioOptionUrl != null && audioOptionUrl.isNotEmpty) || optionText.isNotEmpty;
 
           final isThisSelected = widget.selectedOption == index;
           final isThisCorrect = widget.answerInfo != null && index == widget.answerInfo!.correctIndex;
@@ -497,48 +472,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
                                 child: SmartImageWidget(imageSource: imageOptionUrl, fit: BoxFit.contain),
                               ),
                             ],
-                            if (hasAudioCapability) ...[
-                              const SizedBox(height: 6),
-                              ValueListenableBuilder<String?>(
-                                valueListenable: AudioPlaybackService.instance.currentAudioSourceNotifier,
-                                builder: (context, currentSource, _) {
-                                  final isPlayingThis = AudioPlaybackService.instance.isPlaying &&
-                                      ((audioOptionUrl != null && currentSource == audioOptionUrl) ||
-                                          (optionText.isNotEmpty && currentSource == 'tts:'));
-
-                                  return InkWell(
-                                    onTap: () => _playOptionAudio(index, audioOptionUrl, optionText),
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                      decoration: BoxDecoration(
-                                        color: isPlayingThis ? const Color(0xFFFDE68A) : Colors.amber.shade50,
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
-                                          color: isPlayingThis ? const Color(0xFFD97706) : Colors.amber.shade300,
-                                          width: isPlayingThis ? 1.5 : 1.0,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            isPlayingThis ? Icons.volume_up : Icons.play_circle_fill,
-                                            size: 14,
-                                            color: const Color(0xFFD97706),
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            isPlayingThis ? 'बज्दैछ...' : 'अडियो सुन्नुहोस्',
-                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF92400E)),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
+                            
                           ],
                         ),
                       ),
@@ -591,7 +525,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
                 const SizedBox(height: 10),
                 if (widget.answerInfo != null) ...[
                   Text(
-                    '💡 ',
+                    '💡 ' + LanguageService.instance.trText(ne: 'व्याख्या (Explanation):', en: 'Explanation:', ko: '해설:'),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
                   ),
                   const SizedBox(height: 4),
