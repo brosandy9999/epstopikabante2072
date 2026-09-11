@@ -30,10 +30,15 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   String _activeInstituteId = 'inst_abante_ktm';
 
+  void _onInstitutesUpdated() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
     _loadSavedInstitute();
+    InstituteService.instance.addListener(_onInstitutesUpdated);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (isAndroidWeb) {
         if (mounted) {
@@ -78,6 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _idController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoggingIn = false;
   String _errorMessage = "";
 
   final List<String> _batchesList = [
@@ -96,24 +102,50 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    InstituteService.instance.removeListener(_onInstitutesUpdated);
     _idController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
+  Future<void> _handleLogin() async {
+    if (_isLoggingIn) return;
+
     final identifier = _idController.text.trim();
     final password = _passwordController.text.trim();
 
     if (identifier.isEmpty || password.isEmpty) {
       setState(() {
-        _errorMessage = LanguageService.instance.trText(ne: "कृपया आफ्नो Username, मोबाइल नम्बर वा पासवर्ड भर्नुहोस्!", en: "Please enter your Username/Mobile and password!", ko: "아이디/휴대폰 번호 및 비밀번호를 입력해 주세요!");
+        _errorMessage = LanguageService.instance.trText(
+          ne: "कृपया Username/मोबाइल र पासवर्ड भर्नुहोस्!",
+          en: "Please enter your Username/Mobile and password!",
+          ko: "아이디/전화번호와 비밀번호를 입력해주세요!",
+        );
       });
       return;
     }
 
-    // Unified login: Auto-detects admin or student
-    final user = AuthService.instance.login(identifier, password);
+    setState(() {
+      _isLoggingIn = true;
+      _errorMessage = "";
+    });
+
+    // 1. Unified login: Auto-detects admin or student from local cache
+    var user = AuthService.instance.login(identifier, password);
+
+    // 2. If user not found locally, instantly pull latest from Firebase Realtime Database
+    if (user == null) {
+      try {
+        await CloudSyncService.instance.pullFromCloud(force: true, silent: true);
+        user = AuthService.instance.login(identifier, password);
+      } catch (_) {}
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoggingIn = false;
+    });
 
     if (user != null) {
       setState(() {
@@ -133,17 +165,21 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (user.isPendingApproval) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: user)),
+          MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: user!)),
         );
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => StudentDashboardScreen(student: user)),
+          MaterialPageRoute(builder: (context) => StudentDashboardScreen(student: user!)),
         );
       }
     } else {
       setState(() {
-        _errorMessage = LanguageService.instance.trText(ne: "लगइन विवरण मिलेन! कृपया सही Username/मोबाइल नम्बर र पासवर्ड हाल्नुहोस्।", en: "Invalid credentials! Please check your details.", ko: "로그인 정보가 올바르지 않습니다.");
+        _errorMessage = LanguageService.instance.trText(
+          ne: "गलत विवरण! कृपया आफ्नो Username/मोबाइल र पासवर्ड जाँच गर्नुहोस्।",
+          en: "Invalid credentials! Please check your details.",
+          ko: "아이디 또는 비밀번호가 일치하지 않습니다.",
+        );
       });
     }
   }
@@ -257,12 +293,12 @@ class _LoginScreenState extends State<LoginScreen> {
       if (user.isPendingApproval) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: user)),
+          MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: user!)),
         );
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => StudentDashboardScreen(student: user)),
+          MaterialPageRoute(builder: (context) => StudentDashboardScreen(student: user!)),
         );
       }
 
@@ -598,7 +634,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: user)),
+                    MaterialPageRoute(builder: (context) => ApprovalPendingScreen(student: user!)),
                   );
 
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -2226,16 +2262,34 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(
                     width: double.infinity,
                     height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: _handleLogin,
+                    child: ElevatedButton(
+                      onPressed: _isLoggingIn ? null : _handleLogin,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1E3A8A),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         elevation: 2,
                       ),
-                      icon: const Icon(Icons.login, size: 18),
-                      label: Text(LanguageService.instance.tr("sign_in"), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                      child: _isLoggingIn
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.login, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  LanguageService.instance.tr("sign_in"),
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
                     ),
                   ),
                   const SizedBox(height: 16),

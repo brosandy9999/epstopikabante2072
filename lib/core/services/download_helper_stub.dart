@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 /// High speed CDN Download URLs
 const String kGithubApkTabA32BitUrl =
-    'https://brosandy9999.github.io/epstopikabante2072/apk/app-armeabi-v7a-release.apk';
+    'https://brosandy9999.github.io/epstopikabante2072/apk/eps_topik_armv7.apk';
 const String kGithubApkPhone64BitUrl =
-    'https://brosandy9999.github.io/epstopikabante2072/apk/app-arm64-v8a-release.apk';
+    'https://brosandy9999.github.io/epstopikabante2072/apk/eps_topik_latest.apk';
 const String kGithubApkUniversalUrl =
-    'https://brosandy9999.github.io/epstopikabante2072/apk/app-release.apk';
+    'https://brosandy9999.github.io/epstopikabante2072/apk/eps_topik_latest.apk';
 const String kGithubWebUrl =
     'https://brosandy9999.github.io/epstopikabante2072/';
 
@@ -55,14 +55,14 @@ class AppDownloadOption {
 
 const AppDownloadOption kAndroidPhone64Option = AppDownloadOption(
   type: DevicePlatformType.androidPhone64Bit,
-  titleNe: 'Android Phone (६४-बिट APK)',
+  titleNe: 'Android Phone (६४-बिट कम्प्रेस्ड APK)',
   titleEn: 'Android Phone (64-bit arm64-v8a)',
-  titleKo: '안드로이드 스마트폰 (64비트)',
-  subtitleNe: 'Samsung, Xiaomi, Realme, Poco, Vivo, Oppo आदी अधिकांश फोनका लागि',
-  subtitleEn: 'Optimized for modern Android smartphones (arm64-v8a)',
-  subtitleKo: '최신 안드로이드 스마트폰 전용 초경량 최적화 버전',
+  titleKo: '안드로이드 스마트폰 (64비트 최적화)',
+  subtitleNe: 'Samsung, Xiaomi, Realme, Poco, Vivo, Oppo आदी आधुनिक फोनका लागि',
+  subtitleEn: 'Optimized lightweight build for modern Android smartphones (arm64-v8a)',
+  subtitleKo: '최신 안드로이드 스마트폰 전용 초경량 압축 최적화 버전',
   downloadUrl: kGithubApkPhone64BitUrl,
-  sizeText: '20.7 MB',
+  sizeText: '61.9 MB (Compressed)',
   deviceLabel: 'Android Smartphone (64-bit)',
   icon: Icons.smartphone_rounded,
   isApk: true,
@@ -70,14 +70,14 @@ const AppDownloadOption kAndroidPhone64Option = AppDownloadOption(
 
 const AppDownloadOption kSamsungTab32Option = AppDownloadOption(
   type: DevicePlatformType.samsungTab32Bit,
-  titleNe: 'Samsung Galaxy Tab A & ३२-बिट',
+  titleNe: 'Samsung Galaxy Tab A & ३२-बिट APK',
   titleEn: 'Samsung Galaxy Tab A & 32-bit',
   titleKo: '삼성 갤럭시 탭 A 및 32비트',
-  subtitleNe: 'Galaxy Tab A (SM-T290/T295/T510) तथा ३२-बिट ट्याब्लेटका लागि',
+  subtitleNe: 'Galaxy Tab A (SM-T290/T295/T510) तथा पुराना ३२-बिट डिभाइसका लागि',
   subtitleEn: 'Specially built for Galaxy Tab A & 32-bit armeabi-v7a tablets',
   subtitleKo: '삼성 갤럭시 탭 A 및 32비트 태블릿 전용 버전',
   downloadUrl: kGithubApkTabA32BitUrl,
-  sizeText: '18.5 MB',
+  sizeText: '59.7 MB (Compressed)',
   deviceLabel: 'Samsung Galaxy Tab A / 32-bit Tablet',
   icon: Icons.tablet_android_rounded,
   isApk: true,
@@ -85,14 +85,14 @@ const AppDownloadOption kSamsungTab32Option = AppDownloadOption(
 
 const AppDownloadOption kUniversalAndroidOption = AppDownloadOption(
   type: DevicePlatformType.androidUniversal,
-  titleNe: 'Universal Android (सबै डिभाइस)',
-  titleEn: 'Universal Android (All Devices)',
-  titleKo: '통합 올인원 APK (모든 기기)',
-  subtitleNe: 'कुनै पनि एन्ड्रोइड फोन वा ट्याब्लेटमा १००% चल्ने अल-इन-वन प्याकेज',
-  subtitleEn: 'Complete all-in-one package for any Android device or emulator',
-  subtitleKo: '모든 안드로이드 스마트폰 및 태블릿 지원 통합본',
+  titleNe: 'Official Android APK (सबै डिभाइस)',
+  titleEn: 'Official Android APK (Latest)',
+  titleKo: '공식 안드로이드 APK (최신버전)',
+  subtitleNe: 'कुनै पनि एन्ड्रोइड स्मार्टफोन वा ट्याब्लेटमा १००% चल्ने आधिकारिक APK',
+  subtitleEn: 'Official release APK package for any Android device',
+  subtitleKo: '모든 안드로이드 스마트폰 및 태블릿 지원 공식 배포본',
   downloadUrl: kGithubApkUniversalUrl,
-  sizeText: '77.8 MB',
+  sizeText: '61.9 MB (Latest)',
   deviceLabel: 'Universal Android Device',
   icon: Icons.android_rounded,
   isApk: true,

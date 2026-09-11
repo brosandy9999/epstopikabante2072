@@ -67,14 +67,11 @@ Future<void> main() async {
     ExamHistoryService.instance.loadFromStorage(savedAttempts);
   }
 
-  // 6. Initialize CloudSyncService and load bundled computer dataset
+  // 6. Initialize CloudSyncService
   CloudSyncService.instance.init();
-  await CloudSyncService.instance.loadBundledDataAsset();
 
-  // 7. Initialize Firebase RTDB Sync (no token needed — anonymous auth is automatic)
-  //    Then pull latest data so new-device installs get all content immediately.
-  await FirebaseRtdbSyncService.instance.init();
-  CloudSyncService.instance.pullFromCloud(silent: true).catchError((_) => false);
+  // 7. Initialize Firebase RTDB Sync (runs in background)
+  FirebaseRtdbSyncService.instance.init();
 
   // 8. Initialize UpdateService (auto-checks for new releases and updates)
   UpdateService.instance.init();
@@ -376,7 +373,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
   }
 
   Widget _buildLiveDailyExamCard(BuildContext context, AppUser s, bool isMobile) {
-    final liveSet = QuestionBankService.instance.getTodayLiveExam() ?? (QuestionBankService.instance.getAllMockSets().isNotEmpty ? QuestionBankService.instance.getAllMockSets().first : null);
+    final approvedSets = QuestionBankService.instance.getAllMockSets().where((s) => s.isApproved).toList();
+    final liveSet = QuestionBankService.instance.getTodayLiveExam() ?? (approvedSets.isNotEmpty ? approvedSets.first : null);
     if (liveSet == null) return const SizedBox.shrink();
 
     return Container(

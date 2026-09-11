@@ -202,6 +202,7 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(height: 24),
+                        // 1. Detected Device Card
                         Builder(
                           builder: (context) {
                             final detected = getDetectedApkInfo();
@@ -262,14 +263,21 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                                             ),
                                             const Spacer(),
                                             Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                               decoration: BoxDecoration(
                                                 color: const Color(0xFF0F172A),
                                                 borderRadius: BorderRadius.circular(6),
                                               ),
-                                              child: Text(
-                                                detected.sizeText,
-                                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(Icons.folder_zip_rounded, color: Color(0xFF34D399), size: 12),
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    detected.sizeText,
+                                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10.5),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ],
@@ -291,6 +299,7 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                             );
                           },
                         ),
+                        // 2. Primary Recommended Action Button
                         Builder(
                           builder: (context) {
                             final detected = getDetectedApkInfo();
@@ -308,7 +317,7 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
 
                             return Container(
                               width: double.infinity,
-                              height: 56,
+                              height: 58,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 gradient: const LinearGradient(
@@ -354,7 +363,7 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(detected.isApk ? Icons.download_for_offline_rounded : detected.icon, size: 26),
+                                    Icon(detected.isApk ? Icons.download_for_offline_rounded : detected.icon, size: 28),
                                     const SizedBox(width: 12),
                                     Flexible(
                                       child: Column(
@@ -382,7 +391,124 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                             );
                           },
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 20),
+
+                        // 3. Direct APK Packages & Sizes Breakdown Card
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 12,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE0F2FE),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(Icons.inventory_2_rounded, color: Color(0xFF0284C7), size: 18),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    LanguageService.instance.trText(
+                                      ne: '📦 आधिकारिक APK डाउनलोड र साइजहरू:',
+                                      en: '📦 Official APK Downloads & Sizes:',
+                                      ko: '📦 공식 APK 다운로드 및 파일 용량:',
+                                    ),
+                                    style: const TextStyle(
+                                      color: Color(0xFF0F172A),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              _buildApkDownloadRow(
+                                context: context,
+                                icon: Icons.smartphone_rounded,
+                                iconColor: const Color(0xFF0D9488),
+                                titleNe: 'Android Smartphones (६४-बिट)',
+                                titleEn: 'Android Smartphones (64-bit arm64)',
+                                titleKo: '안드로이드 스마트폰 (64비트 최적화)',
+                                sizeBadge: '61.9 MB (Compressed)',
+                                descNe: 'Samsung, Redmi, Realme, Oppo, Vivo, OnePlus आदी',
+                                url: kGithubApkPhone64BitUrl,
+                              ),
+                              const Divider(height: 16, color: Color(0xFFF1F5F9)),
+                              _buildApkDownloadRow(
+                                context: context,
+                                icon: Icons.tablet_android_rounded,
+                                iconColor: const Color(0xFF2563EB),
+                                titleNe: 'Samsung Galaxy Tab A (३२-बिट)',
+                                titleEn: 'Samsung Galaxy Tab A (32-bit armv7)',
+                                titleKo: '삼성 갤럭시 탭 A (32비트 태블릿)',
+                                sizeBadge: '59.7 MB (Compressed)',
+                                descNe: 'Galaxy Tab A (SM-T290/T295/T510) र पुराना डिभाइस',
+                                url: kGithubApkTabA32BitUrl,
+                              ),
+                              const Divider(height: 16, color: Color(0xFFF1F5F9)),
+                              _buildApkDownloadRow(
+                                context: context,
+                                icon: Icons.android_rounded,
+                                iconColor: const Color(0xFF7C3AED),
+                                titleNe: 'Official Universal APK (सबै डिभाइस)',
+                                titleEn: 'Universal Release APK (All Devices)',
+                                titleKo: '공식 범용 안드로이드 APK (통합버전)',
+                                sizeBadge: '61.9 MB (Latest)',
+                                descNe: 'कुनै पनि एन्ड्रोइड डिभाइसमा सिधै चल्ने आधिकारिक भर्सन',
+                                url: kGithubApkUniversalUrl,
+                              ),
+                              const SizedBox(height: 10),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF0FDF4),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: const Color(0xFFBBF7D0)),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.offline_pin_rounded, color: Color(0xFF16A34A), size: 16),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        LanguageService.instance.trText(
+                                          ne: '💡 सबै APK उच्च कम्प्रेस (Compressed) गरिएका छन्। थोरै मोबाइल डेटामा चाँडै डाउनलोड हुन्छन् र इन्टरनेट बिना १००% अफलाइन चल्छन्।',
+                                          en: '💡 All APKs are high-efficiency compressed for ultra-fast downloads with full offline support.',
+                                          ko: '💡 전 버전 초경량 압축 적용: 데이터 절약 및 100% 완전 오프라인 지원.',
+                                        ),
+                                        style: const TextStyle(
+                                          color: Color(0xFF15803D),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+
+                        // 4. Other Devices Button
                         SizedBox(
                           width: double.infinity,
                           height: 48,
@@ -398,9 +524,9 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
                             icon: const Icon(Icons.devices_rounded, size: 20, color: Color(0xFF0D9488)),
                             label: Text(
                               LanguageService.instance.trText(
-                                ne: '📲 अन्य डिभाइसहरूको लिंक छान्नुहोस् (Samsung Tab, 64-bit, PC, iOS)',
-                                en: '📲 Select Another Device (Samsung Tab, 64-bit, PC, iOS)',
-                                ko: '📲 다른 기기용 다운로드 (삼성 탭, 64비트, PC, iOS)',
+                                ne: '📲 अन्य डिभाइसहरू (PC UBT Hall, iPhone iOS PWA, QR Code)',
+                                en: '📲 Other Devices (PC Hall, iPhone iOS PWA, QR Code)',
+                                ko: '📲 기타 기기 (PC 시험장, 아이폰 PWA, QR 코드)',
                               ),
                               style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
                             ),
@@ -762,6 +888,115 @@ class AndroidWebGatekeeperScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildApkDownloadRow({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required String titleNe,
+    required String titleEn,
+    required String titleKo,
+    required String sizeBadge,
+    required String descNe,
+    required String url,
+  }) {
+    final lang = LanguageService.instance;
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: iconColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: iconColor, size: 22),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      lang.trText(ne: titleNe, en: titleEn, ko: titleKo),
+                      style: const TextStyle(
+                        color: Color(0xFF0F172A),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12.5,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0F172A),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Text(
+                      sizeBadge,
+                      style: const TextStyle(
+                        color: Color(0xFF34D399),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 9.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(
+                descNe,
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 8),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF0D9488),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            elevation: 0,
+            visualDensity: VisualDensity.compact,
+          ),
+          onPressed: () {
+            triggerApkDownload(url);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  lang.trText(
+                    ne: '📥 $titleNe ($sizeBadge) डाउनलोड सुरु भयो!',
+                    en: '📥 $titleEn ($sizeBadge) download started!',
+                    ko: '📥 $titleKo ($sizeBadge) 다운로드가 시작되었습니다!',
+                  ),
+                ),
+                backgroundColor: const Color(0xFF0D9488),
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.download_rounded, size: 14),
+              const SizedBox(width: 4),
+              Text(
+                lang.trText(ne: 'डाउनलोड', en: 'Download', ko: '다운로드'),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

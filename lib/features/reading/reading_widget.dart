@@ -228,18 +228,33 @@ class _ReadingQuestionWidgetState extends State<ReadingQuestionWidget> {
         ? customImage.trim()
         : null;
 
-    final imgHeight = isLandscape ? 135.0 : 190.0;
+    final imgHeight = isLandscape ? 240.0 : 300.0;
 
     if (cleanImg != null) {
       return Container(
-        height: imgHeight + 10,
+        width: double.infinity,
+        constraints: BoxConstraints(
+          minHeight: isLandscape ? 180.0 : 220.0,
+          maxHeight: isLandscape ? 260.0 : 340.0,
+        ),
+        padding: const EdgeInsets.all(8),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-        child: SmartImageWidget(imageSource: cleanImg, height: imgHeight, fit: BoxFit.contain),
+        child: SmartImageWidget(
+          imageSource: cleanImg,
+          fit: BoxFit.contain,
+        ),
       );
     }
 

@@ -730,6 +730,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
                 final instId = 'inst_${DateTime.now().millisecondsSinceEpoch}';
 
                 InstituteService.instance.createInstitute(
+                  id: instId,
                   name: nameCtrl.text.trim(),
                   code: codeCtrl.text.trim().isNotEmpty ? codeCtrl.text.trim() : 'INST_${DateTime.now().millisecondsSinceEpoch % 1000}',
                   phone: phoneCtrl.text.trim(),

@@ -69,7 +69,12 @@ class InstituteService extends ChangeNotifier {
       maxStudentsQuota: maxStudentsQuota,
       isActive: isActive,
     );
-    _institutes!.add(profile);
+    final idx = _institutes!.indexWhere((i) => i.id == profile.id || i.code.trim().toUpperCase() == profile.code.trim().toUpperCase());
+    if (idx != -1) {
+      _institutes![idx] = profile;
+    } else {
+      _institutes!.add(profile);
+    }
     _saveInstitutes();
     notifyListeners();
   }
@@ -242,10 +247,10 @@ class InstituteService extends ChangeNotifier {
       if (jsonStr == null || jsonStr.isEmpty) return null;
       final List decoded = jsonDecode(jsonStr);
       final list = decoded.map((e) => InstituteProfile.fromJson(Map<String, dynamic>.from(e))).toList();
-      if (list.any((i) => i.id == 'inst_abante_ktm' || i.name.contains('Abante Korean') || i.name.contains('Everest'))) {
-        return null;
+      if (list.isNotEmpty) {
+        return list;
       }
-      return list;
+      return null;
     } catch (_) {
       return null;
     }

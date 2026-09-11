@@ -91,9 +91,12 @@ class CloudSyncService extends ChangeNotifier {
     // Auto-load bundled dataset from asset on init
     loadBundledDataAsset().catchError((_) => false);
 
-    // Start background periodic auto-sync (every 90 seconds)
+    // Initial lightweight sync check on startup
+    pullFromCloud(silent: true).catchError((_) => false);
+
+    // Start background periodic auto-sync (lightweight 30-byte check every 10 minutes)
     _autoSyncTimer?.cancel();
-    _autoSyncTimer = Timer.periodic(const Duration(seconds: 90), (_) {
+    _autoSyncTimer = Timer.periodic(const Duration(minutes: 10), (_) {
       pullFromCloud(silent: true).catchError((_) => false);
     });
   }
@@ -309,23 +312,23 @@ class CloudSyncService extends ChangeNotifier {
       // 10. Ingest Institutes
       if (payload['institutes'] is List) {
         final List rawInsts = payload['institutes'];
-        final existingInsts = InstituteService.instance.getAllInstitutes();
         for (final item in rawInsts) {
           if (item is Map) {
             final inst = InstituteProfile.fromJson(Map<String, dynamic>.from(item));
-            if (!existingInsts.any((x) => x.id == inst.id)) {
-              InstituteService.instance.createInstitute(
-                name: inst.name,
-                code: inst.code,
-                phone: inst.phone,
-                email: inst.email,
-                address: inst.address,
-                aboutUs: inst.aboutUs,
-                allowedSetsQuota: inst.allowedSetsQuota,
-                validityExpiry: inst.validityExpiry,
-                maxStudentsQuota: inst.maxStudentsQuota,
-              );
-            }
+            InstituteService.instance.createInstitute(
+              id: inst.id,
+              name: inst.name,
+              code: inst.code,
+              logoUrl: inst.logoUrl,
+              phone: inst.phone,
+              email: inst.email,
+              address: inst.address,
+              aboutUs: inst.aboutUs,
+              allowedSetsQuota: inst.allowedSetsQuota,
+              validityExpiry: inst.validityExpiry,
+              maxStudentsQuota: inst.maxStudentsQuota,
+              isActive: inst.isActive,
+            );
           }
         }
       }
@@ -398,7 +401,7 @@ class CloudSyncService extends ChangeNotifier {
   }
 
   /// Pull latest updates from Cloud endpoints into local app (Firebase Realtime Database)
-  Future<bool> pullFromCloud({bool silent = true}) async {
+  Future<bool> pullFromCloud({bool force = false, bool silent = true}) async {
     if (!silent) {
       _state = SyncState.syncing;
       _lastError = null;
@@ -407,7 +410,7 @@ class CloudSyncService extends ChangeNotifier {
 
     // ── 1. Pull directly from Firebase Realtime Database ─────────────
     try {
-      final rtdbPayload = await FirebaseRtdbSyncService.instance.pullData();
+      final rtdbPayload = await FirebaseRtdbSyncService.instance.pullData(force: force);
       if (rtdbPayload != null && rtdbPayload.isNotEmpty) {
         final success = ingestSyncPayload(rtdbPayload);
         if (success) {

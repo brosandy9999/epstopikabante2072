@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'audio_helper.dart';
 
@@ -26,7 +26,9 @@ class AudioPlaybackService {
   Duration get position => positionNotifier.value;
   Duration get duration => durationNotifier.value;
 
-  /// Converts Google Drive or Dropbox links to direct streamable audio links
+  static const String defaultCdnBase = 'https://brosandy9999.github.io/epstopikabante2072/audio';
+
+  /// Converts Google Drive, Dropbox, or CDN paths to direct streamable audio links
   String normalizeAudioUrl(String input) {
     var clean = input.trim();
     if (clean.isEmpty) return clean;
@@ -51,6 +53,11 @@ class AudioPlaybackService {
       } else if (!clean.contains('?raw=1') && !clean.contains('?dl=1')) {
         return clean.contains('?') ? '$clean&raw=1' : '$clean?raw=1';
       }
+    }
+
+    // Convert relative audio/ paths to direct CDN if it's not a local absolute path
+    if (clean.startsWith('cdn://')) {
+      return clean.replaceFirst('cdn://', '$defaultCdnBase/');
     }
 
     return clean;
@@ -147,6 +154,39 @@ class AudioPlaybackService {
       );
     } catch (e) {
       debugPrint('[AudioPlaybackService] playAudioUrl failed: $e, source: ${clean.length > 80 ? "${clean.substring(0, 80)}..." : clean}');
+
+      // If local asset failed, try loading from online CDN
+      if (!clean.startsWith('http://') && !clean.startsWith('https://') && !clean.startsWith('data:') && !clean.startsWith('blob:')) {
+        var relative = clean.startsWith('assets/audio/')
+            ? clean.replaceFirst('assets/audio/', '')
+            : (clean.startsWith('audio/') ? clean.replaceFirst('audio/', '') : clean);
+        final cdnUrl = '$defaultCdnBase/$relative';
+        debugPrint('[AudioPlaybackService] Trying online CDN stream: $cdnUrl');
+        try {
+          await _controller.play(
+            source: cdnUrl,
+            sessionId: sessionId,
+            onPlayingChanged: (playing) {
+              isPlayingNotifier.value = playing;
+            },
+            onPositionChanged: (pos) {
+              positionNotifier.value = pos;
+            },
+            onDurationChanged: (dur) {
+              durationNotifier.value = dur;
+            },
+            onCompleted: () {
+              currentAudioSourceNotifier.value = null;
+              positionNotifier.value = Duration.zero;
+              if (!completer.isCompleted) completer.complete();
+            },
+          );
+          return;
+        } catch (cdnErr) {
+          debugPrint('[AudioPlaybackService] CDN stream also failed: $cdnErr');
+        }
+      }
+
       isPlayingNotifier.value = false;
       currentAudioSourceNotifier.value = null;
       if (!completer.isCompleted) completer.complete();

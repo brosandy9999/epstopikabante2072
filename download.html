@@ -3,61 +3,446 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Downloading EPS-TOPIK UBT...</title>
-  <meta name="description" content="Automatic smart device redirect for EPS-TOPIK UBT Android App APK download.">
+  <title>EPS-TOPIK UBT 2026 - आधिकारिक मोबाइल एप डाउनलोड पोर्टल</title>
+  <meta name="description" content="Official EPS-TOPIK UBT 2026 Android APK and Web Examination System Download Portal.">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #0F172A; color: #F8FAFC; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .card { background: #1E293B; border: 1px solid #334155; border-radius: 20px; padding: 32px 24px; max-width: 440px; width: 100%; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-    .spinner { width: 48px; height: 48px; border: 4px solid rgba(56, 189, 248, 0.2); border-top-color: #38BDF8; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    h2 { font-size: 19px; font-weight: 700; margin-bottom: 8px; color: #FFFFFF; }
-    p { font-size: 13px; color: #94A3B8; margin-bottom: 20px; line-height: 1.4; }
-    .device-badge { display: inline-block; background: #064E3B; color: #34D399; border: 1px solid #10B981; padding: 6px 14px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-bottom: 16px; }
-    .btn-manual { display: inline-block; width: 100%; background: #16A34A; color: white; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s; }
-    .btn-manual:hover { background: #15803D; }
+    :root {
+      --primary: #0D9488;
+      --primary-dark: #0F766E;
+      --primary-light: #CCFBF1;
+      --accent: #E11D48;
+      --dark: #0F172A;
+      --slate: #475569;
+      --border: #E2E8F0;
+      --bg: #F8FAFC;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', 'Noto Sans KR', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #F0FDF4 0%, #FFFFFF 40%, #FFF1F2 75%, #F8FAFC 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .portal-container {
+      background: #FFFFFF;
+      border: 1.5px solid var(--border);
+      border-radius: 28px;
+      padding: 36px 28px;
+      max-width: 580px;
+      width: 100%;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.1);
+      text-align: center;
+      position: relative;
+    }
+    .agency-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .badge-agency {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.2px;
+    }
+    .badge-black { background: var(--dark); color: #FFFFFF; }
+    .badge-teal { background: var(--primary); color: #FFFFFF; }
+
+    .book-covers-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .book-card {
+      flex: 1;
+      padding: 12px;
+      border-radius: 14px;
+      text-align: left;
+    }
+    .book-1 { background: #FFF1F2; border: 1.5px solid #FDA4AF; }
+    .book-2 { background: #F0FDF4; border: 1.5px solid #A7F3D0; }
+    .book-tag {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 4px;
+      display: inline-block;
+      color: #FFFFFF;
+      margin-bottom: 4px;
+    }
+    .tag-1 { background: var(--accent); }
+    .tag-2 { background: var(--primary); }
+    .book-title { font-size: 12px; font-weight: 800; color: var(--dark); }
+    .book-sub { font-size: 10.5px; font-weight: 600; }
+    .sub-1 { color: var(--accent); }
+    .sub-2 { color: var(--primary); }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--dark);
+      margin-bottom: 6px;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      font-size: 13.5px;
+      color: var(--slate);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    /* Primary Download / Detected Card */
+    .detected-card {
+      background: linear-gradient(180deg, #F0FDF4 0%, #E6FFFA 100%);
+      border: 2px solid var(--primary);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 24px;
+      text-align: left;
+      box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.15);
+    }
+    .detected-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .detected-badge {
+      background: var(--primary);
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .detected-size {
+      background: var(--dark);
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .detected-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 4px;
+    }
+    .detected-desc {
+      font-size: 12.5px;
+      color: var(--slate);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .btn-download-primary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%);
+      color: #FFFFFF;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 14px 20px;
+      border-radius: 14px;
+      box-shadow: 0 10px 20px -5px rgba(13, 148, 136, 0.35);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-download-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 25px -5px rgba(13, 148, 136, 0.45);
+    }
+
+    /* QR Code Box for Desktop Users */
+    .qr-card {
+      background: #F8FAFC;
+      border: 1.5px dashed #CBD5E1;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-align: left;
+    }
+    .qr-img {
+      width: 84px;
+      height: 84px;
+      border-radius: 8px;
+      background: #FFFFFF;
+      padding: 4px;
+      border: 1px solid var(--border);
+    }
+    .qr-text h4 {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 3px;
+    }
+    .qr-text p {
+      font-size: 11.5px;
+      color: var(--slate);
+      line-height: 1.4;
+    }
+
+    /* Option Items */
+    .section-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #64748B;
+      margin-bottom: 12px;
+      text-align: left;
+    }
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .opt-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FFFFFF;
+      border: 1.5px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 14px;
+      text-decoration: none;
+      color: var(--dark);
+      transition: all 0.2s ease;
+    }
+    .opt-item:hover {
+      border-color: var(--primary);
+      background: #F0FDF4;
+      transform: translateY(-1.5px);
+    }
+    .opt-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+    }
+    .opt-icon { font-size: 22px; }
+    .opt-name { font-size: 13.5px; font-weight: 700; color: var(--dark); }
+    .opt-sub { font-size: 11px; color: var(--slate); }
+    .opt-btn {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    /* Step-by-step Android install instructions */
+    .guide-box {
+      background: #FFFBEB;
+      border: 1.5px solid #FDE68A;
+      border-radius: 16px;
+      padding: 16px;
+      text-align: left;
+      font-size: 12px;
+      color: #92400E;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .guide-title {
+      font-weight: 800;
+      font-size: 13px;
+      color: #78350F;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer {
+      font-size: 11px;
+      color: #94A3B8;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 14px;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="spinner"></div>
-    <div class="device-badge" id="deviceBadge">🔍 डिभाइस पहिचान गर्दै...</div>
-    <h2>APK डाउनलोड सुरु हुँदैछ...</h2>
-    <p id="statusText">तपाईंको डिभाइस अनुसार उपयुक्त APK स्वतः डाउनलोड हुँदैछ।</p>
+  <div class="portal-container">
+    <!-- Agency Badges -->
+    <div class="agency-row">
+      <span class="badge-agency badge-black">대한민국 고용노동부</span>
+      <span class="badge-agency badge-teal">HRD Korea 한국산업인력공단</span>
+    </div>
 
-    <a href="#" class="btn-manual" id="manualBtn">📥 डाउनलोड सुरु भएन भने यहाँ थिच्नुहोस्</a>
+    <!-- Book 1 and Book 2 Dual Cover Badges -->
+    <div class="book-covers-row">
+      <div class="book-card book-1">
+        <span class="book-tag tag-1">제1권</span>
+        <div class="book-title">일상생활 한국어</div>
+        <div class="book-sub sub-1">1~30과 표준교재 연계</div>
+      </div>
+      <div class="book-card book-2">
+        <span class="book-tag tag-2">제2권</span>
+        <div class="book-title">직장생활 한국어</div>
+        <div class="book-sub sub-2">31~60과 표준교재 연계</div>
+      </div>
+    </div>
+
+    <h1>한국어 표준교재 2026</h1>
+    <p class="subtitle">EPS-TOPIK UBT आधिकारिक परीक्षा तथा अध्ययन मोबाइल एप (Smart Download Portal)</p>
+
+    <!-- Detected Device Highlight Card -->
+    <div class="detected-card">
+      <div class="detected-header">
+        <span class="detected-badge" id="detectedBadge">🎯 तपाईंको डिभाइस (सिफारिस गरिएको)</span>
+        <span class="detected-size" id="detectedSize">61.9 MB (Compressed)</span>
+      </div>
+      <div class="detected-title" id="detectedTitle">Android Smartphone / Tablet (Ultra Fast)</div>
+      <div class="detected-desc" id="detectedDesc">Samsung, Xiaomi, Realme, Poco, Vivo, Oppo, OnePlus आदी सबै स्मार्टफोनका लागि लाइटवेट कम्प्रेस्ड APK।</div>
+      <a href="apk/eps_topik_latest.apk" class="btn-download-primary" id="detectedBtn" download>
+        <span id="btnIcon">📥</span>
+        <span id="btnText">कम्प्रेस्ड APK डाउनलोड गर्नुहोस् (61.9 MB)</span>
+      </a>
+    </div>
+
+    <!-- QR Code Section for Quick Mobile Scanning -->
+    <div class="qr-card">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fbrosandy9999.github.io%2Fepstopikabante2072%2Fapk%2Feps_topik_latest.apk" alt="Download QR Code" class="qr-img">
+      <div class="qr-text">
+        <h4>📲 मोबाइलबाट QR स्क्यान गर्नुहोस्</h4>
+        <p>आफ्नो फोनको क्यामरा खोलेर यो QR कोड स्क्यान गर्नुहोस् र १-सेकेन्डमै सिधै मोबाइलमा ६१.९ MB को कम्प्रेस्ड APK डाउनलोड गर्नुहोस्।</p>
+      </div>
+    </div>
+
+    <!-- All Available Options -->
+    <div class="section-title">📦 सबै डिभाइसहरूको विकल्प (All Formats)</div>
+    <div class="options-list">
+      <!-- 1. Compressed 64-bit ARM APK -->
+      <a href="apk/eps_topik_latest.apk" class="opt-item" download>
+        <div class="opt-left">
+          <span class="opt-icon">⚡</span>
+          <div>
+            <div class="opt-name">Android 64-bit (Compressed - 61.9 MB)</div>
+            <div class="opt-sub">Samsung, Redmi, Poco, Vivo, Oppo, OnePlus आदिका लागि</div>
+          </div>
+        </div>
+        <div class="opt-btn">61.9 MB APK</div>
+      </a>
+
+      <!-- 2. 32-bit ARM APK -->
+      <a href="apk/eps_topik_armv7.apk" class="opt-item" download>
+        <div class="opt-left">
+          <span class="opt-icon">📱</span>
+          <div>
+            <div class="opt-name">Samsung Tab A & 32-bit (Compressed - 59.7 MB)</div>
+            <div class="opt-sub">Samsung Galaxy Tab A (SM-T290/T295/T510) तथा ३२-बिट डिभाइसका लागि</div>
+          </div>
+        </div>
+        <div class="opt-btn">59.7 MB APK</div>
+      </a>
+
+      <!-- 3. Web UBT Hall for PC -->
+      <a href="https://topik-abante.web.app/" class="opt-item">
+        <div class="opt-left">
+          <span class="opt-icon">💻</span>
+          <div>
+            <div class="opt-name">Windows PC / ल्यापटप (Web UBT Hall)</div>
+            <div class="opt-sub">ब्राउजरमै ठूलो स्क्रिनमा वास्तविक परीक्षा हल अनुभव</div>
+          </div>
+        </div>
+        <div class="opt-btn">Launch Web</div>
+      </a>
+
+      <!-- 4. Apple iOS PWA -->
+      <a href="https://topik-abante.web.app/" class="opt-item" onclick="alert('🍎 iPhone / iPad मा इन्स्टल गर्न:\n\n१. Safari ब्राउजरमा topik-abante.web.app खोल्नुहोस्।\n२. तलको Share बटन (📤) थिच्नुहोस्।\n३. Add to Home Screen रोज्नुहोस्।'); return true;">
+        <div class="opt-left">
+          <span class="opt-icon">🍎</span>
+          <div>
+            <div class="opt-name">Apple iPhone / iPad (iOS PWA)</div>
+            <div class="opt-sub">Safari मा 'Add to Home Screen' गर्नुहोस्</div>
+          </div>
+        </div>
+        <div class="opt-btn">iOS PWA</div>
+      </a>
+    </div>
+
+    <!-- Quick Android Install Guide -->
+    <div class="guide-box">
+      <div class="guide-title">
+        <span>💡</span> एन्ड्रोइडमा इन्स्टल गर्दा ध्यान दिनुपर्ने कुरा:
+      </div>
+      १. डाउनलोड सकिएपछि फाइल थिचेर <strong>"Install"</strong> थिच्नुहोस्।<br>
+      २. यदि <em>"Blocked by Play Protect"</em> वा <em>"Unknown app"</em> चेतावनी आएमा <strong>"More details" -> "Install anyway"</strong> छान्नुहोस्।
+    </div>
+
+    <div class="footer">
+      © 2026 대한민국 고용노동부 • HRD Korea 한국산업인력공단 표준교재 연계<br>
+      EPS-TOPIK UBT CBT Official Examination System
+    </div>
   </div>
 
   <script>
     (function() {
-      const TAB_32_URL = "https://brosandy9999.github.io/epstopikabante2072/apk/app-armeabi-v7a-release.apk";
-      const PHONE_64_URL = "https://brosandy9999.github.io/epstopikabante2072/apk/app-arm64-v8a-release.apk";
+      const URL_APK = "apk/eps_topik_latest.apk";
+      const URL_WEB = "https://topik-abante.web.app/";
 
       const ua = (navigator.userAgent || "").toLowerCase();
+      const platform = (navigator.platform || "").toLowerCase();
 
-      // Detection logic
-      const isSamsungTab = ua.includes("sm-t") || ua.includes("sm-x") || ua.includes("gt-p") || ua.includes("gt-n") ||
-        (ua.includes("samsung") && ua.includes("tab")) ||
-        (ua.includes("tablet") && !ua.includes("arm64") && !ua.includes("aarch64")) ||
-        ua.includes("armeabi") || ua.includes("armv7");
+      const isIos = ua.includes("iphone") || ua.includes("ipad") || ua.includes("ipod") ||
+        (platform.includes("mac") && navigator.maxTouchPoints && navigator.maxTouchPoints > 1);
 
-      let targetUrl = PHONE_64_URL;
-      let deviceLabel = "Android Phone (६४-बिट • २०.७ MB)";
+      const isWindows = ua.includes("windows") || platform.includes("win");
+      const isDesktop = (isWindows || (platform.includes("mac") && !isIos) || (platform.includes("linux") && !ua.includes("android"))) && !ua.includes("mobile");
 
-      if (isSamsungTab) {
-        targetUrl = TAB_32_URL;
-        deviceLabel = "Samsung Galaxy Tab A (३२-बिट • १८.५ MB)";
+      let targetUrl = URL_APK;
+      let title = "Android Smartphone / Tablet (Ultra Fast)";
+      let desc = "Samsung, Xiaomi, Realme, Poco, Vivo, Oppo, OnePlus आदी सबै स्मार्टफोनका लागि लाइटवेट कम्प्रेस्ड APK।";
+      let size = "65 MB (Compressed)";
+      let btnLabel = "⚡ कम्प्रेस्ड APK डाउनलोड गर्नुहोस् (65 MB)";
+
+      if (isIos) {
+        targetUrl = URL_WEB;
+        title = "Apple iPhone / iPad (iOS)";
+        desc = "iOS मा Safari ब्राउजरमा खोल्नुहोस् र 'Share -> Add to Home Screen' गरी इन्स्टल गर्नुहोस्।";
+        size = "Instant PWA";
+        btnLabel = "Safari मा सुरु गर्नुहोस् (PWA)";
+        document.getElementById("btnIcon").innerText = "🍎";
+      } else if (isDesktop) {
+        targetUrl = URL_WEB;
+        title = "Windows PC / ल्यापटप (Web UBT Hall)";
+        desc = "कम्प्युटरको ठूलो स्क्रिनमा वास्तविक UBT एक्जाम हल सिधै चलाउनुहोस् वा PWA इन्स्टल गर्नुहोस्।";
+        size = "Web Hall";
+        btnLabel = "💻 PC Fullscreen UBT हल सुरु गर्नुहोस्";
+        document.getElementById("btnIcon").innerText = "💻";
       }
 
-      document.getElementById("deviceBadge").innerText = "🎯 पहिचान: " + deviceLabel;
-      document.getElementById("manualBtn").href = targetUrl;
-      document.getElementById("manualBtn").innerText = "📥 " + deviceLabel + " डाउनलोड गर्नुहोस्";
-
-      // Immediate Automatic Redirect
-      window.location.replace(targetUrl);
+      document.getElementById("detectedTitle").innerText = title;
+      document.getElementById("detectedDesc").innerText = desc;
+      document.getElementById("detectedSize").innerText = size;
+      document.getElementById("btnText").innerText = btnLabel;
+      document.getElementById("detectedBtn").href = targetUrl;
     })();
   </script>
 </body>

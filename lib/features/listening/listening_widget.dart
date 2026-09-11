@@ -57,18 +57,12 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
       audioPath = (widget.question as ListeningAudioQuestion).audioAssetPath;
     }
 
-    final isAudioOnly = (widget.question is UniversalQuestion)
-        ? (widget.question as UniversalQuestion).isAudioOnly
-        : false;
 
     Future<void> playTrack() async {
       if (audioPath != null && audioPath.trim().isNotEmpty) {
         await AudioPlaybackService.instance.playAudioUrlAndWait(
           audioPath.trim(),
-          fallbackKoreanText: isAudioOnly ? null : speechText,
         );
-      } else if (!isAudioOnly && speechText.trim().isNotEmpty) {
-        await AudioPlaybackService.instance.playKoreanSpeechAndWait(speechText.trim());
       }
     }
 
@@ -174,50 +168,14 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Question Header
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  cleanPrompt,
-                  style: TextStyle(
-                    fontSize: isLandscape ? 14 : 16,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF0F172A),
-                    height: 1.35,
-                  ),
-                ),
-              ),
-              if (widget.question is UniversalQuestion &&
-                  (widget.question as UniversalQuestion).isAudioOnly)
-                Container(
-                  margin: const EdgeInsets.only(left: 6),
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.deepPurple.shade700,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.audiotrack, color: Colors.white, size: 11),
-                      const SizedBox(width: 3),
-                      Text(
-                        LanguageService.instance.trText(
-                          ne: 'अडियो मात्र (Audio Only)',
-                          en: 'Strict Audio Only',
-                          ko: '순수 듣기 전용',
-                        ),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
+          Text(
+            cleanPrompt,
+            style: TextStyle(
+              fontSize: isLandscape ? 14 : 16,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF0F172A),
+              height: 1.35,
+            ),
           ),
 
           const SizedBox(height: 10),
@@ -226,10 +184,16 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
           if (widget.question is UniversalQuestion &&
               (widget.question as UniversalQuestion).hasQuestionImage) ...[
             Container(
-              constraints: BoxConstraints(maxHeight: isLandscape ? 110 : 160),
+              width: double.infinity,
+              constraints: BoxConstraints(
+                minHeight: isLandscape ? 140 : 180,
+                maxHeight: isLandscape ? 220 : 280,
+              ),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: Colors.grey.shade300),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
               ),
               clipBehavior: Clip.antiAlias,
               child: SmartImageWidget(

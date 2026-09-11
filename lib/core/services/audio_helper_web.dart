@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
@@ -47,40 +47,67 @@ class PlatformAudioController {
       } catch (e) {
         debugPrint('[WebAudio] Base64 to Blob conversion error: $e');
       }
-    } else if (playUrl.startsWith('assets/')) {
+    } else if (!playUrl.startsWith('http://') &&
+        !playUrl.startsWith('https://') &&
+        !playUrl.startsWith('blob:')) {
       // In Flutter Web, assets are served at assets/assets/... or assets/...
-      playUrl = 'assets/$playUrl';
+      if (playUrl.startsWith('assets/assets/')) {
+        playUrl = playUrl;
+      } else if (playUrl.startsWith('assets/')) {
+        playUrl = 'assets/$playUrl';
+      } else {
+        playUrl = 'assets/assets/$playUrl';
+      }
     }
 
-    _audio = html.AudioElement(playUrl)
-      ..autoplay = true;
+    final audio = html.AudioElement(playUrl)..autoplay = true;
+    _audio = audio;
 
-    _loadedSub = _audio?.onLoadedMetadata.listen((_) {
-      final dur = _audio?.duration;
+    _loadedSub = audio.onLoadedMetadata.listen((_) {
+      final dur = audio.duration;
       if (dur != null && !dur.isNaN && !dur.isInfinite) {
         onDurationChanged(Duration(milliseconds: (dur * 1000).round()));
       }
     });
 
-    _timeUpdateSub = _audio?.onTimeUpdate.listen((_) {
-      final curr = _audio?.currentTime;
+    _timeUpdateSub = audio.onTimeUpdate.listen((_) {
+      final curr = audio.currentTime;
       if (curr != null && !curr.isNaN) {
         onPositionChanged(Duration(milliseconds: (curr * 1000).round()));
       }
     });
 
-    _endedSub = _audio?.onEnded.listen((_) {
+    _endedSub = audio.onEnded.listen((_) {
       onPlayingChanged(false);
       onCompleted();
     });
 
+    audio.onError.listen((e) {
+      debugPrint('[WebAudio] AudioElement error loading: $playUrl');
+      // If assets/assets/... failed, retry with assets/...
+      if (playUrl.startsWith('assets/assets/')) {
+        final altUrl = playUrl.replaceFirst('assets/assets/', 'assets/');
+        debugPrint('[WebAudio] Retrying with alt URL: $altUrl');
+        audio.src = altUrl;
+        audio.load();
+        audio.play().catchError((err) {
+          debugPrint('[WebAudio] Alt play failed: $err');
+          onPlayingChanged(false);
+          onCompleted();
+        });
+      } else {
+        onPlayingChanged(false);
+        onCompleted();
+      }
+    });
+
     try {
-      await _audio?.play();
+      await audio.play();
       onPlayingChanged(true);
     } catch (e) {
       debugPrint('[WebAudio] play() failed: $e, url: ${playUrl.length > 60 ? '${playUrl.substring(0, 60)}...' : playUrl}');
       onPlayingChanged(false);
-      rethrow;
+      onCompleted();
     }
   }
 

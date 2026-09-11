@@ -96,18 +96,48 @@ class FirebaseRtdbSyncService {
     }
   }
 
-  // ── PULL (public read — no auth needed) ────────────────────────────
+  static const String _keyCachedSyncTs = 'eps_cached_sync_ts';
 
-  /// Fetches the full sync payload from Firebase RTDB.
-  /// Returns null if offline or no data.
-  Future<Map<String, dynamic>?> pullData() async {
+  // ── PULL (public read — smart data-saving check) ────────────────────
+
+  /// Fetches the full sync payload from Firebase RTDB only if new data exists.
+  /// If force is false, checks a tiny ~30-byte timestamp first.
+  Future<Map<String, dynamic>?> pullData({bool force = false}) async {
     try {
+      final cachedTs = StorageService.instance.getString(_keyCachedSyncTs);
+
+      // Step 1: Lightweight Check (Only ~30 bytes data used)
+      if (!force && cachedTs != null && cachedTs.isNotEmpty) {
+        try {
+          final tsUri = Uri.parse('$_databaseUrl/$_syncPath/timestamp.json');
+          final tsResp = await http.get(
+            tsUri,
+            headers: {
+              'Accept': 'application/json',
+              'Accept-Encoding': 'gzip, deflate',
+            },
+          ).timeout(const Duration(seconds: 5));
+
+          if (tsResp.statusCode == 200 && tsResp.body.trim() != 'null') {
+            final remoteTs = tsResp.body.replaceAll('"', '').trim();
+            if (remoteTs == cachedTs) {
+              debugPrint('[FirebaseRTDB] Data is up-to-date. Skipped full download (0 KB consumed) 🚀');
+              return null;
+            }
+          }
+        } catch (tsErr) {
+          debugPrint('[FirebaseRTDB] Quick timestamp check error: $tsErr');
+        }
+      }
+
+      // Step 2: Download full payload only if updated
       final uri = Uri.parse(
           '$_databaseUrl/$_syncPath.json?_t=${DateTime.now().millisecondsSinceEpoch}');
       final resp = await http.get(
         uri,
         headers: {
           'Accept': 'application/json',
+          'Accept-Encoding': 'gzip, deflate',
           'Cache-Control': 'no-cache',
         },
       ).timeout(const Duration(seconds: 12));
@@ -115,7 +145,11 @@ class FirebaseRtdbSyncService {
       if (resp.statusCode == 200 && resp.body.trim() != 'null') {
         final decoded = jsonDecode(resp.body);
         if (decoded is Map) {
-          debugPrint('[FirebaseRTDB] Pull successful ✅');
+          final newTs = (decoded['timestamp'] ?? '').toString();
+          if (newTs.isNotEmpty) {
+            StorageService.instance.setString(_keyCachedSyncTs, newTs);
+          }
+          debugPrint('[FirebaseRTDB] Pull successful & cached ✅');
           return Map<String, dynamic>.from(decoded);
         }
       }
@@ -146,6 +180,10 @@ class FirebaseRtdbSyncService {
           .timeout(const Duration(seconds: 20));
 
       if (resp.statusCode == 200) {
+        final newTs = (payload['timestamp'] ?? '').toString();
+        if (newTs.isNotEmpty) {
+          StorageService.instance.setString(_keyCachedSyncTs, newTs);
+        }
         debugPrint('[FirebaseRTDB] Push successful ✅');
         return true;
       } else {

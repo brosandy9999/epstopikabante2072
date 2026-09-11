@@ -25,6 +25,19 @@
             "value": "0"
           }
         ]
+      },
+      {
+        "source": "**/*.apk",
+        "headers": [
+          {
+            "key": "Content-Type",
+            "value": "application/vnd.android.package-archive"
+          },
+          {
+            "key": "Content-Disposition",
+            "value": "attachment; filename=\"EPS_TOPIK_UBT_2026.apk\""
+          }
+        ]
       }
     ],
     "rewrites": [
@@ -33,15 +46,7 @@
         "destination": "/download.html"
       },
       {
-        "source": "/download/**",
-        "destination": "/download.html"
-      },
-      {
-        "source": "/apk",
-        "destination": "/download.html"
-      },
-      {
-        "source": "/apk/**",
+        "source": "/portal",
         "destination": "/download.html"
       },
       {

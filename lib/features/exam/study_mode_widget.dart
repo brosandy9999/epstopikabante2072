@@ -67,10 +67,7 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
       if (audioPath != null && audioPath.trim().isNotEmpty) {
         await AudioPlaybackService.instance.playAudioUrlAndWait(
           audioPath.trim(),
-          fallbackKoreanText: speechText,
         );
-      } else if (speechText.trim().isNotEmpty) {
-        await AudioPlaybackService.instance.playKoreanSpeechAndWait(speechText.trim());
       }
     }
 
@@ -566,14 +563,16 @@ class _StudyModeQuestionWidgetState extends State<StudyModeQuestionWidget> {
 
     if (customImage != null && customImage.trim().isNotEmpty) {
       return Container(
-        height: 180,
+        width: double.infinity,
+        constraints: const BoxConstraints(minHeight: 180, maxHeight: 280),
+        padding: const EdgeInsets.all(6),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: const Color(0xFFCBD5E1), width: 1.2),
         ),
-        child: SmartImageWidget(imageSource: customImage.trim(), height: 160, fit: BoxFit.contain),
+        child: SmartImageWidget(imageSource: customImage.trim(), fit: BoxFit.contain),
       );
     }
     return const SizedBox.shrink();
