@@ -35,14 +35,15 @@ class CloudSyncService extends ChangeNotifier {
   Timer? _autoSyncTimer;
 
   // Master Raw & Live GitHub Sync Repositories with zero-cache timestamps
+  static const String defaultSupabaseUrl = 'https://ysrxjsmqipzudwwnqorb.supabase.co';
   static const String defaultFirebaseRtdbUrl = 'https://topik-abante-default-rtdb.firebaseio.com';
 
-  String _cloudEndpoint = defaultFirebaseRtdbUrl;
+  String _cloudEndpoint = defaultSupabaseUrl;
   String get cloudEndpoint => _cloudEndpoint;
 
   String formatEndpointUrl(String raw) {
     var trimmed = raw.trim();
-    if (trimmed.isEmpty) return defaultFirebaseRtdbUrl;
+    if (trimmed.isEmpty) return defaultSupabaseUrl;
     if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
       trimmed = 'https://$trimmed';
     }
@@ -66,7 +67,7 @@ class CloudSyncService extends ChangeNotifier {
   }
 
   void resetToDefaultFirebaseSync() {
-    _cloudEndpoint = defaultFirebaseRtdbUrl;
+    _cloudEndpoint = defaultSupabaseUrl;
     StorageService.instance.setString('eps_cloud_endpoint', _cloudEndpoint);
     notifyListeners();
   }
@@ -81,7 +82,7 @@ class CloudSyncService extends ChangeNotifier {
     if (savedUrl != null && savedUrl.isNotEmpty) {
       _cloudEndpoint = savedUrl;
     } else {
-      _cloudEndpoint = defaultFirebaseRtdbUrl;
+      _cloudEndpoint = defaultSupabaseUrl;
       StorageService.instance.setString('eps_cloud_endpoint', _cloudEndpoint);
     }
     final lastTimeStr = StorageService.instance.getString('eps_last_sync_time');
@@ -130,6 +131,12 @@ class CloudSyncService extends ChangeNotifier {
     notifyListeners();
 
     try {
+      if (_cloudEndpoint.contains('supabase.co')) {
+        await SupabaseService.instance.pullSyncPayload();
+        _state = SyncState.synced;
+        notifyListeners();
+        return true;
+      }
       final uri = Uri.parse(_cloudEndpoint);
       final response = await http.get(uri).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200 || response.statusCode == 204) {
