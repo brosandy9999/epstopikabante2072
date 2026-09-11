@@ -1,3 +1,4 @@
+import 'supabase_service.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -339,7 +340,13 @@ class CloudSyncService extends ChangeNotifier {
 
     final payload = generateFullSyncPayload();
 
-    // ── 1. Push to Firebase RTDB (primary, no token needed from user) ──
+    // ── 1. Push to Supabase Cloud Storage & Database ──
+    bool supabaseSuccess = false;
+    try {
+      supabaseSuccess = await SupabaseService.instance.pushSyncPayload(payload);
+    } catch (_) {}
+
+    // ── 2. Push to Firebase RTDB (Dual Realtime Cloud Backup) ──
     bool rtdbSuccess = false;
     try {
       rtdbSuccess = await FirebaseRtdbSyncService.instance.pushData(payload);
