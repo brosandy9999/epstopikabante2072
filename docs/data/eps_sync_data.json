@@ -5409,5 +5409,783 @@
       ],
       "createdAt": "2026-09-07T11:54:42.081033"
     }
+  ],
+  "mockTestSets": [
+    {
+      "id": "set_05",
+      "title": "EPS TOPIK Model Set 05",
+      "description": "एचआरडी कोरियाको आधिकारिक पाठ्यक्रम र पछिल्लो परीक्षा ढाँचामा आधारित पूर्ण ४० प्रश्नहरूको मोडल परीक्षा सेट ०५ (२० रिडिङ र २० लिसनिङ अडियो सहित)।",
+      "timeLimitMinutes": 50,
+      "questions": [
+        {
+          "id": "set05_q01",
+          "questionText": "[1~2] 다음 그림을 보고 맞는 문장과 단어를 고르십시오.\n\n1. 그림을 보고 알맞은 것을 고르십시오.",
+          "koreanQuestionText": "[1~2] 다음 그림을 보고 맞는 문장과 단어를 고르십시오.\n\n1. 그림을 보고 알맞은 것을 고르십시오.",
+          "nepaliQuestionText": "[१~२] दिइएको चित्र हेरेर मिल्ने वाक्य वा शब्द छान्नुहोस्।\n\n१. चित्र हेरेर सही विकल्प छान्नुहोस्।",
+          "questionImageUrl": "assets/images/set_05/q01.png",
+          "questionAudioUrl": null,
+          "textOptions": [
+            "풀입니다.",
+            "예초기입니다.",
+            "청소기입니다.",
+            "면도기입니다."
+          ],
+          "correctOptionIndex": 1,
+          "isListening": false,
+          "explanation": "चित्रमा झार/घाँस काट्ने मेसिन (예초기 - Brush cutter/Lawn trimmer) देखाइएको छ।\n① 풀 (घाँस/झार)\n② 예초기 (घाँस काट्ने मेसिन) - सही उत्तर\n③ 청소기 (भ्याकुम क्लिनर)\n④ 면도기 (दाह्री काट्ने रेजर/ब्लेड)",
+          "subcategory": "Vocabulary / Picture Identification"
+        },
+        {
+          "id": "set05_q02",
+          "questionText": "2. 그림을 보고 알맞은 것을 고르십시오.",
+          "koreanQuestionText": "2. 그림을 보고 알맞은 것을 고르십시오.",
+          "nepaliQuestionText": "२. चित्र हेरेर सही चाडपर्व छान्नुहोस्।",
+          "questionImageUrl": "assets/images/set_05/q02.png",
+          "questionAudioUrl": null,
+          "textOptions": [
+            "복날",
+            "동지",
+            "정월대보름",
+            "설날"
+          ],
+          "correctOptionIndex": 2,
+          "isListening": false,
+          "explanation": "चित्रमा पाँच प्रकारका अन्नको भात (오곡밥) र कडा बोक्रा भएका बदाम/ओखर (부럼) देखाइएको छ, जुन '정월대보름' (पहिलो पूर्णिमा चाड) मा खाइन्छ।\n① 복날 (गर्मीको विशेष दिन - सामगेथाङ खाने)\n② 동지 (सबैभन्दा लामो रात - पात्थुक खाने)\n③ 정월대보름 (नयाँ वर्षको पहिलो पूर्णिमा) - सही उत्तर\n④ 설날 (कोरियाली नयाँ वर्ष)",
+          "subcategory": "Culture & Traditional Holidays"
+        },
+        {
+          "id": "set05_q03",
+          "questionText": "3. 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n[달다 ↔ ________다]",
+          "koreanQuestionText": "3. 빈칸에 들어갈 가장 알맞은 것을 고르십시오.\n\n[달다 ↔ ________다]",
+          "nepaliQuestionText": "३. खाली ठाउँमा मिल्ने उपयुक्त विपरितार्थी शब्द छान्नुहोस्।\n\n[गुलियो हुनु (달다) ↔ ________हुनु]",
+          "questionImageUrl": "assets/images/set_05/q03.png",
+          "questionAudioUrl": null,
+          "textOptions": [
+            "맵",
+            "쓰",
+            "달",
+            "시"
+          ],
+          "correctOptionIndex": 1,
+          "isListening": false,
+          "explanation": "'달다' (गुलियो हुनु) को विपरितार्थी शब्द '쓰다' (तितो हुनु) हो। तसर्थ खाली ठाउँमा '쓰' मिल्दछ।\n① 맵다 (पिरो हुनु)\n② 쓰다 (तितो हुनु) - सही उत्तर\n③ 달다 (गुलियो हुनु)\n④ 시다 (अमिलो हुनु)",
+          "subcategory": "Antonyms & Adjectives"
+        },
+        {
+          "id": "set05_q04",
+          "questionText": "4. 다음 중 밑줄 친 부분이 맞는 문장을 고르십시오.",
+          "koreanQuestionText": "4. 다음 중 밑줄 친 부분이 맞는 문장을 고르십시오.",
+          "nepaliQuestionText": "४. तलका वाक्यहरू मध्ये व्याकरण अनुसार सही वाक्य छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "시장에서 팔은 물건입니다.",
+            "집에 있은 사람이 옵니다.",
+            "오늘 날씨가 더원 날이에요.",
+            "이 문을 열면 안돼요."
+          ],
+          "correctOptionIndex": 3,
+          "isListening": false,
+          "explanation": "व्याकरण विश्लेषण:\n① 팔은 (गलत, ㄹ 불규칙 मा 'पारेको/बेचेको' भन्दा '판' हुनुपर्छ)\n② 있은 (गलत, वर्तमानमा '있는' हुनुपर्छ)\n③ 더원 (गलत, ㅂ 불규칙 मा '더운' हुनुपर्छ)\n④ 이 문을 열면 안돼요 (यो ढोका खोल्यो भने हुँदैन - सही व्याकरण: -(으)면 안 되दा)",
+          "subcategory": "Grammar & Irregular Conjugation"
+        },
+        {
+          "id": "set05_q05",
+          "questionText": "5. 노인들에게 가장 어려운 문제는 무엇입니까?",
+          "koreanQuestionText": "5. 노인들에게 가장 어려운 문제는 무엇입니까?",
+          "nepaliQuestionText": "५. ग्राफ अनुसार वृद्धवृद्धाहरूको लागि सबैभन्दा गाह्रो/ठूलो समस्या के हो?",
+          "questionImageUrl": "assets/images/set_05/q05.png",
+          "questionAudioUrl": null,
+          "textOptions": [
+            "몸이 아픈 것",
+            "돈이 모자라는 것",
+            "친구가 없는 것",
+            "할 일이 없는 것"
+          ],
+          "correctOptionIndex": 1,
+          "isListening": false,
+          "explanation": "ग्राफ/चार्टमा '경제적 어려움 / 돈이 모자라는 것' (आर्थिक अभाव/पैसा नपुग्नु) ४१.४% का साथ सबैभन्दा उच्च छ।\n① 몸이 아픈 것 (बिरामी हुनु - ३९.८%)\n② 돈이 모자라는 것 (पैसाको अभाव - ४१.४%) - सही उत्तर\n③ 친구가 없는 것 (साथी नहुनु)\n④ 할 일이 없는 것 (काम नहुनु)",
+          "subcategory": "Chart & Data Interpretation"
+        },
+        {
+          "id": "set05_q06",
+          "questionText": "[6~13] 빈칸에 들어갈 알맞은 것을 고르십시오.\n\n6.\n가: 이 초록색 바지는 어때요?\n나: _____________",
+          "koreanQuestionText": "6.\n가: 이 초록색 바지는 어때요?\n나: _____________",
+          "nepaliQuestionText": "६.\nक: यो हरियो पाइन्ट कस्तो लाग्छ?\nख: _____________",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "네 바지가 없어요.",
+            "좋아요. 색깔이 예쁘네요.",
+            "맞아요. 좀 큰 걸로 보여 주세요.",
+            "아니요 파란색을 좋아해요."
+          ],
+          "correctOptionIndex": 1,
+          "isListening": false,
+          "explanation": "पाइन्ट कस्तो छ भनेर सोध्दा सकारात्मक प्रतिक्रिया दिन 'राम्रो छ। रङ्ग राम्रो देखिन्छ' (좋아요. 색깔이 예쁘네요) उपयुक्त हुन्छ।",
+          "subcategory": "Everyday Conversation & Dialogue"
+        },
+        {
+          "id": "set05_q07",
+          "questionText": "7.\n회사가 집에서 아주________ . 그래서 저는 매일 걸어서 출근합니다.",
+          "koreanQuestionText": "7.\n회사가 집에서 아주________ . 그래서 저는 매일 걸어서 출근합니다.",
+          "nepaliQuestionText": "७.\nकम्पनी घरबाट निकै ________ छ। त्यसैले म हरेक दिन हिँडेर काममा जान्छु।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "바쁩니다",
+            "가깝습니다",
+            "맛있습니다",
+            "괜찮습니다"
+          ],
+          "correctOptionIndex": 1,
+          "isListening": false,
+          "explanation": "हिँडेर जान सकिने भएकाले कम्पनी 'नजिक छ' (가깝습니다) मिल्दछ।\n① 바쁩니다 (व्यस्त छ)\n② 가깝습니다 (नजिक छ) - सही उत्तर\n③ 맛있습니다 (मिठो छ)\n④ 괜찮습니다 (ठिकै छ)",
+          "subcategory": "Vocabulary & Context"
+        },
+        {
+          "id": "set05_q08",
+          "questionText": "8.\n택배를 보낼 때 먼저 상자를 잘_________ . 그렇지 않으면 배송 중에 상자 안에 들어 있는 물건이 깨질 수도 있습니다.",
+          "koreanQuestionText": "8.\n택배를 보낼 때 먼저 상자를 잘_________ . 그렇지 않으면 배송 중에 상자 안에 들어 있는 물건이 깨질 수도 있습니다.",
+          "nepaliQuestionText": "८.\nकुरियर पठाउँदा पहिले बाकसलाई राम्रोसँग _________ पर्छ। नत्र डेलिभरीको क्रममा बाकस भित्र रहेको सामान फुट्न सक्छ।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "포장해야 합니다",
+            "배상해야 합니다",
+            "가지고 와야 합니다",
+            "저울에 올려야 합니다"
+          ],
+          "correctOptionIndex": 0,
+          "isListening": false,
+          "explanation": "सामान नफुटोस् भन्नको लागि बाकसलाई 'प्याक गर्नुपर्छ' (포장해야 합니다) मिल्दछ।\n① 포장해야 합니다 (प्याक गर्नुपर्छ) - सही उत्तर\n② 배상해야 합니다 (क्षतिपूर्ति तिर्नुपर्छ)\n③ 가지고 와야 합니다 (लिएर आउनुपर्छ)\n④ 저울에 올려야 합니다 (तराजुमा राख्नुपर्छ)",
+          "subcategory": "Postal & Delivery Vocabulary"
+        },
+        {
+          "id": "set05_q09",
+          "questionText": "9.\n우리 집은 교통이 __________ 전망이 좋아요.",
+          "koreanQuestionText": "9.\n우리 집은 교통이 __________ 전망이 좋아요.",
+          "nepaliQuestionText": "९.\nहाम्रो घर यातायात ________ दृश्य (view) राम्रो छ।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "있지만",
+            "비싸지만",
+            "조용하지만",
+            "불편하지만"
+          ],
+          "correctOptionIndex": 3,
+          "isListening": false,
+          "explanation": "यातायात असुविधाजनक भए तापनि भ्यु राम्रो छ भन्नको लागि '불편하지만' (असुविधाजनक भए तापनि) मिल्दछ।",
+          "subcategory": "Conjunctions & Context"
+        },
+        {
+          "id": "set05_q10",
+          "questionText": "10.\n저는 글 쓰는 것을 좋아합니다. 요즘은 ________에 한국 생활이나 문화를 소개하는 글을 쓰고 있습니다.",
+          "koreanQuestionText": "10.\n저는 글 쓰는 것을 좋아합니다. 요즘은 ________에 한국 생활이나 문화를 소개하는 글을 쓰고 있습니다.",
+          "nepaliQuestionText": "१०.\nमलाई लेख लेख्न मन पर्छ। अचेल म ________ मा कोरियाली जीवनशैली र संस्कृति चिनाउने लेख लेखिरहेको छु।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "메뉴판",
+            "요리법",
+            "블로그",
+            "동호회"
+          ],
+          "correctOptionIndex": 2,
+          "isListening": false,
+          "explanation": "इन्टरनेटमा लेख लेखेर सार्वजनिक गर्ने माध्यम 'ब्लग' (블로그) हो।\n① 메뉴판 (मेनु कार्ड)\n② 요리법 (पकाउने विधि)\n③ 블로그 (ब्लग) - सही उत्तर\n④ 동호회 (समान रुचि भएका क्लब)",
+          "subcategory": "Vocabulary & Hobbies"
+        },
+        {
+          "id": "set05_q11",
+          "questionText": "11.\n좋은 직장 분위기 만들기 위해서는 모든 사람이 노력이 필요합니다. 서로 웃는 얼굴로 이야기하는 것이 좋습니다. 그리고 상대방을 배려하는 마음을 갖는다면______________",
+          "koreanQuestionText": "11.\n좋은 직장 분위기 만들기 위해서는 모든 사람이 노력이 필요합니다. 서로 웃는 얼굴로 이야기하는 것이 좋습니다. 그리고 상대방을 배려하는 마음을 갖는다면______________",
+          "nepaliQuestionText": "११.\nराम्रो कार्यस्थलको वातावरण बनाउन सबैको प्रयास आवश्यक पर्छ। एकअर्कासँग हँसिलो मुहारले कुरा गर्नु राम्रो हुन्छ। अनि अर्को व्यक्तिको भावनाको कदर गर्ने मन राख्यो भने______________",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "즐거운 일이 없어질 것 같습니다.",
+            "가깝게 지내지 않을 것 같습니다.",
+            "화내는 일이 없어질 것 같습니다.",
+            "분위기가 주지 않은 것 같습니다."
+          ],
+          "correctOptionIndex": 2,
+          "isListening": false,
+          "explanation": "एकअर्काको कदर गरेमा रिस उठ्ने/झगडा हुने कुराहरू हराउनेछन् (화내는 일이 없어질 것 같습니다) मिल्दछ।",
+          "subcategory": "Workplace Relations & Culture"
+        },
+        {
+          "id": "set05_q12",
+          "questionText": "12.\n가： 늦으셨군요.\n나： 네, 회사 통근 버스를________. 그래서 택시를 타고 왔는데도 늦었네요.",
+          "koreanQuestionText": "12.\n가： 늦으셨군요.\n나： 네, 회사 통근 버스를________. 그래서 택시를 타고 왔는데도 늦었네요.",
+          "nepaliQuestionText": "१२.\nक: ढिलो हुनुभएछ नि।\nख: हजुर, कम्पनीको स्टाफ बस ________। त्यसैले ट्याक्सी चढेर आउँदा पनि ढिलो भयो।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "떠났어요",
+            "놓쳤어요",
+            "버렸어요",
+            "잃었어요"
+          ],
+          "correctOptionIndex": 1,
+          "isListening": false,
+          "explanation": "बस/रेल छुट्नुलाई '놓치다' (놓쳤어요 - छुट्यो) भनिन्छ।\n① 떠났어요 (प्रस्थान गर्यो)\n② 놓쳤어요 (बस छुट्यो) - सही उत्तर\n③ 버렸어요 (फालिदिएँ)\n④ 잃었어요 (हराएँ)",
+          "subcategory": "Transportation Expressions"
+        },
+        {
+          "id": "set05_q13",
+          "questionText": "13.\n어제 다리를 다쳤습니다. 걸으면 다리가 너무 아픕니다. 그래서 병원에 가서 치료를……………….",
+          "koreanQuestionText": "13.\n어제 다리를 다쳤습니다. 걸으면 다리가 너무 아픕니다. 그래서 병원에 가서 치료를……………….",
+          "nepaliQuestionText": "१३.\nहिजो खुट्टामा चोट लाग्यो। हिँड्दा खुट्टा निकै दुख्छ। त्यसैले अस्पताल गएर उपचार ________ विचार गरेको छु।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "보내려고 합니다",
+            "시키려고 합니다",
+            "받으려고 합니다",
+            "만들려고 합니다"
+          ],
+          "correctOptionIndex": 2,
+          "isListening": false,
+          "explanation": "अस्पतालमा गएर उपचार पाउनु/लिनुलाई '치료를 받다' (उपचार गराउनु) भनिन्छ। तसर्थ '치료를 받으려고 합니다' सही उत्तर हो।",
+          "subcategory": "Medical & Hospital Collocations"
+        },
+        {
+          "id": "set05_q14",
+          "questionText": "14. 이 표시는 무슨 뜻입니까?",
+          "koreanQuestionText": "14. 이 표시는 무슨 뜻입니까?",
+          "nepaliQuestionText": "१४. यो सांकेतिक चिन्हको अर्थ के हो?",
+          "questionImageUrl": "assets/images/set_05/q14.png",
+          "questionAudioUrl": null,
+          "textOptions": [
+            "달리기 금지 입니다.",
+            "통행 금지 입니다.",
+            "기대지 마시오.",
+            "만지지 마시오."
+          ],
+          "correctOptionIndex": 2,
+          "isListening": false,
+          "explanation": "चित्रमा रेलिङ वा भित्तामा अडेस/अडान नलगाउनुहोस् भन्ने '기대지 마시오' (अडेस नलगाउनुहोस् / Do not lean) संकेत चिन्ह देखाइएको छ।\n① 달리기 금지 (दौडन निषेध)\n② 통행 금지 (आवतजावत निषेध)\n③ 기대지 마시오 (अडेस नलगाउनुहोस्) - सही उत्तर\n④ 만지지 마시오 (नछुनुहोस्)",
+          "subcategory": "Safety Signs & Warnings"
+        },
+        {
+          "id": "set05_q15",
+          "questionText": "15. 다음을 읽고 무엇에 대한 글인지 고르십시오.\n\n이 회사는 직원들의 건강을 중요하게 생각합니다. 매달 체육관 이용료를 지원하고, 사무실에 건강에 좋은 간식을 준비해 둡니다. 점심시간에는 직원들이 산책할 수 있도록 권장하기도 합니다.",
+          "koreanQuestionText": "15. 다음을 읽고 무엇에 대한 글인지 고르십시오.\n\n이 회사는 직원들의 건강을 중요하게 생각합니다. 매달 체육관 이용료를 지원하고, 사무실에 건강에 좋은 간식을 준비해 둡니다. 점심시간에는 직원들이 산책할 수 있도록 권장하기도 합니다.",
+          "nepaliQuestionText": "१५. तलको अनुच्छेद पढेर यो के को बारेमा लेखिएको हो छान्नुहोस्।\n\nयस कम्पनीले कर्मचारीहरूको स्वास्थ्यलाई महत्त्वपूर्ण मान्छ। हरेक महिना जिमको शुल्क सहयोग गर्छ र कार्यालयमा स्वास्थ्यवर्धक खाजाको व्यवस्था गर्छ। दिउँसोको खानाको समयमा कर्मचारीहरूलाई हिँडडुल गर्न प्रोत्साहन पनि गर्छ।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "회사의 복지 정책",
+            "직장 동료와의 관계",
+            "건강 간식의 종류",
+            "체육관 이용의 어려움"
+          ],
+          "correctOptionIndex": 0,
+          "isListening": false,
+          "explanation": "कम्पनीले कर्मचारीको स्वास्थ्य, जिम शुल्क सहयोग र खाजा व्यवस्थापन जस्ता सुविधाहरू प्रदान गर्ने भएकाले यो 'कम्पनीको कल्याणकारी नीति' (회사의 복지 정책 - Company Welfare Policy) हो।",
+          "subcategory": "Reading Comprehension / Main Idea"
+        },
+        {
+          "id": "set05_q16",
+          "questionText": "16. 무인 슈퍼마켓이 인기 있는 이유로 언급되지 않은 것을 고르십시오.\n\n최근 한국에서는 계산원이 없는 '무인 슈퍼마켓'이 빠르게 늘고 있습니다. 무인 슈퍼마켓은 보통 24 시간 문을 열어 원하는 시간에 언제든지 쇼핑이 가능합니다. 고객은 매장에 입장하여 필요한 물건을 고른 후, 키오스크나 전용 앱을 통해 직접 결제합니다. 사람이 없기때문에 인건비를 줄일 수 있으며, 비대면 거래를 선호하는 고객들에게 인기가 많습니다. 그러나 현금 결제가 불가능하고, 문제가 발생했을 때 즉시 도움을 받기 어렵다는 단점도 있습니다.",
+          "koreanQuestionText": "16. 무인 슈퍼마켓이 인기 있는 이유로 언급되지 않은 것을 고르십시오.",
+          "nepaliQuestionText": "१६. मानवरहित सुपरमार्केट (Unmanned Supermarket) लोकप्रिय हुनुको कारणको रूपमा उल्लेख नगरिएको कुरा छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "24 시간 운영이 가능합니다.",
+            "인건비를 절약할 수 있습니다.",
+            "고객이 비대면 거래를 선호합니다.",
+            "물건 가격이 다른 곳보다 훨씬 저렴합니다."
+          ],
+          "correctOptionIndex": 3,
+          "isListening": false,
+          "explanation": "अनुच्छेदमा २४ घण्टा खुला हुने, कामदार खर्च घट्ने र गैर-प्रत्यक्ष (비대면) कारोबार मन पराउने कुरा उल्लेख छ, तर 'सामानको मूल्य अन्य ठाउँ भन्दा धेरै सस्तो छ' भन्ने कुरा कतै उल्लेख छैन। तसर्थ ④ सही उत्तर हो।",
+          "subcategory": "Reading Comprehension / Detail Retrieval"
+        },
+        {
+          "id": "set05_q17",
+          "questionText": "17. 장마 기간에 할 수 있는 일로 가장 알맞은 것을 고르십시오.\n\n한국의 봄은 따뜻하고 화창한 날씨가 많습니다. 하지만 가끔 황사나 미세먼지가 심해져 외출시 마스크를 착용하는 것이 좋습니다. 여름은 매우 덥고 습하며 장마철에는 비가 많이 옵니다. 장마 기간에는 외출시 우산을 준비하고, 실내에서는 제습기를 사용하는 것이 도움이 됩니다.",
+          "koreanQuestionText": "17. 장마 기간에 할 수 있는 일로 가장 알맞은 것을 고르십시오.",
+          "nepaliQuestionText": "१७. मनसुन/झरीको समय (장마 기간) मा गर्न सकिने उपयुक्त काम छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "밖에서 운동합니다.",
+            "우산을 준비합니다.",
+            "실내에서는 난방을 켭니다.",
+            "창문을 모두 열어 환기합니다."
+          ],
+          "correctOptionIndex": 1,
+          "isListening": false,
+          "explanation": "अनुच्छेदमा उल्लेख छ: '장마 기간에는 외출시 우산을 준비하고...' (झरीको समयमा बाहिर निस्कँदा छाता तयार गर्नुपर्छ)। तसर्थ ② 'छाता तयार गर्छन्' सही उत्तर हो।",
+          "subcategory": "Weather & Climate Understanding"
+        },
+        {
+          "id": "set05_q18",
+          "questionText": "18. 배달 앱이 제공하는 정보로 언급되지 않은 것을 고르십시오.\n\n최근 한국인의 생활에서 배달 앱은 중요한 역할을 하고있습니다. 과거에는 전화로 음식을 주문했지만, 이제는 스마트폰 앱을 통해 쉽게 다양한 음식을 주문할 수 있습니다. 배달 앱은 사용자에게 식당 정보, 메뉴, 가격, 그리고 예상 배달 시간을 제공합니다. 또한, 앱을 통해 결제하고 배달 상황을 실시간으로 확인할 수 있어 매우 편리합니다. 이러한 앱 덕분에 사람들은 집에서 편하게 여러 종류의 음식을 즐길 수 있게 되었습니다.",
+          "koreanQuestionText": "18. 배달 앱이 제공하는 정보로 언급되지 않은 것을 고르십시오.",
+          "nepaliQuestionText": "१८. डेलिभरी एपले उपलब्ध गराउने जानकारीको रूपमा उल्लेख नगरिएको विषय कुन हो?",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "식당 정보",
+            "메뉴와 가격",
+            "예상 배달 시간",
+            "음식의 원산지"
+          ],
+          "correctOptionIndex": 3,
+          "isListening": false,
+          "explanation": "अनुच्छेद अनुसार डेलिभरी एपले रेस्टुरेन्ट जानकारी (식당 정보), मेनु र मूल्य (메뉴, 가격), र अनुमानित डेलिभरी समय (예상 배달 시간) दिन्छ। खानाको उत्पादन स्थल (음식의 원산지) उल्लेख गरिएको छैन।",
+          "subcategory": "Reading Comprehension / Exclusion"
+        },
+        {
+          "id": "set05_q19",
+          "questionText": "[19~20] 다음 글을 읽고 알맞은 어휘를 고르십시오.\n\n19.\n직장이나 공공장소에서 갑자기 불이 났을 때, 모두가 안전하게 대피할 수 있도록 미리 정해 놓은 길입니다.",
+          "koreanQuestionText": "19.\n직장이나 공공장소에서 갑자기 불이 났을 때, 모두가 안전하게 대피할 수 있도록 미리 정해 놓은 길입니다.",
+          "nepaliQuestionText": "१९.\nकार्यस्थल वा सार्वजनिक स्थलमा अचानक आगलागी हुँदा सबैजना सुरक्षित रूपमा भाग्न सकून् भनी पहिल्यै तोकिएको आपतकालीन बाटो हो।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "보행로",
+            "비상구",
+            "출입구",
+            "엘리베이터"
+          ],
+          "correctOptionIndex": 1,
+          "isListening": false,
+          "explanation": "आपतकालीन अवस्थामा बाहिर निस्कने ढोका वा निकास बाटोलाई '비상구' (Emergency Exit / आपतकालीन ढोका/बाटो) भनिन्छ।\n① 보행로 (पैदल यात्री हिँड्ने बाटो)\n② 비상구 (आपतकालीन निकास) - सही उत्तर\n③ 출입구 (प्रवेश तथा बाहिरिने ढोका)\n④ 엘리베이터 (लिफ्ट)",
+          "subcategory": "Safety Terms & Vocabulary Definition"
+        },
+        {
+          "id": "set05_q20",
+          "questionText": "20.\n한국에서 밥이나 국을 먹을 때 주로 사용하며, 숟가락과 한 세트를 이루는 길고 가는 막대 모양의 도구를 말합니다.",
+          "koreanQuestionText": "20.\n한국에서 밥이나 국을 먹을 때 주로 사용하며, 숟가락과 한 세트를 이루는 길고 가는 막대 모양의 도구를 말합니다.",
+          "nepaliQuestionText": "२०.\nकोरियामा खाना वा सुप खाँदा मुख्य रूपमा प्रयोग गरिने, र चम्चासँग एक सेट बन्ने लामो र पातलो सिन्का आकारको भाँडालाई भनिन्छ।",
+          "questionImageUrl": null,
+          "questionAudioUrl": null,
+          "textOptions": [
+            "포크",
+            "칼",
+            "젓가락",
+            "수저"
+          ],
+          "correctOptionIndex": 2,
+          "isListening": false,
+          "explanation": "चम्चासँग जोडी बन्ने लामो सिन्का आकारको वस्तु '젓가락' (चपस्टिक / Chopsticks) हो। (चम्चा र चपस्टिक दुवैलाई मिलाएर '수저' भनिन्छ, तर यहाँ सिन्का आकारको मात्र सोधिएको छ)।\n① 포크 (काँटाचम्चा)\n② 칼 (चक्कु)\n③ 젓가락 (चपस्टिक) - सही उत्तर\n④ 수저 (चम्चा र चपस्टिक सेट)",
+          "subcategory": "Korean Tableware & Culture"
+        },
+        {
+          "id": "set05_q21",
+          "questionText": "[21~22] 들은 것을 고르십시오.\n\n21. 들은 것을 고르십시오.",
+          "koreanQuestionText": "[21~22] 들은 것을 고르십시오.\n\n21. 들은 것을 고르십시오.",
+          "nepaliQuestionText": "[२१~२२] सुनेको शब्द छान्नुहोस्।\n\n२१. सुनेको शब्द छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q21.mp3",
+          "textOptions": [
+            "냇가",
+            "콧등",
+            "햇살",
+            "뱃속"
+          ],
+          "correctOptionIndex": 3,
+          "isListening": true,
+          "explanation": "अडियोमा '뱃속' (पेट भित्र) उच्चारण गरिएको छ। तसर्थ ④ सही उत्तर हो।\n① 냇गा (खोलाको किनार)\n② 콧등 (नाकको डाँडी)\n③ 햇살 (घामको किरण)\n④ 뱃속 (पेट भित्र) - सही उत्तर",
+          "subcategory": "Listening Phonetics & Pronunciation"
+        },
+        {
+          "id": "set05_q22",
+          "questionText": "22. 들은 것을 고르십시오.",
+          "koreanQuestionText": "22. 들은 것을 고르십시오.",
+          "nepaliQuestionText": "२२. सुनेको शब्द छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q22.mp3",
+          "textOptions": [
+            "색연필",
+            "내복약",
+            "막일",
+            "꽃잎"
+          ],
+          "correctOptionIndex": 0,
+          "isListening": true,
+          "explanation": "अडियोमा '색연필' (रङ्गीन सिन्के पेन्सिल) उच्चारण गरिएको छ। तसर्थ ① सही उत्तर हो।\n① 색연필 (रङ्गीन पेन्सिल) - सही उत्तर\n② 내복약 (खाने औषधि)\n③ 막일 (शारीरिक श्रम/ज्यालादारी काम)\n④ 꽃잎 (फूलको पात/पत्रदल)",
+          "subcategory": "Listening Phonetics & Pronunciation"
+        },
+        {
+          "id": "set05_q23",
+          "questionText": "[23~27] 다음을 듣고 들은 내용과 관계있는 그림을 고르십시오.\n\n23. 들은 내용과 관계있는 그림을 고르십시오.",
+          "koreanQuestionText": "23. 들은 내용과 관계있는 그림을 고르십시오.",
+          "nepaliQuestionText": "२३. सुनेको कुरासँग सम्बन्धित चित्र छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q23.mp3",
+          "textOptions": [
+            "1번 그림",
+            "2번 그림",
+            "3번 그림",
+            "4번 그림"
+          ],
+          "optionImageUrls": [
+            "assets/images/set_05/q23_opt1.png",
+            "assets/images/set_05/q23_opt2.png",
+            "assets/images/set_05/q23_opt3.png",
+            "assets/images/set_05/q23_opt4.png"
+          ],
+          "correctOptionIndex": 0,
+          "isListening": true,
+          "explanation": "अडियोमा वर्णन गरिएको सामान/कार्य १ नम्बरको चित्रसँग मिल्दछ। तसर्थ ① सही उत्तर हो।",
+          "subcategory": "Listening Picture Association"
+        },
+        {
+          "id": "set05_q24",
+          "questionText": "24. 들은 내용과 관계있는 그림을 고르십시오.",
+          "koreanQuestionText": "24. 들은 내용과 관계있는 그림을 고르십시오.",
+          "nepaliQuestionText": "२४. सुनेको कुरासँग सम्बन्धित चित्र छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q24.mp3",
+          "textOptions": [
+            "1번 그림",
+            "2번 그림",
+            "3번 그림",
+            "4번 그림"
+          ],
+          "optionImageUrls": [
+            "assets/images/set_05/q24_opt1.png",
+            "assets/images/set_05/q24_opt2.png",
+            "assets/images/set_05/q24_opt3.png",
+            "assets/images/set_05/q24_opt4.png"
+          ],
+          "correctOptionIndex": 0,
+          "isListening": true,
+          "explanation": "अडियोमा वर्णन गरिएको दृश्य १ नम्बरको चित्रसँग ठ्याक्कै मेल खान्छ। तसर्थ ① सही उत्तर हो।",
+          "subcategory": "Listening Picture Association"
+        },
+        {
+          "id": "set05_q25",
+          "questionText": "25. 들은 내용과 관계있는 그림을 고르십시오.",
+          "koreanQuestionText": "25. 들은 내용과 관계있는 그림을 고르십시오.",
+          "nepaliQuestionText": "२५. सुनेको कुरासँग सम्बन्धित चित्र छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q25.mp3",
+          "textOptions": [
+            "1번 그림",
+            "2번 그림",
+            "3번 그림",
+            "4번 그림"
+          ],
+          "optionImageUrls": [
+            "assets/images/set_05/q25_opt1.png",
+            "assets/images/set_05/q25_opt2.png",
+            "assets/images/set_05/q25_opt3.png",
+            "assets/images/set_05/q25_opt4.png"
+          ],
+          "correctOptionIndex": 0,
+          "isListening": true,
+          "explanation": "अडियोमा वर्णन गरिएको औजार/कार्य १ नम्बरको चित्रसँग मिल्दछ। तसर्थ ① सही उत्तर हो।",
+          "subcategory": "Listening Picture Association"
+        },
+        {
+          "id": "set05_q26",
+          "questionText": "26. 들은 내용과 관계있는 그림을 고르십시오.",
+          "koreanQuestionText": "26. 들은 내용과 관계있는 그림을 고르십시오.",
+          "nepaliQuestionText": "२६. सुनेको कुरासँग सम्बन्धित चित्र छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q26.mp3",
+          "textOptions": [
+            "1번 그림",
+            "2번 그림",
+            "3번 그림",
+            "4번 그림"
+          ],
+          "optionImageUrls": [
+            "assets/images/set_05/q26_opt1.png",
+            "assets/images/set_05/q26_opt2.png",
+            "assets/images/set_05/q26_opt3.png",
+            "assets/images/set_05/q26_opt4.png"
+          ],
+          "correctOptionIndex": 0,
+          "isListening": true,
+          "explanation": "अडियोमा वर्णन गरिएको कार्य १ नम्बरको चित्रसँग मेल खान्छ। तसर्थ ① सही उत्तर हो।",
+          "subcategory": "Listening Picture Association"
+        },
+        {
+          "id": "set05_q27",
+          "questionText": "27. 들은 내용과 관계있는 그림을 고르십시오.",
+          "koreanQuestionText": "27. 들은 내용과 관계있는 그림을 고르십시오.",
+          "nepaliQuestionText": "२७. सुनेको कुरासँग सम्बन्धित चित्र छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q27.mp3",
+          "textOptions": [
+            "1번 그림",
+            "2번 그림",
+            "3번 그림",
+            "4번 그림"
+          ],
+          "optionImageUrls": [
+            "assets/images/set_05/q27_opt1.png",
+            "assets/images/set_05/q27_opt2.png",
+            "assets/images/set_05/q27_opt3.png",
+            "assets/images/set_05/q27_opt4.png"
+          ],
+          "correctOptionIndex": 2,
+          "isListening": true,
+          "explanation": "अडियोमा वर्णन गरिएको अवस्था ३ नम्बरको चित्रसँग मिल्दछ। तसर्थ ③ सही उत्तर हो।",
+          "subcategory": "Listening Picture Association"
+        },
+        {
+          "id": "set05_q28",
+          "questionText": "[28~33] 다음을 듣고 물음에 알맞은 대답을 고르십시오.\n\n28. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "koreanQuestionText": "28. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "nepaliQuestionText": "२८. प्रश्न सुनेर मिल्ने जवाफ छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q28.mp3",
+          "textOptions": [
+            "1번 대답",
+            "2번 대답",
+            "3번 대답",
+            "4번 대답"
+          ],
+          "correctOptionIndex": 3,
+          "isListening": true,
+          "explanation": "प्रश्न सुनेर त्यसको उपयुक्त प्रतिक्रिया ४ नम्बरको विकल्प हो।",
+          "subcategory": "Listening Appropriate Response"
+        },
+        {
+          "id": "set05_q29",
+          "questionText": "29. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "koreanQuestionText": "29. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "nepaliQuestionText": "२९. प्रश्न सुनेर मिल्ने जवाफ छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q29.mp3",
+          "textOptions": [
+            "1번 대답",
+            "2번 대답",
+            "3번 대답",
+            "4번 대답"
+          ],
+          "correctOptionIndex": 3,
+          "isListening": true,
+          "explanation": "अडियो संवादको प्रश्न अनुसार ४ नम्बरको उत्तर सबैभन्दा मिल्दो जवाफ हो।",
+          "subcategory": "Listening Appropriate Response"
+        },
+        {
+          "id": "set05_q30",
+          "questionText": "30. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "koreanQuestionText": "30. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "nepaliQuestionText": "३०. प्रश्न सुनेर मिल्ने जवाफ छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q30.mp3",
+          "textOptions": [
+            "1번 대답",
+            "2번 대답",
+            "3번 대답",
+            "4번 대답"
+          ],
+          "correctOptionIndex": 3,
+          "isListening": true,
+          "explanation": "अडियोमा सोधिएको प्रश्नको सही उत्तर ४ नम्बरको विकल्प हो।",
+          "subcategory": "Listening Appropriate Response"
+        },
+        {
+          "id": "set05_q31",
+          "questionText": "31. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "koreanQuestionText": "31. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "nepaliQuestionText": "३१. प्रश्न सुनेर मिल्ने जवाफ छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q31.mp3",
+          "textOptions": [
+            "1번 대답",
+            "2번 대답",
+            "3번 대답",
+            "4번 대답"
+          ],
+          "correctOptionIndex": 1,
+          "isListening": true,
+          "explanation": "अडियो प्रश्न अनुसार २ नम्बरको विकल्प सही उत्तर हो।",
+          "subcategory": "Listening Appropriate Response"
+        },
+        {
+          "id": "set05_q32",
+          "questionText": "32. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "koreanQuestionText": "32. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "nepaliQuestionText": "३२. प्रश्न सुनेर मिल्ने जवाफ छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q32.mp3",
+          "textOptions": [
+            "1번 대답",
+            "2번 대답",
+            "3번 대답",
+            "4번 대답"
+          ],
+          "correctOptionIndex": 1,
+          "isListening": true,
+          "explanation": "अडियो प्रश्न अनुसार २ नम्बरको विकल्प सही उत्तर हो।",
+          "subcategory": "Listening Appropriate Response"
+        },
+        {
+          "id": "set05_q33",
+          "questionText": "33. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "koreanQuestionText": "33. 질문을 듣고 알맞은 대답을 고르십시오.",
+          "nepaliQuestionText": "३३. प्रश्न सुनेर मिल्ने जवाफ छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q33.mp3",
+          "textOptions": [
+            "1번 대답",
+            "2번 대답",
+            "3번 대답",
+            "4번 대답"
+          ],
+          "correctOptionIndex": 2,
+          "isListening": true,
+          "explanation": "अडियो प्रश्न अनुसार ३ नम्बरको विकल्प सही उत्तर हो।",
+          "subcategory": "Listening Appropriate Response"
+        },
+        {
+          "id": "set05_q34",
+          "questionText": "[34~36] 다음을 듣고 들은 내용과 관계있는 그림을 고르십시오.\n\n34. 들은 내용과 관계있는 그림을 고르십시오.",
+          "koreanQuestionText": "34. 들은 내용과 관계있는 그림을 고르십시오.",
+          "nepaliQuestionText": "३४. सुनेको कुरासँग सम्बन्धित चित्र छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q34.mp3",
+          "textOptions": [
+            "1번 그림",
+            "2번 그림",
+            "3번 그림",
+            "4번 그림"
+          ],
+          "optionImageUrls": [
+            "assets/images/set_05/q34_opt1.png",
+            "assets/images/set_05/q34_opt2.png",
+            "assets/images/set_05/q34_opt3.png",
+            "assets/images/set_05/q34_opt4.png"
+          ],
+          "correctOptionIndex": 2,
+          "isListening": true,
+          "explanation": "अडियोमा वर्णन गरिएको कार्य ३ नम्बरको चित्रसँग मिल्दछ। तसर्थ ③ सही उत्तर हो।",
+          "subcategory": "Listening Picture Association"
+        },
+        {
+          "id": "set05_q35",
+          "questionText": "35. 들은 내용과 관계있는 그림을 고르십시오.",
+          "koreanQuestionText": "35. 들은 내용과 관계있는 그림을 고르십시오.",
+          "nepaliQuestionText": "३५. सुनेको कुरासँग सम्बन्धित चित्र छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q35.mp3",
+          "textOptions": [
+            "1번 그림",
+            "2번 그림",
+            "3번 그림",
+            "4번 그림"
+          ],
+          "optionImageUrls": [
+            "assets/images/set_05/q35_opt1.png",
+            "assets/images/set_05/q35_opt2.png",
+            "assets/images/set_05/q35_opt3.png",
+            "assets/images/set_05/q35_opt4.png"
+          ],
+          "correctOptionIndex": 0,
+          "isListening": true,
+          "explanation": "अडियोमा वर्णन गरिएको अवस्था १ नम्बरको चित्रसँग मिल्दछ। तसर्थ ① सही उत्तर हो।",
+          "subcategory": "Listening Picture Association"
+        },
+        {
+          "id": "set05_q36",
+          "questionText": "36. 들은 내용과 관계있는 그림을 고르십시오.",
+          "koreanQuestionText": "36. 들은 내용과 관계있는 그림을 고르십시오.",
+          "nepaliQuestionText": "३६. सुनेको कुरासँग सम्बन्धित चित्र छान्नुहोस्।",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q36.mp3",
+          "textOptions": [
+            "1번 그림",
+            "2번 그림",
+            "3번 그림",
+            "4번 그림"
+          ],
+          "optionImageUrls": [
+            "assets/images/set_05/q36_opt1.png",
+            "assets/images/set_05/q36_opt2.png",
+            "assets/images/set_05/q36_opt3.png",
+            "assets/images/set_05/q36_opt4.png"
+          ],
+          "correctOptionIndex": 0,
+          "isListening": true,
+          "explanation": "अडियोमा वर्णन गरिएको चित्र १ नम्बरसँग ठ्याक्कै मिल्दछ। तसर्थ ① सही उत्तर हो।",
+          "subcategory": "Listening Picture Association"
+        },
+        {
+          "id": "set05_q37",
+          "questionText": "〔37~40〕 다음 이야기를 듣고 질문에 알맞은 대답을 고르십시오.\n\n37. 이 남자는 지금 무엇을 하고 있습니까?",
+          "koreanQuestionText": "37. 이 남자는 지금 무엇을 하고 있습니까?",
+          "nepaliQuestionText": "३७. यो पुरुष अहिले के गरिरहेको छ?",
+          "questionImageUrl": "assets/images/set_05/q37.png",
+          "questionAudioUrl": "assets/audio/set_05/q37.mp3",
+          "textOptions": [
+            "1번",
+            "2번",
+            "3번",
+            "4번"
+          ],
+          "correctOptionIndex": 1,
+          "isListening": true,
+          "explanation": "अडियोमा पुरुषले गरिरहेको कार्य २ नम्बरको चित्र अनुसार छ। तसर्थ ② सही उत्तर हो।",
+          "subcategory": "Listening Dialogue & Action Identification"
+        },
+        {
+          "id": "set05_q38",
+          "questionText": "38. 다음 중 들은 내용과 같은 것은 무엇입니까?",
+          "koreanQuestionText": "38. 다음 중 들은 내용과 같은 것은 무엇입니까?",
+          "nepaliQuestionText": "३८. सुनेको कुरासँग मिल्ने वाक्य कुन हो?",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q38.mp3",
+          "textOptions": [
+            "남자는 어제 늦게 퇴근했습니다.",
+            "여자는 청소 도구를 가져올 것입니다.",
+            "작업장이 깨끗하게 청소되어 있습니다.",
+            "두 사람은 오늘 페인트 작업을 할 것입니다."
+          ],
+          "correctOptionIndex": 0,
+          "isListening": true,
+          "explanation": "अडियो कुराकानी अनुसार '남자는 어제 늦게 퇴근했습니다' (पुरुष हिजो ढिलो कामबाट छुटेको थियो) सुनेको विवरणसँग ठ्याक्कै मेल खान्छ। तसर्थ ① सही उत्तर हो।",
+          "subcategory": "Listening Comprehension & Fact Checking"
+        },
+        {
+          "id": "set05_q39",
+          "questionText": "39. 두 사람은 무엇에 대해 말하고 있습니까?",
+          "koreanQuestionText": "39. 두 사람은 무엇에 대해 말하고 있습니까?",
+          "nepaliQuestionText": "३९. दुईजना के को बारेमा कुरा गरिरहेका छन्?",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q39.mp3",
+          "textOptions": [
+            "작업 도구",
+            "작업 순서",
+            "작업 시간",
+            "작업 장소"
+          ],
+          "correctOptionIndex": 0,
+          "isListening": true,
+          "explanation": "दुईजना काममा प्रयोग गरिने औजारहरू (작업 도구 - Work Tools) को बारेमा कुरा गरिरहेका छन्। तसर्थ ① सही उत्तर हो।\n① 작업 도구 (कामको औजार) - सही उत्तर\n② 작업 순서 (कामको प्रक्रिया/क्रम)\n③ 작업 시간 (कामको समय)\n④ 작업 장소 (काम गर्ने स्थान)",
+          "subcategory": "Listening Topic Identification"
+        },
+        {
+          "id": "set05_q40",
+          "questionText": "40. 여자가 다른 공구로 작업해야 하는 이유는 무엇입니까?",
+          "koreanQuestionText": "40. 여자가 다른 공구로 작업해야 하는 이유는 무엇입니까?",
+          "nepaliQuestionText": "४०. महिलाले अर्को औजारबाट काम गर्नुपर्ने कारण के हो?",
+          "questionImageUrl": null,
+          "questionAudioUrl": "assets/audio/set_05/q40.mp3",
+          "textOptions": [
+            "스패너가 부러져서",
+            "스패너가 무거워서",
+            "스패너가 너무 커서",
+            "스패너를 잃어버려서"
+          ],
+          "correctOptionIndex": 2,
+          "isListening": true,
+          "explanation": "अडियोमा महिलाले '스패너가 너무 커서' (स्प्यानर धेरै ठूलो भएकोले) अर्को साइजको औजार प्रयोग गर्नुपरेको कुरा बताउँछिन्। तसर्थ ③ सही उत्तर हो।",
+          "subcategory": "Listening Reason & Cause"
+        }
+      ]
+    }
   ]
 }

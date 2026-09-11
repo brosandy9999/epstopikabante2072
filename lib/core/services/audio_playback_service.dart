@@ -72,7 +72,7 @@ class AudioPlaybackService {
     final match = gDriveRegex.firstMatch(clean);
     if (match != null) {
       final fileId = match.group(1);
-      return 'https://docs.google.com/uc?export=download&id=' + (fileId ?? '');
+      return 'https://lh3.googleusercontent.com/d/$fileId';
     }
 
     // Google Drive open?id= link
@@ -80,7 +80,7 @@ class AudioPlaybackService {
     final matchOpen = gDriveOpenRegex.firstMatch(clean);
     if (matchOpen != null) {
       final fileId = matchOpen.group(1);
-      return 'https://docs.google.com/uc?export=download&id=' + (fileId ?? '');
+      return 'https://lh3.googleusercontent.com/d/$fileId';
     }
 
     // Dropbox share link -> direct download
@@ -88,7 +88,7 @@ class AudioPlaybackService {
       if (clean.contains('?dl=0')) {
         return clean.replaceAll('?dl=0', '?raw=1');
       } else if (!clean.contains('?raw=1') && !clean.contains('?dl=1')) {
-        return '=1';
+        return clean.contains('?') ? '$clean&raw=1' : '$clean?raw=1';
       }
     }
 
@@ -193,11 +193,18 @@ class AudioPlaybackService {
       currentAudioSourceNotifier.value = clean;
       isPlayingNotifier.value = true;
 
-      // 1. Data URL (Base64)
-      if (clean.startsWith('data:audio') || clean.startsWith('data:application')) {
-        final base64Part = clean.contains(',') ? clean.split(',')[1] : clean;
-        final bytes = base64Decode(base64Part);
-        await _player?.play(BytesSource(bytes));
+      // 1. Data URL (Base64) or Blob URL
+      if (clean.startsWith('data:') || clean.startsWith('blob:')) {
+        if (kIsWeb) {
+          // On Flutter Web, HTML5 audio natively handles Data URLs and Blob URLs via UrlSource
+          await _player?.play(UrlSource(clean));
+        } else if (clean.startsWith('blob:')) {
+          await _player?.play(UrlSource(clean));
+        } else {
+          final base64Part = clean.contains(',') ? clean.split(',')[1] : clean;
+          final bytes = base64Decode(base64Part);
+          await _player?.play(BytesSource(bytes, mimeType: 'audio/mpeg'));
+        }
       }
       // 2. Network URL (HTTP / HTTPS)
       else if (clean.startsWith('http://') || clean.startsWith('https://')) {
@@ -214,7 +221,7 @@ class AudioPlaybackService {
         await _player?.play(DeviceFileSource(filePath));
       }
       // 4. Windows / Local absolute file path (e.g. C:\... or C:/... or /...)
-      else if (RegExp(r'^[a-zA-Z]:[\\/]').hasMatch(clean) || (clean.startsWith('/') && !clean.startsWith('/assets'))) {
+      else if (RegExp(r'^[a-zA-Z]:[\/]').hasMatch(clean) || (clean.startsWith('/') && !clean.startsWith('/assets'))) {
         await _player?.play(DeviceFileSource(clean));
       }
       // 5. Bundled Flutter Asset
@@ -226,7 +233,7 @@ class AudioPlaybackService {
         await _player?.play(AssetSource(assetPath));
       }
     } catch (e) {
-      debugPrint('[AudioPlaybackService] playAudioUrl failed: , source: ');
+      debugPrint('[AudioPlaybackService] playAudioUrl failed: $e, source: $clean');
       isPlayingNotifier.value = false;
       currentAudioSourceNotifier.value = null;
       if (!completer.isCompleted) completer.complete();
