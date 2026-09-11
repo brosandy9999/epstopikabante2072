@@ -9380,7 +9380,7 @@ if(j==null)j="\uc81c\uc870\uc5c5 (Manufacturing)"
 i=A.ba(a.h(a1,"status"))
 if(i==null)i="\u0938\u0915\u094d\u0930\u093f\u092f (Active)"
 h=A.ba(a.h(a1,"instituteId"))
-if(h==null)h="inst_01"
+if(h==null)h="inst_abante_ktm"
 g=A.ba(a.h(a1,"instituteName"))
 if(g==null)g="\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f"
 f=A.ba(a.h(a1,"instituteLogo"))
@@ -11733,7 +11733,7 @@ aRD:function aRD(a){this.a=a},
 QE:function QE(){},
 vl:function vl(a){this.a=a},
 Nb:function Nb(a,b,c,d){var _=this
-_.d="inst_01"
+_.d="inst_abante_ktm"
 _.e=a
 _.f=b
 _.r=!0
@@ -58078,7 +58078,7 @@ if(a0!=null&&a0.length!==0){s.z=a0
 s.Q=a1==null?s.Q:a1}i.a=s
 i.hr()}else{r=Date.now()
 q=d==null?"STU_"+r:d
-p=a0==null?"inst_01":a0
+p=a0==null?"inst_abante_ktm":a0
 o=a1==null?"\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f":a1
 n=b.length!==0?b:"Google \u092a\u0930\u0940\u0915\u094d\u0937\u093e\u0930\u094d\u0925\u0940"
 m=B.b.cF(B.k.k(r),7)
@@ -58183,7 +58183,7 @@ if(B.c.cT(s,new A.adF(i,j)))return!1
 r=k.a
 q=r==null
 p=q?j:r.z
-if(p==null)p="inst_01"
+if(p==null)p="inst_abante_ktm"
 o=q?j:r.Q
 if(o==null)o="\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f"
 n=q?j:r.as
@@ -59699,7 +59699,7 @@ $1(a){return A.bml(A.cV(a,t.N,t.z))},
 $S:366}
 A.anh.prototype={
 $1(a){var s
-if(a.a!=="inst_01"){s=a.b
+if(a.a!=="inst_abante_ktm"){s=a.b
 s=B.b.n(s,"Global Korean")||B.b.n(s,"Everest")}else s=!0
 return s},
 $S:27}
@@ -63801,7 +63801,7 @@ aj(){var s,r,q,p,o,n=this
 n.av()
 s=$.cJ().a
 r=s==null?null:s.z
-if(r==null)r="inst_01"
+if(r==null)r="inst_abante_ktm"
 q=$.f4()
 p=q.r0(r)
 q=p==null?q.Kv():p
@@ -64020,7 +64020,7 @@ r.toString
 s.q(0,n,B.b.D(r))}}}m=$.cJ().a
 s=m==null
 l=s?g:m.z
-if(l==null)l="inst_01"
+if(l==null)l="inst_abante_ktm"
 r=$.f4()
 k=r.r0(l)
 if(k==null)k=r.Kv()
@@ -64894,7 +64894,7 @@ k.B(new A.aVP(j,k,l,B.b.D(n.d.a.a),B.b.D(n.e.a.a)))
 if(j.b){s=$.cJ()
 r=s.a
 q=r==null?m:r.z
-if(q==null)q="inst_01"
+if(q==null)q="inst_abante_ktm"
 p=$.f4()
 o=p.r0(q)
 if(o==null)o=p.Kv()
@@ -66512,7 +66512,7 @@ r=s.d
 n.bN(A.cp(q,q,q,B.c6,q,B.u,q,A.c(m.j("\ud83c\udf89 Welcome back via Google, "+r+"!","\ud83c\udf89 Google \ub85c\uadf8\uc778 \ud658\uc601\ud569\ub2c8\ub2e4, "+r+"\ub2d8!","\ud83c\udf89 Google \u092e\u093e\u0930\u094d\u092b\u0924 \u0938\u094d\u0935\u093e\u0917\u0924 \u091b, "+r+"!"),q,q,q,q,q,q,q,q),q,B.aE,q,q,q,q,q,q,q,q,q,q))}else this.aEj(p,c,a.length!==0?a:o,d)},
 aBQ(a,b){return this.a2z(a,b,null,null)},
 aEj(a,b,c,d){var s,r=this,q=null,p={},o=$.aj(),n=$.f4().fw()
-p.a=n.length!==0?B.c.gX(n).a:"inst_01"
+p.a=n.length!==0?B.c.gX(n).a:"inst_abante_ktm"
 p.b=B.c.gX(r.x)
 p.c=B.c.gX(r.y)
 p.d=""
@@ -66523,7 +66523,7 @@ a49(a){var s=null,r=$.aj(),q=this.c
 q.toString
 A.cd(s,s,!0,s,new A.aSJ(this,new A.aB(B.al,r),new A.aB(B.al,r)),q,s,!0,t.z)},
 aEn(){var s,r=null,q={},p=$.aj(),o=$.f4().fw()
-q.a=o.length!==0?B.c.gX(o).a:"inst_01"
+q.a=o.length!==0?B.c.gX(o).a:"inst_abante_ktm"
 q.b=""
 q.c=q.d=!1
 q.e=q.f=""
@@ -66531,7 +66531,7 @@ s=this.c
 s.toString
 A.cd(r,r,!0,r,new A.aTh(q,this,o,new A.aB(B.al,p),new A.aB(B.al,p),new A.aB(B.al,p)),s,r,!0,t.z)},
 aEq(){var s,r=this,q=null,p={},o=$.aj(),n=$.f4().fw()
-p.a=n.length!==0?B.c.gX(n).a:"inst_01"
+p.a=n.length!==0?B.c.gX(n).a:"inst_abante_ktm"
 p.b=B.c.gX(r.x)
 p.c=B.c.gX(r.y)
 p.d=""
@@ -67138,7 +67138,7 @@ $1(a){return a.a===this.a.d},
 $S:27}
 A.aTE.prototype={
 $0(){var s=null,r=this.a
-return r.length!==0?B.c.gX(r):A.Vz("","\u092c\u093e\u0917\u092c\u091c\u093e\u0930, \u0915\u093e\u0920\u092e\u093e\u0921\u094c\u0902",5,s,"GLOBAL_KTM",s,s,s,"contact@globalinstitute.edu.np","inst_01",!0,"",s,s,200,"\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f","9851234567",new A.aX(Date.now(),0,!1).dc(31536e9))},
+return r.length!==0?B.c.gX(r):A.Vz("","\u092c\u093e\u0917\u092c\u091c\u093e\u0930, \u0915\u093e\u0920\u092e\u093e\u0921\u094c\u0902",5,s,"ABANTE_KTM",s,s,s,"info@abante.edu.np","inst_abante_ktm",!0,"",s,s,200,"\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f","014168102",new A.aX(Date.now(),0,!1).dc(31536e9))},
 $S:140}
 A.aTF.prototype={
 $3(a,b,c){var s=null,r=this.a.b
@@ -73317,7 +73317,7 @@ A.ac(r,!1).cp(s)},
 $S:0}
 A.b0R.prototype={
 $1(a){var s=null,r=this.a,q=r.c
-return A.bn4(r.y,r.x,r.w,this.b.w,r.r,r.f,r.b,A.qg(10,"2026 Batch A (\u092c\u093f\u0939\u093e\u0928\u0940 \u0938\u0924\u094d\u0930)",q,"inst_01","assets/images/institute_logo_default.png","\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f",s,r.d,"student_password",s,r.e,B.eN,"\uc81c\uc870\uc5c5 (Manufacturing)",0,"\u0938\u0915\u094d\u0930\u093f\u092f (Active)",s,q,s),r.z,r.Q)},
+return A.bn4(r.y,r.x,r.w,this.b.w,r.r,r.f,r.b,A.qg(10,"2026 Batch A (\u092c\u093f\u0939\u093e\u0928\u0940 \u0938\u0924\u094d\u0930)",q,"inst_abante_ktm","assets/images/institute_logo_default.png","\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f",s,r.d,"student_password",s,r.e,B.eN,"\uc81c\uc870\uc5c5 (Manufacturing)",0,"\u0938\u0915\u094d\u0930\u093f\u092f (Active)",s,q,s),r.z,r.Q)},
 $S:225}
 A.b0U.prototype={
 $0(){var s,r=this.a.c
@@ -145154,7 +145154,7 @@ s($,"bIU","di",()=>{var q=new A.adc(A.aDu(!1),A.aDu(null),A.aDu(B.ap),A.aDu(B.ap
 q.ax8()
 return q})
 s($,"bIX","cJ",()=>{var q=null,p="admin123",o="assets/images/institute_logo_default.png",n="\u0938\u0915\u094d\u0930\u093f\u092f (Active)",m=t.u6
-return new A.Sf(A.qg(-1,"Platform Headquarters","SUPER_ADMIN_001","platform_master",o,"EPS-TOPIK Master Platform","9851000000","\u092e\u0941\u0916\u094d\u092f \u0938\u0941\u092a\u0930 \u090f\u0921\u092e\u093f\u0928 (Super Admin)",p,q,q,B.d2,"Platform Owner",0,n,q,"superadmin",q),A.qg(-1,"Management","ADMIN_001","inst_01",o,"\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f","9851234567","\u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f \u090f\u0921\u092e\u093f\u0928 (Institute Admin)",p,q,q,B.fR,"Administration",0,n,q,"admin",q),A.a([],m),A.a([],m),$.aj())})
+return new A.Sf(A.qg(-1,"Platform Headquarters","SUPER_ADMIN_001","platform_master",o,"EPS-TOPIK Master Platform","9851000000","\u092e\u0941\u0916\u094d\u092f \u0938\u0941\u092a\u0930 \u090f\u0921\u092e\u093f\u0928 (Super Admin)",p,q,q,B.d2,"Platform Owner",0,n,q,"superadmin",q),A.qg(-1,"Management","ADMIN_001","inst_abante_ktm",o,"\u0917\u094d\u0932\u094b\u092c\u0932 \u0915\u094b\u0930\u093f\u092f\u0928 \u092d\u093e\u0937\u093e \u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f","9851234567","\u0907\u0928\u094d\u0938\u094d\u091f\u093f\u091a\u094d\u092f\u0941\u091f \u090f\u0921\u092e\u093f\u0928 (Institute Admin)",p,q,q,B.fR,"Administration",0,n,q,"admin",q),A.a([],m),A.a([],m),$.aj())})
 s($,"bJ5","cK",()=>new A.ES(B.ana,$.aj()))
 s($,"bJd","bj5",()=>new A.agi())
 s($,"bJC","iD",()=>{var q=new A.ajr(A.a([],t.Vu))
