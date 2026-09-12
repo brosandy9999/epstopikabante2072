@@ -98,11 +98,14 @@ class FirebaseRtdbSyncService {
 
   static const String _keyCachedSyncTs = 'eps_cached_sync_ts';
 
+  bool _quotaExceeded = false;
+
   // ── PULL (public read — smart data-saving check) ────────────────────
 
   /// Fetches the full sync payload from Firebase RTDB only if new data exists.
   /// If force is false, checks a tiny ~30-byte timestamp first.
   Future<Map<String, dynamic>?> pullData({bool force = false}) async {
+    if (_quotaExceeded) return null;
     try {
       final cachedTs = StorageService.instance.getString(_keyCachedSyncTs);
 
@@ -117,6 +120,11 @@ class FirebaseRtdbSyncService {
               'Accept-Encoding': 'gzip, deflate',
             },
           ).timeout(const Duration(seconds: 5));
+
+          if (tsResp.statusCode == 423) {
+            _quotaExceeded = true;
+            return null;
+          }
 
           if (tsResp.statusCode == 200 && tsResp.body.trim() != 'null') {
             final remoteTs = tsResp.body.replaceAll('"', '').trim();
@@ -141,6 +149,11 @@ class FirebaseRtdbSyncService {
           'Cache-Control': 'no-cache',
         },
       ).timeout(const Duration(seconds: 12));
+
+      if (resp.statusCode == 423) {
+        _quotaExceeded = true;
+        return null;
+      }
 
       if (resp.statusCode == 200 && resp.body.trim() != 'null') {
         final decoded = jsonDecode(resp.body);
@@ -184,6 +197,7 @@ class FirebaseRtdbSyncService {
 
   /// Pushes the full sync payload to Firebase RTDB with bandwidth-saver optimizations.
   Future<bool> pushData(Map<String, dynamic> rawPayload) async {
+    if (_quotaExceeded) return false;
     try {
       final sanitized = _sanitizeForRtdb(rawPayload) as Map<String, dynamic>;
       final encoded = jsonEncode(sanitized);
@@ -208,6 +222,11 @@ class FirebaseRtdbSyncService {
             body: encoded,
           )
           .timeout(const Duration(seconds: 15));
+
+      if (resp.statusCode == 423) {
+        _quotaExceeded = true;
+        return false;
+      }
 
       if (resp.statusCode == 200) {
         _lastPushedHash = currentHash;

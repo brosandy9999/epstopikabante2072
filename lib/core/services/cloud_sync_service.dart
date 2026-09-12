@@ -432,7 +432,25 @@ class CloudSyncService extends ChangeNotifier {
       notifyListeners();
     }
 
-    // ── 1. Pull directly from Firebase Realtime Database ─────────────
+    // ── 1. Pull directly from Supabase Cloud Storage (Primary Channel) ──
+    try {
+      final supaPayload = await SupabaseService.instance.pullSyncPayload();
+      if (supaPayload != null && supaPayload.isNotEmpty) {
+        final success = ingestSyncPayload(supaPayload);
+        if (success) {
+          _lastSyncTime = DateTime.now();
+          StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+          _state = SyncState.synced;
+          _lastError = null;
+          notifyListeners();
+          return true;
+        }
+      }
+    } catch (e) {
+      debugPrint('[CloudSync] Supabase pull error: $e');
+    }
+
+    // ── 2. Secondary Fallback: Firebase Realtime Database ─────────────
     try {
       final rtdbPayload = await FirebaseRtdbSyncService.instance.pullData(force: force);
       if (rtdbPayload != null && rtdbPayload.isNotEmpty) {
@@ -447,7 +465,7 @@ class CloudSyncService extends ChangeNotifier {
         }
       }
     } catch (e) {
-      debugPrint('[CloudSync] Firebase RTDB pull error: $e');
+      debugPrint('[CloudSync] Firebase RTDB pull notice: $e');
     }
 
     // ── 2. Fallback to custom cloud endpoint if configured ───────────
