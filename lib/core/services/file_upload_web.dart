@@ -46,7 +46,7 @@ class FileUploadService {
 
       final uploadUrl = 'https://api.cloudinary.com/v1_1/$cloudName/$resourceType/upload';
       final formData = html.FormData();
-      formData.append('file', file);
+      formData.appendBlob('file', file, file.name);
       formData.append('upload_preset', uploadPreset);
       formData.append('folder', 'eps_topik/$folder');
 
@@ -189,7 +189,7 @@ class FileUploadService {
                 final bytes = base64Decode(base64Part);
                 final blob = html.Blob([bytes], type);
                 final file = html.File([blob], name, {'type': type});
-                storageUrl = await _uploadBrowserFileToFirebase(file, 'images');
+                storageUrl = await _uploadBrowserFileToCloudinary(file, 'images');
               }
             } catch (_) {}
 
