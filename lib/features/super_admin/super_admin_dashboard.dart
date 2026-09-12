@@ -559,7 +559,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
                                     ],
                                   ),
                                 ),
-                                const Spacer(),
+                                const SizedBox(width: 4),
                                 // Assign Sets Button
                                 ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
