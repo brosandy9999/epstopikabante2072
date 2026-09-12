@@ -84,9 +84,10 @@ class EpsTopikApp extends StatelessWidget {
   const EpsTopikApp({super.key});
 
   Widget _getInitialHomeScreen() {
-    if (isAndroidWeb) {
-      return const AndroidWebGatekeeperScreen();
-    }
+    // [TEMPORARY BYPASS] Gatekeeper disabled for mobile web testing before APK build
+    // if (isAndroidWeb) {
+    //   return const AndroidWebGatekeeperScreen();
+    // }
 
     final currentUser = AuthService.instance.currentUser;
     if (currentUser != null &&

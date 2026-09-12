@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base href="/">
+  <base href="/epstopikabante2072/">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -21,7 +21,13 @@
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
-  <link rel="manifest" href="manifest.json">
+  <!-- PDF.js Engine for fast and reliable PDF rendering in Printing & Web canvas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
 
   <style>
     * {
@@ -49,6 +55,27 @@
   </style>
 </head>
 <body>
+  <!-- Modern Interactive Preloader -->
+  <div id="loading-spinner" style="position: fixed; inset: 0; background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: white;">
+    <div style="width: 56px; height: 56px; border: 4px solid rgba(255,255,255,0.15); border-top: 4px solid #38BDF8; border-radius: 50%; animation: eps_spin 0.9s linear infinite;"></div>
+    <div style="margin-top: 20px; font-size: 18px; font-weight: 700; letter-spacing: 0.5px; color: #F8FAFC;">EPS-TOPIK ABANTE</div>
+    <div style="margin-top: 6px; font-size: 13px; color: #94A3B8;">लोड हुँदैछ, कृपया केही सेकेन्ड पर्खनुहोस्...</div>
+    <style>
+      @keyframes eps_spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+  </div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var loader = document.getElementById('loading-spinner');
+      if (loader) { loader.style.opacity = '0'; setTimeout(function() { loader.remove(); }, 300); }
+    });
+    // Fallback: remove loader after 12s if already initialized
+    setTimeout(function() {
+      var loader = document.getElementById('loading-spinner');
+      if (loader) { loader.style.opacity = '0'; setTimeout(function() { loader.remove(); }, 300); }
+    }, 12000);
+  </script>
+
   <script>
     // 0. Auto-Unregister Stale Service Workers & Purge Old Cache on Startup
     try {
@@ -106,6 +133,21 @@
       }
     };
   </script>
+    <!-- Official Supabase JS SDK & Cloud Sync Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = 'https://ysrxjsmqipzudwwnqorb.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_secret_2EmpXQ4nPKPiw0pUMQiqWA_I1OPgOKY';
+    try {
+      if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+        window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('⚡ Supabase Cloud Web Client Initialized for topik-abante');
+      }
+    } catch(err) {
+      console.warn('Supabase JS init notice:', err);
+    }
+  </script>
+
   <!-- Official Firebase Web SDK for Real Authentication & Storage -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>

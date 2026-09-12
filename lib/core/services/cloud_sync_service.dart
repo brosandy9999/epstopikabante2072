@@ -450,7 +450,36 @@ class CloudSyncService extends ChangeNotifier {
       debugPrint('[CloudSync] Supabase pull error: $e');
     }
 
-    // ── 2. Secondary Fallback: Firebase Realtime Database ─────────────
+    // ── 2. Fallback: GitHub Live Master Channel ──────────────────────
+    try {
+      final ghUrls = [
+        'https://raw.githubusercontent.com/brosandy9999/epstopikabante2072/main/data/eps_sync_data.json?_t=${DateTime.now().millisecondsSinceEpoch}',
+        'https://brosandy9999.github.io/epstopikabante2072/data/eps_sync_data.json?_t=${DateTime.now().millisecondsSinceEpoch}',
+      ];
+      for (final urlStr in ghUrls) {
+        try {
+          final ghResp = await http.get(Uri.parse(urlStr)).timeout(const Duration(seconds: 10));
+          if (ghResp.statusCode == 200 && ghResp.body.trim().isNotEmpty) {
+            final decoded = jsonDecode(ghResp.body);
+            if (decoded is Map) {
+              final success = ingestSyncPayload(Map<String, dynamic>.from(decoded));
+              if (success) {
+                _lastSyncTime = DateTime.now();
+                StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+                _state = SyncState.synced;
+                _lastError = null;
+                notifyListeners();
+                return true;
+              }
+            }
+          }
+        } catch (_) {}
+      }
+    } catch (e) {
+      debugPrint('[CloudSync] GitHub live pull fallback notice: $e');
+    }
+
+    // ── 3. Secondary Fallback: Firebase Realtime Database ─────────────
     try {
       final rtdbPayload = await FirebaseRtdbSyncService.instance.pullData(force: force);
       if (rtdbPayload != null && rtdbPayload.isNotEmpty) {

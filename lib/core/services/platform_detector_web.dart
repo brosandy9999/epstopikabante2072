@@ -3,6 +3,8 @@ import 'dart:html' as html;
 import 'package:flutter/foundation.dart';
 
 bool get isAndroidWeb {
+  // [TEMPORARY BYPASS] Return false for mobile web testing before final APK release
+  return false;
   if (!kIsWeb) return false;
   try {
     final ua = html.window.navigator.userAgent.toLowerCase();

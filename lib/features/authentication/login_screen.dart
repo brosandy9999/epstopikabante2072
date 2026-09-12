@@ -40,15 +40,16 @@ class _LoginScreenState extends State<LoginScreen> {
     _loadSavedInstitute();
     InstituteService.instance.addListener(_onInstitutesUpdated);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isAndroidWeb) {
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const AndroidWebGatekeeperScreen()),
-          );
-        }
-        return;
-      }
+      // [TEMPORARY BYPASS] Gatekeeper disabled for mobile web testing before APK build
+      // if (isAndroidWeb) {
+      //   if (mounted) {
+      //     Navigator.pushReplacement(
+      //       context,
+      //       MaterialPageRoute(builder: (context) => const AndroidWebGatekeeperScreen()),
+      //     );
+      //   }
+      //   return;
+      // }
       CloudSyncService.instance.pullFromCloud(silent: true).catchError((_) => false);
     });
   }

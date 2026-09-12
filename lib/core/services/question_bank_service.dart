@@ -206,7 +206,7 @@ class QuestionBankService extends ChangeNotifier {
         hasChanges = true;
       } else {
         final localSet = _customSets[localIdx];
-        if (localSet.questions.length < rSet.questions.length) {
+        if (localSet.questions.length <= rSet.questions.length || (!localSet.isApproved && rSet.isApproved)) {
           _customSets[localIdx] = rSet;
           hasChanges = true;
         }
