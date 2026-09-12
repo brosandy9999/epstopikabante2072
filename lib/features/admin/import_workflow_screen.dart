@@ -482,7 +482,7 @@ class _ImportWorkflowScreenState extends State<ImportWorkflowScreen> {
           ],
         ),
         content: SizedBox(
-          width: 440,
+          width: MediaQuery.of(ctx).size.width < 460 ? MediaQuery.of(ctx).size.width * 0.92 : 440,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,

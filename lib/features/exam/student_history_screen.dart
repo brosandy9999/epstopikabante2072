@@ -131,20 +131,22 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
 
             const SizedBox(height: 24),
 
-            // Filter Tabs
-            Row(
+            // Filter Tabs (Responsive Wrap)
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
               children: [
                 ChoiceChip(
-                  label: Text(LanguageService.instance.trText(ne: "सबै परीक्षाहरू ($totalTaken)", en: "All Exams ($totalTaken)", ko: "전체 ($totalTaken)")),
+                  label: Text(LanguageService.instance.trText(ne: "सबै ($totalTaken)", en: "All ($totalTaken)", ko: "전체 ($totalTaken)")),
                   selected: _filter == 'all',
                   selectedColor: const Color(0xFF1E3A8A),
                   labelStyle: TextStyle(
                     color: _filter == 'all' ? Colors.white : Colors.black87,
                     fontWeight: FontWeight.bold,
+                    fontSize: 12,
                   ),
                   onSelected: (_) => setState(() => _filter = 'all'),
                 ),
-                const SizedBox(width: 10),
                 ChoiceChip(
                   label: Text(LanguageService.instance.trText(ne: "उत्तीर्ण ($totalPassed)", en: "Passed ($totalPassed)", ko: "합격 ($totalPassed)")),
                   selected: _filter == 'passed',
@@ -152,10 +154,10 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                   labelStyle: TextStyle(
                     color: _filter == 'passed' ? Colors.white : Colors.black87,
                     fontWeight: FontWeight.bold,
+                    fontSize: 12,
                   ),
                   onSelected: (_) => setState(() => _filter = 'passed'),
                 ),
-                const SizedBox(width: 10),
                 ChoiceChip(
                   label: Text(LanguageService.instance.trText(ne: "सुधार आवश्यक (${totalTaken - totalPassed})", en: "Needs Review (${totalTaken - totalPassed})", ko: "재도전 필요 (${totalTaken - totalPassed})")),
                   selected: _filter == 'failed',
@@ -163,6 +165,7 @@ class _StudentHistoryScreenState extends State<StudentHistoryScreen> {
                   labelStyle: TextStyle(
                     color: _filter == 'failed' ? Colors.white : Colors.black87,
                     fontWeight: FontWeight.bold,
+                    fontSize: 12,
                   ),
                   onSelected: (_) => setState(() => _filter = 'failed'),
                 ),

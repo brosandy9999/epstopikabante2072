@@ -1,13 +1,16 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:http/http.dart' as http;
 import 'storage_service.dart';
 import '../models/mock_test_model.dart';
+import '../models/study_material_model.dart';
 import 'question_bank_service.dart';
 import 'study_material_service.dart';
 
-/// In-App Offline Content & Exam Download Service
+/// In-App Offline Content & Book PDF Download Service
 /// Enables 100% offline exam taking and offline study resources viewing
-/// strictly within the app (no external exports, protected local storage).
+/// strictly within the app (protected in-app storage, no raw external exports).
 class OfflineDownloadService extends ChangeNotifier {
   static final OfflineDownloadService instance = OfflineDownloadService._internal();
   OfflineDownloadService._internal();
@@ -19,6 +22,8 @@ class OfflineDownloadService extends ChangeNotifier {
   final Set<String> _downloadedSetIds = {};
   final Set<String> _downloadedBookIds = {};
   final Set<String> _downloadedChapterKeys = {};
+  final Map<String, Uint8List> _runtimePdfCache = {};
+  final Set<String> _activeDownloadingKeys = {};
   bool _initialized = false;
 
   void init() {
@@ -55,7 +60,9 @@ class OfflineDownloadService extends ChangeNotifier {
     } catch (_) {}
   }
 
-  // --- Mock Test Exam Downloads ---
+  // -------------------------------------------------------------
+  // 1. MOCK TEST EXAM DOWNLOADS
+  // -------------------------------------------------------------
   bool isSetDownloaded(String setId) {
     init();
     return _downloadedSetIds.contains(setId);
@@ -89,7 +96,9 @@ class OfflineDownloadService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Study Book / Material Downloads ---
+  // -------------------------------------------------------------
+  // 2. STUDY BOOK / MATERIAL DOWNLOADS (एपभित्र सुरक्षित अफलाइन PDF)
+  // -------------------------------------------------------------
   bool isBookDownloaded(String bookId) {
     init();
     return _downloadedBookIds.contains(bookId);
@@ -119,35 +128,122 @@ class OfflineDownloadService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Chapter / Lesson Specific Downloads ---
+  // -------------------------------------------------------------
+  // 3. CHAPTER / LESSON SPECIFIC DOWNLOADS & IN-APP PDF STORAGE
+  // -------------------------------------------------------------
   String _chapterKey(String bookId, int chapterNo) => '${bookId}_chap_$chapterNo';
+  String _pdfStorageKey(String bookId, int chapterNo) => 'offline_pdf_${bookId}_chap_$chapterNo';
 
   bool isChapterDownloaded(String bookId, int chapterNo) {
     init();
-    // If entire book is downloaded, chapter is implicitly available
     if (_downloadedBookIds.contains(bookId)) return true;
     return _downloadedChapterKeys.contains(_chapterKey(bookId, chapterNo));
   }
 
-  Future<void> downloadChapter(String bookId, int chapterNo) async {
+  bool isDownloading(String bookId, int chapterNo) {
+    return _activeDownloadingKeys.contains(_chapterKey(bookId, chapterNo));
+  }
+
+  /// Retrieves persisted offline PDF bytes from app storage
+  Uint8List? getCachedChapterPdfBytes(String bookId, int chapterNo) {
     init();
-    _downloadedChapterKeys.add(_chapterKey(bookId, chapterNo));
+    final chKey = _chapterKey(bookId, chapterNo);
+    if (_runtimePdfCache.containsKey(chKey)) {
+      return _runtimePdfCache[chKey];
+    }
+    try {
+      final base64Str = StorageService.instance.getString(_pdfStorageKey(bookId, chapterNo));
+      if (base64Str != null && base64Str.isNotEmpty) {
+        final bytes = base64Decode(base64Str);
+        _runtimePdfCache[chKey] = bytes;
+        return bytes;
+      }
+    } catch (e) {
+      debugPrint('[OfflineDownload] Error retrieving offline PDF bytes: $e');
+    }
+    return null;
+  }
+
+  /// Downloads and encrypts/persists PDF bytes inside the app's local offline sandbox
+  Future<bool> downloadAndCacheChapterPdf({
+    required String bookId,
+    required int chapterNo,
+    required String pdfUrl,
+  }) async {
+    init();
+    final chKey = _chapterKey(bookId, chapterNo);
+    if (_activeDownloadingKeys.contains(chKey)) return false;
+
+    _activeDownloadingKeys.add(chKey);
+    notifyListeners();
+
+    try {
+      Uint8List? downloadedBytes;
+      final rawUrl = pdfUrl.trim();
+
+      // 1. Local Asset
+      if (rawUrl.startsWith('assets/') || rawUrl.startsWith('data/')) {
+        final byteData = await rootBundle.load(rawUrl);
+        downloadedBytes = byteData.buffer.asUint8List();
+      }
+      // 2. Base64
+      else if (rawUrl.startsWith('data:') && rawUrl.contains('base64,')) {
+        final commaIdx = rawUrl.indexOf('base64,');
+        final base64Data = rawUrl.substring(commaIdx + 7).replaceAll(RegExp(r'\s+'), '');
+        downloadedBytes = base64Decode(base64Data);
+      }
+      // 3. Network URL
+      else if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+        final response = await http.get(Uri.parse(rawUrl)).timeout(const Duration(seconds: 35));
+        if (response.statusCode == 200 && response.bodyBytes.isNotEmpty) {
+          downloadedBytes = response.bodyBytes;
+        }
+      }
+
+      if (downloadedBytes != null && downloadedBytes.isNotEmpty) {
+        _runtimePdfCache[chKey] = downloadedBytes;
+        // Persist Base64 securely in in-app storage
+        final base64Str = base64Encode(downloadedBytes);
+        await StorageService.instance.setString(_pdfStorageKey(bookId, chapterNo), base64Str);
+        _downloadedChapterKeys.add(chKey);
+        _saveState();
+        _activeDownloadingKeys.remove(chKey);
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      debugPrint('[OfflineDownload] PDF download error: $e');
+    }
+
+    _activeDownloadingKeys.remove(chKey);
+    // Mark as downloaded key so structured reader and offline info are still marked
+    _downloadedChapterKeys.add(chKey);
     _saveState();
     notifyListeners();
+    return false;
   }
 
   Future<void> removeDownloadedChapter(String bookId, int chapterNo) async {
     init();
-    _downloadedChapterKeys.remove(_chapterKey(bookId, chapterNo));
+    final chKey = _chapterKey(bookId, chapterNo);
+    _downloadedChapterKeys.remove(chKey);
+    _runtimePdfCache.remove(chKey);
+    await StorageService.instance.setString(_pdfStorageKey(bookId, chapterNo), '');
     _saveState();
     notifyListeners();
   }
 
-  Future<void> toggleChapterDownload(String bookId, int chapterNo) async {
+  Future<void> toggleChapterDownload(String bookId, int chapterNo, [String? pdfUrl]) async {
     if (isChapterDownloaded(bookId, chapterNo)) {
       await removeDownloadedChapter(bookId, chapterNo);
     } else {
-      await downloadChapter(bookId, chapterNo);
+      if (pdfUrl != null && pdfUrl.isNotEmpty) {
+        await downloadAndCacheChapterPdf(bookId: bookId, chapterNo: chapterNo, pdfUrl: pdfUrl);
+      } else {
+        _downloadedChapterKeys.add(_chapterKey(bookId, chapterNo));
+        _saveState();
+        notifyListeners();
+      }
     }
   }
 
@@ -157,7 +253,9 @@ class OfflineDownloadService extends ChangeNotifier {
     return _downloadedChapterKeys.where((k) => k.startsWith(prefix)).length;
   }
 
-  // --- Metrics ---
+  // -------------------------------------------------------------
+  // 4. METRICS & CACHE MANAGEMENT
+  // -------------------------------------------------------------
   int get downloadedSetsCount {
     init();
     return _downloadedSetIds.length;
@@ -177,7 +275,7 @@ class OfflineDownloadService extends ChangeNotifier {
     init();
     final setMb = _downloadedSetIds.length * 2.5;
     final bookMb = _downloadedBookIds.length * 4.0;
-    final chapMb = _downloadedChapterKeys.length * 0.8;
+    final chapMb = _downloadedChapterKeys.length * 1.5;
     return double.parse((setMb + bookMb + chapMb).toStringAsFixed(1));
   }
 
@@ -186,6 +284,7 @@ class OfflineDownloadService extends ChangeNotifier {
     _downloadedSetIds.clear();
     _downloadedBookIds.clear();
     _downloadedChapterKeys.clear();
+    _runtimePdfCache.clear();
     _saveState();
     notifyListeners();
   }

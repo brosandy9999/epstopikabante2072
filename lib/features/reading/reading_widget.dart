@@ -38,32 +38,67 @@ class _ReadingQuestionWidgetState extends State<ReadingQuestionWidget> {
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     if (isLandscape) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Left Pane: Question Prompt & Visual Material (50% Split)
-          Expanded(
-            flex: 5,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildQuestionTitle(isLandscape),
-                  const SizedBox(height: 8),
-                  _buildQuestionMaterial(widget.question.questionId, widget.question.questionText, isLandscape),
-                ],
+      return Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Left Pane: Question Prompt & Visual Material (50% Split)
+              Expanded(
+                flex: 5,
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildQuestionTitle(isLandscape),
+                        const SizedBox(height: 8),
+                        _buildQuestionMaterial(widget.question.questionId, widget.question.questionText, isLandscape),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              // Right Pane: 4 Options (50% Split)
+              Expanded(
+                flex: 5,
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: SingleChildScrollView(
+                    child: _buildOptions(rawOptions, isLandscape),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 14),
-          // Right Pane: 4 Options (50% Split)
-          Expanded(
-            flex: 5,
-            child: SingleChildScrollView(
-              child: _buildOptions(rawOptions, isLandscape),
-            ),
-          ),
-        ],
+        ),
       );
     }
 
@@ -71,10 +106,23 @@ class _ReadingQuestionWidgetState extends State<ReadingQuestionWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildQuestionTitle(isLandscape),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFFCBD5E1)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildQuestionTitle(isLandscape),
+                const SizedBox(height: 10),
+                _buildQuestionMaterial(widget.question.questionId, widget.question.questionText, isLandscape),
+              ],
+            ),
+          ),
           const SizedBox(height: 12),
-          _buildQuestionMaterial(widget.question.questionId, widget.question.questionText, isLandscape),
-          const SizedBox(height: 16),
           _buildOptions(rawOptions, isLandscape),
         ],
       ),

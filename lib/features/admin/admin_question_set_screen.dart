@@ -115,7 +115,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
   }
 
   void _showCreateNewSetDialog() {
-    final titleCtrl = TextEditingController(text: '제\회 EPS-TOPIK 실전 모의고사');
+    final titleCtrl = TextEditingController(text: '제1회 EPS-TOPIK 실전 모의고사');
     final descCtrl = TextEditingController(text: '표준 EPS-TOPIK 실전 모의고사 40문항 풀 세트 (20 읽기 + 20 듣기)');
     String selectedSector = _sectorsList.first;
     String error = '';
@@ -140,7 +140,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
             ],
           ),
           content: SizedBox(
-            width: 460,
+            width: MediaQuery.of(context).size.width < 500 ? MediaQuery.of(context).size.width * 0.92 : 460,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1385,9 +1385,9 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Card
+          // Header Card (Responsive for mobile)
           Container(
-            padding: const EdgeInsets.all(22),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFF0F766E), Color(0xFF0D9488)],
@@ -1396,39 +1396,46 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
               ),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Colors.white24,
-                  child: Icon(Icons.assignment_turned_in_rounded, color: Colors.white, size: 34),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        LanguageService.instance.trText(
-                          ne: 'EPS-TOPIK ४०-प्रश्न सेट व्यवस्थापन केन्द्र',
-                          en: 'EPS-TOPIK 40-Question Set Hub',
-                          ko: 'EPS-TOPIK 40문항 세트 관리 센터',
-                        ),
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isMobile = constraints.maxWidth < 700;
+                final headerInfo = Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const CircleAvatar(
+                      radius: 24,
+                      backgroundColor: Colors.white24,
+                      child: Icon(Icons.assignment_turned_in_rounded, color: Colors.white, size: 28),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            LanguageService.instance.trText(
+                              ne: 'EPS-TOPIK ४०-प्रश्न सेट व्यवस्थापन केन्द्र',
+                              en: 'EPS-TOPIK 40-Question Set Hub',
+                              ko: 'EPS-TOPIK 40문항 세트 관리 센터',
+                            ),
+                            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            LanguageService.instance.trText(
+                              ne: 'प्रत्येक सेटमा २० रिडिङ र २० लिसनिङ प्रश्नहरू समावेश हुन्छन्।',
+                              en: 'Each set contains 20 Reading and 20 Listening questions.',
+                              ko: '각 세트는 20개 읽기 및 20개 듣기 문항으로 구성됩니다.',
+                            ),
+                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        LanguageService.instance.trText(
-                          ne: 'प्रत्येक सेटमा २० रिडिङ र २० लिसनिङ प्रश्नहरू समावेश हुन्छन्। नयाँ सेट थप्न र सेट भित्रका प्रश्नहरू सम्पादन गर्न सक्नुहुन्छ।',
-                          en: 'Each set contains 20 Reading and 20 Listening questions. Create and edit multi-modal questions with audio and images.',
-                          ko: '각 세트는 20개 읽기 및 20개 듣기 문항으로 구성됩니다. 새 세트를 추가하고 오디오/이미지 문항을 편집할 수 있습니다.',
-                        ),
-                        style: const TextStyle(color: Colors.white70, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                Wrap(
+                    ),
+                  ],
+                );
+
+                final actionButtons = Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: [
@@ -1451,7 +1458,7 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                           ),
                         ).then((_) => setState(() {}));
                       },
-                      icon: const Icon(Icons.auto_awesome, size: 18),
+                      icon: const Icon(Icons.auto_awesome, size: 16),
                       label: Text(LanguageService.instance.trText(
                         ne: '🤖 AI PDF प्रश्न आयात',
                         en: '🤖 AI PDF Import',
@@ -1460,24 +1467,43 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.amber.shade400,
                         foregroundColor: Colors.brown.shade900,
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
                     ElevatedButton.icon(
                       onPressed: _showCreateNewSetDialog,
-                      icon: const Icon(Icons.add, size: 18),
-                      label: Text(LanguageService.instance.trText(ne: 'नयाँ प्रश्न सेट बनाउनुहोस्', en: 'Create Question Set', ko: '새 문제 세트 만들기')),
+                      icon: const Icon(Icons.add, size: 16),
+                      label: Text(LanguageService.instance.trText(ne: 'नयाँ सेट बनाउनुहोस्', en: 'Create Set', ko: '새 세트 만들기')),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: const Color(0xFF0F766E),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                     ),
                   ],
-                ),
-              ],
+                );
+
+                if (isMobile) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      headerInfo,
+                      const SizedBox(height: 14),
+                      actionButtons,
+                    ],
+                  );
+                }
+
+                return Row(
+                  children: [
+                    Expanded(child: headerInfo),
+                    const SizedBox(width: 12),
+                    actionButtons,
+                  ],
+                );
+              },
             ),
           ),
           const SizedBox(height: 24),
@@ -1509,77 +1535,95 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
               final set = filteredSets[i];
               final isSuperAdmin = AuthService.instance.currentUser?.role == UserRole.superAdmin;
               return Card(
-                elevation: 2,
+                elevation: 1.5,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: Row(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 26,
-                        backgroundColor: const Color(0xFF1E3A8A).withOpacity(0.1),
-                        child: Text(
-                          'S${i + 1}',
-                          style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A), fontSize: 16),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 4,
-                              crossAxisAlignment: WrapCrossAlignment.center,
+                      // Header Row: Avatar + Title + Badges
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: const Color(0xFF1E3A8A).withOpacity(0.1),
+                            child: Text(
+                              'S${i + 1}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A), fontSize: 14),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(set.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
-                                  child: Text(LanguageService.instance.trText(ne: '४० प्रश्नहरू (२० R + २० L)', en: '40 Questions (20 R + 20 L)', ko: '40문항 (20 R + 20 L)'), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
-                                ),
-                                if (set.isLiveExam)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                    decoration: BoxDecoration(color: Colors.red.shade100, borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.red)),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        const Icon(Icons.radio_button_checked, size: 12, color: Colors.red),
-                                        const SizedBox(width: 4),
-                                        Text(LanguageService.instance.trText(ne: '🔴 आजको दैनिक परीक्षा', en: "🔴 Today's Live Exam", ko: '🔴 오늘의 라이브 시험'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.red)),
-                                      ],
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 4,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Text(set.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
+                                      child: Text(LanguageService.instance.trText(ne: '४० प्रश्नहरू (२० R + २० L)', en: '40 Questions (20 R + 20 L)', ko: '40문항 (20 R + 20 L)'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
                                     ),
-                                  ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: set.isApproved ? Colors.green.shade50 : Colors.amber.shade50,
-                                    borderRadius: BorderRadius.circular(4),
-                                    border: Border.all(color: set.isApproved ? Colors.green : Colors.amber.shade700),
-                                  ),
-                                  child: Text(
-                                    set.isApproved ? LanguageService.instance.trText(ne: '🟢 सबैका लागि स्वीकृत', en: '🟢 Approved for All', ko: '🟢 전체 승인됨') : LanguageService.instance.trText(ne: '⏳ सुपर एडमिन स्वीकृतिको पर्खाइमा', en: '⏳ Awaiting Super Admin Approval', ko: '⏳ 최고관리자 승인 대기중'),
-                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: set.isApproved ? Colors.green.shade900 : Colors.amber.shade900),
-                                  ),
+                                    if (set.isLiveExam)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(color: Colors.red.shade100, borderRadius: BorderRadius.circular(4), border: Border.all(color: Colors.red)),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.radio_button_checked, size: 11, color: Colors.red),
+                                            const SizedBox(width: 4),
+                                            Text(LanguageService.instance.trText(ne: '🔴 आजको लाइभ परीक्षा', en: "🔴 Today's Live", ko: '🔴 라이브 시험'), style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.red)),
+                                          ],
+                                        ),
+                                      ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: set.isApproved ? Colors.green.shade50 : Colors.amber.shade50,
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(color: set.isApproved ? Colors.green : Colors.amber.shade700),
+                                      ),
+                                      child: Text(
+                                        set.isApproved ? LanguageService.instance.trText(ne: '🟢 स्वीकृत', en: '🟢 Approved', ko: '🟢 승인됨') : LanguageService.instance.trText(ne: '⏳ स्वीकृतिको पर्खाइमा', en: '⏳ Pending Approval', ko: '⏳ 승인 대기'),
+                                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: set.isApproved ? Colors.green.shade900 : Colors.amber.shade900),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${set.sector}  •  ${set.description}${set.instituteName != null ? " • इन्स्टिच्युट: " + set.instituteName! : ""}',
+                                  style: TextStyle(color: Colors.grey.shade700, fontSize: 11.5),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4),
-                            Text('${set.sector}  •  ${set.description}${set.instituteName != null ? " • इन्स्टिच्युट: " + set.instituteName! : ""}', style: const TextStyle(color: Colors.black54, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 14),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
+
+                      const Divider(height: 18),
+
+                      // Action Buttons Row (Responsive Wrap)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF1E3A8A),
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              visualDensity: VisualDensity.compact,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
                             onPressed: () {
@@ -1589,64 +1633,43 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                               });
                             },
                             icon: const Icon(Icons.manage_search, size: 16),
-                            label: Text(LanguageService.instance.trText(ne: '४० प्रश्नहरू व्यवस्थापन गर्नुहोस्', en: 'Manage 40 Questions', ko: '40문항 관리'), style: const TextStyle(fontSize: 12)),
+                            label: Text(LanguageService.instance.trText(ne: '४० प्रश्न व्यवस्थापन', en: 'Manage 40 Questions', ko: '40문항 관리'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                           ),
-                          const SizedBox(height: 6),
-                          Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
-                            alignment: WrapAlignment.end,
-                            children: [
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: (isSuperAdmin || set.isApproved)
-                                      ? const Color(0xFF0F766E)
-                                      : Colors.amber.shade800,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  visualDensity: VisualDensity.compact,
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF1E3A8A),
+                              side: const BorderSide(color: Color(0xFF93C5FD)),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            onPressed: () => _handleOpenPaperExamPdf(set),
+                            icon: const Icon(Icons.print, size: 14),
+                            label: Text(LanguageService.instance.trText(ne: '📄 पेपर PDF / Print', en: '📄 Paper PDF / Print', ko: '📄 문제지 인쇄/PDF'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                          ),
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: set.isLiveExam ? Colors.red : const Color(0xFF0F766E),
+                              side: BorderSide(color: set.isLiveExam ? Colors.red : const Color(0xFF0F766E)),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              visualDensity: VisualDensity.compact,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                QuestionBankService.instance.setLiveDailyExam(set.id, isLive: !set.isLiveExam);
+                              });
+                              CloudSyncService.instance.pushToCloud();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(set.isLiveExam
+                                      ? LanguageService.instance.trText(ne: 'लाइभ परीक्षा हटाइयो।', en: 'Live exam removed.', ko: '라이브 시험이 해제되었습니다.')
+                                      : LanguageService.instance.trText(ne: '🔴 ${set.title} आजको दैनिक लाइभ परीक्षा (Strict Mode) को रूपमा तोकियो!', en: "🔴 ${set.title} set as Today's Live Exam (Strict Mode)!", ko: '🔴 ${set.title} 오늘의 라이브 시험(엄격 모드)으로 지정되었습니다!')),
+                                  backgroundColor: set.isLiveExam ? Colors.blueGrey : Colors.teal,
                                 ),
-                                onPressed: () => _handleOpenPaperExamPdf(set),
-                                icon: Icon((isSuperAdmin || set.isApproved) ? Icons.picture_as_pdf : Icons.lock_outline, size: 14),
-                                label: Text(
-                                  (isSuperAdmin || set.isApproved)
-                                      ? LanguageService.instance.trText(
-                                          ne: '📄 पेपर परीक्षा PDF / Print',
-                                          en: '📄 Paper Exam PDF / Print',
-                                          ko: '📄 지필시험 PDF / 인쇄',
-                                        )
-                                      : LanguageService.instance.trText(
-                                          ne: '🔒 पेपर परीक्षा (अनुमति आवश्यक)',
-                                          en: '🔒 Paper Exam (Permission Req.)',
-                                          ko: '🔒 지필시험 (승인 필요)',
-                                        ),
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: set.isLiveExam ? Colors.red : const Color(0xFF0F766E),
-                                  side: BorderSide(color: set.isLiveExam ? Colors.red : const Color(0xFF0F766E)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                  visualDensity: VisualDensity.compact,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    QuestionBankService.instance.setLiveDailyExam(set.id, isLive: !set.isLiveExam);
-                                  });
-                                  CloudSyncService.instance.pushToCloud();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(set.isLiveExam
-                                          ? LanguageService.instance.trText(ne: 'लाइभ परीक्षा हटाइयो।', en: 'Live exam removed.', ko: '라이브 시험이 해제되었습니다.')
-                                          : LanguageService.instance.trText(ne: '🔴 ${set.title} आजको दैनिक लाइभ परीक्षा (Strict Mode) को रूपमा तोकियो!', en: "🔴 ${set.title} set as Today's Live Exam (Strict Mode)!", ko: '🔴 ${set.title} 오늘의 라이브 시험(엄격 모드)으로 지정되었습니다!')),
-                                      backgroundColor: set.isLiveExam ? Colors.blueGrey : Colors.teal,
-                                    ),
-                                  );
-                                },
-                                icon: Icon(set.isLiveExam ? Icons.cancel_outlined : Icons.flash_on, size: 14),
-                                label: Text(set.isLiveExam ? LanguageService.instance.trText(ne: 'लाइभ हटाउनुहोस्', en: 'Remove Live', ko: '라이브 해제') : LanguageService.instance.trText(ne: '🔴 लाइभ परीक्षा', en: '🔴 Live Exam', ko: '🔴 라이브 설정'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
-                              ),
+                              );
+                            },
+                            icon: Icon(set.isLiveExam ? Icons.cancel_outlined : Icons.flash_on, size: 14),
+                            label: Text(set.isLiveExam ? LanguageService.instance.trText(ne: 'लाइभ हटाउनुहोस्', en: 'Remove Live', ko: '라이브 해제') : LanguageService.instance.trText(ne: '🔴 लाइभ परीक्षा', en: '🔴 Live Exam', ko: '🔴 라이브 설정'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                          ),
                               OutlinedButton.icon(
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: Colors.red.shade700,

@@ -91,7 +91,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
 
     // पृष्ठभूमिमा स्वतः सिङ्क गर्ने (Silent background sync on open without manual buttons)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      CloudSyncService.instance.pullFromCloud().catchError((_) => false);
+      CloudSyncService.instance.pullFromCloud(silent: true).catchError((_) => false);
     });
   }
 
@@ -455,7 +455,8 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                                 ? LanguageService.instance.trText(ne: 'अध्याय $ch अफलाइन सुरक्षित छ (हटाउन ट्याप गर्नुहोस्)', en: 'Chapter $ch saved offline (Tap to remove)', ko: '제$ch과 오프라인 저장됨')
                                 : LanguageService.instance.trText(ne: 'अध्याय $ch अफलाइन डाउनलोड गर्नुहोस्', en: 'Download Chapter $ch offline', ko: '제$ch과 오프라인 다운로드'),
                             onPressed: () async {
-                              await OfflineDownloadService.instance.toggleChapterDownload(b.id, ch);
+                              final chPdf = b.chapterPdfs['$ch'] ?? b.pdfUrl;
+                              await OfflineDownloadService.instance.toggleChapterDownload(b.id, ch, chPdf);
                               setModalState(() {});
                               setState(() {});
                             },

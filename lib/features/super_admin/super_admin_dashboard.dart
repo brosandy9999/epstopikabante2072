@@ -70,84 +70,181 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
               title: Row(
                 children: [
                   const CircleAvatar(
-                    radius: 18,
+                    radius: 16,
                     backgroundColor: Colors.amber,
-                    child: Icon(Icons.workspace_premium, color: Colors.black87, size: 22),
+                    child: Icon(Icons.workspace_premium, color: Colors.black87, size: 20),
                   ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        LanguageService.instance.trText(
-                          ne: 'सुपर एडमिन मास्टर पोर्टल',
-                          en: 'Super Admin Master Portal',
-                          ko: '최고 관리자 마스터 포털',
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          LanguageService.instance.trText(
+                            ne: 'सुपर एडमिन मास्टर पोर्टल',
+                            en: 'Super Admin Master Portal',
+                            ko: '최고 관리자 마스터 포털',
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                         ),
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      Text(
-                        LanguageService.instance.trText(
-                          ne: 'केन्द्रीय नियन्त्रण तथा अनुमति व्यवस्थापन',
-                          en: 'Central Control & License Management',
-                          ko: '중앙 통제 및 권한 관리',
+                        Text(
+                          LanguageService.instance.trText(
+                            ne: 'केन्द्रीय नियन्त्रण तथा अनुमति व्यवस्थापन',
+                            en: 'Central Control & License Management',
+                            ko: '중앙 통제 및 권한 관리',
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 10, color: Colors.white70),
                         ),
-                        style: const TextStyle(fontSize: 11, color: Colors.white70),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
               actions: [
-                IconButton(
-                  icon: const Icon(Icons.sync_rounded),
-                  tooltip: LanguageService.instance.trText(ne: 'क्लाउड सिङ्क', en: 'Cloud Sync', ko: '클라우드 동기화'),
-                  onPressed: () async {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(LanguageService.instance.trText(ne: 'क्लाउड सिङ्क्रोनाइजेसन सुरु भयो...', en: 'Syncing to Cloud...', ko: '클라우드 동기화 중...')),
-                        backgroundColor: const Color(0xFF1E3A8A),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                    await CloudSyncService.instance.pushToCloud(silent: false);
-                    await CloudSyncService.instance.pullFromCloud(silent: false);
-                    if (context.mounted) {
-                      setState(() {});
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(LanguageService.instance.trText(ne: '✅ क्लाउड सिङ्क्रोनाइजेसन सम्पन्न भयो!', en: '✅ Cloud sync complete!', ko: '✅ 클라우드 동기화 완료!')),
-                          backgroundColor: Colors.green,
-                          duration: const Duration(seconds: 3),
-                        ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final screenWidth = MediaQuery.of(context).size.width;
+                    final isMobile = screenWidth < 650;
+
+                    if (isMobile) {
+                      return PopupMenuButton<int>(
+                        icon: const Icon(Icons.more_vert, color: Colors.white),
+                        tooltip: LanguageService.instance.trText(ne: 'थप विकल्पहरू', en: 'More options', ko: '추가 메뉴'),
+                        onSelected: (val) async {
+                          if (val == 1) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(LanguageService.instance.trText(ne: 'क्लाउड सिङ्क्रोनाइजेसन सुरु भयो...', en: 'Syncing to Cloud...', ko: '클라우드 동기화 중...')),
+                                backgroundColor: const Color(0xFF1E3A8A),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                            await CloudSyncService.instance.pushToCloud(silent: false);
+                            await CloudSyncService.instance.pullFromCloud(silent: false);
+                            if (context.mounted) {
+                              setState(() {});
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(LanguageService.instance.trText(ne: '✅ क्लाउड सिङ्क्रोनाइजेसन सम्पन्न भयो!', en: '✅ Cloud sync complete!', ko: '✅ 클라우드 동기화 완료!')),
+                                  backgroundColor: Colors.green,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          } else if (val == 2) {
+                            showUniversalSettingsDialog(context);
+                          } else if (val == 3) {
+                            _showCleanDatabaseDialog();
+                          } else if (val == 4) {
+                            _handleLogout();
+                          }
+                        },
+                        itemBuilder: (ctx) => [
+                          PopupMenuItem(
+                            value: 1,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.sync_rounded, size: 18, color: Colors.teal),
+                                const SizedBox(width: 10),
+                                Text(LanguageService.instance.trText(ne: 'क्लाउड सिङ्क', en: 'Cloud Sync', ko: '클라우드 동기화'), style: const TextStyle(fontSize: 13)),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 2,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.cloud_sync_rounded, size: 18, color: Colors.amber),
+                                const SizedBox(width: 10),
+                                Text(LanguageService.instance.trText(ne: 'क्लाउड सिङ्क तथा ब्याकअप', en: 'Cloud Sync & Backup', ko: '클라우드 동기화 및 백업'), style: const TextStyle(fontSize: 13)),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 3,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.cleaning_services_rounded, size: 18, color: Colors.orange),
+                                const SizedBox(width: 10),
+                                Text(LanguageService.instance.trText(ne: 'डाटाबेस व्यवस्थापन', en: 'Database Clean', ko: '데이터베이스 정리'), style: const TextStyle(fontSize: 13)),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 4,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.logout, size: 18, color: Colors.red),
+                                const SizedBox(width: 10),
+                                Text(LanguageService.instance.trText(ne: 'लगआउट', en: 'Logout', ko: '로그아웃'), style: const TextStyle(fontSize: 13)),
+                              ],
+                            ),
+                          ),
+                        ],
                       );
                     }
+
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.sync_rounded),
+                          tooltip: LanguageService.instance.trText(ne: 'क्लाउड सिङ्क', en: 'Cloud Sync', ko: '클라우드 동기화'),
+                          onPressed: () async {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(LanguageService.instance.trText(ne: 'क्लाउड सिङ्क्रोनाइजेसन सुरु भयो...', en: 'Syncing to Cloud...', ko: '클라우드 동기화 중...')),
+                                backgroundColor: const Color(0xFF1E3A8A),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                            await CloudSyncService.instance.pushToCloud(silent: false);
+                            await CloudSyncService.instance.pullFromCloud(silent: false);
+                            if (context.mounted) {
+                              setState(() {});
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(LanguageService.instance.trText(ne: '✅ क्लाउड सिङ्क्रोनाइजेसन सम्पन्न भयो!', en: '✅ Cloud sync complete!', ko: '✅ 클라우드 동기화 완료!')),
+                                  backgroundColor: Colors.green,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.cloud_sync_rounded, color: Colors.amberAccent),
+                          tooltip: LanguageService.instance.trText(
+                            ne: 'क्लाउड सिङ्क तथा ब्याकअप',
+                            en: 'Cloud Sync & Backup',
+                            ko: '클라우드 동기화 및 백업',
+                          ),
+                          onPressed: () => showUniversalSettingsDialog(context),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.cleaning_services_rounded, color: Colors.orangeAccent),
+                          tooltip: LanguageService.instance.trText(
+                            ne: 'डाटाबेस तथा नमुना डाटा व्यवस्थापन (Clean Slate)',
+                            en: 'Clean Slate & Database Tools',
+                            ko: '데이터베이스 정리 및 관리',
+                          ),
+                          onPressed: _showCleanDatabaseDialog,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.settings),
+                          tooltip: LanguageService.instance.trText(ne: 'सेटिङ', en: 'Settings', ko: '설정'),
+                          onPressed: () => showUniversalSettingsDialog(context),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    );
                   },
                 ),
-                IconButton(
-                  icon: const Icon(Icons.cloud_sync_rounded, color: Colors.amberAccent),
-                  tooltip: LanguageService.instance.trText(
-                    ne: 'क्लाउड सिङ्क तथा ब्याकअप',
-                    en: 'Cloud Sync & Backup',
-                    ko: '클라우드 동기화 및 백업',
-                  ),
-                  onPressed: () => showUniversalSettingsDialog(context),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.cleaning_services_rounded, color: Colors.orangeAccent),
-                  tooltip: LanguageService.instance.trText(
-                    ne: 'डाटाबेस तथा नमुना डाटा व्यवस्थापन (Clean Slate)',
-                    en: 'Clean Slate & Database Tools',
-                    ko: '데이터베이스 정리 및 관리',
-                  ),
-                  onPressed: _showCleanDatabaseDialog,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.settings),
-                  tooltip: LanguageService.instance.trText(ne: 'सेटिङ', en: 'Settings', ko: '설정'),
-                  onPressed: () => showUniversalSettingsDialog(context),
-                ),
-                const SizedBox(width: 8),
               ],
               bottom: TabBar(
                 controller: _tabController,
@@ -588,7 +685,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
           ),
           content: SingleChildScrollView(
             child: SizedBox(
-              width: 500,
+              width: MediaQuery.of(context).size.width < 560 ? MediaQuery.of(context).size.width * 0.92 : 500,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -803,7 +900,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
           ),
           content: SingleChildScrollView(
             child: SizedBox(
-              width: 480,
+              width: MediaQuery.of(context).size.width < 540 ? MediaQuery.of(context).size.width * 0.92 : 480,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1101,7 +1198,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
             ),
           ),
           content: SizedBox(
-            width: 520,
+            width: MediaQuery.of(context).size.width < 580 ? MediaQuery.of(context).size.width * 0.92 : 520,
             height: 440,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1297,7 +1394,7 @@ class _SuperAdminDashboardScreenState extends State<SuperAdminDashboardScreen> w
             ],
           ),
           content: SizedBox(
-            width: 520,
+            width: MediaQuery.of(context).size.width < 580 ? MediaQuery.of(context).size.width * 0.92 : 520,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

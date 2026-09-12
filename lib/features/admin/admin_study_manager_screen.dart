@@ -427,7 +427,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                 onPressed: () {
                   StudyMaterialService.instance.deleteDictionaryWord(w.id);
                   setState(() {});
-                  CloudSyncService.instance.pushToCloud();
+                  CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
                 },
               ),
             ),
@@ -503,7 +503,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                 StudyMaterialService.instance.addDictionaryWord(newWord);
                 Navigator.pop(ctx);
                 setState(() {});
-                CloudSyncService.instance.pushToCloud();
+                CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
               },
               child: const Text('डिक्सनरीमा थप्नुहोस्'),
             ),
@@ -548,7 +548,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                 onPressed: () {
                   StudyMaterialService.instance.deleteVisualFlashcard(c.id);
                   setState(() {});
-                  CloudSyncService.instance.pushToCloud();
+                  CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
                 },
               ),
             ),
@@ -807,7 +807,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                 StudyMaterialService.instance.addVisualFlashcard(newCard);
                 Navigator.pop(ctx);
                 setState(() {});
-                CloudSyncService.instance.pushToCloud();
+                CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
               },
               child: Text(LanguageService.instance.trText(ne: 'कार्ड सुरक्षित गर्नुहोस्', en: 'Save Flashcard', ko: '카드 저장')),
             ),
@@ -851,7 +851,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                 onPressed: () {
                   StudyMaterialService.instance.deleteNotice(n.id);
                   setState(() {});
-                  CloudSyncService.instance.pushToCloud();
+                  CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
                 },
               ),
             ),
@@ -905,7 +905,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                 StudyMaterialService.instance.addNotice(newNotice);
                 Navigator.pop(ctx);
                 setState(() {});
-                CloudSyncService.instance.pushToCloud();
+                CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
               },
               child: Text(LanguageService.instance.trText(ne: 'सूचना प्रकाशित गर्नुहोस्', en: 'Publish Notice', ko: '공지 게시')),
             ),
@@ -942,7 +942,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                 onPressed: () {
                   StudyMaterialService.instance.deleteGrammar(g.id);
                   setState(() {});
-                  CloudSyncService.instance.pushToCloud();
+                  CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
                 },
               ),
             ),
@@ -1004,7 +1004,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                 StudyMaterialService.instance.addGrammar(newGrammar);
                 Navigator.pop(ctx);
                 setState(() {});
-                CloudSyncService.instance.pushToCloud();
+                CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
               },
               child: Text(LanguageService.instance.trText(ne: 'व्याकरण सेभ गर्नुहोस्', en: 'Save Grammar', ko: '문법 저장')),
             ),
@@ -1077,7 +1077,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                     onPressed: () {
                       StudyMaterialService.instance.deleteVideo(v.id);
                       setState(() {});
-                      CloudSyncService.instance.pushToCloud();
+                      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
                     },
                   ),
                 ],
@@ -1213,7 +1213,7 @@ class _AdminStudyManagerScreenState extends State<AdminStudyManagerScreen> with 
                   StudyMaterialService.instance.addVideo(newVideo);
                   Navigator.pop(ctx);
                   setState(() {});
-                  CloudSyncService.instance.pushToCloud();
+                  CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
                 },
                 child: Text(LanguageService.instance.trText(ne: 'भिडियो क्लास सेभ गर्नुहोस्', en: 'Save Video Class', ko: '강의 저장')),
               ),

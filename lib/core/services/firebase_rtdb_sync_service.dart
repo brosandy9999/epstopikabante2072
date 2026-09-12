@@ -159,36 +159,67 @@ class FirebaseRtdbSyncService {
     return null;
   }
 
+  String? _lastPushedHash;
+
+  /// Recursively strips heavy base64 data (>5KB) to keep RTDB sync payload under 50KB
+  dynamic _sanitizeForRtdb(dynamic obj) {
+    if (obj is String) {
+      if (obj.startsWith('data:') && obj.length > 5000) {
+        return ''; // Omit giant base64 payloads to preserve bandwidth
+      }
+      return obj;
+    } else if (obj is List) {
+      return obj.map((e) => _sanitizeForRtdb(e)).toList();
+    } else if (obj is Map) {
+      final sanitized = <String, dynamic>{};
+      obj.forEach((key, value) {
+        sanitized[key.toString()] = _sanitizeForRtdb(value);
+      });
+      return sanitized;
+    }
+    return obj;
+  }
+
   // ── PUSH (requires anonymous auth token) ───────────────────────────
 
-  /// Pushes the full sync payload to Firebase RTDB.
-  Future<bool> pushData(Map<String, dynamic> payload) async {
+  /// Pushes the full sync payload to Firebase RTDB with bandwidth-saver optimizations.
+  Future<bool> pushData(Map<String, dynamic> rawPayload) async {
     try {
+      final sanitized = _sanitizeForRtdb(rawPayload) as Map<String, dynamic>;
+      final encoded = jsonEncode(sanitized);
+
+      // Skip upload if content is identical (0 KB consumed)
+      final currentHash = encoded.hashCode.toString();
+      if (_lastPushedHash == currentHash) {
+        debugPrint('[FirebaseRTDB] Data unchanged. Push skipped (0 KB consumed) 🚀');
+        return true;
+      }
+
       final token = await _ensureToken();
       if (token == null) {
         debugPrint('[FirebaseRTDB] Push skipped — no auth token');
         return false;
       }
-      final uri =
-          Uri.parse('$_databaseUrl/$_syncPath.json?auth=$token');
+      final uri = Uri.parse('$_databaseUrl/$_syncPath.json?auth=$token');
       final resp = await http
           .put(
             uri,
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(payload),
+            body: encoded,
           )
-          .timeout(const Duration(seconds: 20));
+          .timeout(const Duration(seconds: 15));
 
       if (resp.statusCode == 200) {
-        final newTs = (payload['timestamp'] ?? '').toString();
+        _lastPushedHash = currentHash;
+        final newTs = (sanitized['timestamp'] ?? '').toString();
         if (newTs.isNotEmpty) {
           StorageService.instance.setString(_keyCachedSyncTs, newTs);
         }
-        debugPrint('[FirebaseRTDB] Push successful ✅');
+        debugPrint('[FirebaseRTDB] Push successful (${(encoded.length / 1024).toStringAsFixed(1)} KB) ✅');
         return true;
       } else {
-        debugPrint('[FirebaseRTDB] Push failed: ${resp.statusCode}');
-        // Token may have been revoked — refresh on next attempt
+        debugPrint('[FirebaseRTDB] Push status: ${resp.statusCode}');
+        // Token may have expired / quota hit
         if (resp.statusCode == 401) {
           _anonIdToken = null;
           _tokenExpiry = null;
@@ -196,7 +227,7 @@ class FirebaseRtdbSyncService {
         return false;
       }
     } catch (e) {
-      debugPrint('[FirebaseRTDB] Push error: $e');
+      debugPrint('[FirebaseRTDB] Push notice: $e');
       return false;
     }
   }

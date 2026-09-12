@@ -735,12 +735,15 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           backgroundColor: const Color(0xFFF1F5F9),
           body: Stack(
             children: [
-              SafeArea(
-            child: Column(
-              children: [
-                // 1. ULTRA-RESPONSIVE FLOATING HEADER (Adapts to Portrait & Landscape)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 2),
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1260),
+                  child: SafeArea(
+                    child: Column(
+                      children: [
+                        // 1. ULTRA-RESPONSIVE FLOATING HEADER (Adapts to Portrait & Landscape)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 4, 8, 2),
                   child: isPortrait
                       // 📱 PORTRAIT HEADER (2 COMPACT ROWS: Zero Horizontal Overflow)
                       ? Column(
@@ -1037,17 +1040,17 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
               ],
             ),
           ),
-          if (_activeCheatWarning != null)
-            Positioned(
-              left: 14,
-              bottom: 14,
-              child: _buildBottomLeftAntiCheatCard(),
-            ),
-        ],
+        ),
+              if (_activeCheatWarning != null)
+                Positioned(
+                  left: 14,
+                  bottom: 14,
+                  child: _buildBottomLeftAntiCheatCard(),
+                ),
+            ],
+          ),
+        ),
       ),
-    ),
-    ),
-    ),
     );
   }
 

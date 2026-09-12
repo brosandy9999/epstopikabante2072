@@ -31,7 +31,7 @@ class _MockTestListScreenState extends State<MockTestListScreen> {
   Future<void> _autoSyncQuestions({bool showSnackbar = false}) async {
     if (_isSyncing) return;
     setState(() => _isSyncing = true);
-    final success = await CloudSyncService.instance.pullFromCloud();
+    final success = await CloudSyncService.instance.pullFromCloud(silent: !showSnackbar);
     if (mounted) {
       setState(() => _isSyncing = false);
       if (showSnackbar) {

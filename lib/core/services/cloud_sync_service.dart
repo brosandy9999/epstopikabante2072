@@ -339,61 +339,75 @@ class CloudSyncService extends ChangeNotifier {
 
   /// Push local updates to Cloud endpoint or prepare sync payload
   Future<bool> pushToCloud({bool silent = true}) async {
-    if (!silent) {
-      _state = SyncState.syncing;
-      _lastError = null;
-      notifyListeners();
-    }
-
-    final payload = generateFullSyncPayload();
-
-    // ── 1. Push to Supabase Cloud Storage & Database ──
-    bool supabaseSuccess = false;
     try {
-      supabaseSuccess = await SupabaseService.instance.pushSyncPayload(payload);
-    } catch (_) {}
-
-    // ── 2. Push to Firebase RTDB (Dual Realtime Cloud Backup) ──
-    bool rtdbSuccess = false;
-    try {
-      rtdbSuccess = await FirebaseRtdbSyncService.instance.pushData(payload);
-    } catch (_) {}
-
-    // ── 2. Push to custom server if configured ───────────────────
-    if (isCustomCloudServer) {
-      try {
-        final response = await http.put(
-          Uri.parse(_cloudEndpoint),
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-          },
-          body: jsonEncode(payload),
-        ).timeout(const Duration(seconds: 15));
-
-        if (response.statusCode >= 200 && response.statusCode < 300) {
-          _lastSyncTime = DateTime.now();
-          StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
-          _state = SyncState.synced;
-          notifyListeners();
-          return true;
-        } else {
-          _lastError = 'सर्भर प्रतिक्रिया कोड: ${response.statusCode}';
-          if (!rtdbSuccess) _state = SyncState.error;
-          notifyListeners();
-        }
-      } catch (e) {
-        _lastError = 'क्लाउड सिङ्क असफल: $e';
-        if (!rtdbSuccess) _state = SyncState.offline;
+      if (!silent) {
+        _state = SyncState.syncing;
+        _lastError = null;
         notifyListeners();
       }
-    }
 
-    _lastSyncTime = DateTime.now();
-    StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
-    _state = SyncState.synced;
-    notifyListeners();
-    return rtdbSuccess;
+      final payload = generateFullSyncPayload();
+
+      // ── 1. Push to Supabase Cloud Storage & Database ──
+      bool supabaseSuccess = false;
+      try {
+        supabaseSuccess = await SupabaseService.instance.pushSyncPayload(payload);
+      } catch (e) {
+        debugPrint('[CloudSync] Supabase push notice: $e');
+      }
+
+      // ── 2. Push to Firebase RTDB (Dual Realtime Cloud Backup) ──
+      bool rtdbSuccess = false;
+      try {
+        rtdbSuccess = await FirebaseRtdbSyncService.instance.pushData(payload);
+      } catch (e) {
+        debugPrint('[CloudSync] RTDB push notice: $e');
+      }
+
+      // ── 3. Push to custom server if configured ───────────────────
+      if (isCustomCloudServer) {
+        try {
+          final response = await http.put(
+            Uri.parse(_cloudEndpoint),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+            body: jsonEncode(payload),
+          ).timeout(const Duration(seconds: 15));
+
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            _lastSyncTime = DateTime.now();
+            StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+            _state = SyncState.synced;
+            notifyListeners();
+            return true;
+          } else {
+            _lastError = 'सर्भर प्रतिक्रिया कोड: ${response.statusCode}';
+            if (!rtdbSuccess) _state = SyncState.error;
+            notifyListeners();
+          }
+        } catch (e) {
+          _lastError = 'क्लाउड सिङ्क असफल: $e';
+          if (!rtdbSuccess) _state = SyncState.offline;
+          notifyListeners();
+        }
+      }
+
+      _lastSyncTime = DateTime.now();
+      StorageService.instance.setString('eps_last_sync_time', _lastSyncTime!.toIso8601String());
+      _state = SyncState.synced;
+      notifyListeners();
+      return rtdbSuccess || supabaseSuccess;
+    } catch (e) {
+      debugPrint('[CloudSync] Top-level pushToCloud exception caught safely: $e');
+      _lastError = e.toString();
+      if (!silent) {
+        _state = SyncState.error;
+        notifyListeners();
+      }
+      return false;
+    }
   }
 
   /// Pull latest updates from Cloud endpoints into local app (Firebase Realtime Database)

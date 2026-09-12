@@ -65,74 +65,139 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     color: Colors.white24,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.admin_panel_settings, size: 22, color: Colors.white),
+                  child: const Icon(Icons.admin_panel_settings, size: 20, color: Colors.white),
                 ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      LanguageService.instance.trText(
-                        ne: 'EPS-TOPIK एडमिन पोर्टल',
-                        en: 'EPS-TOPIK Admin Portal',
-                        ko: 'EPS-TOPIK 관리자 포털',
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        LanguageService.instance.trText(
+                          ne: 'EPS-TOPIK एडमिन पोर्टल',
+                          en: 'EPS-TOPIK Admin Portal',
+                          ko: 'EPS-TOPIK 관리자 포털',
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                       ),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    Text(
-                      _menuItems[_selectedIndex],
-                      style: const TextStyle(fontSize: 11, color: Colors.white70, fontWeight: FontWeight.normal),
-                    ),
-                  ],
+                      Text(
+                        _menuItems[_selectedIndex],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 10, color: Colors.white70, fontWeight: FontWeight.normal),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
             backgroundColor: Colors.teal.shade800,
             foregroundColor: Colors.white,
             actions: [
-              
-                            const SizedBox(width: 4),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber.shade800,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const AdminStudyManagerScreen()),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final screenWidth = MediaQuery.of(context).size.width;
+                  final isMobile = screenWidth < 650;
+
+                  if (isMobile) {
+                    return PopupMenuButton<int>(
+                      icon: const Icon(Icons.more_vert, color: Colors.white),
+                      tooltip: LanguageService.instance.trText(ne: 'थप विकल्पहरू', en: 'More options', ko: '추가 메뉴'),
+                      onSelected: (val) {
+                        if (val == 1) {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminStudyManagerScreen()));
+                        } else if (val == 2) {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const InstituteProfileScreen()));
+                        } else if (val == 3) {
+                          showUniversalSettingsDialog(context);
+                        }
+                      },
+                      itemBuilder: (ctx) => [
+                        PopupMenuItem(
+                          value: 1,
+                          child: Row(
+                            children: [
+                              Icon(Icons.school, size: 18, color: Colors.amber.shade800),
+                              const SizedBox(width: 10),
+                              Text(LanguageService.instance.trText(ne: 'अध्ययन सामग्री', en: 'Study Materials', ko: '교재 관리'), style: const TextStyle(fontSize: 13)),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 2,
+                          child: Row(
+                            children: [
+                              const Icon(Icons.apartment, size: 18, color: Color(0xFF1E3A8A)),
+                              const SizedBox(width: 10),
+                              Text(LanguageService.instance.trText(ne: 'इन्स्टिच्युट प्रोफाइल', en: 'Institute Profile', ko: '학원 프로필'), style: const TextStyle(fontSize: 13)),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 3,
+                          child: Row(
+                            children: [
+                              const Icon(Icons.settings, size: 18, color: Colors.teal),
+                              const SizedBox(width: 10),
+                              Text(LanguageService.instance.trText(ne: 'क्लाउड सिङ्क तथा सेटिङ', en: 'Cloud Sync & Settings', ko: '동기화 및 설정'), style: const TextStyle(fontSize: 13)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber.shade800,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const AdminStudyManagerScreen()),
+                          );
+                        },
+                        icon: const Icon(Icons.school, size: 15),
+                        label: Text(LanguageService.instance.trText(ne: 'अध्ययन सामग्री', en: 'Study Materials', ko: '교재 관리'), style: const TextStyle(fontSize: 11)),
+                      ),
+                      const SizedBox(width: 4),
+                      IconButton(
+                        icon: const Icon(Icons.apartment, size: 20),
+                        tooltip: LanguageService.instance.trText(ne: 'इन्स्टिच्युट प्रोफाइल', en: 'Institute Profile', ko: '학원 프로필'),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const InstituteProfileScreen()),
+                          );
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.cloud_sync_rounded, color: Colors.tealAccent, size: 20),
+                        tooltip: LanguageService.instance.trText(
+                          ne: 'क्लाउड सिङ्क तथा ब्याकअप',
+                          en: 'Cloud Sync & Backup',
+                          ko: '클라우드 동기화 및 백업',
+                        ),
+                        onPressed: () => showUniversalSettingsDialog(context),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.settings, size: 20),
+                        tooltip: LanguageService.instance.trText(ne: 'सेटिङ', en: 'Settings', ko: '설정'),
+                        onPressed: () => showUniversalSettingsDialog(context),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
                   );
                 },
-                icon: const Icon(Icons.school, size: 16),
-                label: Text(LanguageService.instance.trText(ne: 'अध्ययन सामग्री', en: 'Study Materials', ko: '교재 관리'), style: const TextStyle(fontSize: 12)),
               ),
-              const SizedBox(width: 4),
-              IconButton(
-                icon: const Icon(Icons.apartment),
-                tooltip: LanguageService.instance.trText(ne: 'इन्स्टिच्युट प्रोफाइल', en: 'Institute Profile', ko: '학원 프로필'),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const InstituteProfileScreen()),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.cloud_sync_rounded, color: Colors.tealAccent),
-                tooltip: LanguageService.instance.trText(
-                  ne: 'क्लाउड सिङ्क तथा ब्याकअप',
-                  en: 'Cloud Sync & Backup',
-                  ko: '클라우드 동기화 및 백업',
-                ),
-                onPressed: () => showUniversalSettingsDialog(context),
-              ),
-              IconButton(
-                icon: const Icon(Icons.settings),
-                tooltip: LanguageService.instance.trText(ne: 'सेटिङ', en: 'Settings', ko: '설정'),
-                onPressed: () => showUniversalSettingsDialog(context),
-              ),
-              const SizedBox(width: 8),
             ],
           ),
           body: Container(
@@ -143,7 +208,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1200),
                 child: Padding(
-                  padding: const EdgeInsets.all(20.0),
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.width < 600 ? 12.0 : 20.0),
                   child: _buildContentArea(),
                 ),
               ),
@@ -339,27 +404,34 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Widget _buildStatCard(String title, String mainValue, String sub, IconData icon, Color color) {
-    return Container(
-      width: 250,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3))],
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(backgroundColor: color.withValues(alpha: 0.15), child: Icon(icon, color: color)),
-          const SizedBox(height: 12),
-          Text(title, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
-          const SizedBox(height: 6),
-          Text(mainValue, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-          const SizedBox(height: 4),
-          Text(sub, style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = MediaQuery.of(context).size.width;
+        final cardWidth = screenWidth < 600 ? double.infinity : (screenWidth < 900 ? (screenWidth - 70) / 2 : 250.0);
+
+        return Container(
+          width: cardWidth,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 3))],
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(backgroundColor: color.withOpacity(0.15), child: Icon(icon, color: color)),
+              const SizedBox(height: 12),
+              Text(title, style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+              const SizedBox(height: 6),
+              Text(mainValue, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+              const SizedBox(height: 4),
+              Text(sub, style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+            ],
+          ),
+        );
+      },
     );
   }
 }

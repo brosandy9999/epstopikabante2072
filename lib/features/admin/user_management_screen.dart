@@ -164,7 +164,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             ),
             content: SingleChildScrollView(
               child: SizedBox(
-                width: 520,
+                width: MediaQuery.of(context).size.width < 560 ? MediaQuery.of(context).size.width * 0.92 : 520,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -613,7 +613,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           ),
           content: SingleChildScrollView(
             child: SizedBox(
-              width: 460,
+              width: MediaQuery.of(context).size.width < 500 ? MediaQuery.of(context).size.width * 0.92 : 460,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -902,7 +902,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           ),
           content: SingleChildScrollView(
             child: SizedBox(
-              width: 440,
+              width: MediaQuery.of(context).size.width < 480 ? MediaQuery.of(context).size.width * 0.92 : 440,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1192,7 +1192,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             ),
             content: SingleChildScrollView(
               child: SizedBox(
-                width: 440,
+                width: MediaQuery.of(context).size.width < 480 ? MediaQuery.of(context).size.width * 0.92 : 440,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1597,51 +1597,64 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
                   const SizedBox(height: 16),
 
-                  // Batch Filter Bar & Search
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: DropdownButtonFormField<String>(
-                          value: _selectedBatchFilter,
-                          decoration: InputDecoration(
-                            labelText: LanguageService.instance.trText(
-                              ne: 'ब्याच फिल्टर',
-                              en: 'Filter by Batch',
-                              ko: '반별 필터',
-                            ),
-                            border: const OutlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  // Batch Filter Bar & Search (Responsive for Mobile)
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isMobile = constraints.maxWidth < 600;
+                      final batchDropdown = DropdownButtonFormField<String>(
+                        value: _selectedBatchFilter,
+                        decoration: InputDecoration(
+                          labelText: LanguageService.instance.trText(
+                            ne: 'ब्याच फिल्टर',
+                            en: 'Filter by Batch',
+                            ko: '반별 필터',
                           ),
-                          items: _batchesList.map((b) => DropdownMenuItem(
-                            value: b,
-                            child: Text(LanguageService.instance.batchText(b), style: const TextStyle(fontSize: 13)),
-                          )).toList(),
-                          onChanged: (val) => setState(() => _selectedBatchFilter = val!),
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                         ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        flex: 3,
-                        child: TextField(
-                          controller: _studentSearchController,
-                          decoration: InputDecoration(
-                            hintText: LanguageService.instance.trText(
-                              ne: 'विद्यार्थीको नाम, दर्ता नम्बर वा Username खोज्नुहोस्...',
-                              en: 'Search by name, reg no, or username...',
-                              ko: '이름, 수험번호, 아이디로 검색...',
-                            ),
-                            prefixIcon: const Icon(Icons.search),
-                            border: const OutlineInputBorder(),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                            suffixIcon: _studentSearchController.text.isNotEmpty
-                                ? IconButton(icon: const Icon(Icons.clear), onPressed: () => setState(() => _studentSearchController.clear()))
-                                : null,
+                        items: _batchesList.map((b) => DropdownMenuItem(
+                          value: b,
+                          child: Text(LanguageService.instance.batchText(b), style: const TextStyle(fontSize: 13)),
+                        )).toList(),
+                        onChanged: (val) => setState(() => _selectedBatchFilter = val!),
+                      );
+
+                      final searchBox = TextField(
+                        controller: _studentSearchController,
+                        decoration: InputDecoration(
+                          hintText: LanguageService.instance.trText(
+                            ne: 'विद्यार्थीको नाम, दर्ता नम्बर वा Username...',
+                            en: 'Search by name, reg no, or username...',
+                            ko: '이름, 수험번호, 아이디로 검색...',
                           ),
-                          onChanged: (_) => setState(() {}),
+                          prefixIcon: const Icon(Icons.search),
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          suffixIcon: _studentSearchController.text.isNotEmpty
+                              ? IconButton(icon: const Icon(Icons.clear), onPressed: () => setState(() => _studentSearchController.clear()))
+                              : null,
                         ),
-                      ),
-                    ],
+                        onChanged: (_) => setState(() {}),
+                      );
+
+                      if (isMobile) {
+                        return Column(
+                          children: [
+                            batchDropdown,
+                            const SizedBox(height: 10),
+                            searchBox,
+                          ],
+                        );
+                      }
+
+                      return Row(
+                        children: [
+                          Expanded(flex: 2, child: batchDropdown),
+                          const SizedBox(width: 14),
+                          Expanded(flex: 3, child: searchBox),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: 16),
 
@@ -1665,199 +1678,239 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: filteredStudents.length,
-                      separatorBuilder: (_, __) => const Divider(),
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, i) {
                         final s = filteredStudents[i];
                         final isPending = s.isPendingApproval;
                         final isActive = !isPending && (s.status.contains('सक्रिय') || s.status.toLowerCase().contains('active'));
 
                         return Container(
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: isPending ? Colors.amber.shade50.withOpacity(0.5) : Colors.transparent,
-                            borderRadius: BorderRadius.circular(10),
-                            border: isPending ? Border.all(color: Colors.amber.shade300) : null,
+                            color: isPending ? Colors.amber.shade50.withOpacity(0.6) : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: isPending ? Colors.amber.shade300 : Colors.grey.shade200),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 4, offset: const Offset(0, 2)),
+                            ],
                           ),
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                            leading: CircleAvatar(
-                              backgroundColor: isPending ? Colors.amber.shade100 : const Color(0xFFEFF6FF),
-                              child: isPending
-                                  ? const Icon(Icons.hourglass_top, color: Color(0xFFD97706), size: 20)
-                                  : Text(
-                                      s.name.isNotEmpty ? s.name[0] : 'S',
-                                      style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
-                                    ),
-                            ),
-                            title: Wrap(
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              spacing: 6,
-                              runSpacing: 4,
-                              children: [
-                                Text(s.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                                if (!isPending)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
-                                    child: Text(LanguageService.instance.batchText(s.batch), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
-                                  ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
-                                  child: Text(LanguageService.instance.sectorText(s.sector), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.teal.shade900)),
-                                ),
-                                if (isPending)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                    decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
-                                    child: Text(
-                                      lang.trText(ne: '⏳ नयाँ दर्ता (स्वीकृति पर्खिरहेको)', en: '⏳ Pending Approval', ko: '⏳ 신규 등록 승인 대기'),
-                                      style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber.shade900),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 3),
-                                Text(
-                                  LanguageService.instance.trText(
-                                    ne: 'मोबाइल: ${s.mobileNumber ?? "N/A"}  •  Username: ${s.username}  •  दर्ता नं: ${s.registrationNo ?? "N/A"}',
-                                    en: 'Mobile: ${s.mobileNumber ?? "N/A"}  •  User: ${s.username}  •  Reg: ${s.registrationNo ?? "N/A"}',
-                                    ko: '휴대폰: ${s.mobileNumber ?? "N/A"}  •  아이디: ${s.username}  •  수험번호: ${s.registrationNo ?? "N/A"}',
-                                  ),
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                if (!isPending) ...[
-                                  const SizedBox(height: 5),
-                                  // Quota & Validity Badges Row
-                                  Wrap(
-                                    spacing: 6,
-                                    runSpacing: 4,
-                                    crossAxisAlignment: WrapCrossAlignment.center,
-                                    children: [
-                                      // Quota badge
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFEFF6FF),
-                                          borderRadius: BorderRadius.circular(5),
-                                          border: Border.all(color: const Color(0xFFBFDBFE)),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            const Icon(Icons.assignment_turned_in, size: 12, color: Color(0xFF1E3A8A)),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              '${LanguageService.instance.trText(ne: "कोटा:", en: "Quota:", ko: "정원:")} ${s.quotaSummaryText} (${s.setsUsedCount} हल)',
-                                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      // Validity / Expiry badge
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: s.isExpired ? Colors.red.shade50 : const Color(0xFFF0FDFA),
-                                          borderRadius: BorderRadius.circular(5),
-                                          border: Border.all(color: s.isExpired ? Colors.red.shade300 : const Color(0xFF99F6E4)),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(
-                                              s.isExpired ? Icons.event_busy : Icons.calendar_today,
-                                              size: 12,
-                                              color: s.isExpired ? Colors.red.shade700 : const Color(0xFF0F766E),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              '${LanguageService.instance.trText(ne: "म्याद:", en: "Validity:", ko: "유효기간:")} ${s.validitySummaryText}',
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                                color: s.isExpired ? Colors.red.shade800 : const Color(0xFF0F766E),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ],
-                            ),
-                            trailing: isPending
-                                ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.green.shade700,
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                        ),
-                                        icon: const Icon(Icons.check_circle_rounded, size: 16),
-                                        label: Text(lang.trText(ne: 'स्वीकृत गर्नुहोस्', en: 'Approve', ko: '승인')),
-                                        onPressed: () => _showApproveStudentDialog(s),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: Colors.red,
-                                          side: const BorderSide(color: Colors.red),
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                        ),
-                                        onPressed: () => _confirmDeleteStudent(s),
-                                        child: Text(lang.trText(ne: 'अस्वीकार', en: 'Reject', ko: '거절')),
-                                      ),
-                                    ],
-                                  )
-                                : Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      // Direct Quota & Calendar Button
-                                      IconButton(
-                                        icon: const Icon(Icons.calendar_month_rounded, color: Color(0xFF0F766E), size: 22),
-                                        tooltip: LanguageService.instance.trText(
-                                          ne: 'सेट कोटा तथा क्यालेन्डर म्याद निर्धारण गर्नुहोस्',
-                                          en: 'Manage Set Quota & Calendar Validity',
-                                          ko: '세트 정원 및 캘린더 유효기간 설정',
-                                        ),
-                                        onPressed: () => _showStudentQuotaDialog(s),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                        decoration: BoxDecoration(
-                                          color: isActive ? Colors.green.shade50 : Colors.red.shade50,
-                                          borderRadius: BorderRadius.circular(4),
-                                          border: Border.all(color: isActive ? Colors.green : Colors.red),
-                                        ),
-                                        child: Text(
-                                          LanguageService.instance.statusText(s.status),
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: isActive ? Colors.green.shade900 : Colors.red.shade900,
-                                            fontWeight: FontWeight.bold,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Top Row: Avatar + Name + Status Badges
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 20,
+                                    backgroundColor: isPending ? Colors.amber.shade100 : const Color(0xFFEFF6FF),
+                                    child: isPending
+                                        ? const Icon(Icons.hourglass_top, color: Color(0xFFD97706), size: 18)
+                                        : Text(
+                                            s.name.isNotEmpty ? s.name[0] : 'S',
+                                            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A), fontSize: 16),
                                           ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Wrap(
+                                          spacing: 6,
+                                          runSpacing: 4,
+                                          crossAxisAlignment: WrapCrossAlignment.center,
+                                          children: [
+                                            Text(s.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                                            if (!isPending)
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(4)),
+                                                child: Text(LanguageService.instance.batchText(s.batch), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue.shade900)),
+                                              ),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                              decoration: BoxDecoration(color: Colors.teal.shade50, borderRadius: BorderRadius.circular(4)),
+                                              child: Text(LanguageService.instance.sectorText(s.sector), style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.teal.shade900)),
+                                            ),
+                                            if (isPending)
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                                decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(4)),
+                                                child: Text(
+                                                  lang.trText(ne: '⏳ नयाँ दर्ता', en: '⏳ Pending', ko: '⏳ 승인 대기'),
+                                                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.amber.shade900),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          LanguageService.instance.trText(
+                                            ne: 'फोन: ${s.mobileNumber ?? "N/A"}  •  Username: ${s.username}  •  दर्ता नं: ${s.registrationNo ?? "N/A"}',
+                                            en: 'Phone: ${s.mobileNumber ?? "N/A"}  •  User: ${s.username}  •  Reg: ${s.registrationNo ?? "N/A"}',
+                                            ko: '전화: ${s.mobileNumber ?? "N/A"}  •  아이디: ${s.username}  •  수험번호: ${s.registrationNo ?? "N/A"}',
+                                          ),
+                                          style: TextStyle(fontSize: 11.5, color: Colors.grey.shade700),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (!isPending)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: isActive ? Colors.green.shade50 : Colors.red.shade50,
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(color: isActive ? Colors.green : Colors.red),
+                                      ),
+                                      child: Text(
+                                        LanguageService.instance.statusText(s.status),
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: isActive ? Colors.green.shade900 : Colors.red.shade900,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                      IconButton(
-                                        icon: const Icon(Icons.edit, color: Color(0xFF1E3A8A), size: 20),
-                                        tooltip: LanguageService.instance.trText(ne: 'सम्पादन गर्नुहोस्', en: 'Edit', ko: '수정'),
-                                        onPressed: () => _showEditStudentDialog(s),
+                                    ),
+                                ],
+                              ),
+
+                              if (!isPending) ...[
+                                const SizedBox(height: 8),
+                                // Quota & Validity Badges
+                                Wrap(
+                                  spacing: 6,
+                                  runSpacing: 4,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFEFF6FF),
+                                        borderRadius: BorderRadius.circular(5),
+                                        border: Border.all(color: const Color(0xFFBFDBFE)),
                                       ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete_outline, color: Colors.red, size: 20),
-                                        tooltip: LanguageService.instance.trText(ne: 'हटाउनुहोस्', en: 'Delete', ko: '삭제'),
-                                        onPressed: () => _confirmDeleteStudent(s),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.assignment_turned_in, size: 12, color: Color(0xFF1E3A8A)),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${LanguageService.instance.trText(ne: "कोटा:", en: "Quota:", ko: "정원:")} ${s.quotaSummaryText} (${s.setsUsedCount} हल)',
+                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: s.isExpired ? Colors.red.shade50 : const Color(0xFFF0FDFA),
+                                        borderRadius: BorderRadius.circular(5),
+                                        border: Border.all(color: s.isExpired ? Colors.red.shade300 : const Color(0xFF99F6E4)),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            s.isExpired ? Icons.event_busy : Icons.calendar_today,
+                                            size: 12,
+                                            color: s.isExpired ? Colors.red.shade700 : const Color(0xFF0F766E),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            '${LanguageService.instance.trText(ne: "म्याद:", en: "Validity:", ko: "유효기간:")} ${s.validitySummaryText}',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                              color: s.isExpired ? Colors.red.shade800 : const Color(0xFF0F766E),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+
+                              const Divider(height: 16),
+
+                              // Bottom Action Buttons Row
+                              if (isPending)
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 6,
+                                  children: [
+                                    ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green.shade700,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      ),
+                                      icon: const Icon(Icons.check_circle_rounded, size: 16),
+                                      label: Text(lang.trText(ne: 'स्वीकृत गर्नुहोस्', en: 'Approve', ko: '승인')),
+                                      onPressed: () => _showApproveStudentDialog(s),
+                                    ),
+                                    OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: Colors.red,
+                                        side: const BorderSide(color: Colors.red),
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      ),
+                                      icon: const Icon(Icons.cancel_outlined, size: 16),
+                                      onPressed: () => _confirmDeleteStudent(s),
+                                      label: Text(lang.trText(ne: 'अस्वीकार', en: 'Reject', ko: '거절')),
+                                    ),
+                                  ],
+                                )
+                              else
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 6,
+                                  children: [
+                                    OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: const Color(0xFF0F766E),
+                                        side: const BorderSide(color: Color(0xFF0F766E)),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                      icon: const Icon(Icons.calendar_month_rounded, size: 15),
+                                      label: Text(LanguageService.instance.trText(
+                                        ne: 'कोटा / म्याद सेटिङ',
+                                        en: 'Quota & Validity',
+                                        ko: '정원/유효기간',
+                                      ), style: const TextStyle(fontSize: 11)),
+                                      onPressed: () => _showStudentQuotaDialog(s),
+                                    ),
+                                    OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: const Color(0xFF1E3A8A),
+                                        side: const BorderSide(color: Color(0xFF1E3A8A)),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                      icon: const Icon(Icons.edit, size: 15),
+                                      label: Text(LanguageService.instance.trText(ne: 'सम्पादन', en: 'Edit', ko: '수정'), style: const TextStyle(fontSize: 11)),
+                                      onPressed: () => _showEditStudentDialog(s),
+                                    ),
+                                    OutlinedButton.icon(
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: Colors.red.shade700,
+                                        side: BorderSide(color: Colors.red.shade300),
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                      icon: const Icon(Icons.delete_outline, size: 15),
+                                      label: Text(LanguageService.instance.trText(ne: 'हटाउनुहोस्', en: 'Delete', ko: '삭제'), style: const TextStyle(fontSize: 11)),
+                                      onPressed: () => _confirmDeleteStudent(s),
+                                    ),
+                                  ],
+                                ),
+                            ],
                           ),
                         );
                       },

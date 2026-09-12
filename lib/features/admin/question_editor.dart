@@ -299,7 +299,10 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
               const SizedBox(height: 20),
 
               // Image / Audio Attachment (Rule 18, 24)
-              Row(
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
@@ -309,17 +312,16 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                         setState(() => _imagePath = file.dataUrl);
                       }
                     },
-                    icon: const Icon(Icons.image),
-                    label: Text(_imagePath == null ? "📁 डिभाइसबाट फोटो रोज्नुहोस्" : "फोटो लोड भयो ✅"),
+                    icon: const Icon(Icons.image, size: 18),
+                    label: Text(_imagePath == null ? "📁 डिभाइसबाट फोटो" : "फोटो लोड भयो ✅", style: const TextStyle(fontSize: 12)),
                   ),
                   if (_imagePath != null) ...[
-                    const SizedBox(width: 8),
                     IconButton(
                       icon: const Icon(Icons.delete_outline, color: Colors.red),
                       onPressed: () => setState(() => _imagePath = null),
+                      tooltip: 'Remove Image',
                     ),
                   ],
-                  const SizedBox(width: 15),
                   if (_selectedCategory == 'Listening') ...[
                     ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEA580C), foregroundColor: Colors.white),
@@ -329,18 +331,19 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                           setState(() => _audioPath = file.dataUrl);
                         }
                       },
-                      icon: const Icon(Icons.audiotrack),
-                      label: Text(_audioPath == null ? "🎵 डिभाइसबाट MP3 रोज्नुहोस्" : "अडियो लोड भयो ✅"),
+                      icon: const Icon(Icons.audiotrack, size: 18),
+                      label: Text(_audioPath == null ? "🎵 डिभाइसबाट MP3" : "अडियो लोड भयो ✅", style: const TextStyle(fontSize: 12)),
                     ),
                     if (_audioPath != null) ...[
-                      const SizedBox(width: 6),
                       IconButton(
                         icon: const Icon(Icons.play_circle_filled, color: Colors.green),
                         onPressed: () => AudioPlaybackService.instance.playAudioUrl(_audioPath!),
+                        tooltip: 'Play Audio',
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete_outline, color: Colors.red),
                         onPressed: () => setState(() => _audioPath = null),
+                        tooltip: 'Remove Audio',
                       ),
                     ],
                   ],
@@ -400,10 +403,17 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                         validator: (value) => value!.isEmpty ? "Enter option" : null,
                       ),
                       const SizedBox(height: 8),
-                      // Option Image
-                      Row(
+                      // Option Image (Responsive Wrap / Row)
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              visualDensity: VisualDensity.compact,
+                            ),
                             onPressed: () async {
                               final pasted = await FileUploadService.instance.pasteImageFromClipboard();
                               if (pasted != null) {
@@ -415,8 +425,11 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                             icon: const Icon(Icons.content_paste_rounded, size: 14),
                             label: Text(lang.trText(ne: 'पेस्ट', en: 'Paste', ko: '붙여넣기'), style: const TextStyle(fontSize: 11)),
                           ),
-                          const SizedBox(width: 4),
                           OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              visualDensity: VisualDensity.compact,
+                            ),
                             onPressed: () async {
                               final file = await FileUploadService.instance.pickImageFile();
                               if (file != null) {
@@ -428,28 +441,27 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                             icon: const Icon(Icons.image, size: 14),
                             label: Text(lang.trText(ne: 'तस्बिर', en: 'Image', ko: '사진'), style: const TextStyle(fontSize: 11)),
                           ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: TextField(
-                              controller: _optionImgControllers[index],
-                              onChanged: (_) => setState(() {}),
-                              decoration: InputDecoration(
-                                hintText: lang.trText(ne: 'तस्बिर URL वा Base64', en: 'Image URL or Base64', ko: '이미지 URL'),
-                                border: const OutlineInputBorder(),
-                                isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                              ),
-                              style: const TextStyle(fontSize: 11),
-                            ),
-                          ),
                           if (_optionImgControllers[index].text.isNotEmpty) ...[
-                            const SizedBox(width: 4),
                             IconButton(
                               icon: const Icon(Icons.delete_outline, color: Colors.red, size: 18),
                               onPressed: () => setState(() => _optionImgControllers[index].clear()),
+                              tooltip: 'Remove',
+                              visualDensity: VisualDensity.compact,
                             ),
                           ],
                         ],
+                      ),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: _optionImgControllers[index],
+                        onChanged: (_) => setState(() {}),
+                        decoration: InputDecoration(
+                          hintText: lang.trText(ne: 'तस्बिर URL वा Base64', en: 'Image URL or Base64', ko: '이미지 URL'),
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        ),
+                        style: const TextStyle(fontSize: 11),
                       ),
                       if (_optionImgControllers[index].text.isNotEmpty) ...[
                         const SizedBox(height: 4),
@@ -462,15 +474,19 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                           child: SmartImageWidget(imageSource: _optionImgControllers[index].text, height: 45, fit: BoxFit.contain),
                         ),
                       ],
-                      const SizedBox(height: 6),
-                      // Option Audio (अडियो अपलोड / लिङ्क)
-                      Row(
+                      const SizedBox(height: 8),
+                      // Option Audio (Responsive Wrap / Row)
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
                               foregroundColor: const Color(0xFFEA580C),
                               side: BorderSide(color: Colors.orange.shade300),
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              visualDensity: VisualDensity.compact,
                             ),
                             onPressed: () async {
                               final file = await FileUploadService.instance.pickAudioFile();
@@ -486,32 +502,11 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                               style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          const SizedBox(width: 6),
-                          Expanded(
-                            child: TextField(
-                              controller: _optionAudioControllers[index],
-                              onChanged: (_) => setState(() {}),
-                              decoration: InputDecoration(
-                                hintText: lang.trText(
-                                  ne: 'अडियो URL वा MP3/WAV फाइल',
-                                  en: 'Audio URL or MP3/WAV file',
-                                  ko: '보기용 오디오 URL 또는 파일',
-                                ),
-                                border: const OutlineInputBorder(),
-                                isDense: true,
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                                suffixIcon: _optionAudioControllers[index].text.isNotEmpty
-                                    ? const Icon(Icons.music_note, color: Colors.orange, size: 16)
-                                    : null,
-                              ),
-                              style: const TextStyle(fontSize: 11),
-                            ),
-                          ),
                           if (_optionAudioControllers[index].text.isNotEmpty) ...[
-                            const SizedBox(width: 4),
                             IconButton(
                               icon: const Icon(Icons.play_circle_fill, color: Colors.green, size: 20),
                               tooltip: lang.trText(ne: 'अडियो सुन्नुहोस्', en: 'Play Audio', ko: '오디오 재생'),
+                              visualDensity: VisualDensity.compact,
                               onPressed: () {
                                 AudioPlaybackService.instance.playAudioUrl(_optionAudioControllers[index].text.trim());
                               },
@@ -519,6 +514,7 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                             IconButton(
                               icon: const Icon(Icons.delete_outline, color: Colors.red, size: 18),
                               tooltip: lang.trText(ne: 'अडियो हटाउनुहोस्', en: 'Remove Audio', ko: '오디오 삭제'),
+                              visualDensity: VisualDensity.compact,
                               onPressed: () => setState(() {
                                 _optionAudioControllers[index].clear();
                                 AudioPlaybackService.instance.stop();
@@ -526,6 +522,25 @@ class _QuestionEditorScreenState extends State<QuestionEditorScreen> {
                             ),
                           ],
                         ],
+                      ),
+                      const SizedBox(height: 4),
+                      TextField(
+                        controller: _optionAudioControllers[index],
+                        onChanged: (_) => setState(() {}),
+                        decoration: InputDecoration(
+                          hintText: lang.trText(
+                            ne: 'अडियो URL वा MP3/WAV फाइल',
+                            en: 'Audio URL or MP3/WAV file',
+                            ko: '보기용 오디오 URL 또는 파일',
+                          ),
+                          border: const OutlineInputBorder(),
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                          suffixIcon: _optionAudioControllers[index].text.isNotEmpty
+                              ? const Icon(Icons.music_note, color: Colors.orange, size: 16)
+                              : null,
+                        ),
+                        style: const TextStyle(fontSize: 11),
                       ),
                     ],
                   ),

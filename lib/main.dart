@@ -134,7 +134,7 @@ class StudentDashboardScreen extends StatefulWidget {
 class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
 
 
-  int _currentTab = 4; // Start on Dashboard by default, or tap any tab
+  int _currentTab = 0; // Start on Home tab by default
   int _gridColumnsOverride = 0; // 0 = Auto, 1 = Single column, 2 = 2 columns, 3 = 3 columns
   double _uiScale = 1.0;
   double _pinchBaseScale = 1.0;
@@ -213,15 +213,15 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
               child: Scaffold(
           backgroundColor: const Color(0xFFF1F5F9),
           appBar: AppBar(
-            elevation: 3,
+            elevation: 2,
             backgroundColor: const Color(0xFF1E3A8A),
             foregroundColor: Colors.white,
             title: Row(
               children: [
                 // Professional Institute Study Logo
                 Container(
-                  width: 38,
-                  height: 38,
+                  width: 36,
+                  height: 36,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
@@ -229,10 +229,10 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                     boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 4)],
                   ),
                   child: const Center(
-                    child: Icon(Icons.school_rounded, color: Color(0xFF1E3A8A), size: 22),
+                    child: Icon(Icons.school_rounded, color: Color(0xFF1E3A8A), size: 20),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,8 +291,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                         icon: const Icon(Icons.system_update_rounded, size: 16, color: Colors.white),
                         label: Text(
                           LanguageService.instance.trText(
-                            ne: 'अपडेट (v${UpdateService.instance.updateInfo?.latestVersion ?? ''})',
-                            en: 'Update (v${UpdateService.instance.updateInfo?.latestVersion ?? ''})',
+                            ne: 'अपडेट',
+                            en: 'Update',
                             ko: '업데이트',
                           ),
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
@@ -314,11 +314,11 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
             type: BottomNavigationBarType.fixed,
             backgroundColor: Colors.white,
             selectedItemColor: const Color(0xFF1E3A8A),
-            unselectedItemColor: Colors.blueGrey.shade700,
+            unselectedItemColor: Colors.blueGrey.shade600,
             selectedFontSize: 11,
             unselectedFontSize: 10,
             selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-            elevation: 16,
+            elevation: 12,
             items: [
               BottomNavigationBarItem(
                 icon: const Icon(Icons.home_outlined),
@@ -334,11 +334,6 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
                 icon: const Icon(Icons.auto_stories_outlined),
                 activeIcon: const Icon(Icons.auto_stories_rounded),
                 label: LanguageService.instance.tr('tab_study'),
-              ),
-              BottomNavigationBarItem(
-                icon: const Icon(Icons.folder_special_outlined),
-                activeIcon: const Icon(Icons.folder_special_rounded),
-                label: LanguageService.instance.tr('books'),
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.person_outline_rounded),
@@ -363,10 +358,8 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
       case 1:
         return _buildExamLaunchpadTab(s, allSets, isMobile);
       case 2:
-        return _buildStudyLaunchpadTab(s, allSets, isMobile);
-      case 3:
         return const StudentStudyHubScreen();
-      case 4:
+      case 3:
         return _buildProfileTab(s, isMobile);
       default:
         return _buildHomeTab(s, allSets, isMobile);
@@ -609,69 +602,7 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     );
   }
 
-  Widget _buildHomeStudyHubCard(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF1E3A8A).withOpacity(0.25), width: 1.2),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const StudentStudyHubScreen()),
-          );
-        },
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E3A8A).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.school, size: 30, color: Color(0xFF1E3A8A)),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '📚 ' + LanguageService.instance.tr('resources_hub'),
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1E3A8A)),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'पाठ्यपुस्तक १ र २ • मिनिङ बैंक • व्याकरण • फ्ल्यास कार्ड प्र्याक्टिस • भिडियो कोर्स',
-                    style: TextStyle(fontSize: 12, color: Colors.black54),
-                  ),
-                ],
-              ),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1E3A8A),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const StudentStudyHubScreen()),
-                );
-              },
-              child: Text(LanguageService.instance.trText(ne: 'खोल्नुहोस्', en: 'Open', ko: '열기')),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   Widget _buildUpdateBannerIfAvailable(BuildContext context) {
     return ListenableBuilder(
@@ -746,295 +677,432 @@ class _StudentDashboardScreenState extends State<StudentDashboardScreen> {
     );
   }
 
+  Widget _buildHomeStudentPill(AppUser s, bool isMobile) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 14 : 18, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: isMobile ? 20 : 24,
+            backgroundColor: const Color(0xFF1E3A8A).withOpacity(0.1),
+            child: Text(
+              s.profilePhoto ?? (s.role == UserRole.superAdmin ? '👑' : (s.role == UserRole.admin ? '🏢' : '👨‍🎓')),
+              style: TextStyle(fontSize: isMobile ? 20 : 24),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      s.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF0F172A)),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: s.isExpired ? const Color(0xFFFEE2E2) : const Color(0xFFDCFCE7),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        s.isExpired ? 'Expired' : 'Active',
+                        style: TextStyle(
+                          color: s.isExpired ? Colors.red.shade900 : Colors.green.shade900,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Reg: ${s.registrationNo ?? "01234567"} • Quota: ${s.quotaSummaryText}',
+                  style: const TextStyle(fontSize: 11, color: Colors.black54),
+                ),
+              ],
+            ),
+          ),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: const Color(0xFF1E3A8A),
+              side: const BorderSide(color: Color(0xFF1E3A8A)),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              visualDensity: VisualDensity.compact,
+            ),
+            icon: const Icon(Icons.person, size: 14),
+            label: Text(LanguageService.instance.tr('tab_profile'), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+            onPressed: () => setState(() => _currentTab = 3),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHomeQuickActions(BuildContext context, AppUser s, bool isMobile) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      child: Row(
+        children: [
+          // 1. Study Hub Action Card
+          Expanded(
+            child: InkWell(
+              onTap: () => setState(() => _currentTab = 2),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF1E3A8A).withOpacity(0.2)),
+                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E3A8A).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.menu_book_rounded, color: Color(0xFF1E3A8A), size: 22),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            LanguageService.instance.tr('tab_study'),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E3A8A)),
+                          ),
+                          Text(
+                            LanguageService.instance.trText(ne: 'किताब, मिनिङ, व्याकरण', en: 'Books, Vocab, Grammar', ko: '교재, 어휘, 문법'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 10.5, color: Colors.black54),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          // 2. Exam Launchpad Action Card
+          Expanded(
+            child: InkWell(
+              onTap: () => setState(() => _currentTab = 1),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF0F766E).withOpacity(0.2)),
+                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 1))],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0F766E).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.timer_rounded, color: Color(0xFF0F766E), size: 22),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            LanguageService.instance.tr('tab_exam'),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F766E)),
+                          ),
+                          Text(
+                            LanguageService.instance.trText(ne: 'UBT हल र अभ्यास सेट', en: 'UBT Hall & Mock Sets', ko: 'UBT 시험장 및 모의고사'),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 10.5, color: Colors.black54),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildHomeTab(AppUser s, List<MockTestSet> allSets, bool isMobile) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1180),
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? 16 : 24,
-            vertical: isMobile ? 18 : 25,
+            horizontal: isMobile ? 14 : 24,
+            vertical: isMobile ? 14 : 20,
           ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 0. Update Alert Banner (if update available)
-          _buildUpdateBannerIfAvailable(context),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 0. Update Alert Banner (if update available)
+              _buildUpdateBannerIfAvailable(context),
 
-          // 1. Student Profile Card
-          _buildProfileCard(s, isMobile),
-          const SizedBox(height: 18),
+              // 1. Sleek Compact Student Status Pill
+              _buildHomeStudentPill(s, isMobile),
 
-          // Live Daily Strict Exam Card
-          _buildLiveDailyExamCard(context, s, isMobile),
-          const SizedBox(height: 18),
+              // 2. Today's Live Strict Exam Card
+              _buildLiveDailyExamCard(context, s, isMobile),
+              const SizedBox(height: 16),
 
-          // 2. Latest Notice Banner
-          _buildHomeNoticeBanner(context),
+              // 3. Quick Action Cards (Study Hub & Exam Hall)
+              _buildHomeQuickActions(context, s, isMobile),
 
-          // 3. Korean Language Study Hub Card (Books, Grammar, Vocab, Notices)
-          _buildHomeStudyHubCard(context),
+              // 4. Latest Notice Banner
+              _buildHomeNoticeBanner(context),
 
-          // 4. Multiple Mock Test Sets & Random Exam
-          _buildMultipleSetsSection(allSets, s, isMobile),
-          const SizedBox(height: 25),
-        ],
+              // 5. Multiple Mock Test Sets & Random Exam
+              _buildMultipleSetsSection(allSets, s, isMobile),
+              const SizedBox(height: 25),
+            ],
+          ),
+        ),
       ),
-    ),
-  ),
-);
+    );
   }
 
   Widget _buildExamLaunchpadTab(AppUser s, List<MockTestSet> allSets, bool isMobile) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1180),
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24, vertical: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E3A8A),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.timer, color: Colors.white, size: 30),
-                SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(LanguageService.instance.trText(ne: "आधिकारिक UBT परीक्षा मोड", en: "Official UBT Exam Mode", ko: "실전 UBT 모의고사"),
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(height: 4),
-                      Text(LanguageService.instance.trText(ne: "४० प्रश्नहरू • ५० मिनेट • पूर्णाङ्क १०० • उत्तीर्णाङ्क ५० • कडा एन्टी-चीट", en: "40 Questions • 50 Mins • Total 100 • Pass 50 • Anti-Cheat", ko: "40문항 • 50분 • 총점 100점 • 합격선 50점 • 부정행위 방지"),
-                          style: TextStyle(color: Colors.white70, fontSize: 12)),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(LanguageService.instance.trText(ne: "परीक्षा दिन चाहेको सेट छान्नुहोस्:", en: "Select Exam Set:", ko: "응시할 시험 세트를 선택하세요:"), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: allSets.length,
-            separatorBuilder: (ctx, i) => const SizedBox(height: 12),
-            itemBuilder: (ctx, i) {
-              final set = allSets[i];
-              final bestAttempt = ExamHistoryService.instance.getBestAttempt(set.id);
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: const Color(0xFF1E3A8A).withOpacity(0.1),
-                        child: Text("S${i + 1}",
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A))),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(set.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                            const SizedBox(height: 4),
-                            Text("${set.sector} • ${set.questions.length} Questions",
-                                style: const TextStyle(color: Colors.black54, fontSize: 12)),
-                            if (bestAttempt != null) ...[
-                              const SizedBox(height: 4),
-                              Text("सर्वोत्कृष्ट: ${bestAttempt.score.toStringAsFixed(1)} / १०० (${bestAttempt.isPassed ? '합격' : '불합격'})",
-                                  style: TextStyle(
-                                      color: bestAttempt.isPassed ? Colors.green.shade800 : Colors.red.shade800,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold)),
-                            ],
-                          ],
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E3A8A),
-                          foregroundColor: Colors.white,
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RealUbtExamHallScreen(student: s, mockSet: set),
-                            ),
-                          ).then((_) => setState(() {}));
-                        },
-                        icon: const Icon(Icons.play_arrow, size: 18),
-                        label: Text(LanguageService.instance.tr("start_exam_btn")),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 30),
-        ],
-      ),
-    ),
-  ),
-);
-  }
+    final mode = LanguageService.instance.modePreference;
 
-  Widget _buildStudyLaunchpadTab(AppUser s, List<MockTestSet> allSets, bool isMobile) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1180),
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24, vertical: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F766E),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.auto_stories, color: Colors.white, size: 30),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(LanguageService.instance.tr("study_practice_mode"),
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(height: 4),
-                      Text(LanguageService.instance.trText(ne: "तत्काल सहि/गलत उत्तर • विस्तृत व्याख्या • कोरियाली अडियो संवाद", en: "Instant Feedback • Detailed Explanations • Korean Audio Dialogues", ko: "즉시 정답 확인 • 상세 해설 • 한국어 듣기 음원"),
-                          style: TextStyle(color: Colors.white70, fontSize: 12)),
-                    ],
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 14 : 24, vertical: 18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Mode Header Card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF1E3A8A), Color(0xFF2563EB)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          // Direct Link to Study Hub (Books, Grammar, Vocab)
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const StudentStudyHubScreen()),
-              );
-            },
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1E3A8A), Color(0xFF2563EB)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
-              ),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 22,
-                    backgroundColor: Colors.white24,
-                    child: Icon(Icons.school, color: Colors.white, size: 24),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Text('📚 ' + LanguageService.instance.tr('resources_hub'), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
-                        SizedBox(height: 4),
-                        Text(LanguageService.instance.trText(ne: 'पाठ्यपुस्तक १ र २ • व्याकरण • मिनिङ बैंक • सूचना', en: 'Textbooks 1 & 2 • Grammar • Vocab Bank • Notices', ko: '표준교재 1·2권 • 문법 • 어휘집 • 공지사항'), style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                        const Icon(Icons.timer, color: Colors.white, size: 26),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            LanguageService.instance.trText(
+                              ne: "आधिकारिक UBT परीक्षा तथा अभ्यास केन्द्र",
+                              en: "Official UBT Exam & Practice Hall",
+                              ko: "실전 UBT 모의고사 및 연습관",
+                            ),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Text(LanguageService.instance.trText(ne: "अभ्यास गर्न चाहेको सेट छान्नुहोस्:", en: "Select Practice Set:", ko: "연습할 세트를 선택하세요:"), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: allSets.length,
-            separatorBuilder: (ctx, i) => const SizedBox(height: 12),
-            itemBuilder: (ctx, i) {
-              final set = allSets[i];
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: const Color(0xFF0F766E).withOpacity(0.1),
-                        child: Text("S${i + 1}",
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F766E))),
+                    const SizedBox(height: 8),
+                    Text(
+                      LanguageService.instance.trText(
+                        ne: "४० प्रश्नहरू (२० रिडिङ + २० लिसनिङ) • ५० मिनेट • पूर्णाङ्क १०० • उत्तीर्णाङ्क ५०",
+                        en: "40 Questions (20 R + 20 L) • 50 Mins • Total 100 • Pass 50",
+                        ko: "40문항 (읽기 20 + 듣기 20) • 50분 • 총점 100점 • 합격선 50점",
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(set.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                            const SizedBox(height: 4),
-                            Text("${set.sector} • ${set.questions.length} Questions",
-                                style: const TextStyle(color: Colors.black54, fontSize: 12)),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF0F766E),
-                          foregroundColor: Colors.white,
-                        ),
-                        onPressed: () {
-                          if (!AuthService.checkStudentAccessWithDialog(context, setId: set.id)) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => StudyModeScreen(mockSet: set),
+                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                    ),
+                    const SizedBox(height: 12),
+                    // Exam Mode Preference Chips
+                    Row(
+                      children: [
+                        ChoiceChip(
+                          label: Text(
+                            LanguageService.instance.trText(ne: '⚡ UBT परीक्षा (Strict)', en: '⚡ Strict Exam', ko: '⚡ 실전 시험'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: mode == ExamModePreference.strictExam ? const Color(0xFF1E3A8A) : Colors.white,
                             ),
-                          ).then((_) => setState(() {}));
-                        },
-                        icon: const Icon(Icons.school, size: 18),
-                        label: Text(LanguageService.instance.tr("start_study_btn")),
-                      ),
-                    ],
-                  ),
+                          ),
+                          selected: mode == ExamModePreference.strictExam,
+                          selectedColor: Colors.white,
+                          backgroundColor: Colors.white24,
+                          onSelected: (_) {
+                            setState(() {
+                              LanguageService.instance.setModePreference(ExamModePreference.strictExam);
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        ChoiceChip(
+                          label: Text(
+                            LanguageService.instance.trText(ne: '📖 अभ्यास मोड (Study)', en: '📖 Study Practice', ko: '📖 연습 모드'),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: mode == ExamModePreference.studyPractice ? const Color(0xFF1E3A8A) : Colors.white,
+                            ),
+                          ),
+                          selected: mode == ExamModePreference.studyPractice,
+                          selectedColor: Colors.white,
+                          backgroundColor: Colors.white24,
+                          onSelected: (_) {
+                            setState(() {
+                              LanguageService.instance.setModePreference(ExamModePreference.studyPractice);
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              );
-            },
+              ),
+              const SizedBox(height: 18),
+
+              // Random Exam Launcher
+              _buildRandomExamLauncherCard(s, isMobile),
+
+              Text(
+                LanguageService.instance.trText(ne: "परीक्षा सेट छान्नुहोस्:", en: "Select Exam Set:", ko: "시험 세트를 선택하세요:"),
+                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+              ),
+              const SizedBox(height: 12),
+
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: allSets.length,
+                separatorBuilder: (ctx, i) => const SizedBox(height: 12),
+                itemBuilder: (ctx, i) {
+                  final set = allSets[i];
+                  final bestAttempt = ExamHistoryService.instance.getBestAttempt(set.id);
+                  final isDownloaded = OfflineDownloadService.instance.isSetDownloaded(set.id);
+
+                  return Card(
+                    elevation: 1.5,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: Colors.grey.shade200)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: const Color(0xFF1E3A8A).withOpacity(0.1),
+                            child: Text("S${i + 1}", style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A), fontSize: 12)),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(set.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5)),
+                                const SizedBox(height: 3),
+                                Text("${set.sector} • ${set.questions.length} Questions", style: const TextStyle(color: Colors.black54, fontSize: 11.5)),
+                                if (bestAttempt != null) ...[
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    "최고: ${bestAttempt.score.toStringAsFixed(1)} / १०० (${bestAttempt.isPassed ? '합격' : '불합격'})",
+                                    style: TextStyle(
+                                      color: bestAttempt.isPassed ? Colors.green.shade800 : Colors.red.shade800,
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          Wrap(
+                            spacing: 6,
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  isDownloaded ? Icons.offline_pin : Icons.download_for_offline_outlined,
+                                  color: isDownloaded ? Colors.green.shade700 : const Color(0xFF0F766E),
+                                  size: 20,
+                                ),
+                                tooltip: isDownloaded
+                                    ? LanguageService.instance.trText(ne: 'अफलाइन सुरक्षित छ', en: 'Saved offline', ko: '오프라인 저장됨')
+                                    : LanguageService.instance.trText(ne: 'अफलाइन सेभ गर्नुहोस्', en: 'Save offline', ko: '오프라인 저장'),
+                                onPressed: () async {
+                                  if (isDownloaded) {
+                                    await OfflineDownloadService.instance.removeDownloadedSet(set.id);
+                                  } else {
+                                    await OfflineDownloadService.instance.downloadSet(set);
+                                  }
+                                  setState(() {});
+                                },
+                              ),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF1E3A8A),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                                onPressed: () {
+                                  if (!AuthService.checkStudentAccessWithDialog(context, setId: set.id)) return;
+                                  final isStrict = LanguageService.instance.modePreference == ExamModePreference.strictExam;
+                                  if (isStrict) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => RealUbtExamHallScreen(student: s, mockSet: set)),
+                                    ).then((_) => setState(() {}));
+                                  } else {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => StudyModeScreen(mockSet: set)),
+                                    ).then((_) => setState(() {}));
+                                  }
+                                },
+                                icon: const Icon(Icons.play_arrow, size: 16),
+                                label: Text(LanguageService.instance.tr("start_exam_btn"), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 30),
+            ],
           ),
-          const SizedBox(height: 30),
-        ],
+        ),
       ),
-    ),
-  ),
-);
+    );
   }
 
   Widget _buildHistoryTab(AppUser s, bool isMobile) {

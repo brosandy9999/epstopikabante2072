@@ -32,48 +32,51 @@ class FileUploadService {
     );
   }
 
-  /// Direct non-blocking streaming upload from browser file directly to Supabase Storage
-  Future<String?> _uploadBrowserFileToFirebase(html.File file, String folder) async {
+  /// Direct non-blocking streaming upload from browser file directly to Cloudinary CDN
+  Future<String?> _uploadBrowserFileToCloudinary(html.File file, String folder) async {
     final completer = Completer<String?>();
     try {
-      const projectRef = 'ysrxjsmqipzudwwnqorb';
-      const baseUrl = 'https://$projectRef.supabase.co';
-      const apiKey = 'sb_secret_2EmpXQ4nPKPiw0pUMQiqWA_I1OPgOKY';
+      const cloudName = 'ulatxq4n';
+      const uploadPreset = 'ml_default';
 
-      final bucket = folder == 'books' ? 'books' : 'media';
-      final subpath = folder == 'books' ? 'chapters' : folder;
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final cleanName = file.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
-      final destinationPath = '$subpath/${timestamp}_$cleanName';
+      // Determine resource type: images -> image, audio -> video, pdf/other -> raw
+      final isAudio = file.type.startsWith('audio/') || file.name.endsWith('.mp3') || file.name.endsWith('.wav') || file.name.endsWith('.m4a');
+      final isPdf = file.type == 'application/pdf' || file.name.endsWith('.pdf');
+      final resourceType = isAudio ? 'video' : (isPdf ? 'raw' : 'image');
 
-      final uploadUrl = '$baseUrl/storage/v1/object/$bucket/$destinationPath';
+      final uploadUrl = 'https://api.cloudinary.com/v1_1/$cloudName/$resourceType/upload';
+      final formData = html.FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', uploadPreset);
+      formData.append('folder', 'eps_topik/$folder');
+
       final request = html.HttpRequest();
       request.open('POST', uploadUrl);
-      final mime = file.type.isNotEmpty ? file.type : (folder == 'books' ? 'application/pdf' : 'application/octet-stream');
-      request.setRequestHeader('apikey', apiKey);
-      request.setRequestHeader('Authorization', 'Bearer $apiKey');
-      request.setRequestHeader('Content-Type', mime);
-      request.setRequestHeader('x-upsert', 'true');
 
       request.onLoad.listen((_) {
         if (request.status == 200 || request.status == 201) {
-          final downloadUrl = '$baseUrl/storage/v1/object/public/$bucket/$destinationPath';
-          debugPrint('[SupabaseStorage] Web stream upload success: $downloadUrl');
-          completer.complete(downloadUrl);
+          try {
+            final json = jsonDecode(request.responseText ?? '{}');
+            final secureUrl = json['secure_url'] as String?;
+            debugPrint('[Cloudinary] Web stream upload success: $secureUrl');
+            completer.complete(secureUrl);
+          } catch (e) {
+            completer.complete(null);
+          }
         } else {
-          debugPrint('[SupabaseStorage] Web upload failed: ${request.status} ${request.responseText}');
+          debugPrint('[Cloudinary] Web upload failed: ${request.status} ${request.responseText}');
           completer.complete(null);
         }
       });
 
       request.onError.listen((e) {
-        debugPrint('[SupabaseStorage] Web upload error: $e');
+        debugPrint('[Cloudinary] Web upload error: $e');
         completer.complete(null);
       });
 
-      request.send(file);
+      request.send(formData);
     } catch (e) {
-      debugPrint('[SupabaseStorage] Web upload exception: $e');
+      debugPrint('[Cloudinary] Web upload exception: $e');
       completer.complete(null);
     }
     return completer.future;
@@ -103,8 +106,8 @@ class FileUploadService {
         final mimeType = file.type.isNotEmpty ? file.type : accept.split(',')[0];
         final isLargeFile = file.size > 2 * 1024 * 1024; // > 2MB
 
-        // 1. Direct Background Streaming Upload to Firebase Storage
-        final storageUrl = await _uploadBrowserFileToFirebase(file, folder);
+        // 1. Direct Background Streaming Upload to Cloudinary CDN
+        final storageUrl = await _uploadBrowserFileToCloudinary(file, folder);
 
         // 2. Generate Safe Preview / Fallback URL
         String previewDataUrl = '';

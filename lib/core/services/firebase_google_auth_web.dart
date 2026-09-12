@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:js_util' as js_util;
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 
 class FirebaseGoogleAuthService {
   FirebaseGoogleAuthService._();
@@ -12,20 +11,21 @@ class FirebaseGoogleAuthService {
   /// Triggers the official Google OAuth / Firebase Auth Popup
   Future<Map<String, dynamic>> signInWithGoogle() async {
     try {
-      final jsFn = js_util.getProperty(html.window, 'firebaseSignInWithGoogle');
-      if (jsFn == null) {
+      if (!globalContext.has('firebaseSignInWithGoogle')) {
         return {
           'success': false,
           'message': 'Firebase Google Sign-In SDK उपलब्ध भएन।'
         };
       }
 
-      final promise = js_util.callMethod(html.window, 'firebaseSignInWithGoogle', []);
-      final resultJson = await js_util.promiseToFuture(promise);
-
-      if (resultJson is String) {
-        final Map<String, dynamic> parsed = jsonDecode(resultJson);
-        return parsed;
+      final JSPromise? promise = globalContext.callMethod('firebaseSignInWithGoogle'.toJS);
+      if (promise != null) {
+        final result = await promise.toDart;
+        if (result != null) {
+          final resultStr = (result as JSString).toDart;
+          final Map<String, dynamic> parsed = jsonDecode(resultStr);
+          return parsed;
+        }
       }
 
       return {

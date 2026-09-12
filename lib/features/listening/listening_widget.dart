@@ -113,25 +113,45 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
     final isIntermission = _audioState == AudioState.firstComplete;
 
     if (isLandscape) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // LEFT PANE: Listening Audio Player & Prompt (50% split)
-          Expanded(
-            flex: 5,
-            child: SingleChildScrollView(
-              child: _buildAudioPromptPane(context, true, isLocked, isPlaying, isIntermission),
-            ),
+      return Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1200),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // LEFT PANE: Listening Audio Player & Prompt (50% split)
+              Expanded(
+                flex: 5,
+                child: SingleChildScrollView(
+                  child: _buildAudioPromptPane(context, true, isLocked, isPlaying, isIntermission),
+                ),
+              ),
+              const SizedBox(width: 12),
+              // RIGHT PANE: 4 Options (50% split)
+              Expanded(
+                flex: 5,
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: SingleChildScrollView(
+                    child: _buildOptions(rawOptions, isLandscape),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 14),
-          // RIGHT PANE: 4 Options (50% split)
-          Expanded(
-            flex: 5,
-            child: SingleChildScrollView(
-              child: _buildOptions(rawOptions, isLandscape),
-            ),
-          ),
-        ],
+        ),
       );
     }
 
@@ -140,7 +160,7 @@ class _ListeningQuestionWidgetState extends State<ListeningQuestionWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildAudioPromptPane(context, false, isLocked, isPlaying, isIntermission),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildOptions(rawOptions, isLandscape),
         ],
       ),

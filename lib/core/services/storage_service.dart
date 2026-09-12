@@ -144,21 +144,41 @@ class StorageService {
     return _prefs?.getString(_keyLanguage);
   }
 
-  // -------------------------------------------------------------
-  // GENERIC KEY-VALUE HELPERS
-  // -------------------------------------------------------------
-  String? getString(String key) => _prefs?.getString(key);
-
-  Future<bool> setString(String key, String value) async {
-    if (_prefs == null) await init();
-    return await _prefs?.setString(key, value) ?? false;
+  String? getString(String key) {
+    try {
+      return _prefs?.getString(key);
+    } catch (e) {
+      debugPrint('[StorageService] Error getting key $key: $e');
+      return null;
+    }
   }
 
-  double? getDouble(String key) => _prefs?.getDouble(key);
+  Future<bool> setString(String key, String value) async {
+    try {
+      if (_prefs == null) await init();
+      return await _prefs?.setString(key, value) ?? false;
+    } catch (e) {
+      debugPrint('[StorageService] Error setting string for key $key (Quota or Storage Error): $e');
+      return false;
+    }
+  }
+
+  double? getDouble(String key) {
+    try {
+      return _prefs?.getDouble(key);
+    } catch (e) {
+      return null;
+    }
+  }
 
   Future<bool> setDouble(String key, double value) async {
-    if (_prefs == null) await init();
-    return await _prefs?.setDouble(key, value) ?? false;
+    try {
+      if (_prefs == null) await init();
+      return await _prefs?.setDouble(key, value) ?? false;
+    } catch (e) {
+      debugPrint('[StorageService] Error setting double for key $key: $e');
+      return false;
+    }
   }
 
   // -------------------------------------------------------------

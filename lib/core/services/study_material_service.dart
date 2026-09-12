@@ -106,7 +106,9 @@ class StudyMaterialService extends ChangeNotifier {
       final list = _booksList!.map((b) => b.toJson()).toList();
       final encoded = jsonEncode(list);
       StorageService.instance.setString(_keyBooks, encoded);
-      StorageService.instance.setString('${_keyBooks}_backup', encoded);
+      if (encoded.length < 500000) {
+        StorageService.instance.setString('${_keyBooks}_backup', encoded);
+      }
       CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
@@ -157,7 +159,9 @@ class StudyMaterialService extends ChangeNotifier {
       final list = _dictionaryList!.map((w) => w.toJson()).toList();
       final encoded = jsonEncode(list);
       StorageService.instance.setString(_keyDict, encoded);
-      StorageService.instance.setString('${_keyDict}_backup', encoded);
+      if (encoded.length < 500000) {
+        StorageService.instance.setString('${_keyDict}_backup', encoded);
+      }
       CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
@@ -230,7 +234,9 @@ class StudyMaterialService extends ChangeNotifier {
       final list = _visualCardsList!.map((c) => c.toJson()).toList();
       final encoded = jsonEncode(list);
       StorageService.instance.setString(_keyVisualCards, encoded);
-      StorageService.instance.setString('${_keyVisualCards}_backup', encoded);
+      if (encoded.length < 500000) {
+        StorageService.instance.setString('${_keyVisualCards}_backup', encoded);
+      }
       CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
       notifyListeners();
     } catch (e) {
