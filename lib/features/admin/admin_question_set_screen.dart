@@ -1715,11 +1715,9 @@ class _AdminQuestionSetScreenState extends State<AdminQuestionSetScreen> {
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                    ),
+                  );
+                },
           ),
           const SizedBox(height: 30),
         ],
