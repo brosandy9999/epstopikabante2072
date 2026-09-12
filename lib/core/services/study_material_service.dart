@@ -100,7 +100,27 @@ class StudyMaterialService extends ChangeNotifier {
     }
   }
 
-  void _saveBooksToStorage() {
+  void mergeBooksFromCloud(List<StudyBook> remoteBooks) {
+    if (remoteBooks.isEmpty) return;
+    getAllBooks();
+    bool hasChanges = false;
+    for (final rBook in remoteBooks) {
+      final idx = _booksList!.indexWhere((b) => b.id == rBook.id);
+      if (idx == -1) {
+        _booksList!.add(rBook);
+        hasChanges = true;
+      } else {
+        _booksList![idx] = rBook;
+        hasChanges = true;
+      }
+    }
+    if (hasChanges) {
+      _saveBooksToStorage(triggerCloudPush: false);
+      notifyListeners();
+    }
+  }
+
+  void _saveBooksToStorage({bool triggerCloudPush = true}) {
     if (_booksList == null) return;
     try {
       final list = _booksList!.map((b) => b.toJson()).toList();
@@ -109,7 +129,9 @@ class StudyMaterialService extends ChangeNotifier {
       if (encoded.length < 500000) {
         StorageService.instance.setString('${_keyBooks}_backup', encoded);
       }
-      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      if (triggerCloudPush) {
+        CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      }
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save books: $e');
@@ -153,7 +175,27 @@ class StudyMaterialService extends ChangeNotifier {
     }
   }
 
-  void _saveDictionaryToStorage() {
+  void mergeDictionaryFromCloud(List<DictionaryWord> remoteWords) {
+    if (remoteWords.isEmpty) return;
+    getAllDictionaryWords();
+    bool hasChanges = false;
+    for (final rWord in remoteWords) {
+      final idx = _dictionaryList!.indexWhere((w) => w.id == rWord.id);
+      if (idx == -1) {
+        _dictionaryList!.add(rWord);
+        hasChanges = true;
+      } else {
+        _dictionaryList![idx] = rWord;
+        hasChanges = true;
+      }
+    }
+    if (hasChanges) {
+      _saveDictionaryToStorage(triggerCloudPush: false);
+      notifyListeners();
+    }
+  }
+
+  void _saveDictionaryToStorage({bool triggerCloudPush = true}) {
     if (_dictionaryList == null) return;
     try {
       final list = _dictionaryList!.map((w) => w.toJson()).toList();
@@ -162,7 +204,9 @@ class StudyMaterialService extends ChangeNotifier {
       if (encoded.length < 500000) {
         StorageService.instance.setString('${_keyDict}_backup', encoded);
       }
-      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      if (triggerCloudPush) {
+        CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      }
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save dictionary: $e');
@@ -192,6 +236,26 @@ class StudyMaterialService extends ChangeNotifier {
     final all = getAllVisualFlashcards();
     if (chapterNo <= 0) return all;
     return all.where((c) => c.chapterNo == chapterNo).toList();
+  }
+
+  void mergeFlashcardsFromCloud(List<VisualFlashcard> remoteCards) {
+    if (remoteCards.isEmpty) return;
+    getAllVisualFlashcards();
+    bool hasChanges = false;
+    for (final rCard in remoteCards) {
+      final idx = _visualCardsList!.indexWhere((c) => c.id == rCard.id);
+      if (idx == -1) {
+        _visualCardsList!.add(rCard);
+        hasChanges = true;
+      } else {
+        _visualCardsList![idx] = rCard;
+        hasChanges = true;
+      }
+    }
+    if (hasChanges) {
+      _saveVisualCardsToStorage(triggerCloudPush: false);
+      notifyListeners();
+    }
   }
 
   void addVisualFlashcard(VisualFlashcard card) {
@@ -228,7 +292,7 @@ class StudyMaterialService extends ChangeNotifier {
     }
   }
 
-  void _saveVisualCardsToStorage() {
+  void _saveVisualCardsToStorage({bool triggerCloudPush = true}) {
     if (_visualCardsList == null) return;
     try {
       final list = _visualCardsList!.map((c) => c.toJson()).toList();
@@ -237,7 +301,9 @@ class StudyMaterialService extends ChangeNotifier {
       if (encoded.length < 500000) {
         StorageService.instance.setString('${_keyVisualCards}_backup', encoded);
       }
-      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      if (triggerCloudPush) {
+        CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      }
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save visual flashcards: $e');
@@ -502,6 +568,26 @@ class StudyMaterialService extends ChangeNotifier {
     return List.unmodifiable(_notices!);
   }
 
+  void mergeNoticesFromCloud(List<InstituteNotice> remoteNotices) {
+    if (remoteNotices.isEmpty) return;
+    getAllNotices();
+    bool hasChanges = false;
+    for (final rNotice in remoteNotices) {
+      final idx = _notices!.indexWhere((n) => n.id == rNotice.id);
+      if (idx == -1) {
+        _notices!.add(rNotice);
+        hasChanges = true;
+      } else {
+        _notices![idx] = rNotice;
+        hasChanges = true;
+      }
+    }
+    if (hasChanges) {
+      _saveNoticesToStorage(triggerCloudPush: false);
+      notifyListeners();
+    }
+  }
+
   void addNotice(InstituteNotice notice) {
     getAllNotices();
     _notices!.insert(0, notice);
@@ -525,12 +611,14 @@ class StudyMaterialService extends ChangeNotifier {
     }
   }
 
-  void _saveNoticesToStorage() {
+  void _saveNoticesToStorage({bool triggerCloudPush = true}) {
     if (_notices == null) return;
     try {
       final list = _notices!.map((n) => n.toJson()).toList();
       StorageService.instance.setString(_keyNotices, jsonEncode(list));
-      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      if (triggerCloudPush) {
+        CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      }
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save notices: $e');
@@ -544,6 +632,26 @@ class StudyMaterialService extends ChangeNotifier {
   List<GrammarTopic> getAllGrammar() {
     _grammarList ??= _loadGrammarFromStorage() ?? _getDefaultGrammar();
     return List.unmodifiable(_grammarList!);
+  }
+
+  void mergeGrammarFromCloud(List<GrammarTopic> remoteGrammar) {
+    if (remoteGrammar.isEmpty) return;
+    getAllGrammar();
+    bool hasChanges = false;
+    for (final rG in remoteGrammar) {
+      final idx = _grammarList!.indexWhere((g) => g.id == rG.id);
+      if (idx == -1) {
+        _grammarList!.add(rG);
+        hasChanges = true;
+      } else {
+        _grammarList![idx] = rG;
+        hasChanges = true;
+      }
+    }
+    if (hasChanges) {
+      _saveGrammarToStorage(triggerCloudPush: false);
+      notifyListeners();
+    }
   }
 
   void addGrammar(GrammarTopic topic) {
@@ -569,12 +677,14 @@ class StudyMaterialService extends ChangeNotifier {
     }
   }
 
-  void _saveGrammarToStorage() {
+  void _saveGrammarToStorage({bool triggerCloudPush = true}) {
     if (_grammarList == null) return;
     try {
       final list = _grammarList!.map((g) => g.toJson()).toList();
       StorageService.instance.setString(_keyGrammar, jsonEncode(list));
-      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      if (triggerCloudPush) {
+        CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      }
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save grammar: $e');
@@ -588,6 +698,26 @@ class StudyMaterialService extends ChangeNotifier {
   List<VideoCourse> getAllVideos() {
     _videoList ??= _loadVideosFromStorage() ?? _getDefaultVideos();
     return List.unmodifiable(_videoList!);
+  }
+
+  void mergeVideosFromCloud(List<VideoCourse> remoteVideos) {
+    if (remoteVideos.isEmpty) return;
+    getAllVideos();
+    bool hasChanges = false;
+    for (final rV in remoteVideos) {
+      final idx = _videoList!.indexWhere((v) => v.id == rV.id);
+      if (idx == -1) {
+        _videoList!.add(rV);
+        hasChanges = true;
+      } else {
+        _videoList![idx] = rV;
+        hasChanges = true;
+      }
+    }
+    if (hasChanges) {
+      _saveVideosToStorage(triggerCloudPush: false);
+      notifyListeners();
+    }
   }
 
   void addVideo(VideoCourse video) {
@@ -613,12 +743,14 @@ class StudyMaterialService extends ChangeNotifier {
     }
   }
 
-  void _saveVideosToStorage() {
+  void _saveVideosToStorage({bool triggerCloudPush = true}) {
     if (_videoList == null) return;
     try {
       final list = _videoList!.map((v) => v.toJson()).toList();
       StorageService.instance.setString(_keyVideos, jsonEncode(list));
-      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      if (triggerCloudPush) {
+        CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      }
       notifyListeners();
     } catch (e) {
       debugPrint('[StudyMaterialService] Failed to save videos: $e');

@@ -236,90 +236,98 @@ class CloudSyncService extends ChangeNotifier {
       // 4. Ingest Flashcards
       if (payload['flashcards'] is List) {
         final List rawCards = payload['flashcards'];
+        final List<VisualFlashcard> cards = [];
         for (final item in rawCards) {
           if (item is Map) {
-            final card = VisualFlashcard.fromJson(Map<String, dynamic>.from(item));
-            StudyMaterialService.instance.addVisualFlashcard(card);
+            cards.add(VisualFlashcard.fromJson(Map<String, dynamic>.from(item)));
           }
+        }
+        if (cards.isNotEmpty) {
+          StudyMaterialService.instance.mergeFlashcardsFromCloud(cards);
         }
       }
 
-      // 5. Ingest Books (Update chapters, PDFs & audio tracks)
+      // 5. Ingest Books
       if (payload['books'] is List) {
         final List rawBooks = payload['books'];
+        final List<StudyBook> books = [];
         for (final item in rawBooks) {
           if (item is Map) {
-            final book = StudyBook.fromJson(Map<String, dynamic>.from(item));
-            StudyMaterialService.instance.addBook(book);
+            books.add(StudyBook.fromJson(Map<String, dynamic>.from(item)));
           }
+        }
+        if (books.isNotEmpty) {
+          StudyMaterialService.instance.mergeBooksFromCloud(books);
         }
       }
 
       // 6. Ingest Videos
       if (payload['videos'] is List) {
         final List rawVideos = payload['videos'];
+        final List<VideoCourse> videos = [];
         for (final item in rawVideos) {
           if (item is Map) {
-            final vid = VideoCourse.fromJson(Map<String, dynamic>.from(item));
-            StudyMaterialService.instance.addVideo(vid);
+            videos.add(VideoCourse.fromJson(Map<String, dynamic>.from(item)));
           }
+        }
+        if (videos.isNotEmpty) {
+          StudyMaterialService.instance.mergeVideosFromCloud(videos);
         }
       }
 
       // 7. Ingest Grammar
       if (payload['grammar'] is List) {
         final List rawGrammar = payload['grammar'];
+        final List<GrammarTopic> grammar = [];
         for (final item in rawGrammar) {
           if (item is Map) {
-            final g = GrammarTopic.fromJson(Map<String, dynamic>.from(item));
-            StudyMaterialService.instance.addGrammar(g);
+            grammar.add(GrammarTopic.fromJson(Map<String, dynamic>.from(item)));
           }
+        }
+        if (grammar.isNotEmpty) {
+          StudyMaterialService.instance.mergeGrammarFromCloud(grammar);
         }
       }
 
       // 8. Ingest Dictionary
       if (payload['dictionary'] is List) {
         final List rawDict = payload['dictionary'];
+        final List<DictionaryWord> words = [];
         for (final item in rawDict) {
           if (item is Map) {
-            final d = DictionaryWord.fromJson(Map<String, dynamic>.from(item));
-            StudyMaterialService.instance.addDictionaryWord(d);
+            words.add(DictionaryWord.fromJson(Map<String, dynamic>.from(item)));
           }
+        }
+        if (words.isNotEmpty) {
+          StudyMaterialService.instance.mergeDictionaryFromCloud(words);
         }
       }
 
       // 9. Ingest Notices
       if (payload['notices'] is List) {
         final List rawNotices = payload['notices'];
+        final List<InstituteNotice> notices = [];
         for (final item in rawNotices) {
           if (item is Map) {
-            final n = InstituteNotice.fromJson(Map<String, dynamic>.from(item));
-            StudyMaterialService.instance.addNotice(n);
+            notices.add(InstituteNotice.fromJson(Map<String, dynamic>.from(item)));
           }
+        }
+        if (notices.isNotEmpty) {
+          StudyMaterialService.instance.mergeNoticesFromCloud(notices);
         }
       }
 
       // 10. Ingest Institutes
       if (payload['institutes'] is List) {
         final List rawInsts = payload['institutes'];
+        final List<InstituteProfile> institutes = [];
         for (final item in rawInsts) {
           if (item is Map) {
-            final inst = InstituteProfile.fromJson(Map<String, dynamic>.from(item));
-            InstituteService.instance.createInstitute(
-              id: inst.id,
-              name: inst.name,
-              code: inst.code,
-              logoUrl: inst.logoUrl,
-              phone: inst.phone,
-              email: inst.email,
-              address: inst.address,
-              aboutUs: inst.aboutUs,
-              allowedSetsQuota: inst.allowedSetsQuota,
-              validityExpiry: inst.validityExpiry,
-              maxStudentsQuota: inst.maxStudentsQuota,
-              isActive: inst.isActive,
-            );
+            institutes.add(InstituteProfile.fromJson(Map<String, dynamic>.from(item)));
           }
+        }
+        if (institutes.isNotEmpty) {
+          InstituteService.instance.mergeInstitutesFromCloud(institutes);
         }
       }
 
@@ -337,8 +345,12 @@ class CloudSyncService extends ChangeNotifier {
     }
   }
 
+  bool _isPushing = false;
+
   /// Push local updates to Cloud endpoint or prepare sync payload
   Future<bool> pushToCloud({bool silent = true}) async {
+    if (_isPushing) return false;
+    _isPushing = true;
     try {
       if (!silent) {
         _state = SyncState.syncing;
@@ -407,6 +419,8 @@ class CloudSyncService extends ChangeNotifier {
         notifyListeners();
       }
       return false;
+    } finally {
+      _isPushing = false;
     }
   }
 

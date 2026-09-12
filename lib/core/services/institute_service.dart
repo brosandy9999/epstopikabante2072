@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import '../models/institute_model.dart';
 import 'storage_service.dart';
@@ -261,12 +261,34 @@ class InstituteService extends ChangeNotifier {
     }
   }
 
-  void _saveInstitutes() {
+  void mergeInstitutesFromCloud(List<InstituteProfile> remoteInstitutes) {
+    if (remoteInstitutes.isEmpty) return;
+    getAllInstitutes();
+    bool hasChanges = false;
+    for (final rInst in remoteInstitutes) {
+      final idx = _institutes!.indexWhere((i) => i.id == rInst.id || i.code.trim().toUpperCase() == rInst.code.trim().toUpperCase());
+      if (idx == -1) {
+        _institutes!.add(rInst);
+        hasChanges = true;
+      } else {
+        _institutes![idx] = rInst;
+        hasChanges = true;
+      }
+    }
+    if (hasChanges) {
+      _saveInstitutes(triggerCloudPush: false);
+      notifyListeners();
+    }
+  }
+
+  void _saveInstitutes({bool triggerCloudPush = true}) {
     if (_institutes == null) return;
     try {
       final list = _institutes!.map((e) => e.toJson()).toList();
       StorageService.instance.setString(_keyInstitutes, jsonEncode(list));
-      CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      if (triggerCloudPush) {
+        CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
+      }
     } catch (e) {
       debugPrint('[InstituteService] Failed to save institutes: $e');
     }
