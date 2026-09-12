@@ -439,10 +439,15 @@ class StudyBook {
   final int chaptersCount;
   final String description;
   final String pdfUrl;
-  final Map<String, String> chapterPdfs; // Map chapter number to PDF or page image URL
+  final Map<String, String> chapterPdfs; // Map chapter number to PDF or page image URL or interactive HTML URL
   final Map<String, String> chapterTitles; // Map chapter number to custom title/name
   final List<String> highlightTopics;
   final List<BookAudioTrack> audioTracks;
+  final bool isApprovedBySuperAdmin;
+  final bool isPublished;
+  final String addedByRole; // 'super_admin' or 'institute_admin'
+  final String addedByName;
+  final String interactiveType; // 'studio_html', 'pdf_canvas', 'digital'
   final DateTime createdAt;
 
   const StudyBook({
@@ -458,6 +463,11 @@ class StudyBook {
     this.chapterTitles = const {},
     required this.highlightTopics,
     this.audioTracks = const [],
+    this.isApprovedBySuperAdmin = true,
+    this.isPublished = true,
+    this.addedByRole = 'super_admin',
+    this.addedByName = 'Super Admin Master',
+    this.interactiveType = 'studio_html',
     required this.createdAt,
   });
 
@@ -474,6 +484,11 @@ class StudyBook {
     Map<String, String>? chapterTitles,
     List<String>? highlightTopics,
     List<BookAudioTrack>? audioTracks,
+    bool? isApprovedBySuperAdmin,
+    bool? isPublished,
+    String? addedByRole,
+    String? addedByName,
+    String? interactiveType,
     DateTime? createdAt,
   }) {
     return StudyBook(
@@ -489,6 +504,11 @@ class StudyBook {
       chapterTitles: chapterTitles ?? this.chapterTitles,
       highlightTopics: highlightTopics ?? this.highlightTopics,
       audioTracks: audioTracks ?? this.audioTracks,
+      isApprovedBySuperAdmin: isApprovedBySuperAdmin ?? this.isApprovedBySuperAdmin,
+      isPublished: isPublished ?? this.isPublished,
+      addedByRole: addedByRole ?? this.addedByRole,
+      addedByName: addedByName ?? this.addedByName,
+      interactiveType: interactiveType ?? this.interactiveType,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -520,8 +540,39 @@ class StudyBook {
         'chapterTitles': chapterTitles,
         'highlightTopics': highlightTopics,
         'audioTracks': audioTracks.map((t) => t.toJson()).toList(),
+        'isApprovedBySuperAdmin': isApprovedBySuperAdmin,
+        'isPublished': isPublished,
+        'addedByRole': addedByRole,
+        'addedByName': addedByName,
+        'interactiveType': interactiveType,
         'createdAt': createdAt.toIso8601String(),
       };
+
+  factory StudyBook.fromJson(Map<String, dynamic> json) => StudyBook(
+        id: json['id'] ?? '',
+        title: json['title'] ?? '',
+        subtitle: json['subtitle'] ?? '',
+        editionType: json['editionType'] ?? 'नयाँ संस्करण (New Edition)',
+        level: json['level'] ?? 'Book 1',
+        chaptersCount: json['chaptersCount'] ?? 30,
+        description: json['description'] ?? '',
+        pdfUrl: json['pdfUrl'] ?? '',
+        chapterPdfs: (json['chapterPdfs'] as Map?)?.map((k, v) => MapEntry(k.toString(), v.toString())) ?? const {},
+        chapterTitles: (json['chapterTitles'] as Map?)?.map((k, v) => MapEntry(k.toString(), v.toString())) ?? const {},
+        highlightTopics: List<String>.from(json['highlightTopics'] ?? []),
+        audioTracks: (json['audioTracks'] as List?)
+                ?.map((e) => BookAudioTrack.fromJson(Map<String, dynamic>.from(e)))
+                .toList() ??
+            const [],
+        isApprovedBySuperAdmin: json['isApprovedBySuperAdmin'] ?? true,
+        isPublished: json['isPublished'] ?? true,
+        addedByRole: json['addedByRole'] ?? 'super_admin',
+        addedByName: json['addedByName'] ?? 'Super Admin Master',
+        interactiveType: json['interactiveType'] ?? 'studio_html',
+        createdAt: json['createdAt'] != null
+            ? DateTime.tryParse(json['createdAt']) ?? DateTime.now()
+            : DateTime.now(),
+      );
 
 
   String localizedTitle([AppLanguage? lang]) {
@@ -739,27 +790,6 @@ class StudyBook {
     }
     return highlightTopics;
   }
-
-  factory StudyBook.fromJson(Map<String, dynamic> json) => StudyBook(
-        id: json['id'] ?? '',
-        title: json['title'] ?? '',
-        subtitle: json['subtitle'] ?? '',
-        editionType: json['editionType'] ?? 'नयाँ संस्करण (New Edition)',
-        level: json['level'] ?? 'Book 1',
-        chaptersCount: json['chaptersCount'] ?? 30,
-        description: json['description'] ?? '',
-        pdfUrl: json['pdfUrl'] ?? '',
-        chapterPdfs: (json['chapterPdfs'] as Map?)?.map((k, v) => MapEntry(k.toString(), v.toString())) ?? const {},
-        chapterTitles: (json['chapterTitles'] as Map?)?.map((k, v) => MapEntry(k.toString(), v.toString())) ?? const {},
-        highlightTopics: List<String>.from(json['highlightTopics'] ?? []),
-        audioTracks: (json['audioTracks'] as List?)
-                ?.map((e) => BookAudioTrack.fromJson(Map<String, dynamic>.from(e)))
-                .toList() ??
-            const [],
-        createdAt: json['createdAt'] != null
-            ? DateTime.tryParse(json['createdAt']) ?? DateTime.now()
-            : DateTime.now(),
-      );
 }
 
 class InstituteNotice {

@@ -75,11 +75,53 @@ class StudyMaterialService extends ChangeNotifier {
     return List.unmodifiable(_booksList!);
   }
 
+  /// Filters books based on user role and approval status
+  List<StudyBook> getBooksForRole({required bool isSuperAdmin, required bool isAdmin, String? instituteCode}) {
+    final all = getAllBooks();
+    if (isSuperAdmin) {
+      return all; // Super Admin sees all books including pending drafts
+    }
+    if (isAdmin) {
+      // Institute Admin sees all approved/public books plus their own submitted books
+      return all.where((b) {
+        if (b.isApprovedBySuperAdmin && b.isPublished) return true;
+        if (b.addedByRole == 'institute_admin' && instituteCode != null && b.addedByName.contains(instituteCode)) return true;
+        return false;
+      }).toList();
+    }
+    // Students only see officially approved and published books
+    return all.where((b) => b.isApprovedBySuperAdmin && b.isPublished).toList();
+  }
+
   void addBook(StudyBook book) {
     getAllBooks();
     _booksList!.removeWhere((b) => b.id == book.id);
     _booksList!.insert(0, book);
     _saveBooksToStorage();
+  }
+
+  void approveBook(String id) {
+    getAllBooks();
+    final idx = _booksList!.indexWhere((b) => b.id == id);
+    if (idx != -1) {
+      _booksList![idx] = _booksList![idx].copyWith(
+        isApprovedBySuperAdmin: true,
+        isPublished: true,
+      );
+      _saveBooksToStorage();
+    }
+  }
+
+  void rejectBook(String id) {
+    getAllBooks();
+    final idx = _booksList!.indexWhere((b) => b.id == id);
+    if (idx != -1) {
+      _booksList![idx] = _booksList![idx].copyWith(
+        isApprovedBySuperAdmin: false,
+        isPublished: false,
+      );
+      _saveBooksToStorage();
+    }
   }
 
   void deleteBook(String id) {
@@ -94,7 +136,9 @@ class StudyMaterialService extends ChangeNotifier {
           StorageService.instance.getString('${_keyBooks}_backup');
       if (jsonStr == null || jsonStr.isEmpty) return null;
       final List decoded = jsonDecode(jsonStr);
-      return decoded.map((e) => StudyBook.fromJson(Map<String, dynamic>.from(e))).toList();
+      final loaded = decoded.map((e) => StudyBook.fromJson(Map<String, dynamic>.from(e))).toList();
+      if (loaded.isEmpty) return null;
+      return loaded;
     } catch (_) {
       return null;
     }
@@ -139,7 +183,133 @@ class StudyMaterialService extends ChangeNotifier {
   }
 
   List<StudyBook> _getDefaultBooks() {
-    return <StudyBook>[];
+    // Map Book 1 chapters (1-30)
+    final Map<String, String> book1Pdfs = {};
+    for (int i = 1; i <= 30; i++) {
+      final pad = i.toString().padLeft(2, '0');
+      book1Pdfs['$i'] = 'chapters/Book-1_Chapter-${pad}_Lesson-${pad}.html';
+    }
+
+    // Map Book 2 chapters (31-60)
+    final Map<String, String> book2Pdfs = {};
+    for (int i = 31; i <= 60; i++) {
+      final pad = i.toString().padLeft(2, '0');
+      book2Pdfs['$i'] = 'chapters/Book-2_Chapter-${pad}_Lesson-${pad}.html';
+    }
+
+    return <StudyBook>[
+      StudyBook(
+        id: 'book_new_01',
+        title: 'EPS-TOPIK कोरियन भाषा पाठ्यपुस्तक १ (2024 नयाँ संस्करण)',
+        subtitle: 'आधारभूत कोरियन भाषा तथा दैनिक जीवनयापन (अध्याय ०१ देखि ३०)',
+        editionType: 'नयाँ संस्करण (New 2024)',
+        level: 'Book 1',
+        chaptersCount: 30,
+        description: 'वर्णमाला (हन्गुल), अभिवादन, किनमेल, दिशा, मिति/समय, मौसम, परिवार, खाना र दैनिक कार्यस्थल संवादहरू समेटिएको आधिकारिक स्मार्ट इन्टरएक्टिभ अडियो बुक।',
+        pdfUrl: 'chapters/Book-1_Chapter-01_Lesson-01.html',
+        chapterPdfs: book1Pdfs,
+        chapterTitles: const {
+          '1': '안녕하세요 (नमस्कार)',
+          '2': '여기가 사무실이에요 (यहाँ कार्यालय हो)',
+          '3': '한국어 표준교재 (कोरियन भाषा पाठ्यपुस्तक)',
+          '4': '한글 익히기 I (हन्गुल सिकाइ १)',
+          '5': '한글 익히기 II (हन्गुल सिकाइ २)',
+          '6': '저는 투안입니다 (म थुवान हुँ)',
+          '7': '여기가 사무실이에요 (यो कार्यालय हो)',
+          '8': '12시 30분에 점심을 먹어요 (१२:३० मा खाना खान्छु)',
+          '9': '가족이 몇 명이에요? (परिवारमा कति जना हुनुहुन्छ?)',
+          '10': '어제 도서관에서 한국어를 공부했어요 (हिजो पुस्तकालयमा भाषा पढें)',
+          '11': '사과 다섯 개 주세요 (स्याउ पाँचवटा दिनुहोस्)',
+          '12': '병원 옆에 약국이 있어요 (अस्पताल छेउमा फार्मेसी छ)',
+          '13': '시청 앞에서 7시에 만나요 (नगरपालिका अगाडि भेटौं)',
+          '14': '저는 비빔밥을 먹을래요 (म बिबिमबाप खान्छु)',
+          '15': '날씨가 맑아서 기분이 좋아요 (मौसम सफा भएर खुसी लाग्यो)',
+          '16': '시간이 있을 때 주로 운동을 해요 (फुर्सदमा व्यायाम गर्छु)',
+          '17': '휴가 때 제주도에 다녀올 거예요 (बिदामा जेजुदो जान्छु)',
+          '18': '버스나 지하철을 타고 가요 (बस वा सबवे चढेर जानुहोस्)',
+          '19': '거기 한국가구지요? (त्यहाँ कोरियन फर्निचर हो?)',
+          '20': '저는 설거지를 할게요 (म भाँडा माझ्नेछु)',
+          '21': '상 차리는 것을 도와줄까요? (टेबल मिलाउन मद्दत गरूँ?)',
+          '22': '무단횡단을 하면 안 돼요 (जथाभावी बाटो काट्नु हुँदैन)',
+          '23': '어르신께는 두 손으로 물건을 드려야 해요 (दुई हातले दिनुहोस्)',
+          '24': '한국 영화를 보면서 공부해요 (चलचित्र हेर्दै अध्ययन गर्छु)',
+          '25': '일요일마다 교회에 가요 (हरेक आइतबार चर्च जान्छु)',
+          '26': '밥을 먹은 후에 이 약을 드세요 (खाना खाएपछि औषधि खानुहोस्)',
+          '27': '어디가 아프십니까? (कहाँ दुख्यो?)',
+          '28': '통장을 만들려고 왔어요 (बैंक खाता खोल्न आएको)',
+          '29': '필리핀으로 엽서를 보내고 싶은데요 (पोस्टकार्ड पठाउन चाहन्छु)',
+          '30': '거기서 한국어 교육을 받을 수 있어요? (तालिम लिन सकिन्छ?)',
+        },
+        highlightTopics: const [
+          '제1과~5과: 한글 익히기 (वर्णमाला र उच्चारण)',
+          '제6과~10과: 자기소개 및 일상생활 (आत्मपरिचय र दिनचर्या)',
+          '제11과~15과: 물건 사기 एवं मौसम (किनमेल र मौसम)',
+          '제16과~20과: 취미 및 교통 (रुचि र यातायात)',
+          '제21과~30과: 약속, 전화 एवं 병원 (भेटघाट र स्वास्थ्य)',
+        ],
+        isApprovedBySuperAdmin: true,
+        isPublished: true,
+        addedByRole: 'super_admin',
+        addedByName: 'Super Admin Master',
+        interactiveType: 'studio_html',
+        createdAt: DateTime(2024, 1, 1),
+      ),
+      StudyBook(
+        id: 'book_new_02',
+        title: 'EPS-TOPIK कोरियन भाषा पाठ्यपुस्तक २ (2024 नयाँ संस्करण)',
+        subtitle: 'कार्यस्थल भाषा, सुरक्षा, श्रम कानुन तथा संस्कृति (अध्याय ३१ देखि ६०)',
+        editionType: 'नयाँ संस्करण (New 2024)',
+        level: 'Book 2',
+        chaptersCount: 30,
+        description: 'कारखाना औजार, कार्यस्थल सुरक्षा, औद्योगिक दुर्घटना रोकथाम, कृषि र निर्माण शब्दावली, कोरियाली संस्कृति, श्रम सम्झौता, तलब र बिमा सम्बन्धी आधिकारिक स्मार्ट इन्टरएक्टिभ अडियो बुक।',
+        pdfUrl: 'chapters/Book-2_Chapter-31_Lesson-31.html',
+        chapterPdfs: book2Pdfs,
+        chapterTitles: const {
+          '31': '우리 고향은 서울보다 공기가 맑아요 (हाम्रो गाउँको हावा सफा छ)',
+          '32': '복날에는 삼계탕을 먹어요 (बोकनालमा सामग्येथाङ खाइन्छ)',
+          '33': '송편을 만드는 체험도 할 수 있어요 (सोङफ्योन बनाउन सकिन्छ)',
+          '34': '아기 옷을 선물하는 게 어때요? (बच्चाको कपडा उपहार दिने कि?)',
+          '35': '한국 드라마가 재미있잖아요 (कोरियन नाटक रमाइलो हुन्छ)',
+          '36': '단정한 모습이 좋아 보여요 (सफा चिटिक्क देखिनु राम्रो)',
+          '37': '출입문을 꼭 닫읍시다 (ढोका अनिवार्य रूपमा बन्द गरौं)',
+          '38': '일할 맛이 나요 (काम गर्ने जाँगर चल्छ)',
+          '39': '오늘 회식을 하자고 해요 (आज कम्पनी डिनर गर्ने भन्छन्)',
+          '40': '불쾌감을 느꼈다면 그건 성희롱이에요 (यौन दुर्व्यवहार)',
+          '41': '드라이버로 해 보세요 (स्क्रू ड्राइभरले गरेर हेर्नुहोस्)',
+          '42': '이 기계 어떻게 작동하는지 알아요? (मेसिन सञ्चालन विधि)',
+          '43': '철근을 옮겨 놓으세요 (रड सारेर राख्नुहोस्)',
+          '44': '페인트 작업을 했거든요 (पेन्टिङको काम गरें)',
+          '45': '호미를 챙겼는데요 (कोदालो तयार पारें)',
+          '46': '더 신경 쓰도록 하자 (थप ध्यान दिऊँ)',
+          '47': '재고를 파악하는 것이 중요해요 (स्टक जाँच महत्त्वपूर्ण)',
+          '48': '다치지 않게 조심하세요 (सुरक्षा सतर्कता)',
+          '49': '안전화를 안 신으면 다칠 수 있어요 (सुरक्षा जुत्ता लगाउनुहोस्)',
+          '50': '열심히 해 준 덕분이에요 (मिहिनेतको प्रतिफल)',
+          '51': '한국에 가서 일을 하고 싶어요 (कोरिया गएर काम गर्न चाहन्छु)',
+          '52': '근로 조건이 좋은 편이에요 (राम्रो श्रम सर्तहरू)',
+          '53': '외국인 등록을 하러 가요 (विदेशी दर्ता गर्न जाँदैछु)',
+          '54': '보험금을 신청하려고 해요 (बिमा रकम दाबी गर्न चाहन्छु)',
+          '55': '급여 명세서를 확인해 보세요 (तलब विवरण पत्र हेर्नुहोस्)',
+          '56': '이번 여름휴가 계획은 세웠어? (गर्मी बिदाको योजना)',
+          '57': '사업장을 변경하고 싶은데 (कम्पनी परिवर्तन गर्न चाहन्छु)',
+          '58': '체류 기간을 연장해야 해요 (भिसा अवधि थप गर्नुपर्छ)',
+          '59': '산업 안전 교육을 받았어요 (औद्योगिक सुरक्षा तालिम)',
+          '60': '귀국 준비는 잘 되고 있어요? (स्वदेश फिर्ताको तयारी)',
+        },
+        highlightTopics: const [
+          '제31과~40과: 한국 문화 एवं 직장 예절 (संस्कृति र कार्यस्थल मर्यादा)',
+          '제41과~50과: 제조업 도구 एवं 안전 수칙 (उत्पादन औजार र सुरक्षा)',
+          '제51과~55과: 고용허가제 एवं 근로계약 (श्रम कानुन र सम्झौता)',
+          '제56과~60과: 휴가, 체류 연장 एवं 귀국 (बिदा, भिसा थप र स्वदेश फिर्ता)',
+        ],
+        isApprovedBySuperAdmin: true,
+        isPublished: true,
+        addedByRole: 'super_admin',
+        addedByName: 'Super Admin Master',
+        interactiveType: 'studio_html',
+        createdAt: DateTime(2024, 1, 1),
+      ),
+    ];
   }
 
   // -------------------------------------------------------------

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/services/language_service.dart';
+import '../../core/services/auth_service.dart';
 import '../../core/models/study_material_model.dart';
 import '../../core/services/study_material_service.dart';
 import '../../core/services/cloud_sync_service.dart';
@@ -169,7 +170,13 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
   // TAB 1: UNLIMITED BOOKS (नयाँ तथा पुराना असीमित किताबहरू)
   // -------------------------------------------------------------
   Widget _buildBooksTab() {
-    final allBooks = StudyMaterialService.instance.getAllBooks();
+    final isSuper = AuthService.instance.isSuperAdmin;
+    final isAdmin = AuthService.instance.isAdmin;
+    final allBooks = StudyMaterialService.instance.getBooksForRole(
+      isSuperAdmin: isSuper,
+      isAdmin: isAdmin,
+      instituteCode: AuthService.instance.currentUser?.instituteId,
+    );
     final lang = LanguageService.instance;
     final editions = [
       {'key': 'all', 'label': lang.tr('all')},
@@ -186,25 +193,47 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           color: Colors.white,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: editions.map((ed) {
-                final isSel = _selectedBookEdition == ed['key'];
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text(ed['label']!, style: TextStyle(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
-                    selected: isSel,
-                    selectedColor: const Color(0xFF1E3A8A),
-                    backgroundColor: Colors.grey.shade100,
-                    onSelected: (_) => setState(() => _selectedBookEdition = ed['key']!),
+          child: Row(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: editions.map((ed) {
+                      final isSel = _selectedBookEdition == ed['key'];
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          label: Text(ed['label']!, style: TextStyle(fontSize: 12, fontWeight: isSel ? FontWeight.bold : FontWeight.normal, color: isSel ? Colors.white : Colors.black87)),
+                          selected: isSel,
+                          selectedColor: const Color(0xFF1E3A8A),
+                          backgroundColor: Colors.grey.shade100,
+                          onSelected: (_) => setState(() => _selectedBookEdition = ed['key']!),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-            ),
+                ),
+              ),
+              if (isAdmin || isSuper)
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1E3A8A),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                  onPressed: _openAddBookDialog,
+                  icon: const Icon(Icons.add_circle, size: 16),
+                  label: Text(
+                    isSuper
+                        ? LanguageService.instance.trText(ne: '➕ पुस्तक थप्नुहोस् (Super Admin)', en: '➕ Add Book', ko: '➕ 교재 추가')
+                        : LanguageService.instance.trText(ne: '➕ पुस्तक प्रस्ताव (Draft)', en: '➕ Propose Book', ko: '➕ 교재 제안'),
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                  ),
+                ),
+            ],
           ),
         ),
         Expanded(
@@ -237,9 +266,11 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
     );
   }
 
-
   Widget _buildBookCard(StudyBook b) {
     final isNew = b.editionType.contains('नयाँ');
+    final isSuper = AuthService.instance.isSuperAdmin;
+    final isStudio = b.interactiveType == 'studio_html' || b.id.startsWith('book_new_');
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -248,6 +279,51 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Approval status ribbon if not approved
+            if (!b.isApprovedBySuperAdmin)
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: Colors.amber.shade400),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.hourglass_top_rounded, size: 16, color: Color(0xFFB45309)),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        LanguageService.instance.trText(
+                          ne: '⏳ Super Admin को Approval को पर्खाइमा छ (Approval Pending)',
+                          en: '⏳ Pending Super Admin Approval',
+                          ko: '⏳ 최고관리자 승인 대기 중',
+                        ),
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
+                      ),
+                    ),
+                    if (isSuper)
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1E3A8A),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          minimumSize: const Size(50, 26),
+                        ),
+                        onPressed: () {
+                          StudyMaterialService.instance.approveBook(b.id);
+                          setState(() {});
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('✅ पुस्तक स्वीकृत गरियो (Approved & Published)'), backgroundColor: Colors.green),
+                          );
+                        },
+                        child: const Text('Approve', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                  ],
+                ),
+              ),
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -260,14 +336,16 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                     boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
                   ),
                   alignment: Alignment.center,
-                  child: const Icon(Icons.menu_book, color: Colors.white, size: 28),
+                  child: Icon(isStudio ? Icons.auto_stories : Icons.menu_book, color: Colors.white, size: 28),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -281,7 +359,26 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                               style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: isNew ? Colors.blue.shade900 : Colors.amber.shade900),
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          if (isStudio)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E3A8A).withOpacity(0.08),
+                                borderRadius: BorderRadius.circular(4),
+                                border: Border.all(color: const Color(0xFF1E3A8A)),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.headphones, size: 11, color: Color(0xFF1E3A8A)),
+                                  SizedBox(width: 3),
+                                  Text(
+                                    '✨ Smart Interactive Studio',
+                                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF1E3A8A)),
+                                  ),
+                                ],
+                              ),
+                            ),
                           Text(LanguageService.instance.trText(ne: '${b.chaptersCount} वटा अध्याय', en: '${b.chaptersCount} Chapters', ko: '${b.chaptersCount}개 과'), style: const TextStyle(fontSize: 11, color: Colors.black54)),
                         ],
                       ),
@@ -334,7 +431,7 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                             MaterialPageRoute(builder: (context) => BookReaderScreen(book: b)),
                           );
                         },
-                        icon: const Icon(Icons.chrome_reader_mode, size: 18),
+                        icon: Icon(isStudio ? Icons.auto_stories : Icons.chrome_reader_mode, size: 18),
                         label: Text(LanguageService.instance.trText(ne: 'अडियोसहित पुस्तक खोल्नुहोस्', en: 'Open Book with Audio', ko: '오디오 포함 교재 열기')),
                       ),
                     ),
@@ -364,6 +461,124 @@ class _StudentStudyHubScreenState extends State<StudentStudyHubScreen> with Sing
                   ],
                 );
               },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openAddBookDialog() {
+    final isSuper = AuthService.instance.isSuperAdmin;
+    final titleCtrl = TextEditingController();
+    final subtitleCtrl = TextEditingController();
+    final chapCtrl = TextEditingController(text: '30');
+    final descCtrl = TextEditingController();
+    String editionType = 'नयाँ संस्करण (New 2024)';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.add_circle, color: Color(0xFF1E3A8A)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  isSuper ? '➕ नयाँ पुस्तक थप्नुहोस् (Super Admin)' : '➕ नयाँ पुस्तक प्रस्ताव गर्नुहोस् (Draft)',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!isSuper)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: Colors.amber.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.amber.shade300)),
+                    child: const Text(
+                      '📌 तपाईंले थपेको पुस्तक Super Admin ले परीक्षण गरी Approve गरेपछि मात्र सबै विद्यार्थीहरूको लागि सार्वजनिक हुनेछ।',
+                      style: TextStyle(fontSize: 11, color: Color(0xFFB45309)),
+                    ),
+                  ),
+                TextField(
+                  controller: titleCtrl,
+                  decoration: const InputDecoration(labelText: 'किताबको नाम / शीर्षक*', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: subtitleCtrl,
+                  decoration: const InputDecoration(labelText: 'उपशीर्षक / विवरण', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
+                  value: editionType,
+                  decoration: const InputDecoration(labelText: 'संस्करण (Edition)', border: OutlineInputBorder()),
+                  items: const [
+                    DropdownMenuItem(value: 'नयाँ संस्करण (New 2024)', child: Text('नयाँ संस्करण (New 2024)')),
+                    DropdownMenuItem(value: 'पुरानो संस्करण (Old 2013)', child: Text('पुरानो संस्करण (Old 2013)')),
+                    DropdownMenuItem(value: 'विशेष गाइड', child: Text('विशेष गाइड')),
+                  ],
+                  onChanged: (v) => setDialogState(() => editionType = v!),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: chapCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'जम्मा अध्याय संख्या', border: OutlineInputBorder()),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: descCtrl,
+                  maxLines: 2,
+                  decoration: const InputDecoration(labelText: 'विवरण', border: OutlineInputBorder()),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('रद्द गर्नुहोस्')),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E3A8A), foregroundColor: Colors.white),
+              onPressed: () {
+                final title = titleCtrl.text.trim();
+                if (title.isEmpty) return;
+
+                final newBook = StudyBook(
+                  id: 'book_${DateTime.now().millisecondsSinceEpoch}',
+                  title: title,
+                  subtitle: subtitleCtrl.text.trim(),
+                  editionType: editionType,
+                  level: 'Custom',
+                  chaptersCount: int.tryParse(chapCtrl.text.trim()) ?? 30,
+                  description: descCtrl.text.trim(),
+                  highlightTopics: const [],
+                  isApprovedBySuperAdmin: isSuper ? true : false,
+                  isPublished: isSuper ? true : false,
+                  addedByRole: isSuper ? 'super_admin' : 'institute_admin',
+                  addedByName: isSuper
+                      ? 'Super Admin Master'
+                      : (AuthService.instance.currentUser?.instituteName ?? 'Institute Admin'),
+                  createdAt: DateTime.now(),
+                );
+
+                StudyMaterialService.instance.addBook(newBook);
+                Navigator.pop(ctx);
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(isSuper ? '✅ नयाँ पुस्तक सफलतापूर्वक थपियो!' : '✅ पुस्तक ड्राफ्टको रूपमा थपियो (Super Admin Approval को पर्खाइमा)'),
+                    backgroundColor: Colors.green.shade700,
+                  ),
+                );
+              },
+              child: Text(isSuper ? 'सुरक्षित गर्नुहोस्' : 'प्रस्ताव पेश गर्नुहोस्'),
             ),
           ],
         ),

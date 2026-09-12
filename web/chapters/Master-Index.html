@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>EPS Topik - Offline Master Index</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117;
+      color: #f1f3f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: #181b23;
+      border-bottom: 2px solid #2b303c;
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+    .title-group h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .title-group p {
+      font-size: 13px;
+      color: #8c95a5;
+      margin-top: 3px;
+    }
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 380px;
+      min-width: 240px;
+    }
+    .search-box input {
+      width: 100%;
+      background: #232733;
+      border: 2px solid #363d4e;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 15px;
+      color: #ffffff;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .search-box input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.2);
+    }
+
+    .tabs-nav {
+      max-width: 1400px;
+      width: 100%;
+      margin: 16px auto 0;
+      padding: 0 16px;
+      display: flex;
+      gap: 12px;
+    }
+    .tab-btn {
+      background: #1f2430;
+      color: #9ba3b2;
+      border: 1px solid #333a4d;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #38bdf8;
+      box-shadow: 0 4px 12px rgba(2,132,199,0.3);
+    }
+
+    main {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 16px;
+      flex: 1;
+    }
+    .tab-content {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .tab-content.active {
+      display: grid;
+    }
+    .card {
+      background: #181b24;
+      border: 1px solid #282f3d;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      transition: all 0.2s;
+    }
+    .card:hover {
+      border-color: #38bdf8;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .card-header h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f1f5f9;
+      line-height: 1.4;
+    }
+    .badge {
+      background: #0f2c44;
+      color: #38bdf8;
+      border: 1px solid #1e4976;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: #0284c7;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn-primary:active {
+      transform: scale(0.98);
+      background: #0369a1;
+    }
+
+    /* IN-PAGE FULLSCREEN VIEWER MODAL */
+    #viewer-modal {
+      position: fixed;
+      inset: 0;
+      background: #0f1117;
+      z-index: 999999;
+      display: none;
+      flex-direction: column;
+    }
+    #viewer-header {
+      height: 48px;
+      background: #18191c;
+      border-bottom: 1px solid #282a2e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+    #viewer-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 65%;
+    }
+    .btn-close-viewer {
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #viewer-iframe {
+      width: 100%;
+      height: calc(100% - 48px);
+      border: none;
+      background: #202124;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="title-group">
+        <h1>📚 Smart Board Korean Studio</h1>
+        <p>100% Offline Master Index - All Chapters in One Place</p>
+      </div>
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="Search Lesson (e.g., 15, Preliminary)..." oninput="filterCards()">
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs-nav">
+    <button class="tab-btn active" id="tab-b1" onclick="switchTab('b1')">📘 Book 1 (Lessons 1-30)</button>
+    <button class="tab-btn" id="tab-b2" onclick="switchTab('b2')">📙 Book 2 (Lessons 31-60)</button>
+  </div>
+
+  <main>
+    <div id="content-b1" class="tab-content active">
+      <div class="card" data-title="preliminary (हंगुल वर्णमाला) 00-preliminary" data-file="Book-1_Chapter-00_Preliminary_Hangul.html">
+        <div class="card-header">
+          <h3>Preliminary (हंगुल वर्णमाला)</h3>
+          <span class="badge">🎧 26 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-00_Preliminary_Hangul.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-00_Preliminary_Hangul.html', 'Preliminary (हंगुल वर्णमाला)')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 01 chapter-01" data-file="Book-1_Chapter-01_Lesson-01.html">
+        <div class="card-header">
+          <h3>Lesson 01</h3>
+          <span class="badge">🎧 6 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-01_Lesson-01.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-01_Lesson-01.html', 'Lesson 01')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 02 chapter-02" data-file="Book-1_Chapter-02_Lesson-02.html">
+        <div class="card-header">
+          <h3>Lesson 02</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-02_Lesson-02.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-02_Lesson-02.html', 'Lesson 02')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 03 chapter-03" data-file="Book-1_Chapter-03_Lesson-03.html">
+        <div class="card-header">
+          <h3>Lesson 03</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-03_Lesson-03.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-03_Lesson-03.html', 'Lesson 03')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 04 chapter-04" data-file="Book-1_Chapter-04_Lesson-04.html">
+        <div class="card-header">
+          <h3>Lesson 04</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-04_Lesson-04.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-04_Lesson-04.html', 'Lesson 04')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 05 chapter-05" data-file="Book-1_Chapter-05_Lesson-05.html">
+        <div class="card-header">
+          <h3>Lesson 05</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-05_Lesson-05.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-05_Lesson-05.html', 'Lesson 05')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 06 chapter-06" data-file="Book-1_Chapter-06_Lesson-06.html">
+        <div class="card-header">
+          <h3>Lesson 06</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-06_Lesson-06.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-06_Lesson-06.html', 'Lesson 06')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 07 chapter-07" data-file="Book-1_Chapter-07_Lesson-07.html">
+        <div class="card-header">
+          <h3>Lesson 07</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-07_Lesson-07.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-07_Lesson-07.html', 'Lesson 07')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 08 chapter-08" data-file="Book-1_Chapter-08_Lesson-08.html">
+        <div class="card-header">
+          <h3>Lesson 08</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-08_Lesson-08.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-08_Lesson-08.html', 'Lesson 08')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 09 chapter-09" data-file="Book-1_Chapter-09_Lesson-09.html">
+        <div class="card-header">
+          <h3>Lesson 09</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-09_Lesson-09.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-09_Lesson-09.html', 'Lesson 09')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 10 chapter-10" data-file="Book-1_Chapter-10_Lesson-10.html">
+        <div class="card-header">
+          <h3>Lesson 10</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-10_Lesson-10.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-10_Lesson-10.html', 'Lesson 10')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 11 chapter-11" data-file="Book-1_Chapter-11_Lesson-11.html">
+        <div class="card-header">
+          <h3>Lesson 11</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-11_Lesson-11.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-11_Lesson-11.html', 'Lesson 11')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 12 chapter-12" data-file="Book-1_Chapter-12_Lesson-12.html">
+        <div class="card-header">
+          <h3>Lesson 12</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-12_Lesson-12.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-12_Lesson-12.html', 'Lesson 12')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 13 chapter-13" data-file="Book-1_Chapter-13_Lesson-13.html">
+        <div class="card-header">
+          <h3>Lesson 13</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-13_Lesson-13.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-13_Lesson-13.html', 'Lesson 13')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 14 chapter-14" data-file="Book-1_Chapter-14_Lesson-14.html">
+        <div class="card-header">
+          <h3>Lesson 14</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-14_Lesson-14.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-14_Lesson-14.html', 'Lesson 14')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 15 chapter-15" data-file="Book-1_Chapter-15_Lesson-15.html">
+        <div class="card-header">
+          <h3>Lesson 15</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-15_Lesson-15.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-15_Lesson-15.html', 'Lesson 15')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 16 chapter-16" data-file="Book-1_Chapter-16_Lesson-16.html">
+        <div class="card-header">
+          <h3>Lesson 16</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-16_Lesson-16.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-16_Lesson-16.html', 'Lesson 16')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 17 chapter-17" data-file="Book-1_Chapter-17_Lesson-17.html">
+        <div class="card-header">
+          <h3>Lesson 17</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-17_Lesson-17.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-17_Lesson-17.html', 'Lesson 17')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 18 chapter-18" data-file="Book-1_Chapter-18_Lesson-18.html">
+        <div class="card-header">
+          <h3>Lesson 18</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-18_Lesson-18.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-18_Lesson-18.html', 'Lesson 18')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 19 chapter-19" data-file="Book-1_Chapter-19_Lesson-19.html">
+        <div class="card-header">
+          <h3>Lesson 19</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-19_Lesson-19.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-19_Lesson-19.html', 'Lesson 19')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 20 chapter-20" data-file="Book-1_Chapter-20_Lesson-20.html">
+        <div class="card-header">
+          <h3>Lesson 20</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-20_Lesson-20.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-20_Lesson-20.html', 'Lesson 20')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 21 chapter-21" data-file="Book-1_Chapter-21_Lesson-21.html">
+        <div class="card-header">
+          <h3>Lesson 21</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-21_Lesson-21.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-21_Lesson-21.html', 'Lesson 21')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 22 chapter-22" data-file="Book-1_Chapter-22_Lesson-22.html">
+        <div class="card-header">
+          <h3>Lesson 22</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-22_Lesson-22.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-22_Lesson-22.html', 'Lesson 22')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 23 chapter-23" data-file="Book-1_Chapter-23_Lesson-23.html">
+        <div class="card-header">
+          <h3>Lesson 23</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-23_Lesson-23.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-23_Lesson-23.html', 'Lesson 23')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 24 chapter-24" data-file="Book-1_Chapter-24_Lesson-24.html">
+        <div class="card-header">
+          <h3>Lesson 24</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-24_Lesson-24.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-24_Lesson-24.html', 'Lesson 24')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 25 chapter-25" data-file="Book-1_Chapter-25_Lesson-25.html">
+        <div class="card-header">
+          <h3>Lesson 25</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-25_Lesson-25.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-25_Lesson-25.html', 'Lesson 25')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 26 chapter-26" data-file="Book-1_Chapter-26_Lesson-26.html">
+        <div class="card-header">
+          <h3>Lesson 26</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-26_Lesson-26.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-26_Lesson-26.html', 'Lesson 26')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 27 chapter-27" data-file="Book-1_Chapter-27_Lesson-27.html">
+        <div class="card-header">
+          <h3>Lesson 27</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-27_Lesson-27.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-27_Lesson-27.html', 'Lesson 27')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 28 chapter-28" data-file="Book-1_Chapter-28_Lesson-28.html">
+        <div class="card-header">
+          <h3>Lesson 28</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-28_Lesson-28.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-28_Lesson-28.html', 'Lesson 28')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 29 chapter-29" data-file="Book-1_Chapter-29_Lesson-29.html">
+        <div class="card-header">
+          <h3>Lesson 29</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-29_Lesson-29.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-29_Lesson-29.html', 'Lesson 29')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 30 chapter-30" data-file="Book-1_Chapter-30_Lesson-30.html">
+        <div class="card-header">
+          <h3>Lesson 30</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-1_Chapter-30_Lesson-30.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-1_Chapter-30_Lesson-30.html', 'Lesson 30')">▶ Start Interactive</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="content-b2" class="tab-content">
+      <div class="card" data-title="preliminary (book 2) 00-preliminary" data-file="Book-2_Chapter-00_Preliminary.html">
+        <div class="card-header">
+          <h3>Preliminary (Book 2)</h3>
+          <span class="badge">🎧 0 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-00_Preliminary.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-00_Preliminary.html', 'Preliminary (Book 2)')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 31 chapter-31" data-file="Book-2_Chapter-31_Lesson-31.html">
+        <div class="card-header">
+          <h3>Lesson 31</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-31_Lesson-31.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-31_Lesson-31.html', 'Lesson 31')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 32 chapter-32" data-file="Book-2_Chapter-32_Lesson-32.html">
+        <div class="card-header">
+          <h3>Lesson 32</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-32_Lesson-32.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-32_Lesson-32.html', 'Lesson 32')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 33 chapter-33" data-file="Book-2_Chapter-33_Lesson-33.html">
+        <div class="card-header">
+          <h3>Lesson 33</h3>
+          <span class="badge">🎧 6 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-33_Lesson-33.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-33_Lesson-33.html', 'Lesson 33')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 34 chapter-34" data-file="Book-2_Chapter-34_Lesson-34.html">
+        <div class="card-header">
+          <h3>Lesson 34</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-34_Lesson-34.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-34_Lesson-34.html', 'Lesson 34')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 35 chapter-35" data-file="Book-2_Chapter-35_Lesson-35.html">
+        <div class="card-header">
+          <h3>Lesson 35</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-35_Lesson-35.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-35_Lesson-35.html', 'Lesson 35')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 36 chapter-36" data-file="Book-2_Chapter-36_Lesson-36.html">
+        <div class="card-header">
+          <h3>Lesson 36</h3>
+          <span class="badge">🎧 3 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-36_Lesson-36.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-36_Lesson-36.html', 'Lesson 36')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 37 chapter-37" data-file="Book-2_Chapter-37_Lesson-37.html">
+        <div class="card-header">
+          <h3>Lesson 37</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-37_Lesson-37.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-37_Lesson-37.html', 'Lesson 37')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 38 chapter-38" data-file="Book-2_Chapter-38_Lesson-38.html">
+        <div class="card-header">
+          <h3>Lesson 38</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-38_Lesson-38.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-38_Lesson-38.html', 'Lesson 38')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 39 chapter-39" data-file="Book-2_Chapter-39_Lesson-39.html">
+        <div class="card-header">
+          <h3>Lesson 39</h3>
+          <span class="badge">🎧 3 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-39_Lesson-39.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-39_Lesson-39.html', 'Lesson 39')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 40 chapter-40" data-file="Book-2_Chapter-40_Lesson-40.html">
+        <div class="card-header">
+          <h3>Lesson 40</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-40_Lesson-40.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-40_Lesson-40.html', 'Lesson 40')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 41 chapter-41" data-file="Book-2_Chapter-41_Lesson-41.html">
+        <div class="card-header">
+          <h3>Lesson 41</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-41_Lesson-41.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-41_Lesson-41.html', 'Lesson 41')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 42 chapter-42" data-file="Book-2_Chapter-42_Lesson-42.html">
+        <div class="card-header">
+          <h3>Lesson 42</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-42_Lesson-42.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-42_Lesson-42.html', 'Lesson 42')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 43 chapter-43" data-file="Book-2_Chapter-43_Lesson-43.html">
+        <div class="card-header">
+          <h3>Lesson 43</h3>
+          <span class="badge">🎧 3 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-43_Lesson-43.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-43_Lesson-43.html', 'Lesson 43')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 44 chapter-44" data-file="Book-2_Chapter-44_Lesson-44.html">
+        <div class="card-header">
+          <h3>Lesson 44</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-44_Lesson-44.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-44_Lesson-44.html', 'Lesson 44')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 45 chapter-45" data-file="Book-2_Chapter-45_Lesson-45.html">
+        <div class="card-header">
+          <h3>Lesson 45</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-45_Lesson-45.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-45_Lesson-45.html', 'Lesson 45')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 46 chapter-46" data-file="Book-2_Chapter-46_Lesson-46.html">
+        <div class="card-header">
+          <h3>Lesson 46</h3>
+          <span class="badge">🎧 3 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-46_Lesson-46.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-46_Lesson-46.html', 'Lesson 46')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 47 chapter-47" data-file="Book-2_Chapter-47_Lesson-47.html">
+        <div class="card-header">
+          <h3>Lesson 47</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-47_Lesson-47.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-47_Lesson-47.html', 'Lesson 47')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 48 chapter-48" data-file="Book-2_Chapter-48_Lesson-48.html">
+        <div class="card-header">
+          <h3>Lesson 48</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-48_Lesson-48.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-48_Lesson-48.html', 'Lesson 48')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 49 chapter-49" data-file="Book-2_Chapter-49_Lesson-49.html">
+        <div class="card-header">
+          <h3>Lesson 49</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-49_Lesson-49.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-49_Lesson-49.html', 'Lesson 49')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 50 chapter-50" data-file="Book-2_Chapter-50_Lesson-50.html">
+        <div class="card-header">
+          <h3>Lesson 50</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-50_Lesson-50.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-50_Lesson-50.html', 'Lesson 50')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 51 chapter-51" data-file="Book-2_Chapter-51_Lesson-51.html">
+        <div class="card-header">
+          <h3>Lesson 51</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-51_Lesson-51.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-51_Lesson-51.html', 'Lesson 51')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 52 chapter-52" data-file="Book-2_Chapter-52_Lesson-52.html">
+        <div class="card-header">
+          <h3>Lesson 52</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-52_Lesson-52.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-52_Lesson-52.html', 'Lesson 52')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 53 chapter-53" data-file="Book-2_Chapter-53_Lesson-53.html">
+        <div class="card-header">
+          <h3>Lesson 53</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-53_Lesson-53.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-53_Lesson-53.html', 'Lesson 53')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 54 chapter-54" data-file="Book-2_Chapter-54_Lesson-54.html">
+        <div class="card-header">
+          <h3>Lesson 54</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-54_Lesson-54.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-54_Lesson-54.html', 'Lesson 54')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 55 chapter-55" data-file="Book-2_Chapter-55_Lesson-55.html">
+        <div class="card-header">
+          <h3>Lesson 55</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-55_Lesson-55.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-55_Lesson-55.html', 'Lesson 55')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 56 chapter-56" data-file="Book-2_Chapter-56_Lesson-56.html">
+        <div class="card-header">
+          <h3>Lesson 56</h3>
+          <span class="badge">🎧 3 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-56_Lesson-56.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-56_Lesson-56.html', 'Lesson 56')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 57 chapter-57" data-file="Book-2_Chapter-57_Lesson-57.html">
+        <div class="card-header">
+          <h3>Lesson 57</h3>
+          <span class="badge">🎧 4 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-57_Lesson-57.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-57_Lesson-57.html', 'Lesson 57')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 58 chapter-58" data-file="Book-2_Chapter-58_Lesson-58.html">
+        <div class="card-header">
+          <h3>Lesson 58</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-58_Lesson-58.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-58_Lesson-58.html', 'Lesson 58')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 59 chapter-59" data-file="Book-2_Chapter-59_Lesson-59.html">
+        <div class="card-header">
+          <h3>Lesson 59</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-59_Lesson-59.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-59_Lesson-59.html', 'Lesson 59')">▶ Start Interactive</a>
+        </div>
+      </div>
+      <div class="card" data-title="lesson 60 chapter-60" data-file="Book-2_Chapter-60_Lesson-60.html">
+        <div class="card-header">
+          <h3>Lesson 60</h3>
+          <span class="badge">🎧 5 Tracks</span>
+        </div>
+        <div class="card-actions">
+          <a href="Book-2_Chapter-60_Lesson-60.html" class="btn btn-primary" onclick="handleChapterClick(event, 'Book-2_Chapter-60_Lesson-60.html', 'Lesson 60')">▶ Start Interactive</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- In-Page Fullscreen Player Modal -->
+  <div id="viewer-modal">
+    <div id="viewer-header">
+      <div id="viewer-title">Lesson Player</div>
+      <button class="btn-close-viewer" onclick="closeViewer()">✕ Back to Hub</button>
+    </div>
+    <iframe id="viewer-iframe" allow="autoplay"></iframe>
+  </div>
+
+  <input type="file" id="chapter-file-picker" style="display:none;" onchange="onChapterFilePicked(this)">
+
+  <script>
+    let currentTab = 'b1';
+    let pendingChapter = null;
+
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.getElementById('tab-b1').classList.toggle('active', tabId === 'b1');
+      document.getElementById('tab-b2').classList.toggle('active', tabId === 'b2');
+      document.getElementById('content-b1').classList.toggle('active', tabId === 'b1');
+      document.getElementById('content-b2').classList.toggle('active', tabId === 'b2');
+      filterCards();
+    }
+
+    function filterCards() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      const activeContainer = document.getElementById('content-' + currentTab);
+      const cards = activeContainer.querySelectorAll('.card');
+
+      cards.forEach(card => {
+        const text = card.getAttribute('data-title') || '';
+        if (!query || text.includes(query)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function handleChapterClick(event, filename, title) {
+      // If opened on mobile Chrome from storage or normal navigation:
+      // Try opening directly. If it fails or is file protocol, open in fullscreen iframe!
+      if (window.location.protocol === 'file:' || window.location.protocol === 'content:') {
+        event.preventDefault();
+        openInIframe(filename, title);
+      }
+    }
+
+    function openInIframe(filename, title) {
+      const modal = document.getElementById('viewer-modal');
+      const iframe = document.getElementById('viewer-iframe');
+      document.getElementById('viewer-title').innerText = title;
+
+      // Set src to relative filename
+      iframe.src = filename;
+      modal.style.display = 'flex';
+
+      // Error handler if relative link is blocked by Android Chrome sandbox
+      iframe.onerror = function() {
+        promptPickFile(filename, title);
+      };
+    }
+
+    function closeViewer() {
+      const modal = document.getElementById('viewer-modal');
+      const iframe = document.getElementById('viewer-iframe');
+      modal.style.display = 'none';
+      iframe.src = 'about:blank'; // stop audio
+    }
+
+    function promptPickFile(filename, title) {
+      pendingChapter = { filename, title };
+      const picker = document.getElementById('chapter-file-picker');
+      picker.click();
+    }
+
+    function onChapterFilePicked(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const blobUrl = URL.createObjectURL(file);
+      const modal = document.getElementById('viewer-modal');
+      const iframe = document.getElementById('viewer-iframe');
+      iframe.src = blobUrl;
+      modal.style.display = 'flex';
+    }
+  </script>
+</body>
+</html>

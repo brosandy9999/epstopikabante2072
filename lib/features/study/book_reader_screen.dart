@@ -1,4 +1,5 @@
 import '../../core/widgets/universal_pdf_viewer.dart';
+import '../../core/widgets/interactive_chapter_embed_widget.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../core/models/study_material_model.dart';
@@ -12,10 +13,11 @@ import '../../core/services/auth_service.dart';
 
 /// Comprehensive Textbook & Interactive PDF Reader
 /// Features:
-/// 1. Book & Chapter Management: Add, Edit, Delete Book, Chapter Name, Chapter Number, PDF.
-/// 2. Interactive Audio Player Buttons: Add, Edit, Delete, Pin/Move audio buttons with live seekable timeline slider.
-/// 3. Uploaded PDF Viewer: Works 100% across Web & Mobile with native Blob viewer, image viewer, and digital reader fallback.
+/// 1. Interactive Studio Player: Inline page audio buttons, print-style popup, smooth zoom and timeline.
+/// 2. Book & Chapter Management: Super Admin approval pipeline for Institute Admin uploads.
+/// 3. Uploaded PDF Viewer & Canvas Editor.
 enum BookReaderTab {
+  studio,
   canvas,
   fullPdf,
   structured,
@@ -34,7 +36,7 @@ class BookReaderScreen extends StatefulWidget {
 class _BookReaderScreenState extends State<BookReaderScreen> {
   late StudyBook _currentBook;
   int _selectedChapter = 1;
-  BookReaderTab _activeTab = BookReaderTab.canvas;
+  BookReaderTab _activeTab = BookReaderTab.studio;
   bool _isPinningMode = false; // Mode to tap and place audio buttons directly on headphone icons
   bool _showAudioPinsOnPdf = false; // Toggle to prevent audio buttons from overlaying on top of PDF text
 
@@ -45,6 +47,12 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
     super.initState();
     _currentBook = widget.book;
     _selectedChapter = widget.initialChapter.clamp(1, widget.book.chaptersCount > 0 ? widget.book.chaptersCount : 1);
+    final initialPdf = widget.book.chapterPdfs['$_selectedChapter'] ?? widget.book.pdfUrl;
+    if (widget.book.interactiveType == 'studio_html' || initialPdf.endsWith('.html')) {
+      _activeTab = BookReaderTab.studio;
+    } else {
+      _activeTab = BookReaderTab.canvas;
+    }
     _refreshBookFromService();
   }
 
@@ -63,10 +71,19 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
   }
 
   void _saveUpdatedBook(StudyBook updated) {
+    final isSuper = AuthService.instance.isSuperAdmin;
+    final finalBook = updated.copyWith(
+      isApprovedBySuperAdmin: isSuper ? true : false,
+      isPublished: isSuper ? true : false,
+      addedByRole: isSuper ? 'super_admin' : 'institute_admin',
+      addedByName: isSuper
+          ? 'Super Admin Master'
+          : (AuthService.instance.currentUser?.instituteName ?? 'Institute Admin'),
+    );
     setState(() {
-      _currentBook = updated;
+      _currentBook = finalBook;
     });
-    StudyMaterialService.instance.addBook(updated);
+    StudyMaterialService.instance.addBook(finalBook);
     CloudSyncService.instance.pushToCloud(silent: true).catchError((_) => false);
   }
 
@@ -1119,19 +1136,66 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
           bottomNavigationBar: _buildGlobalNowPlayingBar(),
           body: Column(
             children: [
+              // 0. Super Admin Approval Banner (for draft/pending books)
+              if (!_currentBook.isApprovedBySuperAdmin)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  color: const Color(0xFFD97706),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.pending_actions, color: Colors.white, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          LanguageService.instance.trText(
+                            ne: '⏳ यो पुस्तक Super Admin को Approval को पर्खाइमा छ (विद्यार्थीहरूलाई देखिँदैन)',
+                            en: '⏳ Pending Super Admin Approval (Hidden from students)',
+                            ko: '⏳ 최고관리자 승인 대기 중 (학생에게 비공개)',
+                          ),
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                        ),
+                      ),
+                      if (AuthService.instance.isSuperAdmin) ...[
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: const Color(0xFFB45309),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            minimumSize: const Size(60, 28),
+                          ),
+                          onPressed: () {
+                            StudyMaterialService.instance.approveBook(_currentBook.id);
+                            _refreshBookFromService();
+                            setState(() {});
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('✅ पुस्तक स्वीकृत तथा सार्वजनिक गरियो (Approved & Published)'), backgroundColor: Colors.green),
+                            );
+                          },
+                          child: const Text('✅ Approve & Make Public', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
               // 1. Chapter Nav & Mode Toggle Ribbon
               _buildChapterNavRibbon(),
 
               // 2. All Chapter Audio Quick Ribbon (Displays all buttons horizontally)
-              _buildAllTracksQuickRibbon(chapterTracks),
+              if (_activeTab != BookReaderTab.studio)
+                _buildAllTracksQuickRibbon(chapterTracks),
 
-              // 3. Main View: PDF Canvas with Pinning OR Full PDF Viewer OR Structured Reader View
+              // 3. Main View: Interactive Studio Viewer OR PDF Canvas OR Full PDF Viewer OR Structured Reader View
               Expanded(
-                child: _activeTab == BookReaderTab.canvas
-                    ? _buildPdfCanvasView(chapterTracks)
-                    : (_activeTab == BookReaderTab.fullPdf
-                        ? _buildPdfFullReaderView(_currentBook.chapterPdfs['$_selectedChapter'] ?? (_currentBook.pdfUrl.isNotEmpty ? _currentBook.pdfUrl : null))
-                        : _buildStructuredReaderView(chapterTracks)),
+                child: _activeTab == BookReaderTab.studio
+                    ? _buildStudioReaderView(_currentBook.chapterPdfs['$_selectedChapter'] ?? (_currentBook.pdfUrl.isNotEmpty ? _currentBook.pdfUrl : null))
+                    : (_activeTab == BookReaderTab.canvas
+                        ? _buildPdfCanvasView(chapterTracks)
+                        : (_activeTab == BookReaderTab.fullPdf
+                            ? _buildPdfFullReaderView(_currentBook.chapterPdfs['$_selectedChapter'] ?? (_currentBook.pdfUrl.isNotEmpty ? _currentBook.pdfUrl : null))
+                            : _buildStructuredReaderView(chapterTracks))),
               ),
             ],
           ),
@@ -1190,7 +1254,7 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
             ],
           ),
 
-          // View Mode Switcher: PDF Canvas vs Full PDF vs Structured
+          // View Mode Switcher: Studio vs PDF Canvas vs Full PDF vs Structured
           Row(
             children: [
               Container(
@@ -1202,8 +1266,29 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
                 child: Row(
                   children: [
                     InkWell(
-                      onTap: () => setState(() => _activeTab = BookReaderTab.canvas),
+                      onTap: () => setState(() => _activeTab = BookReaderTab.studio),
                       borderRadius: const BorderRadius.horizontal(left: Radius.circular(8)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                        color: _activeTab == BookReaderTab.studio ? const Color(0xFF1E3A8A) : Colors.transparent,
+                        child: Row(
+                          children: [
+                            Icon(Icons.auto_stories, size: 14, color: _activeTab == BookReaderTab.studio ? Colors.white : Colors.black87),
+                            const SizedBox(width: 4),
+                            Text(
+                              LanguageService.instance.trText(ne: '✨ स्टुडियो', en: '✨ Studio', ko: '✨ 스튜디오'),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: _activeTab == BookReaderTab.studio ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () => setState(() => _activeTab = BookReaderTab.canvas),
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                         color: _activeTab == BookReaderTab.canvas ? const Color(0xFF1E3A8A) : Colors.transparent,
@@ -1462,6 +1547,30 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  // -------------------------------------------------------------
+  // VIEW MODE 0: INTERACTIVE SMART STUDIO VIEWER (OFFLINE + STREAMING)
+  // -------------------------------------------------------------
+  Widget _buildStudioReaderView(String? chapterPdf) {
+    var rawUrl = (chapterPdf != null && chapterPdf.trim().isNotEmpty)
+        ? chapterPdf.trim()
+        : _currentBook.pdfUrl.trim();
+
+    if (rawUrl.isEmpty || (!rawUrl.endsWith('.html') && !rawUrl.contains('chapters/'))) {
+      final pad = _selectedChapter.toString().padLeft(2, '0');
+      if (_currentBook.id == 'book_new_02' || _selectedChapter > 30) {
+        rawUrl = 'chapters/Book-2_Chapter-${pad}_Lesson-${pad}.html';
+      } else {
+        rawUrl = 'chapters/Book-1_Chapter-${pad}_Lesson-${pad}.html';
+      }
+    }
+
+    return InteractiveChapterViewer(
+      chapterUrl: rawUrl,
+      bookId: _currentBook.id,
+      chapterNo: _selectedChapter,
     );
   }
 
