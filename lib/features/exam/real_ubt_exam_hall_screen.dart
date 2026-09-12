@@ -1041,6 +1041,7 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
             ),
           ),
         ),
+      ),
               if (_activeCheatWarning != null)
                 Positioned(
                   left: 14,
@@ -1051,8 +1052,9 @@ class _RealUbtExamHallScreenState extends State<RealUbtExamHallScreen> with Widg
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCurrentQuestion(QuestionTemplate currentQ) {
     final bool isListening = (currentQ is ListeningAudioQuestion) ||
